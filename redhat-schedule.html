@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Hat System Administration Course Schedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700;900&family=Red+Hat+Text:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rh-red: #EE0000;
+            --rh-red-dark: #A30000;
+            --rh-black: #151515;
+            --rh-gray-dark: #383838;
+            --rh-gray: #6A6E73;
+            --rh-gray-light: #D2D2D2;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-teal: #009596;
+            --rh-purple: #5E40BE;
+            --rh-gold: #F0AB00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Red Hat Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: var(--rh-white);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--rh-red);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            font-family: 'Red Hat Display', sans-serif;
+            box-shadow: 0 4px 20px rgba(238, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--rh-white) 0%, var(--rh-gray-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--rh-gray-light);
+            font-weight: 400;
+        }
+
+        .course-section {
+            margin-bottom: 60px;
+        }
+
+        .course-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, rgba(238, 0, 0, 0.15) 0%, rgba(238, 0, 0, 0.05) 100%);
+            border-left: 4px solid var(--rh-red);
+            border-radius: 0 12px 12px 0;
+        }
+
+        .course-header.rh134 {
+            background: linear-gradient(135deg, rgba(0, 149, 150, 0.15) 0%, rgba(0, 149, 150, 0.05) 100%);
+            border-left-color: var(--rh-teal);
+        }
+
+        .course-badge {
+            padding: 8px 16px;
+            background: var(--rh-red);
+            border-radius: 8px;
+            font-family: 'Red Hat Display', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(238, 0, 0, 0.3);
+        }
+
+        .course-badge.rh134 {
+            background: var(--rh-teal);
+            box-shadow: 0 4px 15px rgba(0, 149, 150, 0.3);
+        }
+
+        .course-title {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .schedule-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .week-card {
+            display: grid;
+            grid-template-columns: 100px 100px 1fr 100px 80px;
+            gap: 20px;
+            align-items: center;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .week-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+
+        .week-card.break {
+            background: rgba(240, 171, 0, 0.08);
+            border-color: rgba(240, 171, 0, 0.2);
+            opacity: 0.7;
+        }
+
+        .week-card.final {
+            background: linear-gradient(135deg, rgba(238, 0, 0, 0.1) 0%, rgba(163, 0, 0, 0.1) 100%);
+            border-color: rgba(238, 0, 0, 0.3);
+            box-shadow: 0 4px 20px rgba(238, 0, 0, 0.1);
+        }
+
+        .week-card.final.rh134 {
+            background: linear-gradient(135deg, rgba(0, 149, 150, 0.1) 0%, rgba(0, 102, 204, 0.1) 100%);
+            border-color: rgba(0, 149, 150, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 149, 150, 0.1);
+        }
+
+        .week-number {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .week-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--rh-gray);
+            margin-bottom: 4px;
+        }
+
+        .week-num {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--rh-red);
+        }
+
+        .rh134 .week-num {
+            color: var(--rh-teal);
+        }
+
+        .week-card.break .week-num {
+            color: var(--rh-gold);
+            font-size: 1.2rem;
+        }
+
+        .date {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--rh-white);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chapters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chapter-tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            background: rgba(238, 0, 0, 0.2);
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .rh134 .chapter-tag {
+            background: rgba(0, 149, 150, 0.2);
+        }
+
+        .topics {
+            font-size: 0.95rem;
+            color: var(--rh-gray-light);
+            line-height: 1.5;
+        }
+
+        .labs-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .labs-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .labs-icon {
+            font-size: 0.85rem;
+        }
+
+        .labs-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--rh-gold);
+            font-weight: 600;
+        }
+
+        .labs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .lab-item {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .lab-item::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--rh-gold);
+        }
+
+        .no-labs {
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            font-style: italic;
+        }
+
+        .break-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--rh-gold);
+            grid-column: 3 / -1;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--rh-white);
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--rh-gray);
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .summary-card {
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--rh-red);
+        }
+
+        .summary-card.rh134 h3 {
+            color: var(--rh-teal);
+        }
+
+        .summary-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+
+        .summary-stat-value {
+            font-family: 'Red Hat Display', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+        }
+
+        .summary-stat-label {
+            font-size: 0.85rem;
+            color: var(--rh-gray-light);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--rh-gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1100px) {
+            .week-card {
+                grid-template-columns: 80px 90px 1fr;
+                grid-template-rows: auto auto;
+            }
+            
+            .content {
+                grid-column: 1 / -1;
+                grid-row: 2;
+            }
+            
+            .stat {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .week-card {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .week-number, .date {
+                justify-self: center;
+            }
+
+            .lab-item {
+                text-align: left;
+            }
+        }
+
+        /* Current week highlighting */
+        .week-card.current-week {
+            background: linear-gradient(135deg, rgba(240, 171, 0, 0.15) 0%, rgba(240, 171, 0, 0.05) 100%);
+            border: 2px solid var(--rh-gold);
+            box-shadow: 0 0 20px rgba(240, 171, 0, 0.3), inset 0 0 30px rgba(240, 171, 0, 0.05);
+            transform: scale(1.02);
+            position: relative;
+        }
+
+        .week-card.current-week::before {
+            content: "📍 CURRENT WEEK";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--rh-gold);
+            color: var(--rh-black);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(240, 171, 0, 0.4);
+        }
+
+        .week-card.current-week .week-num {
+            color: var(--rh-gold) !important;
+        }
+
+        .week-card.current-week .date {
+            background: var(--rh-gold);
+            color: var(--rh-black);
+            font-weight: 700;
+        }
+
+        .week-card.past-week {
+            opacity: 0.6;
+        }
+
+        .week-card.past-week::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: var(--rh-teal);
+            font-size: 1.2rem;
+        }
+
+        .week-card.makeup {
+            background: linear-gradient(135deg, rgba(94, 64, 190, 0.1) 0%, rgba(94, 64, 190, 0.05) 100%);
+            border-color: rgba(94, 64, 190, 0.3);
+        }
+
+        .week-card.makeup .chapter-tag {
+            background: rgba(94, 64, 190, 0.2);
+        }
+
+        .week-card {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">RH</div>
+            </div>
+            <h1>Red Hat System Administration</h1>
+            <p class="subtitle">RH124 & RH134 • Spring 2026 Course Schedule</p>
+        </header>
+
+        <!-- RH124 Section -->
+        <section class="course-section">
+            <div class="course-header">
+                <span class="course-badge">RH124</span>
+                <h2 class="course-title">Red Hat System Administration I</h2>
+            </div>
+            
+            <div class="schedule-grid">
+                <div class="week-card" data-week-start="2026-01-15" data-week-end="2026-01-21">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">1</span>
+                    </div>
+                    <div class="date">Jan 15</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Preface A</span>
+                            <span class="chapter-tag">Ch 1</span>
+                            <span class="chapter-tag">Ch 2</span>
+                            <span class="chapter-tag">Ch 3</span>
+                        </div>
+                        <div class="topics">Introduction, Intro to RHEL, Accessing Command Line, Getting Help</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Accessing the Command Line</div>
+                                <div class="lab-item">Getting Help from Local Documentation</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-01-22" data-week-end="2026-01-28">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">2</span>
+                    </div>
+                    <div class="date">Jan 22</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 4</span>
+                            <span class="chapter-tag">Ch 5</span>
+                            <span class="chapter-tag">Ch 6</span>
+                            <span class="chapter-tag">Ch 7</span>
+                        </div>
+                        <div class="topics">Registering Systems, AI-assisted Help, File-system Hierarchy, Managing Files</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Managing Files from the Command Line</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-01-29" data-week-end="2026-02-04">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">3</span>
+                    </div>
+                    <div class="date">Jan 29</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 8</span>
+                            <span class="chapter-tag">Ch 9</span>
+                            <span class="chapter-tag">Ch 10</span>
+                        </div>
+                        <div class="topics">Editing Text Files, Redirecting Shell I/O, Managing Local Users & Groups</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Managing Local Users and Groups</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-02-05" data-week-end="2026-02-11">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">4</span>
+                    </div>
+                    <div class="date">Feb 5</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 11</span>
+                            <span class="chapter-tag">Ch 12</span>
+                            <span class="chapter-tag">Ch 13</span>
+                        </div>
+                        <div class="topics">Controlling Access to Files, Installing Software with RPM, Flatpak</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Controlling Access to Files</div>
+                                <div class="lab-item">Installing and Updating Software with RPM</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-02-12" data-week-end="2026-02-18">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">5</span>
+                    </div>
+                    <div class="date">Feb 12</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 14</span>
+                            <span class="chapter-tag">Ch 15</span>
+                        </div>
+                        <div class="topics">Accessing Removable Media, Monitoring & Managing Processes</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Accessing Removable Media</div>
+                                <div class="lab-item">Monitoring and Managing Linux Processes</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-02-19" data-week-end="2026-02-25">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">6</span>
+                    </div>
+                    <div class="date">Feb 19</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 16</span>
+                            <span class="chapter-tag">Ch 17</span>
+                            <span class="chapter-tag">Ch 18</span>
+                            <span class="chapter-tag">Ch 19</span>
+                        </div>
+                        <div class="topics">Controlling Services, Intro to Networking, Network Config, SSH</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Controlling Services and Daemons</div>
+                                <div class="lab-item">Managing Network Configuration</div>
+                                <div class="lab-item">Configuring and Securing SSH</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">9</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card break">
+                    <div class="week-number">
+                        <span class="week-label">—</span>
+                        <span class="week-num">—</span>
+                    </div>
+                    <div class="date">Feb 26</div>
+                    <span class="break-text">📚 No Class</span>
+                </div>
+
+                <div class="week-card final" data-week-start="2026-03-05" data-week-end="2026-03-11">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">7</span>
+                    </div>
+                    <div class="date">Mar 5</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 20</span>
+                        </div>
+                        <div class="topics">📝 Midterm Exam</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Comprehensive Review (Lab 20.2)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 20.3)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 20.4)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 20.5)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 20.6)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spring Break -->
+        <section class="course-section">
+            <div class="schedule-grid">
+                <div class="week-card break">
+                    <div class="week-number">
+                        <span class="week-label">—</span>
+                        <span class="week-num">🌴</span>
+                    </div>
+                    <div class="date">Mar 12</div>
+                    <span class="break-text">🌴 Spring Break</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- RH134 Section -->
+        <section class="course-section rh134">
+            <div class="course-header rh134">
+                <span class="course-badge rh134">RH134</span>
+                <h2 class="course-title">Red Hat System Administration II</h2>
+            </div>
+            
+            <div class="schedule-grid">
+                <div class="week-card" data-week-start="2026-03-19" data-week-end="2026-03-25">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">8</span>
+                    </div>
+                    <div class="date">Mar 19</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Preface A</span>
+                            <span class="chapter-tag">Ch 1</span>
+                            <span class="chapter-tag">Ch 2</span>
+                            <span class="chapter-tag">Ch 3</span>
+                        </div>
+                        <div class="topics">Introduction, Shell Scripting, Regular Expressions, Scheduling User Tasks</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Shell Scripting and the Command Line</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">9</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-03-26" data-week-end="2026-04-01">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">9</span>
+                    </div>
+                    <div class="date">Mar 26</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 4</span>
+                            <span class="chapter-tag">Ch 5</span>
+                        </div>
+                        <div class="topics">Scheduling System Tasks, Analyzing & Storing Logs</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Analyzing and Storing Logs</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-04-02" data-week-end="2026-04-08">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">10</span>
+                    </div>
+                    <div class="date">Apr 2</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 6</span>
+                            <span class="chapter-tag">Ch 7</span>
+                            <span class="chapter-tag">Ch 8</span>
+                        </div>
+                        <div class="topics">Managing Security with SELinux, Archiving Files, Transferring Files</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Managing Security with SELinux</div>
+                                <div class="lab-item">Transferring Files</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-04-09" data-week-end="2026-04-15">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">11</span>
+                    </div>
+                    <div class="date">Apr 9</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 9</span>
+                            <span class="chapter-tag">Ch 10</span>
+                            <span class="chapter-tag">Ch 11</span>
+                        </div>
+                        <div class="topics">Tuning System Performance, Basic Storage, Logical Volume Manager</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Tuning System Performance</div>
+                                <div class="lab-item">Managing Basic Storage</div>
+                                <div class="lab-item">Managing Storage with Logical Volume Manager</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-04-16" data-week-end="2026-04-22">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">12</span>
+                    </div>
+                    <div class="date">Apr 16</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 12</span>
+                            <span class="chapter-tag">Ch 13</span>
+                            <span class="chapter-tag">Ch 14</span>
+                        </div>
+                        <div class="topics">Boot Process Troubleshooting, Recovering Superuser Access, Network Security</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Controlling and Troubleshooting the Boot Process</div>
+                                <div class="lab-item">Managing Network Security</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card" data-week-start="2026-04-23" data-week-end="2026-04-29">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">13</span>
+                    </div>
+                    <div class="date">Apr 23</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 15</span>
+                            <span class="chapter-tag">Ch 16</span>
+                            <span class="chapter-tag">Ch 17</span>
+                            <span class="chapter-tag">Ch 18</span>
+                        </div>
+                        <div class="topics">Network-attached Storage, Installing RHEL, Containers with Podman, Image-based RHEL</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Accessing Network-attached Storage</div>
+                                <div class="lab-item">Managing Containers with Podman</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">11</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card makeup" data-week-start="2026-04-30" data-week-end="2026-05-06">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">14</span>
+                    </div>
+                    <div class="date">Apr 30</div>
+                    <div class="content">
+                        <div class="chapters">
+                            <span class="chapter-tag">Ch 19</span>
+                        </div>
+                        <div class="topics">🔄 Make-up Week & Comprehensive Review</div>
+                        <div class="labs-section">
+                            <div class="labs-header">
+                                <span class="labs-icon">🔬</span>
+                                <span class="labs-title">Labs</span>
+                            </div>
+                            <div class="labs-list">
+                                <div class="lab-item">Comprehensive Review (Lab 19.2)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 19.3)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 19.4)</div>
+                                <div class="lab-item">Comprehensive Review (Lab 19.5)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+
+                <div class="week-card final rh134" data-week-start="2026-05-07" data-week-end="2026-05-13">
+                    <div class="week-number">
+                        <span class="week-label">Week</span>
+                        <span class="week-num">15</span>
+                    </div>
+                    <div class="date">May 7</div>
+                    <div class="content">
+                        <div class="topics">🎓 Final Exam</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">—</div>
+                        <div class="stat-label">Sections</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">—</div>
+                        <div class="stat-label">Labs</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Summary Cards -->
+        <div class="summary">
+            <div class="summary-card">
+                <h3>RH124 Totals</h3>
+                <div class="summary-stats">
+                    <div>
+                        <div class="summary-stat-value">46</div>
+                        <div class="summary-stat-label">Content Sections</div>
+                    </div>
+                    <div>
+                        <div class="summary-stat-value">16</div>
+                        <div class="summary-stat-label">Labs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-card rh134">
+                <h3>RH134 Totals</h3>
+                <div class="summary-stats">
+                    <div>
+                        <div class="summary-stat-value">48</div>
+                        <div class="summary-stat-label">Content Sections</div>
+                    </div>
+                    <div>
+                        <div class="summary-stat-value">15</div>
+                        <div class="summary-stat-label">Labs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Red Hat System Administration I & II • Version 10.0 • 15-Week Course Schedule</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const weekCards = document.querySelectorAll('.week-card[data-week-start]');
+            
+            weekCards.forEach(card => {
+                const startDate = new Date(card.dataset.weekStart + 'T00:00:00');
+                const endDate = new Date(card.dataset.weekEnd + 'T23:59:59');
+                
+                if (today >= startDate && today <= endDate) {
+                    card.classList.add('current-week');
+                    // Scroll to current week
+                    setTimeout(() => {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 500);
+                } else if (today > endDate) {
+                    card.classList.add('past-week');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
