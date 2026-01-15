@@ -1,0 +1,2908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Introduction | RH124: Red Hat System Administration I</title>
+    <style>
+        /* ==================== CSS VARIABLES - Web Safe Colors ==================== */
+        :root {
+            /* Red Hat Brand Colors - Web Safe */
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-medium: #999999;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            
+            /* Accent Colors - Web Safe */
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;
+            --rh-teal: #009999;
+            --rh-teal-dark: #006666;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #006600;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            /* Status Colors */
+            --status-success: #339933;
+            --status-warning: #CC9900;
+            --status-error: #CC0000;
+            --status-info: #0066CC;
+            
+            /* Typography */
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.25);
+            
+            /* Borders */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Layout */
+            --max-width: 1200px;
+            --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE STYLES ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for keyboard navigation - WCAG 2.1 AA compliant */
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== HERO HEADER ==================== */
+        .hero-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, #2D2D2D 50%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 60px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 50%, var(--rh-red) 100%);
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(204, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 204, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: var(--content-width);
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+        }
+
+        .hero-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--rh-gray-light);
+            max-width: 700px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--rh-gray-light);
+        }
+
+        .meta-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--rh-red);
+        }
+
+        /* ==================== SECTION NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            color: var(--rh-gray-dark);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-btn:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        /* ==================== PROGRESS TRACKER ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: var(--content-width);
+            margin: 0 auto;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--rh-gray);
+        }
+
+        .progress-percent {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--rh-red);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-lighter);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+            border-radius: 4px;
+            transition: width var(--transition-med);
+        }
+
+        /* ==================== MAIN CONTENT AREA ==================== */
+        .main-content {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* ==================== CONTENT SECTIONS ==================== */
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .section-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 16px;
+            font-size: 1.05rem;
+        }
+
+        .section-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ==================== TOOLTIP SYSTEM - Smart Positioning ==================== */
+        .term {
+            color: var(--rh-blue);
+            font-weight: 600;
+            cursor: help;
+            position: relative;
+            border-bottom: 2px dotted var(--rh-blue);
+            transition: color var(--transition-fast);
+        }
+
+        .term:hover,
+        .term:focus {
+            color: var(--rh-blue-dark);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 400;
+            line-height: 1.5;
+            width: max-content;
+            max-width: 300px;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            box-shadow: var(--shadow-lg);
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+
+        /* Tooltip positions */
+        .tooltip-top {
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-top::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: var(--rh-black);
+        }
+
+        .tooltip-bottom {
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-bottom::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-black);
+        }
+
+        .tooltip-left {
+            top: 50%;
+            right: calc(100% + 12px);
+            transform: translateY(-50%);
+        }
+
+        .tooltip-left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: var(--rh-black);
+        }
+
+        .tooltip-right {
+            top: 50%;
+            left: calc(100% + 12px);
+            transform: translateY(-50%);
+        }
+
+        .tooltip-right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: var(--rh-black);
+        }
+
+        /* Edge adjustments */
+        .tooltip-adjust-left {
+            left: 0 !important;
+            transform: translateX(0) translateY(-50%) !important;
+        }
+
+        .tooltip-adjust-right {
+            left: auto !important;
+            right: 0 !important;
+            transform: translateX(0) translateY(-50%) !important;
+        }
+
+        .term:hover .tooltip,
+        .term:focus .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* ==================== WELCOME BOX ==================== */
+        .welcome-box {
+            background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%);
+            color: var(--rh-white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .welcome-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .welcome-box p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: var(--rh-gray-lighter);
+            border-left: 4px solid var(--rh-red);
+            padding: 24px 28px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-bottom: 24px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 16px;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 32px;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ==================== INFO CARDS ==================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .info-card {
+            background: var(--rh-white);
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: all var(--transition-med);
+            cursor: pointer;
+        }
+
+        .info-card:hover,
+        .info-card:focus {
+            border-color: var(--rh-red);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .info-card h4 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 1.4rem;
+        }
+
+        .info-card p {
+            color: var(--rh-gray);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ==================== STAT CARDS ==================== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-med);
+        }
+
+        .stat-card:hover {
+            border-color: var(--rh-red);
+            transform: scale(1.02);
+        }
+
+        .stat-number {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--rh-red);
+            display: block;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+
+        /* ==================== COURSE STRUCTURE TIMELINE ==================== */
+        .course-timeline {
+            position: relative;
+            padding-left: 40px;
+            margin: 30px 0;
+        }
+
+        .course-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--rh-red) 0%, var(--rh-teal) 100%);
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px dashed var(--rh-gray-light);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -32px;
+            top: 4px;
+            width: 16px;
+            height: 16px;
+            background: var(--rh-white);
+            border: 3px solid var(--rh-red);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-item.rh134 .timeline-marker {
+            border-color: var(--rh-teal);
+        }
+
+        .timeline-week {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--rh-red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+
+        .timeline-item.rh134 .timeline-week {
+            color: var(--rh-teal);
+        }
+
+        .timeline-content h4 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 8px;
+        }
+
+        .timeline-content p {
+            color: var(--rh-gray);
+            font-size: 0.95rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            width: 100%;
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            text-align: left;
+            transition: all var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expand-icon {
+            font-size: 0.8rem;
+            transition: transform var(--transition-med);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-med);
+        }
+
+        .expandable-content.expanded {
+            max-height: 2000px;
+        }
+
+        .expandable-inner {
+            padding: 20px;
+            border-top: 1px solid var(--rh-gray-light);
+        }
+
+        .expandable-inner ul {
+            list-style: disc;
+            padding-left: 24px;
+        }
+
+        .expandable-inner li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== TABS COMPONENT ==================== */
+        .tabs-container {
+            margin: 24px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            margin-bottom: 0;
+            list-style: none;
+        }
+
+        .tab-button {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 14px 24px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--rh-gray);
+            cursor: pointer;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            transition: all var(--transition-fast);
+            position: relative;
+            top: 2px;
+        }
+
+        .tab-button:hover {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-button[aria-selected="true"] {
+            background: var(--rh-white);
+            color: var(--rh-red);
+            border: 2px solid var(--rh-gray-light);
+            border-bottom-color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 24px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+        }
+
+        .tab-content ul {
+            list-style: disc;
+            padding-left: 24px;
+        }
+
+        .tab-content li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== INTERACTIVE QUIZ ==================== */
+        .quiz-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .quiz-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--rh-gray-dark);
+        }
+
+        .quiz-score {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-red);
+            background: var(--rh-white);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 16px;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--rh-gray-dark);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .question-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-size: 0.95rem;
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-white);
+            border-color: var(--rh-gray-light);
+        }
+
+        .quiz-option.selected {
+            background: var(--rh-white);
+            border-color: var(--rh-blue);
+        }
+
+        .quiz-option.correct {
+            background: #E8F5E9;
+            border-color: var(--rh-green);
+        }
+
+        .quiz-option.incorrect {
+            background: #FFEBEE;
+            border-color: var(--rh-red);
+        }
+
+        .quiz-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--rh-red);
+        }
+
+        .quiz-feedback {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E8F5E9;
+            color: var(--rh-green-dark);
+            border: 1px solid var(--rh-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFEBEE;
+            color: var(--rh-red-dark);
+            border: 1px solid var(--rh-red);
+        }
+
+        .quiz-btn {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border: none;
+            padding: 14px 28px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 16px;
+        }
+
+        .quiz-btn:hover {
+            background: var(--rh-red-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-btn:disabled {
+            background: var(--rh-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ==================== CHECKLIST COMPONENT ==================== */
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--rh-gray-lighter);
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-checkbox {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            accent-color: var(--rh-green);
+            cursor: pointer;
+        }
+
+        .checklist-label {
+            font-size: 1rem;
+            color: var(--rh-gray-dark);
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .checklist-item.completed .checklist-label {
+            text-decoration: line-through;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            color: var(--rh-red-dark);
+        }
+
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.6;
+        }
+
+        .code-block .prompt {
+            color: var(--rh-blue-light);
+        }
+
+        .code-block .command {
+            color: #00FF00;
+        }
+
+        .code-block .output {
+            color: var(--rh-gray-light);
+        }
+
+        .code-block .comment {
+            color: var(--rh-gray-medium);
+            font-style: italic;
+        }
+
+        /* ==================== KEY POINTS BOX ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFFDE7 100%);
+            border-left: 4px solid var(--rh-gold);
+            padding: 20px 24px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: 24px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-points p {
+            font-size: 0.95rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 24px;
+            margin: 0;
+        }
+
+        .key-points li {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        /* ==================== WARNING/NOTE BOXES ==================== */
+        .note-box {
+            background: #E3F2FD;
+            border-left: 4px solid var(--rh-blue);
+            padding: 16px 20px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin: 20px 0;
+        }
+
+        .note-box.warning {
+            background: #FFF3E0;
+            border-left-color: var(--rh-orange);
+        }
+
+        .note-box.success {
+            background: #E8F5E9;
+            border-left-color: var(--rh-green);
+        }
+
+        .note-box-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            color: var(--rh-blue-dark);
+        }
+
+        .note-box.warning .note-box-title {
+            color: #E65100;
+        }
+
+        .note-box.success .note-box-title {
+            color: var(--rh-green-dark);
+        }
+
+        .note-box p {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* ==================== DIAGRAM CONTAINERS ==================== */
+        .diagram-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .flow-box {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .flow-box.highlight {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red);
+        }
+
+        .flow-box.highlight-blue {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            border-color: var(--rh-blue);
+        }
+
+        .flow-arrow {
+            color: var(--rh-gray);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* ==================== LEARNING PATH VISUALIZATION ==================== */
+        .learning-path {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin: 24px 0;
+        }
+
+        .path-item {
+            display: flex;
+            align-items: stretch;
+            min-height: 100px;
+        }
+
+        .path-connector {
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .path-dot {
+            width: 24px;
+            height: 24px;
+            background: var(--rh-red);
+            border-radius: 50%;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .path-item.rh134 .path-dot {
+            background: var(--rh-teal);
+        }
+
+        .path-line {
+            width: 3px;
+            flex: 1;
+            background: linear-gradient(180deg, var(--rh-red) 0%, var(--rh-teal) 100%);
+        }
+
+        .path-item:last-child .path-line {
+            display: none;
+        }
+
+        .path-content {
+            flex: 1;
+            background: var(--rh-white);
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            margin-left: -8px;
+            transition: all var(--transition-fast);
+        }
+
+        .path-content:hover {
+            border-color: var(--rh-red);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .path-item.rh134 .path-content:hover {
+            border-color: var(--rh-teal);
+        }
+
+        .path-content h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 6px;
+        }
+
+        .path-content p {
+            font-size: 0.9rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 24px 0;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--rh-red);
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 14px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .summary-list li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--rh-red);
+            font-size: 0.7rem;
+            top: 5px;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            background: linear-gradient(135deg, var(--rh-green) 0%, var(--rh-green-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .completion-section p {
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+            opacity: 0.95;
+        }
+
+        .completion-btn {
+            background: var(--rh-white);
+            color: var(--rh-green-dark);
+            border: none;
+            padding: 16px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .completion-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .completion-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        .main-footer p {
+            margin-bottom: 0;
+        }
+
+        /* ==================== INTERACTIVE EXPLORATION ==================== */
+        .explore-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .explore-card {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 24px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-med);
+        }
+
+        .explore-card:hover,
+        .explore-card:focus {
+            border-color: var(--rh-red);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .explore-card.active {
+            border-color: var(--rh-red);
+            background: linear-gradient(135deg, #FFF5F5 0%, var(--rh-white) 100%);
+        }
+
+        .explore-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .explore-card h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 6px;
+        }
+
+        .explore-card p {
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        .explore-detail {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .explore-detail.active {
+            display: block;
+        }
+
+        .explore-detail h4 {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 40px 16px 60px;
+            }
+
+            .hero-meta {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .section-nav {
+                padding: 10px 16px;
+            }
+
+            .nav-container {
+                gap: 6px;
+            }
+
+            .nav-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .section-body {
+                padding: 20px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-list {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                border-radius: var(--radius-md);
+                top: 0;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .section-nav,
+            .progress-container,
+            .skip-link,
+            .quiz-container,
+            .completion-section {
+                display: none;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--rh-gray-light);
+            }
+
+            .hero-header {
+                background: var(--rh-white);
+                color: var(--rh-black);
+            }
+
+            .hero-header::before,
+            .hero-header::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Hero Header -->
+    <header class="hero-header" role="banner">
+        <div class="hero-content">
+            <span class="course-badge">
+                <span aria-hidden="true">🎓</span>
+                RH124 • Course Introduction
+            </span>
+            <h1>Red Hat System Administration I</h1>
+            <p class="hero-subtitle">Welcome to your journey into enterprise Linux administration. Master the essential skills to manage and maintain Red Hat Enterprise Linux 10 systems.</p>
+            
+            <div class="hero-meta">
+                <div class="meta-item">
+                    <span aria-hidden="true">📚</span>
+                    <span>15-Week Course</span>
+                </div>
+                <div class="meta-item">
+                    <span aria-hidden="true">⏱️</span>
+                    <span>75+ Hours Content</span>
+                </div>
+                <div class="meta-item">
+                    <span aria-hidden="true">🏆</span>
+                    <span>RHCSA Exam Prep</span>
+                </div>
+                <div class="meta-item">
+                    <span aria-hidden="true">💻</span>
+                    <span>Hands-on Labs</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Section navigation">
+        <div class="nav-container">
+            <a href="#section-welcome" class="nav-btn">Welcome</a>
+            <a href="#section-overview" class="nav-btn">Overview</a>
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-structure" class="nav-btn">Structure</a>
+            <a href="#section-environment" class="nav-btn">Lab Setup</a>
+            <a href="#section-prerequisites" class="nav-btn">Prerequisites</a>
+            <a href="#section-assessment" class="nav-btn">Assessment</a>
+            <a href="#section-resources" class="nav-btn">Resources</a>
+            <a href="#section-checklist" class="nav-btn">Checklist</a>
+        </div>
+    </nav>
+
+    <!-- Progress Tracker -->
+    <div class="progress-container" role="region" aria-label="Course progress">
+        <div class="progress-inner">
+            <div class="progress-header">
+                <span class="progress-label">Introduction Progress</span>
+                <span class="progress-percent" id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        
+        <!-- Section 1: Welcome -->
+        <section id="section-welcome" class="content-section" aria-labelledby="welcome-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="welcome-heading">Welcome to the Course</h2>
+            </div>
+            <div class="section-body">
+                <div class="welcome-box">
+                    <h3>🎉 Welcome, Future Linux Administrator!</h3>
+                    <p>You're about to embark on an exciting journey into the world of enterprise Linux. <span class="term" tabindex="0" data-tooltip="Red Hat System Administration I - The first course in the RHCSA certification track covering essential Linux administration skills.">RH124</span> is your gateway to becoming a skilled system administrator capable of managing mission-critical infrastructure.</p>
+                    <p>This course builds the foundation you'll need for the <span class="term" tabindex="0" data-tooltip="Red Hat Certified System Administrator - A professional certification validating skills in core system administration on Red Hat Enterprise Linux.">RHCSA certification</span>, the industry-recognized credential that validates your Linux administration skills.</p>
+                </div>
+
+                <p>Linux powers the majority of the world's servers, cloud infrastructure, and enterprise systems. By learning <span class="term" tabindex="0" data-tooltip="Red Hat Enterprise Linux - A production-ready, commercially supported Linux distribution used by enterprises worldwide for mission-critical workloads.">Red Hat Enterprise Linux (RHEL)</span>, you're gaining skills that are in high demand across virtually every industry.</p>
+
+                <div class="stat-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">96%</span>
+                        <span class="stat-label">of Top 1M Websites</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">of Supercomputers</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">75%</span>
+                        <span class="stat-label">of Cloud Workloads</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">90%</span>
+                        <span class="stat-label">of Fortune 500</span>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>💡 What You'll Gain</h4>
+                    <ul>
+                        <li>Practical, hands-on skills that translate directly to real-world job responsibilities</li>
+                        <li>Deep understanding of Linux fundamentals applicable across all distributions</li>
+                        <li>Preparation for the RHCSA exam and professional certification</li>
+                        <li>Foundation for advanced topics in DevOps, cloud computing, and security</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Course Overview -->
+        <section id="section-overview" class="content-section" aria-labelledby="overview-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="overview-heading">Course Overview</h2>
+            </div>
+            <div class="section-body">
+                <p>RH124 (Red Hat System Administration I) is the first course in the <span class="term" tabindex="0" data-tooltip="A professional certification track that validates practical Linux system administration skills through hands-on, performance-based exams.">RHCSA certification track</span>. This comprehensive course covers essential skills for system administrators who need to manage and support Red Hat Enterprise Linux 10 systems.</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🖥️</span> Command Line Mastery</h4>
+                        <p>Learn to efficiently navigate and manage Linux systems using the powerful <span class="term" tabindex="0" data-tooltip="Bourne Again Shell - The default command-line interpreter in RHEL that provides a text-based interface for running commands and scripts.">bash shell</span> and essential command-line tools.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📁</span> File System Management</h4>
+                        <p>Master the Linux file system hierarchy, file permissions, and storage management techniques.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">👥</span> User Administration</h4>
+                        <p>Manage users, groups, and access controls to maintain secure multi-user environments.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🔧</span> System Services</h4>
+                        <p>Control and configure system services using <span class="term" tabindex="0" data-tooltip="The system and service manager for Linux that controls what programs run when a Linux system boots.">systemd</span> for reliable service management.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Network Configuration</h4>
+                        <p>Configure basic networking settings to enable system connectivity and remote access.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📦</span> Software Management</h4>
+                        <p>Install, update, and manage software packages using <span class="term" tabindex="0" data-tooltip="Dandified YUM - The package manager for RHEL 8+ that handles software installation, updates, and dependency resolution.">DNF</span>, RPM, and <span class="term" tabindex="0" data-tooltip="A universal application packaging format that provides sandboxed applications with all dependencies included.">Flatpak</span>.</p>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">Course Learning Path</h4>
+                    <div class="flow-diagram">
+                        <div class="flow-box highlight">RH124</div>
+                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <div class="flow-box">RH134</div>
+                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <div class="flow-box highlight-blue">RHCSA Exam</div>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <p class="note-box-title">📘 Course Format</p>
+                    <p>This course combines instructor-led lectures with extensive hands-on laboratory exercises. You'll spend approximately 50% of your time in labs, applying concepts in realistic scenarios.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>Upon completing RH124, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Access the command line and manage files from the shell</li>
+                        <li>Navigate the Linux file system hierarchy and locate files</li>
+                        <li>Get help from man pages, info documentation, and AI assistants</li>
+                        <li>Register systems for Red Hat support and updates</li>
+                        <li>Create, view, edit, and manage text files using command-line tools</li>
+                        <li>Manage local users, groups, and password policies</li>
+                        <li>Control file access with Linux file system permissions</li>
+                        <li>Redirect shell input and output for efficient scripting</li>
+                        <li>Monitor and manage Linux processes and system resources</li>
+                        <li>Control and configure system services with systemd</li>
+                        <li>Configure networking and basic firewall settings</li>
+                        <li>Install software using RPM and Flatpak package formats</li>
+                        <li>Configure and secure SSH for remote access</li>
+                        <li>Analyze and store system logs for troubleshooting</li>
+                    </ul>
+                </div>
+
+                <!-- Interactive Exploration -->
+                <h3 style="font-family: var(--font-display); margin: 30px 0 20px; color: var(--rh-gray-dark);">Explore Key Topics</h3>
+                <p>Click on each topic below to learn more about what you'll master:</p>
+                
+                <div class="explore-grid" role="tablist" aria-label="Topic exploration">
+                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="cli">
+                        <span class="explore-icon" aria-hidden="true">💻</span>
+                        <h4>Command Line</h4>
+                        <p>Shell navigation & commands</p>
+                    </div>
+                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="files">
+                        <span class="explore-icon" aria-hidden="true">📂</span>
+                        <h4>File Management</h4>
+                        <p>Organization & permissions</p>
+                    </div>
+                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="users">
+                        <span class="explore-icon" aria-hidden="true">👤</span>
+                        <h4>User Admin</h4>
+                        <p>Accounts & security</p>
+                    </div>
+                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="services">
+                        <span class="explore-icon" aria-hidden="true">⚙️</span>
+                        <h4>Services</h4>
+                        <p>systemd management</p>
+                    </div>
+                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="network">
+                        <span class="explore-icon" aria-hidden="true">🌐</span>
+                        <h4>Networking</h4>
+                        <p>Configuration & connectivity</p>
+                    </div>
+                </div>
+
+                <!-- Topic Details -->
+                <div class="explore-detail" id="detail-cli" role="tabpanel">
+                    <h4>🖥️ Command Line Interface Mastery</h4>
+                    <p>The command line is the heart of Linux administration. In RHEL 10, you'll learn:</p>
+                    <ul>
+                        <li>Navigating the shell with <code class="inline">cd</code>, <code class="inline">pwd</code>, and <code class="inline">ls</code></li>
+                        <li>Using tab completion and command history for efficiency</li>
+                        <li>Understanding shell expansion and quoting</li>
+                        <li>Managing virtual consoles and SSH remote access</li>
+                        <li>Reading and navigating man pages and documentation</li>
+                        <li>Using AI assistants for help (new in RHEL 10!)</li>
+                    </ul>
+                </div>
+                <div class="explore-detail" id="detail-files" role="tabpanel">
+                    <h4>📂 File System Management</h4>
+                    <p>Linux organizes everything as files. You'll master:</p>
+                    <ul>
+                        <li>The Linux <span class="term" tabindex="0" data-tooltip="Filesystem Hierarchy Standard - The standard directory structure for Linux systems defining where different types of files should be stored.">FHS</span> directory structure</li>
+                        <li>Creating, copying, moving, and deleting files and directories</li>
+                        <li>Understanding hard links and symbolic links</li>
+                        <li>Using <code class="inline">find</code> and <code class="inline">locate</code> to search for files</li>
+                        <li>Archiving with <code class="inline">tar</code>, <code class="inline">gzip</code>, and <code class="inline">bzip2</code></li>
+                    </ul>
+                </div>
+                <div class="explore-detail" id="detail-users" role="tabpanel">
+                    <h4>👤 User and Group Administration</h4>
+                    <p>Security starts with proper access control. You'll learn:</p>
+                    <ul>
+                        <li>Creating and managing user accounts with <code class="inline">useradd</code></li>
+                        <li>Understanding <code class="inline">/etc/passwd</code>, <code class="inline">/etc/shadow</code>, and <code class="inline">/etc/group</code></li>
+                        <li>Setting password policies and aging</li>
+                        <li>Managing group memberships and primary groups</li>
+                        <li>Using <code class="inline">sudo</code> for elevated privileges</li>
+                    </ul>
+                </div>
+                <div class="explore-detail" id="detail-services" role="tabpanel">
+                    <h4>⚙️ System Services with systemd</h4>
+                    <p>RHEL 10 uses systemd for service management. You'll master:</p>
+                    <ul>
+                        <li>Understanding systemd units and targets</li>
+                        <li>Starting, stopping, and restarting services with <code class="inline">systemctl</code></li>
+                        <li>Enabling services to start at boot</li>
+                        <li>Viewing service status and troubleshooting</li>
+                        <li>Analyzing boot performance with <code class="inline">systemd-analyze</code></li>
+                        <li>Working with GNOME 47 desktop environment on Wayland</li>
+                    </ul>
+                </div>
+                <div class="explore-detail" id="detail-network" role="tabpanel">
+                    <h4>🌐 Network Configuration</h4>
+                    <p>Connect your systems to the network. You'll learn:</p>
+                    <ul>
+                        <li>Understanding IPv4 networking fundamentals</li>
+                        <li>Configuring network interfaces with <code class="inline">nmcli</code></li>
+                        <li>Managing hostnames and DNS resolution</li>
+                        <li>Troubleshooting connectivity with <code class="inline">ping</code>, <code class="inline">ip</code>, and <code class="inline">ss</code></li>
+                        <li>Basic firewall configuration with <code class="inline">firewall-cmd</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Course Structure -->
+        <section id="section-structure" class="content-section" aria-labelledby="structure-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="structure-heading">Course Structure</h2>
+            </div>
+            <div class="section-body">
+                <p>The RH124 and RH134 courses together span a full 15-week semester, providing comprehensive preparation for the RHCSA certification exam. Each week combines lecture content with hands-on laboratory practice.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Course schedule">
+                        <button class="tab-button" role="tab" aria-selected="true" aria-controls="tab-rh124" id="tab-btn-rh124">RH124 Chapters</button>
+                        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-rh134" id="tab-btn-rh134">RH134 Chapters</button>
+                        <button class="tab-button" role="tab" aria-selected="false" aria-controls="tab-schedule" id="tab-btn-schedule">Weekly Schedule</button>
+                    </div>
+                    
+                    <div id="tab-rh124" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-rh124">
+                        <h4>RH124: Red Hat System Administration I (RHEL 10)</h4>
+                        <p style="margin-bottom: 16px;">Covers Weeks 1-7 of the semester (Chapters 1-20):</p>
+                        <ul>
+                            <li><strong>Chapter 1:</strong> Introduction to Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 2:</strong> Accessing the Command Line</li>
+                            <li><strong>Chapter 3:</strong> Getting Help in Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 4:</strong> Registering Systems for Red Hat Support</li>
+                            <li><strong>Chapter 5:</strong> Getting Help Using AI Assistants</li>
+                            <li><strong>Chapter 6:</strong> Navigating the File-system Hierarchy</li>
+                            <li><strong>Chapter 7:</strong> Managing Files from the Command Line</li>
+                            <li><strong>Chapter 8:</strong> Editing Text Files from the Shell</li>
+                            <li><strong>Chapter 9:</strong> Redirecting Shell Input and Output</li>
+                            <li><strong>Chapter 10:</strong> Managing Local Users and Groups</li>
+                            <li><strong>Chapter 11:</strong> Controlling Access to Files</li>
+                            <li><strong>Chapter 12:</strong> Installing Software with RPM</li>
+                            <li><strong>Chapter 13:</strong> Installing Software with Flatpak</li>
+                            <li><strong>Chapter 14:</strong> Accessing Removable Media</li>
+                            <li><strong>Chapter 15:</strong> Monitoring and Managing Linux Processes</li>
+                            <li><strong>Chapter 16:</strong> Controlling Services and Daemons</li>
+                            <li><strong>Chapter 17:</strong> Introduction to Linux Networking</li>
+                            <li><strong>Chapter 18:</strong> Managing Network Configuration</li>
+                            <li><strong>Chapter 19:</strong> Configuring and Securing SSH</li>
+                            <li><strong>Chapter 20:</strong> Analyzing and Storing Logs</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-rh134" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-rh134">
+                        <h4>RH134: Red Hat System Administration II (RHEL 10)</h4>
+                        <p style="margin-bottom: 16px;">Covers Weeks 8-15 of the semester (Chapters 1-19):</p>
+                        <ul>
+                            <li><strong>Chapter 1:</strong> Improve Command-line Productivity</li>
+                            <li><strong>Chapter 2:</strong> Scheduling Future Tasks</li>
+                            <li><strong>Chapter 3:</strong> Configuring Time Synchronization</li>
+                            <li><strong>Chapter 4:</strong> Managing SELinux Security</li>
+                            <li><strong>Chapter 5:</strong> Managing Basic Storage</li>
+                            <li><strong>Chapter 6:</strong> Managing Storage with Logical Volume Manager</li>
+                            <li><strong>Chapter 7:</strong> Implementing Advanced Storage Features</li>
+                            <li><strong>Chapter 8:</strong> Managing Layered Storage with Stratis</li>
+                            <li><strong>Chapter 9:</strong> Tuning System Performance</li>
+                            <li><strong>Chapter 10:</strong> Managing Basic Storage (Advanced)</li>
+                            <li><strong>Chapter 11:</strong> Manage Logical Volumes</li>
+                            <li><strong>Chapter 12:</strong> Controlling the Boot Process</li>
+                            <li><strong>Chapter 13:</strong> Recovering Superuser Access</li>
+                            <li><strong>Chapter 14:</strong> Managing Network Security</li>
+                            <li><strong>Chapter 15:</strong> Accessing Network-attached Storage</li>
+                            <li><strong>Chapter 16:</strong> Installing Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 17:</strong> Managing Containers with Podman</li>
+                            <li><strong>Chapter 18:</strong> Managing Image-based Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 19:</strong> Comprehensive Review</li>
+                        </ul>
+                    </div>
+                    
+                    <div id="tab-schedule" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-schedule">
+                        <h4>Semester Schedule Overview (RHEL 10)</h4>
+                        <p style="margin-bottom: 16px;">Weekly breakdown of the complete course:</p>
+                        <ul>
+                            <li><strong>Week 1:</strong> Introduction, Ch 1-3 (Intro to RHEL, Command Line, Getting Help)</li>
+                            <li><strong>Week 2:</strong> Ch 4-7 (Registration, AI Help, File Hierarchy, Managing Files)</li>
+                            <li><strong>Week 3:</strong> Ch 8-10 (Text Editing, Shell I/O, Users & Groups)</li>
+                            <li><strong>Week 4:</strong> Ch 11-13 (File Access, RPM, Flatpak)</li>
+                            <li><strong>Week 5:</strong> Ch 14-15 (Removable Media, Process Management)</li>
+                            <li><strong>Week 6:</strong> Ch 16-19 (Services, Networking Intro, Config, SSH)</li>
+                            <li><strong>Week 7:</strong> Ch 20 + <em>Midterm Exam</em></li>
+                            <li><strong>Week 8:</strong> RH134 Ch 1-4 (Productivity, Tasks, Time Sync, SELinux)</li>
+                            <li><strong>Week 9:</strong> <em>Spring Break</em></li>
+                            <li><strong>Week 10:</strong> RH134 Ch 5-8 (Storage, LVM, Advanced Storage, Stratis)</li>
+                            <li><strong>Week 11:</strong> RH134 Ch 9-11 (Performance Tuning, Storage, LVM)</li>
+                            <li><strong>Week 12:</strong> RH134 Ch 12-14 (Boot Process, Superuser Recovery, Network Security)</li>
+                            <li><strong>Week 13:</strong> RH134 Ch 15-18 (NAS, Installation, Podman, Image-based RHEL)</li>
+                            <li><strong>Week 14:</strong> Ch 19 + <em>Make-up Week & Comprehensive Review</em></li>
+                            <li><strong>Week 15:</strong> <em>Final Exam / RHCSA Preparation</em></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3 style="font-family: var(--font-display); margin: 30px 0 20px; color: var(--rh-gray-dark);">Learning Progression</h3>
+                
+                <div class="learning-path">
+                    <div class="path-item">
+                        <div class="path-connector">
+                            <span class="path-dot">1</span>
+                            <div class="path-line"></div>
+                        </div>
+                        <div class="path-content">
+                            <h4>Foundation (Weeks 1-3)</h4>
+                            <p>Master command-line basics, file management, and getting help</p>
+                        </div>
+                    </div>
+                    <div class="path-item">
+                        <div class="path-connector">
+                            <span class="path-dot">2</span>
+                            <div class="path-line"></div>
+                        </div>
+                        <div class="path-content">
+                            <h4>Core Administration (Weeks 4-7)</h4>
+                            <p>Users, groups, permissions, processes, and services</p>
+                        </div>
+                    </div>
+                    <div class="path-item">
+                        <div class="path-connector">
+                            <span class="path-dot">3</span>
+                            <div class="path-line"></div>
+                        </div>
+                        <div class="path-content">
+                            <h4>Midterm Assessment (Week 8)</h4>
+                            <p>Demonstrate mastery of RH124 fundamentals</p>
+                        </div>
+                    </div>
+                    <div class="path-item rh134">
+                        <div class="path-connector">
+                            <span class="path-dot">4</span>
+                            <div class="path-line"></div>
+                        </div>
+                        <div class="path-content">
+                            <h4>Advanced Topics (Weeks 9-12)</h4>
+                            <p>SELinux, storage, performance tuning, and automation</p>
+                        </div>
+                    </div>
+                    <div class="path-item rh134">
+                        <div class="path-connector">
+                            <span class="path-dot">5</span>
+                        </div>
+                        <div class="path-content">
+                            <h4>Certification Prep (Weeks 14-15)</h4>
+                            <p>Containers, review, and RHCSA exam preparation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Lab Environment -->
+        <section id="section-environment" class="content-section" aria-labelledby="environment-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="environment-heading">Lab Environment Setup</h2>
+            </div>
+            <div class="section-body">
+                <p>This course uses a hands-on approach with real RHEL systems. You'll work in a dedicated lab environment that provides all the infrastructure needed for practical exercises.</p>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="env-classroom">
+                        <span>🏫 Classroom Lab Environment</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="env-classroom" class="expandable-content">
+                        <div class="expandable-inner">
+                            <p>The classroom provides fully configured lab stations with:</p>
+                            <ul>
+                                <li>Pre-installed RHEL 10 workstations with GNOME 47 desktop</li>
+                                <li>Virtual machine environment for hands-on exercises</li>
+                                <li>Network connectivity to lab servers</li>
+                                <li>Access to the Red Hat Training environment</li>
+                            </ul>
+                            <p style="margin-top: 12px;">Your instructor will provide specific login credentials and environment details on the first day of class.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="env-home">
+                        <span>🏠 Personal Practice Environment</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="env-home" class="expandable-content">
+                        <div class="expandable-inner">
+                            <p>For practice outside the classroom, you have several options:</p>
+                            <ul>
+                                <li><strong>Red Hat Developer Subscription:</strong> Free RHEL access for development (developers.redhat.com)</li>
+                                <li><strong>CentOS Stream:</strong> Free, open-source RHEL development preview</li>
+                                <li><strong>Fedora:</strong> Community distribution with similar tools and concepts</li>
+                                <li><strong>Virtual Machines:</strong> Use VirtualBox, VMware, or KVM for local practice</li>
+                            </ul>
+                            <p style="margin-top: 12px;">The concepts you learn apply across all Red Hat-based distributions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="env-systems">
+                        <span>💻 Lab System Overview</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="env-systems" class="expandable-content">
+                        <div class="expandable-inner">
+                            <p>The lab environment typically includes these systems:</p>
+                            <ul>
+                                <li><strong>workstation:</strong> Your primary working system with GUI</li>
+                                <li><strong>servera:</strong> Server for practicing administration tasks</li>
+                                <li><strong>serverb:</strong> Additional server for multi-system exercises</li>
+                                <li><strong>bastion:</strong> Network gateway/management host</li>
+                            </ul>
+                            <div class="code-block">
+                                <span class="comment"># Example: SSH to servera from workstation</span><br>
+                                <span class="prompt">[student@workstation ~]$</span> <span class="command">ssh student@servera</span><br>
+                                <span class="output">student@servera's password:</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="note-box success">
+                    <p class="note-box-title">✓ Getting Started Tip</p>
+                    <p>Don't worry if the environment seems complex at first! Your initial labs will guide you through connecting to and using each system. By the end of Week 1, navigating the lab will feel natural.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Prerequisites -->
+        <section id="section-prerequisites" class="content-section" aria-labelledby="prerequisites-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="prerequisites-heading">Prerequisites & Expectations</h2>
+            </div>
+            <div class="section-body">
+                <p>RH124 is designed for students with little or no Linux experience. However, certain foundational skills will help you succeed in this course.</p>
+
+                <h3 style="font-family: var(--font-display); font-size: 1.2rem; margin: 24px 0 16px; color: var(--rh-gray-dark);">Required Prerequisites</h3>
+                
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">⌨️</span> Basic Computer Skills</h4>
+                        <p>Comfortable using a computer, navigating applications, and basic file operations in any operating system.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🔤</span> Text Editing</h4>
+                        <p>Experience with any text editor (Notepad, Word, etc.). You'll learn Linux editors during the course.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Network Basics</h4>
+                        <p>Understanding of what IP addresses are and basic network concepts (can be learned alongside the course).</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📚</span> Learning Commitment</h4>
+                        <p>Willingness to practice outside of class. Linux skills develop through hands-on repetition.</p>
+                    </div>
+                </div>
+
+                <h3 style="font-family: var(--font-display); font-size: 1.2rem; margin: 30px 0 16px; color: var(--rh-gray-dark);">Helpful (But Not Required)</h3>
+                
+                <ul style="list-style: disc; padding-left: 24px; margin-bottom: 24px;">
+                    <li>Previous experience with any command-line interface (Windows CMD, PowerShell, macOS Terminal)</li>
+                    <li>Understanding of operating system concepts (processes, file systems, permissions)</li>
+                    <li>Basic scripting or programming exposure</li>
+                    <li>Experience with virtual machines</li>
+                </ul>
+
+                <div class="key-points">
+                    <h4>⏰ Time Commitment</h4>
+                    <p>Plan to dedicate sufficient time for success in this course:</p>
+                    <ul>
+                        <li><strong>Class Time:</strong> 3-4 hours per week (lecture + lab)</li>
+                        <li><strong>Homework:</strong> 2-3 hours per week (practice and reading)</li>
+                        <li><strong>Lab Practice:</strong> Additional time recommended for exam preparation</li>
+                        <li><strong>Total:</strong> Approximately 6-8 hours per week</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Prerequisites Assessment Quiz -->
+        <section id="section-assessment" class="content-section" aria-labelledby="assessment-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="assessment-heading">Self-Assessment</h2>
+            </div>
+            <div class="section-body">
+                <p>This brief quiz helps you assess your readiness for the course. Don't worry if you can't answer all questions—the course will cover everything you need!</p>
+
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <span class="quiz-title">Prerequisites Check</span>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="c">
+                        <p class="question-text"><span class="question-number">1</span>What is an operating system?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                A web browser like Chrome or Firefox
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                The physical hardware of a computer
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Software that manages hardware and provides services for applications
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                A programming language
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="b">
+                        <p class="question-text"><span class="question-number">2</span>What is a file system hierarchy?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                A list of recently opened files
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                The organized structure of directories and files on a system
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                A backup system
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                A type of database
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">3</span>What does "open source" mean in the context of software?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                Source code is freely available to view, modify, and distribute
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                The software opens automatically when you start your computer
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                The software is free from all security vulnerabilities
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                Anyone can sell the software for any price
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">4</span>What is an IP address used for?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Storing passwords securely
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Measuring internet speed
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Encrypting network traffic
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Uniquely identifying a device on a network
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="c">
+                        <p class="question-text"><span class="question-number">5</span>What is a command line interface (CLI)?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                A graphical window with icons and menus
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                A touch screen display
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                A text-based interface where users type commands
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                A voice-activated assistant
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check My Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+
+                <div class="note-box" style="margin-top: 24px;">
+                    <p class="note-box-title">📝 About This Assessment</p>
+                    <p>This quiz is for self-evaluation only and is not graded. Even if you miss some questions, don't worry! The course starts from fundamentals and builds up your knowledge progressively.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Resources -->
+        <section id="section-resources" class="content-section" aria-labelledby="resources-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="resources-heading">Course Resources</h2>
+            </div>
+            <div class="section-body">
+                <p>A variety of resources are available to support your learning throughout this course. Take time to bookmark these for easy access.</p>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="true" aria-controls="res-official">
+                        <span>📕 Official Red Hat Resources</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="res-official" class="expandable-content expanded">
+                        <div class="expandable-inner">
+                            <ul>
+                                <li><strong>Red Hat Customer Portal:</strong> access.redhat.com - Knowledgebase, downloads, and support</li>
+                                <li><strong>Red Hat Documentation:</strong> docs.redhat.com - Product documentation and guides</li>
+                                <li><strong>Red Hat Developer:</strong> developers.redhat.com - Free developer subscription and resources</li>
+                                <li><strong>Red Hat Learning:</strong> Training materials and certification information</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="res-community">
+                        <span>🌐 Community Resources</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="res-community" class="expandable-content">
+                        <div class="expandable-inner">
+                            <ul>
+                                <li><strong>Stack Overflow:</strong> Q&A for programming and system administration</li>
+                                <li><strong>Server Fault:</strong> Q&A specifically for system administrators</li>
+                                <li><strong>Reddit r/redhat:</strong> Community discussions about Red Hat technologies</li>
+                                <li><strong>Linux Documentation Project:</strong> tldp.org - Extensive Linux documentation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="res-exam">
+                        <span>🏆 Certification Resources</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="res-exam" class="expandable-content">
+                        <div class="expandable-inner">
+                            <ul>
+                                <li><strong>RHCSA Exam Objectives:</strong> Official list of exam topics from Red Hat</li>
+                                <li><strong>Red Hat Learning Subscription:</strong> Premium training and lab access</li>
+                                <li><strong>Practice Exams:</strong> Various third-party practice tests available</li>
+                                <li><strong>Study Groups:</strong> Join or form study groups with classmates</li>
+                            </ul>
+                            <p style="margin-top: 12px;"><strong>Exam Code:</strong> EX200 (RHCSA exam for RHEL 10)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="res-books">
+                        <span>📚 Recommended Reading</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="res-books" class="expandable-content">
+                        <div class="expandable-inner">
+                            <ul>
+                                <li><em>RHCSA Red Hat Enterprise Linux Certification Study Guide</em> - Comprehensive exam prep</li>
+                                <li><em>How Linux Works</em> by Brian Ward - Deep dive into Linux internals</li>
+                                <li><em>The Linux Command Line</em> by William Shotts - Free online book for CLI mastery</li>
+                                <li><em>Linux Bible</em> by Christopher Negus - Broad coverage of Linux topics</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>💡 Resource Usage Tips</h4>
+                    <ul>
+                        <li>The <code class="inline">man</code> command is your best friend—use it often!</li>
+                        <li>Official Red Hat documentation should be your first reference</li>
+                        <li>Practice in your lab environment to reinforce learning</li>
+                        <li>Don't hesitate to ask questions in class or office hours</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Getting Started Checklist -->
+        <section id="section-checklist" class="content-section" aria-labelledby="checklist-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="checklist-heading">Getting Started Checklist</h2>
+            </div>
+            <div class="section-body">
+                <p>Use this checklist to ensure you're ready for the course. Check off each item as you complete it:</p>
+
+                <ul class="checklist" role="list" aria-label="Getting started checklist">
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-1" aria-label="Review course schedule and important dates">
+                        <label class="checklist-label" for="check-1">Review the course schedule and note important dates (midterm, spring break, final)</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-2" aria-label="Verify access to Canvas LMS">
+                        <label class="checklist-label" for="check-2">Verify you can access Canvas LMS and view course materials</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-3" aria-label="Review syllabus and grading policy">
+                        <label class="checklist-label" for="check-3">Read the syllabus and understand the grading policy</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-4" aria-label="Create Red Hat Developer account">
+                        <label class="checklist-label" for="check-4">Create a free Red Hat Developer account (developers.redhat.com)</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-5" aria-label="Bookmark Red Hat documentation">
+                        <label class="checklist-label" for="check-5">Bookmark Red Hat documentation (docs.redhat.com)</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-6" aria-label="Plan weekly study schedule">
+                        <label class="checklist-label" for="check-6">Plan your weekly study schedule (6-8 hours recommended)</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-7" aria-label="Complete prerequisites self-assessment">
+                        <label class="checklist-label" for="check-7">Complete the prerequisites self-assessment quiz above</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-8" aria-label="Prepare questions for first class">
+                        <label class="checklist-label" for="check-8">Prepare any questions you have for the first class session</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-9" aria-label="Download or bookmark this introduction">
+                        <label class="checklist-label" for="check-9">Bookmark this introduction for future reference</label>
+                    </li>
+                    <li class="checklist-item">
+                        <input type="checkbox" class="checklist-checkbox" id="check-10" aria-label="Get excited to learn Linux">
+                        <label class="checklist-label" for="check-10">Get excited about your journey into Linux administration! 🚀</label>
+                    </li>
+                </ul>
+
+                <div class="summary-box" style="margin-top: 30px;">
+                    <h3>Course Introduction Summary</h3>
+                    <ul class="summary-list">
+                        <li><strong>RH124 is the foundation</strong> for your RHCSA certification journey, covering essential RHEL 10 administration skills.</li>
+                        <li><strong>The course structure</strong> spans 15 weeks with RH124 in the first half and RH134 in the second half, preparing you for the RHCSA exam.</li>
+                        <li><strong>RHEL 10 introduces</strong> new features including AI-assisted help, Flatpak software management, GNOME 47 desktop, and image-based deployment.</li>
+                        <li><strong>Hands-on practice</strong> is essential—expect to spend significant time in labs applying what you learn.</li>
+                        <li><strong>No prior Linux experience</strong> is required, but basic computer skills and commitment to learning are essential.</li>
+                        <li><strong>Resources abound</strong>—from official Red Hat documentation to community forums, help is always available.</li>
+                        <li><strong>Your success depends</strong> on consistent practice, asking questions, and engaging with the material.</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎯 Ready to Begin!</h2>
+                    <p>You've completed the course introduction. Next up: Chapter 1 - Introduction to Red Hat Enterprise Linux!</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Introduction Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Course Introduction • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">© Red Hat, Inc. Course materials adapted for educational use.</p>
+    </footer>
+
+    <!-- JavaScript - All functionality with embedded code for Canvas LMS compatibility -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== SMART TOOLTIP POSITIONING ====================
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                const tooltipText = term.getAttribute('data-tooltip');
+                if (!tooltipText) return;
+
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.setAttribute('role', 'tooltip');
+                tooltip.setAttribute('id', 'tooltip-' + Math.random().toString(36).substr(2, 9));
+                tooltip.textContent = tooltipText;
+                term.appendChild(tooltip);
+                term.setAttribute('aria-describedby', tooltip.id);
+
+                // Smart position function to prevent screen bleed
+                function positionTooltip() {
+                    const termRect = term.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Reset classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-adjust-left', 'tooltip-adjust-right');
+                    
+                    // Calculate available space
+                    const spaceAbove = termRect.top;
+                    const spaceBelow = viewportHeight - termRect.bottom;
+                    const spaceLeft = termRect.left;
+                    const spaceRight = viewportWidth - termRect.right;
+                    
+                    // Get tooltip dimensions (temporarily show to measure)
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '1';
+                    tooltip.style.display = 'block';
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    tooltip.style.display = '';
+                    tooltip.style.opacity = '';
+                    tooltip.style.visibility = '';
+                    
+                    const tooltipWidth = tooltipRect.width;
+                    const tooltipHeight = tooltipRect.height;
+                    
+                    // Determine best position
+                    if (spaceAbove >= tooltipHeight + 20) {
+                        tooltip.classList.add('tooltip-top');
+                    } else if (spaceBelow >= tooltipHeight + 20) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else if (spaceRight >= tooltipWidth + 20) {
+                        tooltip.classList.add('tooltip-right');
+                    } else if (spaceLeft >= tooltipWidth + 20) {
+                        tooltip.classList.add('tooltip-left');
+                    } else {
+                        // Default to top with horizontal adjustment
+                        tooltip.classList.add('tooltip-top');
+                    }
+                    
+                    // Horizontal edge adjustment for top/bottom tooltips
+                    if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
+                        const halfTooltip = tooltipWidth / 2;
+                        const termCenter = termRect.left + (termRect.width / 2);
+                        
+                        if (termCenter - halfTooltip < 10) {
+                            tooltip.classList.add('tooltip-adjust-left');
+                        } else if (termCenter + halfTooltip > viewportWidth - 10) {
+                            tooltip.classList.add('tooltip-adjust-right');
+                        }
+                    }
+                }
+
+                // Position on hover/focus
+                term.addEventListener('mouseenter', positionTooltip);
+                term.addEventListener('focus', positionTooltip);
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable-header');
+            
+            expandables.forEach(header => {
+                const contentId = header.getAttribute('aria-controls');
+                const content = document.getElementById(contentId);
+                
+                // Initialize state
+                const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                if (isExpanded) {
+                    content.classList.add('expanded');
+                }
+                
+                header.addEventListener('click', () => {
+                    const expanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !expanded);
+                    content.classList.toggle('expanded');
+                });
+                
+                // Keyboard support
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== TABS COMPONENT ====================
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update button states
+                    tabButtons.forEach(btn => btn.setAttribute('aria-selected', 'false'));
+                    button.setAttribute('aria-selected', 'true');
+                    
+                    // Update content visibility
+                    const targetId = button.getAttribute('aria-controls');
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        if (content.id === targetId) {
+                            content.classList.add('active');
+                        }
+                    });
+                });
+                
+                // Keyboard navigation
+                button.addEventListener('keydown', (e) => {
+                    const buttons = Array.from(tabButtons);
+                    const currentIndex = buttons.indexOf(button);
+                    let newIndex;
+                    
+                    if (e.key === 'ArrowRight') {
+                        newIndex = (currentIndex + 1) % buttons.length;
+                    } else if (e.key === 'ArrowLeft') {
+                        newIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+                    }
+                    
+                    if (newIndex !== undefined) {
+                        e.preventDefault();
+                        buttons[newIndex].focus();
+                        buttons[newIndex].click();
+                    }
+                });
+            });
+
+            // ==================== EXPLORE CARDS INTERACTION ====================
+            const exploreCards = document.querySelectorAll('.explore-card');
+            const exploreDetails = document.querySelectorAll('.explore-detail');
+            
+            exploreCards.forEach(card => {
+                const topic = card.getAttribute('data-topic');
+                
+                card.addEventListener('click', () => {
+                    // Toggle active state on cards
+                    const wasActive = card.classList.contains('active');
+                    exploreCards.forEach(c => c.classList.remove('active'));
+                    exploreDetails.forEach(d => d.classList.remove('active'));
+                    
+                    if (!wasActive) {
+                        card.classList.add('active');
+                        card.setAttribute('aria-selected', 'true');
+                        const detail = document.getElementById('detail-' + topic);
+                        if (detail) {
+                            detail.classList.add('active');
+                            // Smooth scroll to detail
+                            setTimeout(() => {
+                                detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                            }, 100);
+                        }
+                    } else {
+                        card.setAttribute('aria-selected', 'false');
+                    }
+                });
+                
+                // Keyboard support
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+
+            // ==================== QUIZ FUNCTIONALITY ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreEl = document.getElementById('quiz-score');
+
+            if (checkAnswersBtn) {
+                checkAnswersBtn.addEventListener('click', () => {
+                    let score = 0;
+
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const correct = question.getAttribute('data-correct');
+                        const selected = question.querySelector('input:checked');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        const options = question.querySelectorAll('.quiz-option');
+
+                        // Clear previous states
+                        options.forEach(opt => {
+                            opt.classList.remove('correct', 'incorrect', 'selected');
+                        });
+
+                        if (selected) {
+                            const selectedLabel = selected.closest('.quiz-option');
+                            if (selected.value === correct) {
+                                score++;
+                                selectedLabel.classList.add('correct');
+                                feedback.className = 'quiz-feedback show correct';
+                                feedback.innerHTML = '✓ Correct! Great job.';
+                            } else {
+                                selectedLabel.classList.add('incorrect');
+                                // Highlight correct answer
+                                options.forEach(opt => {
+                                    const input = opt.querySelector('input');
+                                    if (input.value === correct) {
+                                        opt.classList.add('correct');
+                                    }
+                                });
+                                feedback.className = 'quiz-feedback show incorrect';
+                                feedback.innerHTML = '✗ Not quite. See the correct answer highlighted above.';
+                            }
+                        } else {
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '⚠ Please select an answer.';
+                        }
+                    });
+
+                    quizScoreEl.textContent = `Score: ${score}/5`;
+                    checkAnswersBtn.style.display = 'none';
+                    resetQuizBtn.style.display = 'inline-block';
+                    
+                    // Update progress
+                    updateProgress();
+                });
+            }
+
+            if (resetQuizBtn) {
+                resetQuizBtn.addEventListener('click', () => {
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const inputs = question.querySelectorAll('input');
+                        const options = question.querySelectorAll('.quiz-option');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        
+                        inputs.forEach(input => input.checked = false);
+                        options.forEach(opt => opt.classList.remove('correct', 'incorrect', 'selected'));
+                        feedback.className = 'quiz-feedback';
+                        feedback.innerHTML = '';
+                    });
+
+                    quizScoreEl.textContent = 'Score: 0/5';
+                    resetQuizBtn.style.display = 'none';
+                    checkAnswersBtn.style.display = 'inline-block';
+                });
+            }
+
+            // Quiz option selection feedback
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const container = option.closest('.quiz-options');
+                    container.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            // ==================== CHECKLIST FUNCTIONALITY ====================
+            const checklistItems = document.querySelectorAll('.checklist-checkbox');
+            
+            checklistItems.forEach(checkbox => {
+                // Load saved state
+                const savedState = localStorage.getItem('intro-' + checkbox.id);
+                if (savedState === 'true') {
+                    checkbox.checked = true;
+                    checkbox.closest('.checklist-item').classList.add('completed');
+                }
+                
+                checkbox.addEventListener('change', () => {
+                    const item = checkbox.closest('.checklist-item');
+                    if (checkbox.checked) {
+                        item.classList.add('completed');
+                    } else {
+                        item.classList.remove('completed');
+                    }
+                    // Save state
+                    localStorage.setItem('intro-' + checkbox.id, checkbox.checked);
+                    updateProgress();
+                });
+            });
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.querySelector('.progress-bar');
+            let sectionsViewed = new Set();
+
+            function updateProgress() {
+                const totalSections = sections.length;
+                const viewedCount = sectionsViewed.size;
+                const percentage = Math.round((viewedCount / totalSections) * 100);
+                
+                progressFill.style.width = percentage + '%';
+                progressText.textContent = percentage + '%';
+                progressBar.setAttribute('aria-valuenow', percentage);
+                
+                // Store in localStorage
+                localStorage.setItem('intro-progress', JSON.stringify(Array.from(sectionsViewed)));
+            }
+
+            // Load saved progress
+            const savedProgress = localStorage.getItem('intro-progress');
+            if (savedProgress) {
+                sectionsViewed = new Set(JSON.parse(savedProgress));
+                updateProgress();
+            }
+
+            // Track section visibility
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -20% 0px',
+                threshold: 0.5
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        sectionsViewed.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // ==================== NAVIGATION ACTIVE STATE ====================
+            const navBtns = document.querySelectorAll('.nav-btn');
+            
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navBtns.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('href') === '#' + entry.target.id) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.3, rootMargin: '-100px 0px -50% 0px' });
+
+            sections.forEach(section => {
+                navObserver.observe(section);
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    // Mark all sections as viewed
+                    sections.forEach(section => {
+                        sectionsViewed.add(section.id);
+                    });
+                    updateProgress();
+                    
+                    // Visual feedback
+                    completeBtn.textContent = '✓ Introduction Completed!';
+                    completeBtn.style.background = '#339933';
+                    completeBtn.disabled = true;
+                    
+                    // Store completion
+                    localStorage.setItem('intro-complete', 'true');
+                });
+
+                // Check if already completed
+                if (localStorage.getItem('intro-complete') === 'true') {
+                    completeBtn.textContent = '✓ Introduction Completed!';
+                    completeBtn.style.background = '#339933';
+                }
+            }
+
+            // ==================== SMOOTH SCROLL FOR NAV ====================
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = btn.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        const navHeight = document.querySelector('.section-nav').offsetHeight;
+                        const progressHeight = document.querySelector('.progress-container').offsetHeight;
+                        const offset = navHeight + progressHeight + 20;
+                        const targetPosition = targetSection.offsetTop - offset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // ==================== KEYBOARD ACCESSIBILITY ====================
+            // Make info cards keyboard accessible
+            document.querySelectorAll('.info-card').forEach(card => {
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
