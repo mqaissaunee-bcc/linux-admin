@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Introduction to Red Hat Enterprise Linux | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-purple: #663399;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            color: var(--rh-gray-dark);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .nav-btn:hover, .nav-btn:focus {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        /* ==================== PROGRESS TRACKER ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+        }
+
+        .progress-percent {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red);
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--rh-gray-lighter);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* ==================== SECTIONS ==================== */
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            position: relative;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--rh-red);
+        }
+
+        .section-number {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            border-radius: 50%;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+
+        .section-header h2 {
+            display: inline;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            vertical-align: middle;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .section-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF5CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .objectives-box h3::before {
+            content: '🎯';
+            font-size: 1.3rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            padding: 10px 0 10px 30px;
+            position: relative;
+            border-bottom: 1px dashed var(--rh-gold);
+        }
+
+        .objectives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .term {
+            color: var(--rh-blue);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .term:hover, .term:focus {
+            color: var(--rh-blue-dark);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: var(--font-display);
+            font-weight: 400;
+            line-height: 1.5;
+            width: 300px;
+            max-width: 90vw;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning classes */
+        .tooltip.tooltip-top {
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-top::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-bottom {
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-bottom::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-left {
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-right {
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== KEY POINTS BOX ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F3FF 0%, #CCE7FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            padding: 20px 25px;
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .key-points h4::before {
+            content: '💡';
+        }
+
+        .key-points ul {
+            margin-left: 20px;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== TIMELINE ==================== */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--rh-red) 0%, var(--rh-blue) 100%);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 8px;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: var(--rh-white);
+            border: 4px solid var(--rh-red);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-year {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red);
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .timeline-content {
+            background: var(--rh-gray-lighter);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+        }
+
+        .timeline-content h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 8px;
+        }
+
+        /* ==================== INTERACTIVE CARDS ==================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            transition: all var(--transition-med);
+            cursor: pointer;
+        }
+
+        .info-card:hover, .info-card:focus {
+            border-color: var(--rh-red);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .info-card h4 {
+            font-family: var(--font-display);
+            color: var(--rh-red);
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: var(--rh-gray);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: var(--rh-gray-lighter);
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            transition: background var(--transition-fast);
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .expandable-header:hover, .expandable-header:focus {
+            background: var(--rh-gray-light);
+        }
+
+        .expandable-header[aria-expanded="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .expand-icon {
+            font-size: 1.2rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+
+        .expandable-content.open {
+            padding: 20px;
+            max-height: 2000px;
+        }
+
+        /* ==================== DIAGRAM CONTAINER ==================== */
+        .diagram-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .flow-box {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-blue);
+            border-radius: var(--radius-md);
+            padding: 15px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-blue-dark);
+            min-width: 150px;
+            transition: all var(--transition-fast);
+        }
+
+        .flow-box:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            transform: scale(1.05);
+        }
+
+        .flow-box.highlight {
+            background: var(--rh-red);
+            border-color: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .flow-arrow {
+            color: var(--rh-gray);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* ==================== INTERACTIVE QUIZ ==================== */
+        .quiz-container {
+            background: linear-gradient(135deg, #F5F0FF 0%, #EDE6FF 100%);
+            border: 2px solid var(--rh-purple);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .quiz-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--rh-purple);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-title::before {
+            content: '📝';
+            font-size: 1.5rem;
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: var(--font-display);
+        }
+
+        .quiz-option:hover, .quiz-option:focus {
+            border-color: var(--rh-purple);
+            background: var(--rh-white);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--rh-purple);
+            background: #EDE6FF;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--rh-red);
+            background: #FFE6E6;
+        }
+
+        .quiz-option input {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--rh-purple);
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            border: 1px solid var(--rh-green);
+            color: #006600;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFE6E6;
+            border: 1px solid var(--rh-red);
+            color: var(--rh-red-dark);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .quiz-btn:hover, .quiz-btn:focus {
+            background: #4B2D8A;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-btn:disabled {
+            background: var(--rh-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-comment {
+            color: #888888;
+        }
+
+        .code-command {
+            color: #00FFFF;
+        }
+
+        .code-output {
+            color: #FFFFFF;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F3FF;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover, .tab-btn:focus {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-btn.active {
+            background: var(--rh-white);
+            color: var(--rh-red);
+            border: 2px solid var(--rh-gray-light);
+            border-bottom-color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==================== INTERACTIVE DIAGRAM ==================== */
+        .ecosystem-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 700px;
+            margin: 30px auto;
+        }
+
+        .ecosystem-box {
+            background: var(--rh-white);
+            border: 3px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-med);
+            cursor: pointer;
+        }
+
+        .ecosystem-box:hover, .ecosystem-box:focus {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .ecosystem-box.fedora {
+            border-color: #3C6EB4;
+            grid-column: 2;
+            grid-row: 3;
+        }
+
+        .ecosystem-box.fedora:hover {
+            background: #3C6EB4;
+            color: var(--rh-white);
+        }
+
+        .ecosystem-box.centos {
+            border-color: #9CCD2A;
+            grid-column: 2;
+            grid-row: 2;
+        }
+
+        .ecosystem-box.centos:hover {
+            background: #9CCD2A;
+            color: var(--rh-black);
+        }
+
+        .ecosystem-box.rhel {
+            border-color: var(--rh-red);
+            grid-column: 2;
+            grid-row: 1;
+        }
+
+        .ecosystem-box.rhel:hover {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .ecosystem-box h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .ecosystem-box p {
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+        }
+
+        .ecosystem-box:hover p {
+            color: inherit;
+        }
+
+        .ecosystem-arrow {
+            grid-column: 2;
+            text-align: center;
+            font-size: 2rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: #2E7D32;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-box h3::before {
+            content: '📋';
+            font-size: 1.5rem;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            border-bottom: 1px dashed #81C784;
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            border-radius: var(--radius-lg);
+            margin-top: 40px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .completion-btn {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .completion-btn:hover, .completion-btn:focus {
+            background: var(--rh-red-light);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 50px;
+        }
+
+        .main-footer p {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .main-header {
+                padding: 30px 15px;
+            }
+
+            .main-header h1 {
+                font-size: 1.6rem;
+            }
+
+            .nav-container {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .section-body {
+                padding: 20px;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .ecosystem-diagram {
+                grid-template-columns: 1fr;
+            }
+
+            .ecosystem-box {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+            }
+
+            .ecosystem-arrow {
+                grid-column: 1;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .section-nav,
+            .progress-container,
+            .skip-link,
+            .quiz-container,
+            .completion-section {
+                display: none;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+
+            .expandable-content {
+                max-height: none !important;
+                padding: 20px !important;
+            }
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .content-section:nth-child(1) { animation-delay: 0.1s; }
+        .content-section:nth-child(2) { animation-delay: 0.2s; }
+        .content-section:nth-child(3) { animation-delay: 0.3s; }
+        .content-section:nth-child(4) { animation-delay: 0.4s; }
+        .content-section:nth-child(5) { animation-delay: 0.5s; }
+        .content-section:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • CHAPTER 1</span>
+            <h1>Introduction to Red Hat Enterprise Linux</h1>
+            <p class="chapter-subtitle">Define and explain the following concepts: open source, Linux, Linux distributions, and Red Hat Enterprise Linux.</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Section navigation">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-why-linux" class="nav-btn">Why Linux?</a>
+            <a href="#section-open-source" class="nav-btn">Open Source</a>
+            <a href="#section-distributions" class="nav-btn">Distributions</a>
+            <a href="#section-rhel" class="nav-btn">RHEL</a>
+            <a href="#section-ecosystem" class="nav-btn">Ecosystem</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Tracker -->
+    <div class="progress-container" role="region" aria-label="Course progress">
+        <div class="progress-inner">
+            <div class="progress-header">
+                <span class="progress-label">Chapter Progress</span>
+                <span class="progress-percent" id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        
+        <!-- Section 1: Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Explain the purpose and importance of <span class="term" tabindex="0" data-tooltip="The core component of an operating system that manages hardware resources and provides essential services for all other software.">Linux</span> in modern IT infrastructure</li>
+                        <li>Define <span class="term" tabindex="0" data-tooltip="Software whose source code is freely available for anyone to view, modify, and distribute under specific licenses.">open source software</span> and describe its key characteristics</li>
+                        <li>Understand what a <span class="term" tabindex="0" data-tooltip="An installable operating system built from a Linux kernel along with user programs, libraries, and tools from various sources.">Linux distribution</span> is and why they exist</li>
+                        <li>Describe <span class="term" tabindex="0" data-tooltip="Red Hat's production-ready, commercially supported Linux distribution used by enterprises worldwide.">Red Hat Enterprise Linux (RHEL)</span> and its place in the Linux ecosystem</li>
+                        <li>Explain the relationship between Fedora, CentOS Stream, and RHEL</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>Why This Chapter Matters</h4>
+                    <p>Linux is a critical technology for IT professionals. It powers the majority of web servers, cloud infrastructure, supercomputers, and mobile devices worldwide. Understanding Linux and RHEL opens doors to countless career opportunities in system administration, DevOps, cloud computing, and beyond.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Why Learn Linux -->
+        <section id="section-why-linux" class="content-section" aria-labelledby="why-linux-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="why-linux-heading">Why Should You Learn About Linux?</h2>
+            </div>
+            <div class="section-body">
+                <p>Linux is in widespread use worldwide. Every time you browse the web, use e-commerce sites, or interact with online services, you're likely connecting to Linux servers. But Linux extends far beyond the internet.</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Web & Cloud</h4>
+                        <p>Linux provides the core technologies that power the cloud revolution, including container-based microservices, software-defined storage, and big data solutions.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">💻</span> Supercomputing</h4>
+                        <p>Linux runs on most of the top 500 supercomputers in the world, driving scientific research and complex calculations.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📱</span> Mobile & IoT</h4>
+                        <p>Android, the world's most popular mobile operating system, is built on the Linux kernel. IoT devices commonly run Linux.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🏢</span> Enterprise</h4>
+                        <p>In modern data centers, Linux and Microsoft Windows are the predominant operating systems, with Linux use continuing to expand.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="reasons-content">
+                        <span>Reasons to Learn Linux</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="reasons-content" class="expandable-content">
+                        <ul>
+                            <li><strong>Interoperability:</strong> Windows users need to interoperate with Linux systems and applications</li>
+                            <li><strong>Application Development:</strong> Linux commonly hosts applications and their runtime environments</li>
+                            <li><strong>Cloud Computing:</strong> Both private and public cloud instances use Linux as the operating system</li>
+                            <li><strong>Career Opportunities:</strong> Linux skills are in high demand across the IT industry</li>
+                            <li><strong>Cost Efficiency:</strong> Open source software reduces licensing costs</li>
+                            <li><strong>Security:</strong> Linux's open nature allows for rapid security auditing and patching</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Industry Impact</h4>
+                    <ul>
+                        <li>Linux manages point-of-sale systems and the world's stock markets</li>
+                        <li>Powers smart TVs and in-flight entertainment systems</li>
+                        <li>Runs the majority of web servers worldwide</li>
+                        <li>Forms the foundation of most container and Kubernetes deployments</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Open Source Software -->
+        <section id="section-open-source" class="content-section" aria-labelledby="open-source-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="open-source-heading">Understanding Open Source Software</h2>
+            </div>
+            <div class="section-body">
+                <p><span class="term" tabindex="0" data-tooltip="Software that comes with source code and a license that allows users to study, modify, and redistribute the software.">Open source software</span> is software whose source code is freely available for anyone to study, modify, and redistribute. This collaborative development model has revolutionized how software is created and maintained.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-buttons" role="tablist">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-characteristics" id="tab-btn-1">Characteristics</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-benefits" id="tab-btn-2">Benefits</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-licenses" id="tab-btn-3">Licenses</button>
+                    </div>
+                    <div id="tab-characteristics" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-1">
+                        <h4>Key Characteristics of Open Source</h4>
+                        <ul>
+                            <li><strong>Source Code Availability:</strong> The source code is publicly accessible</li>
+                            <li><strong>Freedom to Modify:</strong> Users can alter the software to suit their needs</li>
+                            <li><strong>Freedom to Redistribute:</strong> Modified versions can be shared</li>
+                            <li><strong>Community Development:</strong> Many contributors collaborate on improvements</li>
+                            <li><strong>Transparency:</strong> Anyone can review the code for security or quality</li>
+                        </ul>
+                    </div>
+                    <div id="tab-benefits" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-2">
+                        <h4>Benefits of Open Source</h4>
+                        <ul>
+                            <li><strong>Cost Savings:</strong> No licensing fees for the software itself</li>
+                            <li><strong>Innovation:</strong> Collaborative development accelerates improvements</li>
+                            <li><strong>Security:</strong> Many eyes reviewing code means faster bug detection</li>
+                            <li><strong>No Vendor Lock-in:</strong> Freedom to switch providers or fork the project</li>
+                            <li><strong>Quality:</strong> Competition and transparency drive higher standards</li>
+                        </ul>
+                    </div>
+                    <div id="tab-licenses" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-3">
+                        <h4>Common Open Source Licenses</h4>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>License</th>
+                                    <th>Type</th>
+                                    <th>Key Feature</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="term" tabindex="0" data-tooltip="GNU General Public License - A copyleft license that requires derivative works to also be open source.">GPL</span></td>
+                                    <td>Copyleft</td>
+                                    <td>Derivatives must remain open source</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="term" tabindex="0" data-tooltip="A permissive license with fewer restrictions on how the software can be used or redistributed.">MIT</span></td>
+                                    <td>Permissive</td>
+                                    <td>Minimal restrictions on use</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="term" tabindex="0" data-tooltip="Apache License 2.0 - A permissive license that also provides explicit patent rights.">Apache 2.0</span></td>
+                                    <td>Permissive</td>
+                                    <td>Includes patent grants</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="term" tabindex="0" data-tooltip="Berkeley Software Distribution license - A permissive license allowing proprietary use.">BSD</span></td>
+                                    <td>Permissive</td>
+                                    <td>Simple and flexible</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>The GNU Project</h4>
+                    <p>The <span class="term" tabindex="0" data-tooltip="A free software project started by Richard Stallman in 1983 to create a complete Unix-like operating system composed entirely of free software.">GNU Project</span>, launched by Richard Stallman in 1983, aimed to create a complete free operating system. Many essential Linux utilities come from this project, which is why you'll sometimes hear "GNU/Linux" used to describe the full system.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Linux Distributions -->
+        <section id="section-distributions" class="content-section" aria-labelledby="distributions-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="distributions-heading">What Is a Linux Distribution?</h2>
+            </div>
+            <div class="section-body">
+                <p>A <span class="term" tabindex="0" data-tooltip="An installable operating system constructed from a Linux kernel that supports user programs and libraries, developed by multiple independent communities.">Linux distribution</span> is an installable operating system built from a Linux kernel and supporting user programs and libraries. It's developed by multiple independent communities working cooperatively on individual components.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-year">1991</div>
+                        <div class="timeline-content">
+                            <h4>Linux Kernel Created</h4>
+                            <p><span class="term" tabindex="0" data-tooltip="The Finnish-American software engineer who created the Linux kernel in 1991 while a student at the University of Helsinki.">Linus Torvalds</span>, a graduate student, developed a Unix-like <span class="term" tabindex="0" data-tooltip="The core of an operating system that manages hardware, memory, processes, and provides essential services for all other software.">kernel</span> and licensed it under the <span class="term" tabindex="0" data-tooltip="GNU General Public License - An open source license that requires derivative works to also be distributed as open source.">GPL</span>.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-year">Early 1990s</div>
+                        <div class="timeline-content">
+                            <h4>First Distributions Emerge</h4>
+                            <p>Early developers combined the kernel with GNU utilities, graphical environments, and other software to create complete, installable systems.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-year">1994</div>
+                        <div class="timeline-content">
+                            <h4>Red Hat Linux Founded</h4>
+                            <p>Red Hat begins developing what would become the leading enterprise Linux distribution.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-year">2003</div>
+                        <div class="timeline-content">
+                            <h4>RHEL Established</h4>
+                            <p>Red Hat Enterprise Linux becomes a commercially supported product with enterprise features.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-year">Today</div>
+                        <div class="timeline-content">
+                            <h4>Hundreds of Distributions</h4>
+                            <p>Many distributions exist with differing goals: enterprise, desktop, embedded, security-focused, and more.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="distro-characteristics">
+                        <span>Common Characteristics of Linux Distributions</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="distro-characteristics" class="expandable-content">
+                        <ul>
+                            <li><strong>Linux Kernel:</strong> All distributions use the Linux kernel at their core</li>
+                            <li><strong>User-Space Programs:</strong> Applications and utilities that run on top of the kernel</li>
+                            <li><strong>Package Management:</strong> Tools to install, update, and remove software</li>
+                            <li><strong>Installation Method:</strong> A way to set up and configure the system</li>
+                            <li><strong>Support:</strong> Community or commercial backing for the software</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="distro-variety">
+                        <span>Why So Many Distributions?</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="distro-variety" class="expandable-content">
+                        <p>Different distributions serve different needs:</p>
+                        <ul>
+                            <li><strong>Enterprise:</strong> RHEL, SUSE Enterprise focus on stability and support</li>
+                            <li><strong>Desktop:</strong> Ubuntu, Fedora Workstation prioritize user experience</li>
+                            <li><strong>Lightweight:</strong> Alpine, Tiny Core minimize resource usage</li>
+                            <li><strong>Security:</strong> Kali, Parrot specialize in security testing</li>
+                            <li><strong>Education:</strong> Edubuntu, Sugar target learning environments</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">Components of a Linux Distribution</h4>
+                    <div class="flow-diagram">
+                        <div class="flow-box highlight">Linux Kernel</div>
+                        <span class="flow-arrow" aria-hidden="true">+</span>
+                        <div class="flow-box">GNU Utilities</div>
+                        <span class="flow-arrow" aria-hidden="true">+</span>
+                        <div class="flow-box">Applications</div>
+                        <span class="flow-arrow" aria-hidden="true">=</span>
+                        <div class="flow-box highlight">Distribution</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Red Hat Enterprise Linux -->
+        <section id="section-rhel" class="content-section" aria-labelledby="rhel-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="rhel-heading">Red Hat Enterprise Linux (RHEL)</h2>
+            </div>
+            <div class="section-body">
+                <p><span class="term" tabindex="0" data-tooltip="Red Hat Enterprise Linux - A production-ready, commercially supported Linux distribution that is the leading platform for open source computing.">Red Hat Enterprise Linux (RHEL)</span> is Red Hat's production-ready, commercially supported Linux distribution. In the computing industry, RHEL is acknowledged as the leading platform for open source computing.</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">✓</span> Extensively Tested</h4>
+                        <p>RHEL undergoes rigorous hardware, integration, and performance testing before release.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🤝</span> Partner Ecosystem</h4>
+                        <p>A worldwide ecosystem of support partners for hardware and software certifications.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📚</span> Training & Certification</h4>
+                        <p>Comprehensive training, consulting services, and professional certifications.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🔧</span> Multi-Year Support</h4>
+                        <p>Support and maintenance guarantees that enterprises require for production systems.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="rhel-subscription">
+                        <span>RHEL Subscription Model</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="rhel-subscription" class="expandable-content">
+                        <p>RHEL uses a <span class="term" tabindex="0" data-tooltip="A business model where customers pay for ongoing support, updates, and services rather than a one-time license fee.">subscription-based support model</span>, not license fees for open-source software:</p>
+                        <ul>
+                            <li><strong>Product Support:</strong> Expert assistance from Red Hat engineers</li>
+                            <li><strong>Maintenance:</strong> Regular updates and bug fixes</li>
+                            <li><strong>Security Patches:</strong> Timely fixes for vulnerabilities</li>
+                            <li><strong>Customer Portal:</strong> Access to Knowledgebase, utilities, and downloads</li>
+                            <li><strong>Certifications:</strong> Validated hardware and software compatibility</li>
+                        </ul>
+                        <p><strong>Note:</strong> Red Hat provides free individual RHEL developer subscriptions for small-scale use, such as demos, prototyping, quality assurance, and limited production.</p>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>RHEL Architectures</h4>
+                    <p>RHEL is available for multiple processor architectures, making it versatile for various deployment scenarios:</p>
+                    <ul>
+                        <li><strong>Intel/AMD x86_64:</strong> Standard server and desktop processors</li>
+                        <li><strong>ARM64:</strong> Energy-efficient processors for edge and mobile</li>
+                        <li><strong>IBM Power:</strong> High-performance enterprise systems</li>
+                        <li><strong>IBM Z:</strong> Mainframe computing</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Red Hat Ecosystem -->
+        <section id="section-ecosystem" class="content-section" aria-labelledby="ecosystem-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="ecosystem-heading">The RHEL Ecosystem</h2>
+            </div>
+            <div class="section-body">
+                <p>Red Hat Enterprise Linux doesn't exist in isolation. It's part of a larger ecosystem that includes upstream development projects and downstream derivatives.</p>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">RHEL Development Flow</h4>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 20px;">
+                        <div class="flow-box" style="background: #3C6EB4; color: white; border-color: #3C6EB4;">
+                            <strong>Fedora Rawhide</strong><br>
+                            <small>Continuous Development</small>
+                        </div>
+                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <div class="flow-box" style="background: #3C6EB4; color: white; border-color: #3C6EB4;">
+                            <strong>Fedora Release</strong><br>
+                            <small>Community Testing</small>
+                        </div>
+                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <div class="flow-box" style="background: #9CCD2A; color: black; border-color: #9CCD2A;">
+                            <strong>CentOS Stream</strong><br>
+                            <small>RHEL Development Preview</small>
+                        </div>
+                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <div class="flow-box highlight">
+                            <strong>RHEL</strong><br>
+                            <small>Enterprise Production</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs-container">
+                    <div class="tab-buttons" role="tablist">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-fedora" id="eco-tab-1">Fedora</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-centos" id="eco-tab-2">CentOS Stream</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-coreos" id="eco-tab-3">CoreOS</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-ubi" id="eco-tab-4">UBI</button>
+                    </div>
+                    <div id="tab-fedora" class="tab-content active" role="tabpanel" aria-labelledby="eco-tab-1">
+                        <h4>Fedora Project</h4>
+                        <p><span class="term" tabindex="0" data-tooltip="A community-driven Linux distribution sponsored by Red Hat that serves as the upstream source for RHEL.">Fedora</span> is the upstream community project that feeds into RHEL. It serves as a testing ground for new technologies.</p>
+                        <ul>
+                            <li><strong>Fedora Rawhide:</strong> The continuous development environment</li>
+                            <li><strong>Fedora Releases:</strong> Regular releases with the latest features</li>
+                            <li><strong>Community Driven:</strong> Open development with Red Hat sponsorship</li>
+                            <li><strong>Innovation Focus:</strong> Cutting-edge software and technologies</li>
+                        </ul>
+                    </div>
+                    <div id="tab-centos" class="tab-content" role="tabpanel" aria-labelledby="eco-tab-2">
+                        <h4>CentOS Stream</h4>
+                        <p><span class="term" tabindex="0" data-tooltip="A continuously delivered Linux distribution that tracks ahead of RHEL, serving as the public development branch for the next RHEL minor release.">CentOS Stream</span> is the continuous development environment for preparing the next minor-version RHEL release.</p>
+                        <ul>
+                            <li><strong>Development Preview:</strong> See what's coming in the next RHEL release</li>
+                            <li><strong>Contribution Path:</strong> Community can contribute to RHEL development</li>
+                            <li><strong>Same Architecture Support:</strong> Available on x86_64, ARM64, IBM Power, and IBM Z</li>
+                            <li><strong>Free to Use:</strong> Available for development, testing, and light production</li>
+                        </ul>
+                    </div>
+                    <div id="tab-coreos" class="tab-content" role="tabpanel" aria-labelledby="eco-tab-3">
+                        <h4>Red Hat Enterprise Linux CoreOS (RHCOS)</h4>
+                        <p><span class="term" tabindex="0" data-tooltip="An image-based RHEL variant optimized for running containerized workloads in OpenShift Container Platform.">RHCOS</span> is built from RHEL components specifically for cloud-native applications.</p>
+                        <ul>
+                            <li><strong>Container Optimized:</strong> Designed for running containers in OpenShift</li>
+                            <li><strong>Image-Based:</strong> Managed and upgraded as immutable system images</li>
+                            <li><strong>CRI-O Integration:</strong> Uses CRI-O compliant container runtime</li>
+                            <li><strong>Automated Management:</strong> Upgraded and managed by OpenShift</li>
+                        </ul>
+                    </div>
+                    <div id="tab-ubi" class="tab-content" role="tabpanel" aria-labelledby="eco-tab-4">
+                        <h4>Red Hat Universal Base Image (UBI)</h4>
+                        <p><span class="term" tabindex="0" data-tooltip="A freely redistributable subset of RHEL designed as a foundation for building container images.">UBI</span> is a freely redistributable derivative of RHEL designed for container development.</p>
+                        <ul>
+                            <li><strong>Container Foundation:</strong> Base and application images for containers</li>
+                            <li><strong>RPM Repositories:</strong> Package updates for container dependencies</li>
+                            <li><strong>Free Redistribution:</strong> Share containers built on UBI freely</li>
+                            <li><strong>RHEL Supported:</strong> Full support when run on RHEL or OpenShift</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>The Development Pipeline</h4>
+                    <p>Understanding the relationship between these projects is essential for system administrators:</p>
+                    <ul>
+                        <li><strong>Fedora Rawhide → Fedora:</strong> New features are developed and tested</li>
+                        <li><strong>Fedora → CentOS Stream:</strong> Selected packages mature for enterprise use</li>
+                        <li><strong>CentOS Stream → RHEL:</strong> Rigorous testing produces the stable release</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Knowledge Check Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container" role="region" aria-label="Chapter quiz">
+                    <div class="quiz-header">
+                        <h3 class="quiz-title">Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="b">
+                        <p class="question-text"><span class="question-number">1</span>Who created the original Linux kernel in 1991?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                Richard Stallman
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                Linus Torvalds
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Dennis Ritchie
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                Ken Thompson
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="c">
+                        <p class="question-text"><span class="question-number">2</span>What is a Linux distribution?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                Just the Linux kernel by itself
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                A proprietary operating system based on Linux
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                An installable OS built from a Linux kernel with user programs and libraries
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                A commercial version of Windows
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">3</span>What is the primary purpose of CentOS Stream?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                A development preview for the next RHEL minor release
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                An exact clone of the current RHEL release
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                A desktop-focused distribution
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                A replacement for Fedora
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">4</span>Which license did Linus Torvalds use for the Linux kernel?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                MIT License
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Apache License 2.0
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                BSD License
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                GNU General Public License (GPL)
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">5</span>What does RHEL's subscription model primarily provide?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Ownership of the source code
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                Support, updates, security patches, and access to resources
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Exclusive hardware compatibility
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                Permission to use Linux
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Chapter Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>Linux is critical for IT professionals</strong> — it powers web servers, cloud infrastructure, supercomputers, mobile devices, and enterprise systems worldwide.</li>
+                        <li><strong>Open source software</strong> provides freely available source code that can be studied, modified, and redistributed, enabling collaborative development and innovation.</li>
+                        <li><strong>Linux distributions</strong> combine the Linux kernel with GNU utilities, applications, and tools to create complete, installable operating systems for different use cases.</li>
+                        <li><strong>RHEL is an enterprise-grade distribution</strong> with extensive testing, a partner ecosystem, certifications, training, and multi-year support guarantees.</li>
+                        <li><strong>The RHEL ecosystem</strong> includes Fedora (upstream innovation), CentOS Stream (development preview), RHCOS (container-optimized), and UBI (container images).</li>
+                        <li><strong>RHEL uses a subscription model</strong> that provides support, maintenance, security patches, and access to the Customer Portal rather than charging software license fees.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 2, you'll learn how to access the Linux command line, including:</p>
+                    <ul>
+                        <li>Logging in to a Linux system</li>
+                        <li>Using the bash shell</li>
+                        <li>Running basic commands</li>
+                        <li>Understanding virtual consoles and terminals</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 1 Complete!</h2>
+                    <p>You've learned the fundamentals of Linux and Red Hat Enterprise Linux.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 1 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. Course materials adapted for educational use.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== TOOLTIP SYSTEM ====================
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                const tooltipText = term.getAttribute('data-tooltip');
+                if (!tooltipText) return;
+
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.setAttribute('role', 'tooltip');
+                tooltip.setAttribute('id', 'tooltip-' + Math.random().toString(36).substr(2, 9));
+                tooltip.textContent = tooltipText;
+                term.appendChild(tooltip);
+                term.setAttribute('aria-describedby', tooltip.id);
+
+                // Position tooltip function
+                function positionTooltip() {
+                    const termRect = term.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Remove all position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+                    
+                    // Calculate available space
+                    const spaceAbove = termRect.top;
+                    const spaceBelow = viewportHeight - termRect.bottom;
+                    const spaceLeft = termRect.left;
+                    const spaceRight = viewportWidth - termRect.right;
+
+                    // Determine best position
+                    if (spaceAbove > 150) {
+                        tooltip.classList.add('tooltip-top');
+                    } else if (spaceBelow > 150) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else if (spaceRight > 320) {
+                        tooltip.classList.add('tooltip-right');
+                    } else if (spaceLeft > 320) {
+                        tooltip.classList.add('tooltip-left');
+                    } else {
+                        tooltip.classList.add('tooltip-bottom');
+                    }
+
+                    // Adjust horizontal position for top/bottom tooltips
+                    if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
+                        const tooltipWidth = 300;
+                        const centerX = termRect.left + termRect.width / 2;
+                        
+                        if (centerX - tooltipWidth/2 < 10) {
+                            tooltip.style.left = '0';
+                            tooltip.style.transform = 'translateX(0)';
+                        } else if (centerX + tooltipWidth/2 > viewportWidth - 10) {
+                            tooltip.style.left = 'auto';
+                            tooltip.style.right = '0';
+                            tooltip.style.transform = 'translateX(0)';
+                        } else {
+                            tooltip.style.left = '50%';
+                            tooltip.style.right = 'auto';
+                            tooltip.style.transform = 'translateX(-50%)';
+                        }
+                    }
+                }
+
+                // Show tooltip
+                function showTooltip() {
+                    positionTooltip();
+                    tooltip.classList.add('show');
+                }
+
+                // Hide tooltip
+                function hideTooltip() {
+                    tooltip.classList.remove('show');
+                }
+
+                // Event listeners
+                term.addEventListener('mouseenter', showTooltip);
+                term.addEventListener('mouseleave', hideTooltip);
+                term.addEventListener('focus', showTooltip);
+                term.addEventListener('blur', hideTooltip);
+
+                // Keyboard support
+                term.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        hideTooltip();
+                        term.blur();
+                    }
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandableHeaders = document.querySelectorAll('.expandable-header');
+            
+            expandableHeaders.forEach(header => {
+                const content = header.nextElementSibling;
+                
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.classList.toggle('open');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== TAB SYSTEM ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update buttons
+                        tabBtns.forEach(b => {
+                            b.classList.remove('active');
+                            b.setAttribute('aria-selected', 'false');
+                        });
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-selected', 'true');
+
+                        // Update content
+                        const targetId = btn.getAttribute('aria-controls');
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === targetId) {
+                                content.classList.add('active');
+                            }
+                        });
+                    });
+
+                    // Keyboard navigation
+                    btn.addEventListener('keydown', (e) => {
+                        const currentIndex = Array.from(tabBtns).indexOf(btn);
+                        let newIndex;
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (currentIndex + 1) % tabBtns.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (currentIndex - 1 + tabBtns.length) % tabBtns.length;
+                        } else {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        tabBtns[newIndex].click();
+                        tabBtns[newIndex].focus();
+                    });
+                });
+            });
+
+            // ==================== QUIZ SYSTEM ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreEl = document.getElementById('quiz-score');
+            
+            const correctAnswers = {
+                1: { answer: 'b', explanation: 'Linus Torvalds created the Linux kernel in 1991 while he was a graduate student at the University of Helsinki.' },
+                2: { answer: 'c', explanation: 'A Linux distribution is an installable operating system constructed from a Linux kernel that supports user programs and libraries.' },
+                3: { answer: 'a', explanation: 'CentOS Stream is the continuous development environment for preparing the next minor-version RHEL release.' },
+                4: { answer: 'd', explanation: 'Linus Torvalds licensed the Linux kernel under the GNU General Public License (GPL), which requires derivative works to also be open source.' },
+                5: { answer: 'b', explanation: 'RHEL subscriptions provide support, maintenance, updates, security patches, and access to the Customer Portal - not license fees for the open-source software.' }
+            };
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let score = 0;
+                
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const selectedOption = question.querySelector('input:checked');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    const options = question.querySelectorAll('.quiz-option');
+                    
+                    // Reset option styles
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect', 'selected');
+                    });
+
+                    if (selectedOption) {
+                        const selectedValue = selectedOption.value;
+                        const correctValue = correctAnswers[qNum].answer;
+                        const selectedLabel = selectedOption.closest('.quiz-option');
+                        
+                        if (selectedValue === correctValue) {
+                            score++;
+                            selectedLabel.classList.add('correct');
+                            feedback.className = 'quiz-feedback show correct';
+                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                        } else {
+                            selectedLabel.classList.add('incorrect');
+                            // Highlight correct answer
+                            options.forEach(opt => {
+                                const input = opt.querySelector('input');
+                                if (input.value === correctValue) {
+                                    opt.classList.add('correct');
+                                }
+                            });
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                        }
+                    } else {
+                        feedback.className = 'quiz-feedback show incorrect';
+                        feedback.innerHTML = '⚠ Please select an answer.';
+                    }
+                });
+
+                quizScoreEl.textContent = `Score: ${score}/5`;
+                checkAnswersBtn.style.display = 'none';
+                resetQuizBtn.style.display = 'inline-block';
+                
+                // Update progress
+                updateProgress();
+            });
+
+            resetQuizBtn.addEventListener('click', () => {
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const inputs = question.querySelectorAll('input');
+                    const options = question.querySelectorAll('.quiz-option');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    
+                    inputs.forEach(input => input.checked = false);
+                    options.forEach(opt => opt.classList.remove('correct', 'incorrect', 'selected'));
+                    feedback.className = 'quiz-feedback';
+                    feedback.innerHTML = '';
+                });
+
+                quizScoreEl.textContent = 'Score: 0/5';
+                resetQuizBtn.style.display = 'none';
+                checkAnswersBtn.style.display = 'inline-block';
+            });
+
+            // Quiz option selection feedback
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const container = option.closest('.quiz-options');
+                    container.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.querySelector('.progress-bar');
+            let sectionsViewed = new Set();
+
+            function updateProgress() {
+                const totalSections = sections.length;
+                const viewedCount = sectionsViewed.size;
+                const percentage = Math.round((viewedCount / totalSections) * 100);
+                
+                progressFill.style.width = percentage + '%';
+                progressText.textContent = percentage + '%';
+                progressBar.setAttribute('aria-valuenow', percentage);
+                
+                // Store in localStorage
+                localStorage.setItem('ch1-progress', JSON.stringify(Array.from(sectionsViewed)));
+            }
+
+            // Load saved progress
+            const savedProgress = localStorage.getItem('ch1-progress');
+            if (savedProgress) {
+                sectionsViewed = new Set(JSON.parse(savedProgress));
+                updateProgress();
+            }
+
+            // Track section visibility
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -20% 0px',
+                threshold: 0.5
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        sectionsViewed.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // ==================== NAVIGATION ACTIVE STATE ====================
+            const navBtns = document.querySelectorAll('.nav-btn');
+            
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navBtns.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('href') === '#' + entry.target.id) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.3, rootMargin: '-100px 0px -50% 0px' });
+
+            sections.forEach(section => {
+                navObserver.observe(section);
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            
+            completeBtn.addEventListener('click', () => {
+                // Mark all sections as viewed
+                sections.forEach(section => {
+                    sectionsViewed.add(section.id);
+                });
+                updateProgress();
+                
+                // Visual feedback
+                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.style.background = 'var(--rh-green)';
+                completeBtn.disabled = true;
+                
+                // Store completion
+                localStorage.setItem('ch1-complete', 'true');
+            });
+
+            // Check if already completed
+            if (localStorage.getItem('ch1-complete') === 'true') {
+                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.style.background = 'var(--rh-green)';
+            }
+
+            // ==================== SMOOTH SCROLL FOR NAV ====================
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = btn.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        const navHeight = document.querySelector('.section-nav').offsetHeight;
+                        const progressHeight = document.querySelector('.progress-container').offsetHeight;
+                        const offset = navHeight + progressHeight + 20;
+                        const targetPosition = targetSection.offsetTop - offset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
