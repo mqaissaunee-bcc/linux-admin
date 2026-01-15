@@ -1,0 +1,2630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Accessing the Command Line | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            color: var(--rh-gray-dark);
+            padding: 10px 18px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-btn:hover, .nav-btn:focus {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-gray-dark);
+            padding: 12px 20px;
+            position: sticky;
+            top: 60px;
+            z-index: 999;
+        }
+
+        .progress-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            color: var(--rh-gray-light);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .progress-percent {
+            color: var(--rh-gold);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .progress-bar {
+            background: var(--rh-gray);
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-gold) 100%);
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+        }
+
+        .section-body ul, .section-body ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        .section-body li {
+            margin-bottom: 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+            border-left: 4px solid var(--rh-gold);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            padding: 12px 0 12px 35px;
+            position: relative;
+            border-bottom: 1px dashed var(--rh-gold);
+        }
+
+        .objectives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .term {
+            color: var(--rh-blue);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .term:hover, .term:focus {
+            color: var(--rh-blue-dark);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: var(--font-display);
+            font-weight: 400;
+            line-height: 1.5;
+            width: 300px;
+            max-width: 90vw;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning classes */
+        .tooltip.tooltip-top {
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-top::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-bottom {
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-bottom::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-left {
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-right {
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== KEY POINTS BOX ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F7FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        /* ==================== NOTE BOX ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ==================== WARNING BOX ==================== */
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+        }
+
+        /* Inline code */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            color: var(--rh-red-dark);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: var(--rh-gray-lighter);
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expand-icon {
+            font-size: 0.8rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .expandable-content.open {
+            padding: 20px;
+            max-height: 2000px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F3FF;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn:hover, .tab-btn:focus {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-btn.active {
+            background: var(--rh-white);
+            color: var(--rh-red);
+            border: 2px solid var(--rh-gray-light);
+            border-bottom-color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==================== INTERACTIVE TERMINAL ==================== */
+        .terminal-demo {
+            background: #1E1E1E;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin: 25px 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .terminal-header {
+            background: #3C3C3C;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #FF5F56; }
+        .terminal-dot.yellow { background: #FFBD2E; }
+        .terminal-dot.green { background: #27C93F; }
+
+        .terminal-title {
+            flex-grow: 1;
+            text-align: center;
+            color: var(--rh-gray-light);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+        }
+
+        .terminal-body {
+            padding: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #E0E0E0;
+            min-height: 200px;
+        }
+
+        .terminal-line {
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .terminal-prompt {
+            color: #27C93F;
+            margin-right: 10px;
+        }
+
+        .terminal-command {
+            color: #FFFFFF;
+        }
+
+        .terminal-output {
+            color: #B0B0B0;
+            margin-left: 0;
+            display: block;
+            width: 100%;
+        }
+
+        /* ==================== INTERACTIVE COMMAND BUILDER ==================== */
+        .command-builder {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .command-builder h4 {
+            font-family: var(--font-display);
+            margin-bottom: 15px;
+            color: var(--rh-gray-dark);
+        }
+
+        .command-parts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .command-part {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-family: var(--font-mono);
+            transition: all var(--transition-fast);
+        }
+
+        .command-part:hover {
+            border-color: var(--rh-blue);
+            background: #E6F3FF;
+        }
+
+        .command-part.selected {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .command-part.command { color: var(--rh-red); }
+        .command-part.option { color: var(--rh-blue); }
+        .command-part.argument { color: var(--rh-purple); }
+
+        .command-preview {
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            margin-top: 15px;
+        }
+
+        /* ==================== QUIZ SECTION ==================== */
+        .quiz-container {
+            background: linear-gradient(135deg, #F5E6FF 0%, #E6D6FF 100%);
+            border-radius: var(--radius-md);
+            padding: 30px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .quiz-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            display: inline-block;
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: var(--font-display);
+        }
+
+        .quiz-option:hover, .quiz-option:focus {
+            border-color: var(--rh-purple);
+            background: var(--rh-white);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--rh-purple);
+            background: #EDE6FF;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--rh-red);
+            background: #FFE6E6;
+        }
+
+        .quiz-option input {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--rh-purple);
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            border: 1px solid var(--rh-green);
+            color: #006600;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFE6E6;
+            border: 1px solid var(--rh-red);
+            color: var(--rh-red-dark);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .quiz-btn:hover, .quiz-btn:focus {
+            background: #4B2D8A;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-btn:disabled {
+            background: var(--rh-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== VIRTUAL CONSOLE DIAGRAM ==================== */
+        .console-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .console-box {
+            background: var(--rh-gray-lighter);
+            border: 3px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-med);
+            cursor: pointer;
+        }
+
+        .console-box:hover, .console-box:focus {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .console-box.graphical {
+            border-color: var(--rh-blue);
+            background: #E6F3FF;
+        }
+
+        .console-box.graphical:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .console-box.text {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .console-box.text:hover {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .console-box h5 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .console-box p {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        /* ==================== GNOME SHELL DIAGRAM ==================== */
+        .gnome-diagram {
+            position: relative;
+            background: #2E2E2E;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+            min-height: 400px;
+        }
+
+        .gnome-element {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid;
+            border-radius: var(--radius-sm);
+            padding: 10px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-white);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .gnome-element:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .gnome-element.top-bar {
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            text-align: center;
+            border-color: var(--rh-red);
+        }
+
+        .gnome-element.activities {
+            top: 60px;
+            left: 20px;
+            width: 80px;
+            border-color: var(--rh-orange);
+        }
+
+        .gnome-element.clock {
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-color: var(--rh-gold);
+        }
+
+        .gnome-element.system-menu {
+            top: 60px;
+            right: 20px;
+            border-color: var(--rh-teal);
+        }
+
+        .gnome-element.workspace {
+            top: 120px;
+            left: 20px;
+            right: 20px;
+            bottom: 80px;
+            border-color: var(--rh-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gnome-element.dock {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-color: var(--rh-blue);
+            padding: 10px 40px;
+        }
+
+        /* ==================== KEYBOARD SHORTCUT TABLE ==================== */
+        .shortcut-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .shortcut-table th,
+        .shortcut-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .shortcut-table th {
+            background: var(--rh-teal);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+        }
+
+        .shortcut-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .kbd {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin: 0 3px;
+            display: inline-block;
+            box-shadow: 0 2px 0 var(--rh-black);
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF5CC 100%);
+            border-left: 4px solid var(--rh-green);
+            padding: 25px;
+            border-radius: var(--radius-md);
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(51, 153, 51, 0.3);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .summary-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border-radius: var(--radius-md);
+            margin-top: 30px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .completion-btn:hover, .completion-btn:focus {
+            background: #267326;
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 40px;
+            font-family: var(--font-display);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav-container {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .console-diagram {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .gnome-diagram {
+                min-height: 300px;
+            }
+
+            .gnome-element {
+                font-size: 0.7rem;
+                padding: 5px;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .section-nav,
+            .progress-container,
+            .quiz-btn,
+            .completion-btn {
+                display: none;
+            }
+
+            .content-section {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • CHAPTER 2</span>
+            <h1>Accessing the Command Line</h1>
+            <p class="chapter-subtitle">Log in to a Linux system and run simple commands by using the shell.</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Section navigation">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-text-interface" class="nav-btn">Text Interface</a>
+            <a href="#section-desktop" class="nav-btn">Desktop</a>
+            <a href="#section-bash" class="nav-btn">Bash Shell</a>
+            <a href="#section-commands" class="nav-btn">Commands</a>
+            <a href="#section-quiz1" class="nav-btn">Quiz 1</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Tracker -->
+    <div class="progress-container" role="region" aria-label="Course progress">
+        <div class="progress-inner">
+            <div class="progress-header">
+                <span class="progress-label">Chapter Progress</span>
+                <span class="progress-percent" id="progress-text">0%</span>
+            </div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        
+        <!-- Section 1: Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Log in to a Linux system on a local <span class="term" tabindex="0" data-tooltip="A text-based interface to enter commands and print output from a computer system. Historically, it was a separate hardware device connected to the computer.">text console</span></li>
+                        <li>Log in to a Linux system with the <span class="term" tabindex="0" data-tooltip="GNOME is the default graphical desktop environment in Red Hat Enterprise Linux 10. It provides a visual interface for users to interact with the system.">GNOME desktop environment</span> and run commands from a shell prompt in a terminal program</li>
+                        <li>Save time by using <span class="term" tabindex="0" data-tooltip="Tab completion allows you to automatically complete commands, file names, and options by pressing the Tab key, saving typing time and reducing errors.">tab completion</span>, <span class="term" tabindex="0" data-tooltip="The shell keeps a history of previously executed commands that you can recall and reuse using arrow keys or the history command.">command history</span>, and command-line editing shortcuts</li>
+                        <li>Execute commands with the <span class="term" tabindex="0" data-tooltip="Bash (Bourne Again Shell) is the default command-line shell in RHEL. It interprets user commands and provides features like scripting, variables, and command history.">Bash shell</span></li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>Why Learn the Command Line?</h4>
+                    <p>The command line is the most powerful and flexible way to interact with a Linux system:</p>
+                    <ul>
+                        <li><strong>Efficiency:</strong> Many tasks are faster at the command line than using a GUI</li>
+                        <li><strong>Automation:</strong> Commands can be combined into scripts for repeatable tasks</li>
+                        <li><strong>Remote Access:</strong> The command line works over slow network connections</li>
+                        <li><strong>Servers:</strong> Most Linux servers don't have a graphical environment</li>
+                        <li><strong>Troubleshooting:</strong> Many diagnostic tools are command-line only</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Accessing Command Line in Text Interface -->
+        <section id="section-text-interface" class="content-section" aria-labelledby="text-interface-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="text-interface-heading">Accessing the Command Line in a Text Interface</h2>
+            </div>
+            <div class="section-body">
+                <h3>Understanding Terminals and Consoles</h3>
+                <p>A <span class="term" tabindex="0" data-tooltip="A text-based interface to enter commands and print output from a computer system. To run the shell, you must log in to the computer on a terminal.">terminal</span> is a text-based interface to enter commands into and print output from a computer system. To run the shell, you must log in to the computer on a terminal.</p>
+
+                <h4>Physical Console</h4>
+                <p>A hardware keyboard and display for input and output might be directly connected to the computer. This is the <span class="term" tabindex="0" data-tooltip="The primary hardware interface connected directly to a Linux machine, consisting of a keyboard and display.">physical console</span> from the Linux machine. The physical console supports multiple <span class="term" tabindex="0" data-tooltip="Separate terminal sessions that can run on a single physical console. Each virtual console supports an independent login session.">virtual consoles</span>, which can run on separate terminals. Each virtual console supports an independent login session.</p>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">📝</span>
+                        <span>Note</span>
+                    </div>
+                    <p>Many system administrators choose not to run a graphical environment on their servers because users do not log in to servers as a desktop workspace. A server's workload can more effectively use the significant resources that a graphical environment consumes.</p>
+                </div>
+
+                <h4>Virtual Consoles in RHEL 10</h4>
+                <p>You can switch between the virtual consoles by pressing <span class="kbd">Ctrl</span>+<span class="kbd">Alt</span> and a function key (<span class="kbd">F1</span> through <span class="kbd">F6</span>) at the same time. Most of these virtual consoles run a text login prompt.</p>
+
+                <div class="console-diagram" role="img" aria-label="Virtual console layout in RHEL 10">
+                    <div class="console-box graphical" tabindex="0">
+                        <h5>tty1</h5>
+                        <p>Graphical Login</p>
+                    </div>
+                    <div class="console-box text" tabindex="0">
+                        <h5>tty2</h5>
+                        <p>Text Login</p>
+                    </div>
+                    <div class="console-box text" tabindex="0">
+                        <h5>tty3</h5>
+                        <p>Text Login</p>
+                    </div>
+                    <div class="console-box text" tabindex="0">
+                        <h5>tty4</h5>
+                        <p>Text Login</p>
+                    </div>
+                    <div class="console-box text" tabindex="0">
+                        <h5>tty5</h5>
+                        <p>Text Login</p>
+                    </div>
+                    <div class="console-box text" tabindex="0">
+                        <h5>tty6</h5>
+                        <p>Text Login</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="headless-content">
+                        <span>Headless Servers and Serial Consoles</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="headless-content" class="expandable-content">
+                        <p>A <span class="term" tabindex="0" data-tooltip="A server that does not have a keyboard and display permanently connected to it. Data centers often use headless servers to save space and expense.">headless server</span> does not have a keyboard and display permanently connected to it. A data center might be filled with many racks of headless servers, and not providing each with a keyboard and display saves space and expense.</p>
+                        <p>For administrators to log in, a login prompt for a headless server might be provided by its <span class="term" tabindex="0" data-tooltip="A text-based interface that runs on a serial port, connected to a networked console server. Used for emergency access when network access fails.">serial console</span>, which runs on a serial port that is connected to a networked console server for remote access.</p>
+                        <p>The serial console is typically used to access the server if the server network card becomes misconfigured and logging into the server over the conventional network connection becomes impossible.</p>
+                    </div>
+                </div>
+
+                <h4>Logging in to a Remote System</h4>
+                <p>Linux users and administrators often need to get shell access to a remote system by connecting to it over the network. In a modern computing environment, many headless servers are virtual machines or are running as public or private cloud instances. These systems are not physical and do not have real hardware consoles.</p>
+
+                <p>In Linux, the most common way to get a shell prompt on a remote system is to use <span class="term" tabindex="0" data-tooltip="Secure Shell - A cryptographic network protocol for secure remote login and command execution. SSH encrypts all communication to prevent eavesdropping.">Secure Shell (SSH)</span>. Most Linux systems (including Red Hat Enterprise Linux) and macOS provide the OpenSSH command-line program <code class="inline">ssh</code> for this purpose.</p>
+
+                <div class="terminal-demo">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                        <span class="terminal-title">SSH Connection Example</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">user@host:~$</span>
+                            <span class="terminal-command">ssh remoteuser@remotehost</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output">remoteuser@remotehost's password: ********</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">remoteuser@remotehost:~$</span>
+                            <span class="terminal-command">_</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p>The <code class="inline">ssh</code> command encrypts the connection to secure the communication against eavesdropping or hijacking of the passwords and content.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Desktop Environment -->
+        <section id="section-desktop" class="content-section" aria-labelledby="desktop-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="desktop-heading">Accessing the Command Line with the Desktop Environment</h2>
+            </div>
+            <div class="section-body">
+                <h3>The GNOME Desktop Environment</h3>
+                <p>The <span class="term" tabindex="0" data-tooltip="A graphical user interface that provides windows, icons, menus, and a consistent visual experience for interacting with the system.">desktop environment</span> is the graphical user interface on a Linux system. <span class="term" tabindex="0" data-tooltip="GNOME (GNU Network Object Model Environment) is a free and open-source desktop environment for Linux. GNOME 47 is the default in RHEL 10.">GNOME 47</span> is the default desktop environment in Red Hat Enterprise Linux 10. GNOME provides an integrated desktop for users and a unified development platform on top of a graphical framework that is powered by <span class="term" tabindex="0" data-tooltip="Wayland is a modern display server protocol that provides improved security and graphics performance compared to the older X11 system.">Wayland</span>.</p>
+
+                <p>The highly customizable GNOME Shell provides the core user interface functions for the desktop environment. In RHEL 10, the default GNOME Shell appearance is the standard GNOME theme. You can switch from the default to the GNOME Classic theme, which is closer to the appearance of earlier versions of the GNOME desktop.</p>
+
+                <h4>Parts of the GNOME Shell</h4>
+                <p>The GNOME Shell user interface includes several major elements. Click each element to learn more:</p>
+
+                <div class="tabs-container">
+                    <div class="tab-buttons" role="tablist" aria-label="GNOME Shell elements">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-topbar" id="gnome-tab-1">Top Bar</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-activities" id="gnome-tab-2">Activities</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-workspace" id="gnome-tab-3">Workspace</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-dock" id="gnome-tab-4">Dash/Dock</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-systemmenu" id="gnome-tab-5">System Menu</button>
+                    </div>
+                    <div id="tab-topbar" class="tab-content active" role="tabpanel" aria-labelledby="gnome-tab-1">
+                        <h4>Top Bar</h4>
+                        <p>The <strong>top bar</strong> provides a consistent interface element across all workspaces. It contains:</p>
+                        <ul>
+                            <li>The Activities button (top-left corner)</li>
+                            <li>A clock in the center (shows date, time, and notifications)</li>
+                            <li>System menu icons on the right (network, volume, power)</li>
+                        </ul>
+                    </div>
+                    <div id="tab-activities" class="tab-content" role="tabpanel" aria-labelledby="gnome-tab-2">
+                        <h4>Activities Overview</h4>
+                        <p>The <strong>Activities</strong> button (or pressing the Super key) opens the Activities Overview, which provides:</p>
+                        <ul>
+                            <li>A search bar to find applications, files, and settings</li>
+                            <li>A view of all open windows</li>
+                            <li>Access to the application grid</li>
+                            <li>Workspace switcher on the right side</li>
+                        </ul>
+                    </div>
+                    <div id="tab-workspace" class="tab-content" role="tabpanel" aria-labelledby="gnome-tab-3">
+                        <h4>Workspaces</h4>
+                        <p><strong>Workspaces</strong> are virtual desktops that help organize your open windows:</p>
+                        <ul>
+                            <li>GNOME creates workspaces dynamically as needed</li>
+                            <li>Drag windows between workspaces in Activities Overview</li>
+                            <li>Use <span class="kbd">Super</span>+<span class="kbd">Page Up/Down</span> to switch workspaces</li>
+                            <li>Helps keep related tasks organized and reduces clutter</li>
+                        </ul>
+                    </div>
+                    <div id="tab-dock" class="tab-content" role="tabpanel" aria-labelledby="gnome-tab-4">
+                        <h4>Dash (Dock)</h4>
+                        <p>The <strong>Dash</strong> appears in the Activities Overview and provides quick access to:</p>
+                        <ul>
+                            <li>Favorite applications (pinned by you)</li>
+                            <li>Currently running applications (with indicator dots)</li>
+                            <li>The application grid button (show all installed apps)</li>
+                            <li>Right-click apps for additional options</li>
+                        </ul>
+                    </div>
+                    <div id="tab-systemmenu" class="tab-content" role="tabpanel" aria-labelledby="gnome-tab-5">
+                        <h4>System Menu</h4>
+                        <p>The <strong>System Menu</strong> (top-right corner) provides quick access to:</p>
+                        <ul>
+                            <li>Volume control and audio settings</li>
+                            <li>Network connections (Wi-Fi, Ethernet)</li>
+                            <li>Screen brightness</li>
+                            <li>Power options (suspend, restart, power off)</li>
+                            <li>Settings and lock screen options</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h4>Starting a Terminal</h4>
+                <p>In GNOME, the easiest ways to start a terminal application are:</p>
+
+                <table class="shortcut-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Steps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Activities Search</td>
+                            <td>Press <span class="kbd">Super</span> (Windows key), type "terminal", and click the Terminal icon</td>
+                        </tr>
+                        <tr>
+                            <td>Application Grid</td>
+                            <td>Click Activities → Application Grid (9 dots) → Utilities → Terminal</td>
+                        </tr>
+                        <tr>
+                            <td>Right-Click Desktop</td>
+                            <td>Right-click on the desktop and select "Open Terminal" (if available)</td>
+                        </tr>
+                        <tr>
+                            <td>Keyboard Shortcut</td>
+                            <td>Some installations: <span class="kbd">Ctrl</span>+<span class="kbd">Alt</span>+<span class="kbd">T</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">💡</span>
+                        <span>Tip: Adding Terminal to Favorites</span>
+                    </div>
+                    <p>For quick access, right-click the Terminal icon in the Dash and select "Add to Favorites". The Terminal will then always appear in your Dash for one-click access.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Executing Commands with the Bash Shell -->
+        <section id="section-bash" class="content-section" aria-labelledby="bash-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="bash-heading">Executing Commands with the Bash Shell</h2>
+            </div>
+            <div class="section-body">
+                <h3>The Shell Prompt</h3>
+                <p>When you log in or open a terminal, you see the <span class="term" tabindex="0" data-tooltip="A text indicator that shows the shell is ready to accept commands. It typically shows the username, hostname, and current directory.">shell prompt</span>. The default prompt format in Bash provides useful information:</p>
+
+                <div class="code-block">
+                    <span class="code-title">Shell Prompt Format</span>
+                    <code><span class="code-prompt">student@workstation</span>:<span class="code-output">~</span><span class="code-command">$</span> _
+
+<span class="code-comment"># Let's break this down:</span>
+<span class="code-comment"># student      = username (who you are logged in as)</span>
+<span class="code-comment"># @            = separator</span>
+<span class="code-comment"># workstation  = hostname (the computer's name)</span>
+<span class="code-comment"># :            = separator</span>
+<span class="code-comment"># ~            = current directory (~ means home directory)</span>
+<span class="code-comment"># $            = regular user (# would mean root/superuser)</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon">⚠️</span>
+                        <span>Important: The Root Prompt</span>
+                    </div>
+                    <p>When logged in as the <strong>root</strong> (superuser) account, the prompt ends with <code class="inline">#</code> instead of <code class="inline">$</code>. The root user has full system access—be careful with commands when you see the <code class="inline">#</code> prompt!</p>
+                </div>
+
+                <h3>Basic Command Syntax</h3>
+                <p>Commands in Linux follow a consistent pattern:</p>
+
+                <div class="command-builder">
+                    <h4>Command Structure</h4>
+                    <div class="code-block">
+                        <code><span class="code-command">command</span> <span class="code-prompt">[options]</span> <span class="code-output">[arguments]</span>
+
+<span class="code-comment"># command   = the program to run</span>
+<span class="code-comment"># options   = modify how the command behaves (start with - or --)</span>
+<span class="code-comment"># arguments = what the command acts on (files, directories, etc.)</span></code>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="options-content">
+                        <span>Understanding Options (Short vs Long)</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="options-content" class="expandable-content">
+                        <p>Options come in two formats:</p>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Format</th>
+                                    <th>Example</th>
+                                    <th>Can Combine?</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Short Options</td>
+                                    <td>Single dash + letter</td>
+                                    <td><code class="inline">-l</code>, <code class="inline">-a</code>, <code class="inline">-h</code></td>
+                                    <td>Yes: <code class="inline">-lah</code></td>
+                                </tr>
+                                <tr>
+                                    <td>Long Options</td>
+                                    <td>Double dash + word</td>
+                                    <td><code class="inline">--long</code>, <code class="inline">--all</code>, <code class="inline">--help</code></td>
+                                    <td>No, must be separate</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>Many options have both short and long forms. For example, <code class="inline">ls -a</code> and <code class="inline">ls --all</code> do the same thing.</p>
+                    </div>
+                </div>
+
+                <h3>Tab Completion</h3>
+                <p><span class="term" tabindex="0" data-tooltip="A shell feature that automatically completes partially typed commands, file names, or options when you press the Tab key.">Tab completion</span> is one of the most useful features of the Bash shell. Press <span class="kbd">Tab</span> to automatically complete:</p>
+                <ul>
+                    <li><strong>Commands:</strong> Type the first few letters and press Tab</li>
+                    <li><strong>File and directory names:</strong> Works with paths too</li>
+                    <li><strong>Options:</strong> After typing <code class="inline">--</code>, Tab shows available options</li>
+                </ul>
+
+                <div class="terminal-demo">
+                    <div class="terminal-header">
+                        <span class="terminal-dot red"></span>
+                        <span class="terminal-dot yellow"></span>
+                        <span class="terminal-dot green"></span>
+                        <span class="terminal-title">Tab Completion Example</span>
+                    </div>
+                    <div class="terminal-body">
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">student@workstation:~$</span>
+                            <span class="terminal-command">pass<span style="background:#444;color:#fff;padding:0 4px;">Tab</span></span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">student@workstation:~$</span>
+                            <span class="terminal-command">passwd</span>
+                            <span class="terminal-output"> ← Command auto-completed!</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">student@workstation:~$</span>
+                            <span class="terminal-command">cat /etc/pa<span style="background:#444;color:#fff;padding:0 4px;">Tab Tab</span></span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output">pam.conf  pam.d/  passwd  passwd-</span>
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-output">← Multiple matches shown. Type more letters to narrow down.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Command History</h3>
+                <p>Bash remembers your previous commands. Use these shortcuts to access them:</p>
+
+                <table class="shortcut-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="kbd">↑</span> Up Arrow</td>
+                            <td>Previous command in history</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">↓</span> Down Arrow</td>
+                            <td>Next command in history</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">R</span></td>
+                            <td>Search command history (reverse search)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">history</code></td>
+                            <td>Display all command history</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">!number</code></td>
+                            <td>Run command #number from history</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">!!</code></td>
+                            <td>Repeat the last command</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Command Line Editing Shortcuts</h3>
+                <p>These keyboard shortcuts help you edit commands more efficiently:</p>
+
+                <table class="shortcut-table">
+                    <thead>
+                        <tr>
+                            <th>Shortcut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">A</span></td>
+                            <td>Move cursor to beginning of line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">E</span></td>
+                            <td>Move cursor to end of line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">U</span></td>
+                            <td>Clear from cursor to beginning of line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">K</span></td>
+                            <td>Clear from cursor to end of line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">←</span>/<span class="kbd">→</span></td>
+                            <td>Move cursor one word left/right</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">C</span></td>
+                            <td>Cancel current command</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">L</span></td>
+                            <td>Clear screen (same as <code class="inline">clear</code> command)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 5: Essential Commands -->
+        <section id="section-commands" class="content-section" aria-labelledby="commands-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="commands-heading">Essential Commands</h2>
+            </div>
+            <div class="section-body">
+                <p>Let's explore some fundamental commands you'll use frequently. Each command is shown with examples.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-buttons" role="tablist" aria-label="Essential commands">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-date" id="cmd-tab-1">date</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-passwd" id="cmd-tab-2">passwd</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-file" id="cmd-tab-3">file</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-cat" id="cmd-tab-4">cat</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-headtail" id="cmd-tab-5">head/tail</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-wc" id="cmd-tab-6">wc</button>
+                    </div>
+                    <div id="tab-date" class="tab-content active" role="tabpanel" aria-labelledby="cmd-tab-1">
+                        <h4>date - Display Date and Time</h4>
+                        <p>The <code class="inline">date</code> command displays the current date and time. You can format the output using various options.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">date</span>
+<span class="code-output">Mon Jan 15 10:30:45 EST 2026</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%Y-%m-%d</span>
+<span class="code-output">2026-01-15</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%H:%M:%S</span>
+<span class="code-output">10:30:45</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%s</span>
+<span class="code-output">1768595445</span>
+<span class="code-comment"># Epoch time (seconds since Jan 1, 1970)</span></code>
+                        </div>
+                    </div>
+                    <div id="tab-passwd" class="tab-content" role="tabpanel" aria-labelledby="cmd-tab-2">
+                        <h4>passwd - Change Password</h4>
+                        <p>The <code class="inline">passwd</code> command changes a user's password. Regular users can only change their own password.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">passwd</span>
+<span class="code-output">Changing password for student.</span>
+<span class="code-output">Current password: ********</span>
+<span class="code-output">New password: ********</span>
+<span class="code-output">Retype new password: ********</span>
+<span class="code-output">passwd: password updated successfully</span></code>
+                        </div>
+                        <div class="warning-box">
+                            <div class="warning-box-header">
+                                <span class="note-icon">🔒</span>
+                                <span>Password Requirements</span>
+                            </div>
+                            <p>RHEL enforces password quality rules. Passwords typically must be at least 8 characters, include mixed case, numbers, and special characters, and not be based on dictionary words.</p>
+                        </div>
+                    </div>
+                    <div id="tab-file" class="tab-content" role="tabpanel" aria-labelledby="cmd-tab-3">
+                        <h4>file - Determine File Type</h4>
+                        <p>The <code class="inline">file</code> command examines files and reports their type. Unlike some operating systems, Linux does not rely on file extensions.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /etc/passwd</span>
+<span class="code-output">/etc/passwd: ASCII text</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /bin/ls</span>
+<span class="code-output">/bin/ls: ELF 64-bit LSB pie executable, x86-64...</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /usr/share/icons/hicolor/48x48/apps/*.png</span>
+<span class="code-output">/usr/.../app.png: PNG image data, 48 x 48, 8-bit/color RGBA...</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /dev/sda</span>
+<span class="code-output">/dev/sda: block special (8/0)</span></code>
+                        </div>
+                    </div>
+                    <div id="tab-cat" class="tab-content" role="tabpanel" aria-labelledby="cmd-tab-4">
+                        <h4>cat - Concatenate and Display Files</h4>
+                        <p>The <code class="inline">cat</code> command displays file contents. It can also concatenate multiple files.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat /etc/passwd</span>
+<span class="code-output">root:x:0:0:root:/root:/bin/bash</span>
+<span class="code-output">bin:x:1:1:bin:/bin:/sbin/nologin</span>
+<span class="code-output">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># Display with line numbers</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat -n /etc/passwd</span>
+<span class="code-output">     1  root:x:0:0:root:/root:/bin/bash</span>
+<span class="code-output">     2  bin:x:1:1:bin:/bin:/sbin/nologin</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># Concatenate multiple files</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat file1 file2 file3</span></code>
+                        </div>
+                    </div>
+                    <div id="tab-headtail" class="tab-content" role="tabpanel" aria-labelledby="cmd-tab-5">
+                        <h4>head and tail - View File Beginnings and Endings</h4>
+                        <p><code class="inline">head</code> shows the first lines of a file. <code class="inline">tail</code> shows the last lines. Both default to 10 lines.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># First 10 lines (default)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">head /etc/passwd</span>
+
+<span class="code-comment"># First 5 lines</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">head -n 5 /etc/passwd</span>
+<span class="code-output">root:x:0:0:root:/root:/bin/bash</span>
+<span class="code-output">bin:x:1:1:bin:/bin:/sbin/nologin</span>
+<span class="code-output">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span>
+<span class="code-output">adm:x:3:4:adm:/var/adm:/sbin/nologin</span>
+<span class="code-output">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span>
+
+<span class="code-comment"># Last 3 lines</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">tail -n 3 /etc/passwd</span>
+
+<span class="code-comment"># Follow a file in real-time (great for logs!)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">tail -f /var/log/messages</span></code>
+                        </div>
+                    </div>
+                    <div id="tab-wc" class="tab-content" role="tabpanel" aria-labelledby="cmd-tab-6">
+                        <h4>wc - Word Count</h4>
+                        <p>The <code class="inline">wc</code> command counts lines, words, and bytes/characters in files.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">wc /etc/passwd</span>
+<span class="code-output">  45   89  2678 /etc/passwd</span>
+<span class="code-comment"># Lines  Words  Bytes  Filename</span>
+
+<span class="code-comment"># Count only lines</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">wc -l /etc/passwd</span>
+<span class="code-output">45 /etc/passwd</span>
+
+<span class="code-comment"># Count only words</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">wc -w /etc/passwd</span>
+<span class="code-output">89 /etc/passwd</span>
+
+<span class="code-comment"># Count only characters</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">wc -c /etc/passwd</span>
+<span class="code-output">2678 /etc/passwd</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <h4>Quick Reference: Essential Commands</h4>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Purpose</th>
+                            <th>Common Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">date</code></td>
+                            <td>Display/set date and time</td>
+                            <td><code class="inline">+FORMAT</code>, <code class="inline">-d</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">passwd</code></td>
+                            <td>Change user password</td>
+                            <td>(none for basic use)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">file</code></td>
+                            <td>Determine file type</td>
+                            <td><code class="inline">-b</code> (brief)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">cat</code></td>
+                            <td>Display file contents</td>
+                            <td><code class="inline">-n</code> (number lines)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">head</code></td>
+                            <td>Show first lines</td>
+                            <td><code class="inline">-n NUM</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">tail</code></td>
+                            <td>Show last lines</td>
+                            <td><code class="inline">-n NUM</code>, <code class="inline">-f</code> (follow)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">wc</code></td>
+                            <td>Count lines/words/chars</td>
+                            <td><code class="inline">-l</code>, <code class="inline">-w</code>, <code class="inline">-c</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 6: Quiz -->
+        <section id="section-quiz1" class="content-section" aria-labelledby="quiz1-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="quiz1-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3>Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="c">
+                        <p class="question-text"><span class="question-number">1</span>Which keyboard shortcut switches to virtual console 3 (tty3)?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                Alt+F3
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                Ctrl+F3
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Ctrl+Alt+F3
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                Super+F3
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="b">
+                        <p class="question-text"><span class="question-number">2</span>What does the <code class="inline">$</code> symbol at the end of the shell prompt indicate?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                You are logged in as root
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                You are logged in as a regular user
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                The system is running in single-user mode
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                A command is currently running
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">3</span>Which command shows the last 20 lines of a log file and continues to display new lines as they are added?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                tail -n 20 -f /var/log/messages
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                head -n 20 -f /var/log/messages
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                cat -f -20 /var/log/messages
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                wc -l 20 /var/log/messages
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">4</span>What does pressing <span class="kbd">Ctrl</span>+<span class="kbd">R</span> do in the Bash shell?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Refreshes the screen
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Restarts the current process
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Runs the last command again
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Reverse search through command history
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="c">
+                        <p class="question-text"><span class="question-number">5</span>In RHEL 10, which virtual console typically runs the graphical login screen?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                tty0
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                tty7
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                tty1
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                tty2
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Lab Exercise -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="lab-heading">Lab: Access the Command Line</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>Lab Objectives</h3>
+                    <p>In this lab, you will practice using the Bash shell to execute commands from the command line.</p>
+                </div>
+
+                <h4>Lab Tasks</h4>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                        <span>Task 1: Display System Information</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-1" class="expandable-content">
+                        <p>Use the <code class="inline">date</code> command to display the current date and time in different formats.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Display current date and time</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date</span>
+
+<span class="code-comment"># Display date in YYYY-MM-DD format</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%Y-%m-%d</span>
+
+<span class="code-comment"># Display time in HH:MM:SS format</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%H:%M:%S</span>
+
+<span class="code-comment"># Display epoch timestamp</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date +%s</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                        <span>Task 2: Working with File Contents</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-2" class="expandable-content">
+                        <p>Practice viewing file contents using <code class="inline">cat</code>, <code class="inline">head</code>, and <code class="inline">tail</code> commands.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># View the entire /etc/passwd file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat /etc/passwd</span>
+
+<span class="code-comment"># View only the first 5 lines</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">head -n 5 /etc/passwd</span>
+
+<span class="code-comment"># View only the last 5 lines</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">tail -n 5 /etc/passwd</span>
+
+<span class="code-comment"># Count the number of lines in the file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">wc -l /etc/passwd</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                        <span>Task 3: Using Command History and Tab Completion</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-3" class="expandable-content">
+                        <p>Practice using shell efficiency features.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Display your command history</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">history</span>
+
+<span class="code-comment"># Use Tab completion to explore /etc directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /etc/sys<kbd>[Tab][Tab]</kbd></span>
+
+<span class="code-comment"># Press Up arrow to recall previous commands</span>
+<span class="code-comment"># Press Ctrl+R and type "date" to search history</span>
+
+<span class="code-comment"># Run the last command again</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">!!</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                        <span>Task 4: Identifying File Types</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-4" class="expandable-content">
+                        <p>Use the <code class="inline">file</code> command to identify different types of files.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Check file type of a text file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /etc/passwd</span>
+<span class="code-output">/etc/passwd: ASCII text</span>
+
+<span class="code-comment"># Check file type of a binary</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /bin/ls</span>
+<span class="code-output">/bin/ls: ELF 64-bit LSB pie executable...</span>
+
+<span class="code-comment"># Check file type of a directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">file /etc</span>
+<span class="code-output">/etc: directory</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Lab Completion Checklist</h4>
+                    <ul>
+                        <li>✓ Displayed date in multiple formats</li>
+                        <li>✓ Viewed file contents with cat, head, and tail</li>
+                        <li>✓ Used wc to count lines in a file</li>
+                        <li>✓ Used Tab completion to explore directories</li>
+                        <li>✓ Accessed command history with history command and arrow keys</li>
+                        <li>✓ Identified file types using the file command</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Chapter Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>The Bash shell</strong> is the default command-line interpreter in Red Hat Enterprise Linux, providing a text-based interface to run commands and scripts.</li>
+                        <li><strong>Virtual consoles</strong> (tty1-tty6) provide multiple independent login sessions on a single physical console. Use <span class="kbd">Ctrl</span>+<span class="kbd">Alt</span>+<span class="kbd">F1-F6</span> to switch between them.</li>
+                        <li><strong>GNOME 47</strong> is the default desktop environment in RHEL 10, running on the Wayland display server. Start a terminal from Activities or the application grid.</li>
+                        <li><strong>SSH</strong> provides secure, encrypted remote access to Linux systems. Use <code class="inline">ssh user@hostname</code> to connect.</li>
+                        <li><strong>The shell prompt</strong> shows username, hostname, current directory, and user type ($ for regular user, # for root).</li>
+                        <li><strong>Tab completion</strong> saves typing time by auto-completing commands, filenames, and options when you press Tab.</li>
+                        <li><strong>Command history</strong> lets you recall and reuse previous commands with arrow keys, <span class="kbd">Ctrl</span>+<span class="kbd">R</span>, or the history command.</li>
+                        <li><strong>Essential commands</strong> include date, passwd, file, cat, head, tail, and wc for basic system interaction and file viewing.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 3, you'll learn how to get help in Red Hat Enterprise Linux, including:</p>
+                    <ul>
+                        <li>Using the <code class="inline">man</code> command to read manual pages</li>
+                        <li>Understanding man page sections</li>
+                        <li>Using <code class="inline">info</code> documentation</li>
+                        <li>Finding help with <code class="inline">--help</code> options</li>
+                        <li>Accessing Red Hat documentation resources</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 2 Complete!</h2>
+                    <p>You've learned the fundamentals of accessing and using the Linux command line.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 2 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== TOOLTIP SYSTEM ====================
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = term.getAttribute('data-tooltip');
+                tooltip.setAttribute('role', 'tooltip');
+                term.appendChild(tooltip);
+
+                // Position tooltip to avoid screen edges
+                function positionTooltip() {
+                    const termRect = term.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+
+                    // Remove existing position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+
+                    // Determine best position
+                    if (termRect.top > tooltipRect.height + 20) {
+                        tooltip.classList.add('tooltip-top');
+                    } else if (viewportHeight - termRect.bottom > tooltipRect.height + 20) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else if (termRect.left > tooltipRect.width + 20) {
+                        tooltip.classList.add('tooltip-left');
+                    } else {
+                        tooltip.classList.add('tooltip-right');
+                    }
+
+                    // Adjust horizontal position if tooltip would overflow
+                    const tooltipLeft = termRect.left + (termRect.width / 2) - (tooltipRect.width / 2);
+                    if (tooltipLeft < 10) {
+                        tooltip.style.left = '10px';
+                        tooltip.style.transform = 'translateX(0)';
+                    } else if (tooltipLeft + tooltipRect.width > viewportWidth - 10) {
+                        tooltip.style.left = 'auto';
+                        tooltip.style.right = '10px';
+                        tooltip.style.transform = 'translateX(0)';
+                    }
+                }
+
+                function showTooltip() {
+                    positionTooltip();
+                    tooltip.classList.add('show');
+                }
+
+                function hideTooltip() {
+                    tooltip.classList.remove('show');
+                    tooltip.style.left = '';
+                    tooltip.style.right = '';
+                    tooltip.style.transform = '';
+                }
+
+                // Mouse events
+                term.addEventListener('mouseenter', showTooltip);
+                term.addEventListener('mouseleave', hideTooltip);
+
+                // Focus events for keyboard navigation
+                term.addEventListener('focus', showTooltip);
+                term.addEventListener('blur', hideTooltip);
+
+                // Keyboard support
+                term.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        hideTooltip();
+                        term.blur();
+                    }
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandableHeaders = document.querySelectorAll('.expandable-header');
+            
+            expandableHeaders.forEach(header => {
+                const content = header.nextElementSibling;
+                
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.classList.toggle('open');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== TAB SYSTEM ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        // Update buttons
+                        tabBtns.forEach(b => {
+                            b.classList.remove('active');
+                            b.setAttribute('aria-selected', 'false');
+                        });
+                        btn.classList.add('active');
+                        btn.setAttribute('aria-selected', 'true');
+
+                        // Update content
+                        const targetId = btn.getAttribute('aria-controls');
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === targetId) {
+                                content.classList.add('active');
+                            }
+                        });
+                    });
+
+                    // Keyboard navigation
+                    btn.addEventListener('keydown', (e) => {
+                        const currentIndex = Array.from(tabBtns).indexOf(btn);
+                        let newIndex;
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (currentIndex + 1) % tabBtns.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (currentIndex - 1 + tabBtns.length) % tabBtns.length;
+                        } else {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        tabBtns[newIndex].click();
+                        tabBtns[newIndex].focus();
+                    });
+                });
+            });
+
+            // ==================== QUIZ SYSTEM ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreEl = document.getElementById('quiz-score');
+            
+            const correctAnswers = {
+                1: { answer: 'c', explanation: 'Ctrl+Alt+F3 switches to virtual console 3 (tty3). The Ctrl+Alt+Fn combination is used to switch between virtual consoles.' },
+                2: { answer: 'b', explanation: 'The $ symbol indicates a regular user. The # symbol indicates the root (superuser) account.' },
+                3: { answer: 'a', explanation: 'The tail command with -n 20 shows the last 20 lines, and -f (follow) continues to display new lines as they are added to the file.' },
+                4: { answer: 'd', explanation: 'Ctrl+R activates reverse incremental search through command history. Type characters to find matching previous commands.' },
+                5: { answer: 'c', explanation: 'In RHEL 10, the graphical login screen runs on tty1. Text login prompts are available on tty2 through tty6.' }
+            };
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let score = 0;
+                
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const selectedOption = question.querySelector('input:checked');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    const options = question.querySelectorAll('.quiz-option');
+                    
+                    // Reset option styles
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect', 'selected');
+                    });
+
+                    if (selectedOption) {
+                        const selectedValue = selectedOption.value;
+                        const correctValue = correctAnswers[qNum].answer;
+                        const selectedLabel = selectedOption.closest('.quiz-option');
+                        
+                        if (selectedValue === correctValue) {
+                            score++;
+                            selectedLabel.classList.add('correct');
+                            feedback.className = 'quiz-feedback show correct';
+                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                        } else {
+                            selectedLabel.classList.add('incorrect');
+                            // Highlight correct answer
+                            options.forEach(opt => {
+                                const input = opt.querySelector('input');
+                                if (input.value === correctValue) {
+                                    opt.classList.add('correct');
+                                }
+                            });
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                        }
+                    } else {
+                        feedback.className = 'quiz-feedback show incorrect';
+                        feedback.innerHTML = '⚠ Please select an answer.';
+                    }
+                });
+
+                quizScoreEl.textContent = `Score: ${score}/5`;
+                checkAnswersBtn.style.display = 'none';
+                resetQuizBtn.style.display = 'inline-block';
+                
+                // Update progress
+                updateProgress();
+            });
+
+            resetQuizBtn.addEventListener('click', () => {
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const inputs = question.querySelectorAll('input');
+                    const options = question.querySelectorAll('.quiz-option');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    
+                    inputs.forEach(input => input.checked = false);
+                    options.forEach(opt => opt.classList.remove('correct', 'incorrect', 'selected'));
+                    feedback.className = 'quiz-feedback';
+                    feedback.innerHTML = '';
+                });
+
+                quizScoreEl.textContent = 'Score: 0/5';
+                resetQuizBtn.style.display = 'none';
+                checkAnswersBtn.style.display = 'inline-block';
+            });
+
+            // Quiz option selection feedback
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const container = option.closest('.quiz-options');
+                    container.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const progressBar = document.querySelector('.progress-bar');
+            let sectionsViewed = new Set();
+
+            function updateProgress() {
+                const totalSections = sections.length;
+                const viewedCount = sectionsViewed.size;
+                const percentage = Math.round((viewedCount / totalSections) * 100);
+                
+                progressFill.style.width = percentage + '%';
+                progressText.textContent = percentage + '%';
+                progressBar.setAttribute('aria-valuenow', percentage);
+                
+                // Store in localStorage
+                localStorage.setItem('ch2-progress', JSON.stringify(Array.from(sectionsViewed)));
+            }
+
+            // Load saved progress
+            const savedProgress = localStorage.getItem('ch2-progress');
+            if (savedProgress) {
+                sectionsViewed = new Set(JSON.parse(savedProgress));
+                updateProgress();
+            }
+
+            // Track section visibility
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -20% 0px',
+                threshold: 0.5
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        sectionsViewed.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // ==================== NAVIGATION ACTIVE STATE ====================
+            const navBtns = document.querySelectorAll('.nav-btn');
+            
+            const navObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navBtns.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('href') === '#' + entry.target.id) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.3, rootMargin: '-100px 0px -50% 0px' });
+
+            sections.forEach(section => {
+                navObserver.observe(section);
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            
+            completeBtn.addEventListener('click', () => {
+                // Mark all sections as viewed
+                sections.forEach(section => {
+                    sectionsViewed.add(section.id);
+                });
+                updateProgress();
+                
+                // Visual feedback
+                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.style.background = 'var(--rh-green)';
+                completeBtn.disabled = true;
+                
+                // Store completion
+                localStorage.setItem('ch2-complete', 'true');
+            });
+
+            // Check if already completed
+            if (localStorage.getItem('ch2-complete') === 'true') {
+                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.style.background = 'var(--rh-green)';
+            }
+
+            // ==================== SMOOTH SCROLL FOR NAV ====================
+            navBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = btn.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        const navHeight = document.querySelector('.section-nav').offsetHeight;
+                        const progressHeight = document.querySelector('.progress-container').offsetHeight;
+                        const offset = navHeight + progressHeight + 20;
+                        const targetPosition = targetSection.offsetTop - offset;
+                        
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // ==================== CONSOLE BOX INTERACTIONS ====================
+            const consoleBoxes = document.querySelectorAll('.console-box');
+            consoleBoxes.forEach(box => {
+                box.addEventListener('click', () => {
+                    const title = box.querySelector('h5').textContent;
+                    const type = box.querySelector('p').textContent;
+                    alert(`${title}: ${type}\n\nIn RHEL 10, ${title === 'tty1' ? 'this is the graphical login screen' : 'this provides a text-based login prompt'}. Press Ctrl+Alt+${title.replace('tty', 'F')} to switch to this console.`);
+                });
+
+                box.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        box.click();
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
