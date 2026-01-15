@@ -1,1 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Linux Administration Course | RHEL24</title>
+      <style>
+                :root {
+                              --rh-red: #CC0000;
+                              --rh-red-dark: #990000;
+                              --rh-black: #1A1A1A;
+                              --rh-gray: #666666;
+                              --rh-gray-light: #CCCCCC;
+                              --rh-gray-lighter: #F0F0F0;
+                              --rh-white: #FFFFFF;
+                              --rh-green: #339933;
+                }
+                * { box-sizing: border-box; margin: 0; padding: 0; }
+                html { scroll-behavior: smooth; font-size: 16px; }
+                body { font-family: Georgia, serif; background-color: var(--rh-white); color: var(--rh-black); line-height: 1.6; }
+                .container { display: flex; min-height: 100vh; }
+                .sidebar { width: 280px; background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%); padding: 40px 20px; position: fixed; height: 100vh; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 100; }
+                .sidebar h1 { color: var(--rh-white); font-size: 24px; margin-bottom: 10px; }
+                .sidebar-subtitle { color: rgba(255,255,255,0.9); font-size: 13px; margin-bottom: 30px; text-transform: uppercase; }
+                .sidebar-nav { list-style: none; }
+                .sidebar-nav a { color: rgba(255,255,255,0.95); text-decoration: none; display: block; padding: 12px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; transition: 0.2s ease; border-left: 3px solid transparent; }
+                .sidebar-nav a:hover { background-color: rgba(255,255,255,0.15); border-left-color: var(--rh-white); }
+                .sidebar-nav a.active { background-color: rgba(255,255,255,0.25); border-left-color: var(--rh-white); font-weight: 600; }
+                .main { margin-left: 280px; flex: 1; display: flex; flex-direction: column; }
+                header { background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%); color: var(--rh-white); padding: 60px 40px; text-align: center; }
+                header h1 { font-size: 48px; margin-bottom: 10px; }
+                header p { font-size: 18px; opacity: 0.95; }
+                .content { flex: 1; padding: 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
+                .welcome-section { background: var(--rh-gray-lighter); border-left: 5px solid var(--rh-red); padding: 30px; border-radius: 8px; margin-bottom: 50px; }
+                .welcome-section h2 { color: var(--rh-red); font-size: 28px; margin-bottom: 15px; }
+                .welcome-section p { color: var(--rh-gray); font-size: 16px; line-height: 1.8; }
+                .chapters-section { margin-bottom: 60px; }
+                .chapters-section h2 { color: var(--rh-red); font-size: 32px; margin-bottom: 30px; border-bottom: 3px solid var(--rh-red); padding-bottom: 15px; }
+                .chapters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 50px; }
+                .chapter-card { background: var(--rh-white); border: 1px solid var(--rh-gray-light); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s ease; display: flex; flex-direction: column; }
+                .chapter-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(-8px); border-color: var(--rh-red); }
+                .chapter-header { background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 100%); color: var(--rh-white); padding: 20px; }
+                .chapter-number { font-size: 12px; text-transform: uppercase; font-weight: 600; opacity: 0.9; margin-bottom: 8px; }
+                .chapter-title { font-size: 22px; font-weight: bold; margin: 0; }
+                .chapter-body { padding: 25px; flex: 1; display: flex; flex-direction: column; }
+                .chapter-description { color: var(--rh-gray); font-size: 15px; line-height: 1.7; margin-bottom: 20px; flex: 1; }
+                .chapter-topics { margin-bottom: 20px; }
+                .chapter-topics h4 { color: var(--rh-black); font-size: 13px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
+                .topics-list { list-style: none; font-size: 14px; }
+                .topics-list li { color: var(--rh-gray); margin-bottom: 6px; padding-left: 20px; position: relative; }
+                .topics-list li:before { content: "→"; position: absolute; left: 0; color: var(--rh-red); font-weight: bold; }
+                .chapter-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; background-color: #E8F5E9; color: var(--rh-green); }
+                .chapter-link { display: inline-block; background-color: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; transition: 0.2s ease; align-self: flex-start; margin-top: auto; }
+                .chapter-link:hover { background-color: var(--rh-red-dark); transform: translateX(4px); }
+                .coming-soon-section { background: var(--rh-gray-lighter); border-radius: 8px; padding: 30px; margin-top: 50px; text-align: center; }
+                .coming-soon-section h3 { color: var(--rh-red); font-size: 24px; margin-bottom: 15px; }
+                .coming-soon-section p { color: var(--rh-gray); font-size: 16px; }
+                footer { background: var(--rh-black); color: var(--rh-white); padding: 30px; text-align: center; font-size: 14px; margin-top: auto; }
+                footer p { margin: 5px 0; opacity: 0.8; }
+                @media (max-width: 768px) {
+                              .container { flex-direction: column; }
+                              .sidebar { position: relative; width: 100%; height: auto; padding: 30px 20px; }
+                              .main { margin-left: 0; }
+                              header { padding: 40px 20px; }
+                              header h1 { font-size: 32px; }
+                              .content { padding: 20px; }
+                }
+            </style>
+  </head>
+  <body>
+        <div class="container">
+                  <aside class="sidebar">
+                                <div class="sidebar-content">
+                                                  <h1>RHEL24</h1>
+                                                <p class="sidebar-subtitle">Linux Administration</p>p>
+                                                <nav>
+                                                                      <ul class="sidebar-nav">
+                                                                                                <li><a href="#home" class="active">Home</a>a></li>
+                                                                                              <li><a href="#chapter1">Chapter 1</a>a></li>
+                                                                                              <li><a href="#chapter2">Chapter 2</a>a></li>
+                                                                                              <li><a href="#chapter3">Chapter 3</a>a></li>
+                                                                                              <li><a href="#schedule">Schedule</a>a></li>
+                                                                                              <li><a href="#coming-soon">Coming Soon</a>a></li>
+                                                                      </ul>ul>
+                                                </nav>
+                                </div>div>
+                  </aside>aside>
+        
+                <main class="main">
+                            <header id="home">
+                                            <h1>Linux Administration</h1>
+                                            <p>Red Hat Enterprise Linux (RHEL) Course | RHEL24</p>
+                            </header>header>
+                
+                            <div class="content">
+                                            <section class="welcome-section">
+                                                                <h2>Welcome to the Linux Administration Course</h2>
+                                                                <p>This comprehensive course covers the fundamentals of Red Hat Enterprise Linux (RHEL) administration. Whether you're new to Linux or looking to deepen your system administration skills, this course will guide you through essential concepts, hands-on practices, and real-world scenarios. Each chapter builds upon previous knowledge to create a complete learning path for aspiring Linux administrators.</p>
+                                            </section>section>
+                            
+                                            <section class="chapters-section" id="chapters">
+                                                                <h2>Course Chapters</h2>
+                                                                <div class="chapters-grid">
+                                                                                        <div class="chapter-card">
+                                                                                                                    <div class="chapter-header">
+                                                                                                                                                    <div class="chapter-number">Chapter 1</div>div>
+                                                                                                                                                    <h3 class="chapter-title">Introduction to RHEL</h3>
+                                                                                                                      </div>div>
+                                                                                                                    <div class="chapter-body">
+                                                                                                                                                    <span class="chapter-status">Completed</span>span>
+                                                                                                                                                    <p class="chapter-description">Get started with Red Hat Enterprise Linux. This chapter introduces you to RHEL fundamentals, system architecture, and key concepts that form the foundation for system administration.</p>
+                                                                                                                                                    <div class="chapter-topics">
+                                                                                                                                                                                        <h4>Topics Covered:</h4>
+                                                                                                                                                                                        <ul class="topics-list">
+                                                                                                                                                                                                                                <li>What is RHEL?</li>
+                                                                                                                                                                                                                                <li>System Architecture Basics</li>
+                                                                                                                                                                                                                                <li>Installation & Setup</li>
+                                                                                                                                                                                                                                <li>Linux File System</li>
+                                                                                                                                                                                                                            </ul>ul>
+                                                                                                                                                      </div>div>
+                                                                                                                                                    <a href="chapter1_intro_to_rhel.html" class="chapter-link">View Chapter</a>a>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                
+                                                                                        <div class="chapter-card">
+                                                                                                                    <div class="chapter-header">
+                                                                                                                                                    <div class="chapter-number">Chapter 2</div>div>
+                                                                                                                                                    <h3 class="chapter-title">Accessing the Command Line</h3>
+                                                                                                                      </div>div>
+                                                                                                                    <div class="chapter-body">
+                                                                                                                                                    <span class="chapter-status">Completed</span>span>
+                                                                                                                                                    <p class="chapter-description">Master command line fundamentals. Learn how to access and navigate the Linux shell, execute commands, and become proficient with essential command-line tools.</p>
+                                                                                                                                                    <div class="chapter-topics">
+                                                                                                                                                                                        <h4>Topics Covered:</h4>
+                                                                                                                                                                                        <ul class="topics-list">
+                                                                                                                                                                                                                                <li>Shell Basics</li>
+                                                                                                                                                                                                                                <li>Command Syntax & Structure</li>
+                                                                                                                                                                                                                                <li>Navigation & Paths</li>
+                                                                                                                                                                                                                                <li>File Operations</li>
+                                                                                                                                                                                                                            </ul>ul>
+                                                                                                                                                      </div>div>
+                                                                                                                                                    <a href="chapter2_accessing_command_line.html" class="chapter-link">View Chapter</a>a>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                
+                                                                                        <div class="chapter-card">
+                                                                                                                    <div class="chapter-header">
+                                                                                                                                                    <div class="chapter-number">Chapter 3</div>div>
+                                                                                                                                                    <h3 class="chapter-title">Getting Help from Local Documentation</h3>
+                                                                                                                      </div>div>
+                                                                                                                    <div class="chapter-body">
+                                                                                                                                                    <span class="chapter-status">Completed</span>span>
+                                                                                                                                                    <p class="chapter-description">Become self-sufficient in your Linux journey. Discover how to find answers using man pages, info pages, and local documentation—critical skills for any system administrator.</p>
+                                                                                                                                                    <div class="chapter-topics">
+                                                                                                                                                                                        <h4>Topics Covered:</h4>
+                                                                                                                                                                                        <ul class="topics-list">
+                                                                                                                                                                                                                                <li>Man Pages (Manual)</li>
+                                                                                                                                                                                                                                <li>Info Pages</li>
+                                                                                                                                                                                                                                <li>Help Commands</li>
+                                                                                                                                                                                                                                <li>Documentation Resources</li>
+                                                                                                                                                                                                                            </ul>ul>
+                                                                                                                                                      </div>div>
+                                                                                                                                                    <a href="chapter3_getting_help.html" class="chapter-link">View Chapter</a>a>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                </div>div>
+                                            </section>section>
+                            
+                                            <section class="chapters-section" id="schedule">
+                                                                <h2>Course Schedule</h2>
+                                                                <div class="chapters-grid">
+                                                                                        <div class="chapter-card">
+                                                                                                                    <div class="chapter-header">
+                                                                                                                                                    <div class="chapter-number">Reference</div>div>
+                                                                                                                                                    <h3 class="chapter-title">Red Hat Schedule</h3>
+                                                                                                                      </div>div>
+                                                                                                                    <div class="chapter-body">
+                                                                                                                                                    <span class="chapter-status">Completed</span>span>
+                                                                                                                                                    <p class="chapter-description">View the course schedule, important dates, and milestones for this RHEL administration course. Plan your learning journey with this comprehensive timeline.</p>
+                                                                                                                                                    <div class="chapter-topics">
+                                                                                                                                                                                        <h4>Contents:</h4>
+                                                                                                                                                                                        <ul class="topics-list">
+                                                                                                                                                                                                                                <li>Course Timeline</li>
+                                                                                                                                                                                                                                <li>Key Milestones</li>
+                                                                                                                                                                                                                                <li>Important Dates</li>
+                                                                                                                                                                                                                            </ul>ul>
+                                                                                                                                                      </div>div>
+                                                                                                                                                    <a href="redhat-schedule.html" class="chapter-link">View Schedule</a>a>
+                                                                                                                      </div>div>
+                                                                                          </div>div>
+                                                                </div>div>
+                                            </section>section>
+                            
+                                            <section class="coming-soon-section" id="coming-soon">
+                                                                <h3>📚 More Chapters Coming Soon</h3>
+                                                                <p>We're actively developing additional chapters covering advanced topics like user management, file permissions, package management, networking, and system security. Check back soon for new content!</p>
+                                            </section>section>
+                            </div>div>
+                
+                            <footer>
+                                              <p>&copy; 2026 Linux Administration Course | RHEL24</p>p>
+                                              <p>Red Hat Enterprise Linux | Comprehensive System Administration Training</p>p>
+                                              <p>Last Updated: January 2026</p>p>
+                            </footer>
+                </main>main>
+        </div>div>
 
+        <script>
+                  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+                  window.addEventListener('scroll', () => {
+                                let current = '';
+                                const sections = document.querySelectorAll('section');
+
+                                sections.forEach(section => {
+                                                  const sectionTop = section.offsetTop;
+                                                  if (pageYOffset >= sectionTop - 100) {
+                                                                        current = section.getAttribute('id');
+                                                  }
+                                });
+
+                                navLinks.forEach(link => {
+                                                  link.classList.remove('active');
+                                                  if (link.getAttribute('href') === '#' + current) {
+                                                                        link.classList.add('active');
+                                                  }
+                                });
+                  });
+
+                  navLinks.forEach(link => {
+                                link.addEventListener('click', function() {
+                                                  navLinks.forEach(l => l.classList.remove('active'));
+                                                  this.classList.add('active');
+                                });
+                  });
+        </script>
+  </body>
+</html>html>
+        </script>
+                            </footer></p></li></li></p></p></li></li>
+                                                </nav></h1>
+  </body>
+      </style></title>
+  </head>
