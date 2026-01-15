@@ -1,244 +1,1349 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Linux Administration Course | RHEL24</title>
-      <style>
-                :root {
-                              --rh-red: #CC0000;
-                              --rh-red-dark: #990000;
-                              --rh-black: #1A1A1A;
-                              --rh-gray: #666666;
-                              --rh-gray-light: #CCCCCC;
-                              --rh-gray-lighter: #F0F0F0;
-                              --rh-white: #FFFFFF;
-                              --rh-green: #339933;
-                }
-                * { box-sizing: border-box; margin: 0; padding: 0; }
-                html { scroll-behavior: smooth; font-size: 16px; }
-                body { font-family: Georgia, serif; background-color: var(--rh-white); color: var(--rh-black); line-height: 1.6; }
-                .container { display: flex; min-height: 100vh; }
-                .sidebar { width: 280px; background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%); padding: 40px 20px; position: fixed; height: 100vh; overflow-y: auto; box-shadow: 0 8px 24px rgba(0,0,0,0.2); z-index: 100; }
-                .sidebar h1 { color: var(--rh-white); font-size: 24px; margin-bottom: 10px; }
-                .sidebar-subtitle { color: rgba(255,255,255,0.9); font-size: 13px; margin-bottom: 30px; text-transform: uppercase; }
-                .sidebar-nav { list-style: none; }
-                .sidebar-nav a { color: rgba(255,255,255,0.95); text-decoration: none; display: block; padding: 12px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; transition: 0.2s ease; border-left: 3px solid transparent; }
-                .sidebar-nav a:hover { background-color: rgba(255,255,255,0.15); border-left-color: var(--rh-white); }
-                .sidebar-nav a.active { background-color: rgba(255,255,255,0.25); border-left-color: var(--rh-white); font-weight: 600; }
-                .main { margin-left: 280px; flex: 1; display: flex; flex-direction: column; }
-                header { background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%); color: var(--rh-white); padding: 60px 40px; text-align: center; }
-                header h1 { font-size: 48px; margin-bottom: 10px; }
-                header p { font-size: 18px; opacity: 0.95; }
-                .content { flex: 1; padding: 40px; max-width: 1200px; width: 100%; margin: 0 auto; }
-                .welcome-section { background: var(--rh-gray-lighter); border-left: 5px solid var(--rh-red); padding: 30px; border-radius: 8px; margin-bottom: 50px; }
-                .welcome-section h2 { color: var(--rh-red); font-size: 28px; margin-bottom: 15px; }
-                .welcome-section p { color: var(--rh-gray); font-size: 16px; line-height: 1.8; }
-                .chapters-section { margin-bottom: 60px; }
-                .chapters-section h2 { color: var(--rh-red); font-size: 32px; margin-bottom: 30px; border-bottom: 3px solid var(--rh-red); padding-bottom: 15px; }
-                .chapters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 50px; }
-                .chapter-card { background: var(--rh-white); border: 1px solid var(--rh-gray-light); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s ease; display: flex; flex-direction: column; }
-                .chapter-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.2); transform: translateY(-8px); border-color: var(--rh-red); }
-                .chapter-header { background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 100%); color: var(--rh-white); padding: 20px; }
-                .chapter-number { font-size: 12px; text-transform: uppercase; font-weight: 600; opacity: 0.9; margin-bottom: 8px; }
-                .chapter-title { font-size: 22px; font-weight: bold; margin: 0; }
-                .chapter-body { padding: 25px; flex: 1; display: flex; flex-direction: column; }
-                .chapter-description { color: var(--rh-gray); font-size: 15px; line-height: 1.7; margin-bottom: 20px; flex: 1; }
-                .chapter-topics { margin-bottom: 20px; }
-                .chapter-topics h4 { color: var(--rh-black); font-size: 13px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
-                .topics-list { list-style: none; font-size: 14px; }
-                .topics-list li { color: var(--rh-gray); margin-bottom: 6px; padding-left: 20px; position: relative; }
-                .topics-list li:before { content: "→"; position: absolute; left: 0; color: var(--rh-red); font-weight: bold; }
-                .chapter-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 15px; background-color: #E8F5E9; color: var(--rh-green); }
-                .chapter-link { display: inline-block; background-color: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px; transition: 0.2s ease; align-self: flex-start; margin-top: auto; }
-                .chapter-link:hover { background-color: var(--rh-red-dark); transform: translateX(4px); }
-                .coming-soon-section { background: var(--rh-gray-lighter); border-radius: 8px; padding: 30px; margin-top: 50px; text-align: center; }
-                .coming-soon-section h3 { color: var(--rh-red); font-size: 24px; margin-bottom: 15px; }
-                .coming-soon-section p { color: var(--rh-gray); font-size: 16px; }
-                footer { background: var(--rh-black); color: var(--rh-white); padding: 30px; text-align: center; font-size: 14px; margin-top: auto; }
-                footer p { margin: 5px 0; opacity: 0.8; }
-                @media (max-width: 768px) {
-                              .container { flex-direction: column; }
-                              .sidebar { position: relative; width: 100%; height: auto; padding: 30px 20px; }
-                              .main { margin-left: 0; }
-                              header { padding: 40px 20px; }
-                              header h1 { font-size: 32px; }
-                              .content { padding: 20px; }
-                }
-            </style>
-  </head>
-  <body>
-        <div class="container">
-                  <aside class="sidebar">
-                                <div class="sidebar-content">
-                                                  <h1>RHEL24</h1>
-                                                <p class="sidebar-subtitle">Linux Administration</p>p>
-                                                <nav>
-                                                                      <ul class="sidebar-nav">
-                                                                                                <li><a href="#home" class="active">Home</a>a></li>
-                                                                                              <li><a href="#chapter1">Chapter 1</a>a></li>
-                                                                                              <li><a href="#chapter2">Chapter 2</a>a></li>
-                                                                                              <li><a href="#chapter3">Chapter 3</a>a></li>
-                                                                                              <li><a href="#schedule">Schedule</a>a></li>
-                                                                                              <li><a href="#coming-soon">Coming Soon</a>a></li>
-                                                                      </ul>ul>
-                                                </nav>
-                                </div>div>
-                  </aside>aside>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RH124: Red Hat System Administration I | Course Portal</title>
+    <meta name="description" content="Course portal for RH124 Red Hat System Administration I - Access course schedule, introduction, and chapter materials.">
+    <style>
+        /* ==================== CSS VARIABLES - Web Safe Colors ==================== */
+        :root {
+            /* Red Hat Brand Colors - Web Safe */
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-medium: #999999;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            
+            /* Accent Colors - Web Safe */
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;
+            --rh-teal: #009999;
+            --rh-teal-dark: #006666;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #006600;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            /* Status Colors */
+            --status-success: #339933;
+            --status-warning: #CC9900;
+            --status-error: #CC0000;
+            --status-info: #0066CC;
+            
+            /* Typography */
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+            --shadow-xl: 0 12px 36px rgba(0, 0, 0, 0.25);
+            
+            /* Borders */
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            
+            /* Layout */
+            --max-width: 1200px;
+            --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE STYLES ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for keyboard navigation - WCAG 2.1 AA compliant */
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            .nav-card {
+                border: 2px solid var(--rh-black);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== TOOLTIP SYSTEM ==================== */
+        .tooltip-container {
+            position: relative;
+            display: inline;
+        }
+
+        .tooltip-trigger {
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-decoration-color: var(--rh-blue);
+            cursor: help;
+            color: inherit;
+            border: none;
+            background: none;
+            padding: 0;
+            font: inherit;
+        }
+
+        .tooltip-trigger:hover,
+        .tooltip-trigger:focus {
+            color: var(--rh-blue);
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            width: max-content;
+            max-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            box-shadow: var(--shadow-lg);
+            text-align: left;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--rh-black);
+        }
+
+        .tooltip-trigger:hover + .tooltip-content,
+        .tooltip-trigger:focus + .tooltip-content,
+        .tooltip-content:hover {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning - prevent screen bleed */
+        .tooltip-left .tooltip-content {
+            left: 0;
+            transform: translateX(0);
+        }
         
-                <main class="main">
-                            <header id="home">
-                                            <h1>Linux Administration</h1>
-                                            <p>Red Hat Enterprise Linux (RHEL) Course | RHEL24</p>
-                            </header>header>
+        .tooltip-left .tooltip-content::after {
+            left: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-right .tooltip-content {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+        
+        .tooltip-right .tooltip-content::after {
+            left: auto;
+            right: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-below .tooltip-content {
+            bottom: auto;
+            top: calc(100% + 8px);
+        }
+
+        .tooltip-below .tooltip-content::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--rh-black);
+        }
+
+        /* ==================== HERO HEADER ==================== */
+        .hero-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, #2D2D2D 50%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 60px 20px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 50%, var(--rh-red) 100%);
+        }
+
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(204, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 204, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: var(--content-width);
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+            text-transform: uppercase;
+        }
+
+        .course-badge svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .hero-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: var(--rh-gray-light);
+            max-width: 700px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            color: var(--rh-gray-light);
+        }
+
+        .meta-icon {
+            width: 20px;
+            height: 20px;
+            fill: var(--rh-red);
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 60px 20px 80px;
+        }
+
+        /* ==================== SECTION HEADERS ==================== */
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--rh-black);
+            margin-bottom: 12px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+            border-radius: 2px;
+        }
+
+        .section-header p {
+            color: var(--rh-gray);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 20px auto 0;
+        }
+
+        /* ==================== NAVIGATION CARDS ==================== */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .nav-card {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            transition: transform var(--transition-med), box-shadow var(--transition-med);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .nav-card:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 4px;
+        }
+
+        .card-header {
+            padding: 24px 24px 20px;
+            position: relative;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        /* Card type variations */
+        .card-schedule .card-header::before {
+            background: linear-gradient(90deg, var(--rh-purple) 0%, #8866CC 100%);
+        }
+
+        .card-intro .card-header::before {
+            background: linear-gradient(90deg, var(--rh-blue) 0%, var(--rh-blue-light) 100%);
+        }
+
+        .card-chapter .card-header::before {
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .card-schedule .card-icon {
+            background: linear-gradient(135deg, var(--rh-purple) 0%, #8866CC 100%);
+        }
+
+        .card-intro .card-icon {
+            background: linear-gradient(135deg, var(--rh-blue) 0%, var(--rh-blue-light) 100%);
+        }
+
+        .card-chapter .card-icon {
+            background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+        }
+
+        .card-icon svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--rh-white);
+        }
+
+        .card-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--rh-gray-medium);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--rh-black);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .card-subtitle {
+            font-size: 0.95rem;
+            color: var(--rh-gray);
+            line-height: 1.5;
+        }
+
+        .card-body {
+            padding: 0 24px 24px;
+            flex: 1;
+        }
+
+        .card-description {
+            font-size: 0.95rem;
+            color: var(--rh-gray-dark);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .card-topics {
+            list-style: none;
+        }
+
+        .card-topics li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.9rem;
+            color: var(--rh-gray-dark);
+            border-bottom: 1px solid var(--rh-gray-lighter);
+        }
+
+        .card-topics li:last-child {
+            border-bottom: none;
+        }
+
+        .card-topics li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--rh-red);
+            border-radius: 50%;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .card-footer {
+            padding: 16px 24px;
+            background: var(--rh-gray-lighter);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+        }
+
+        .card-meta svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--rh-gray);
+        }
+
+        .card-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--rh-red);
+        }
+
+        .card-action svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transition: transform var(--transition-fast);
+        }
+
+        .nav-card:hover .card-action svg {
+            transform: translateX(4px);
+        }
+
+        /* ==================== COURSE INFO SECTION ==================== */
+        .course-info {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 40px;
+            margin-top: 60px;
+        }
+
+        .course-info h3 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--rh-black);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .course-info h3 svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--rh-red);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-label {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--rh-gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: var(--rh-black);
+            line-height: 1.5;
+        }
+
+        /* ==================== LEARNING PATH ==================== */
+        .learning-path {
+            margin-top: 60px;
+        }
+
+        .path-container {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .path-container::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, var(--rh-red) 0%, var(--rh-teal) 100%);
+            border-radius: 2px;
+        }
+
+        .path-item {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .path-marker {
+            position: absolute;
+            left: -40px;
+            top: 24px;
+            width: 32px;
+            height: 32px;
+            background: var(--rh-white);
+            border: 4px solid var(--rh-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--rh-red);
+            z-index: 1;
+        }
+
+        .path-item:nth-child(even) .path-marker {
+            border-color: var(--rh-teal);
+            color: var(--rh-teal);
+        }
+
+        .path-content {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .path-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--rh-black);
+            margin-bottom: 8px;
+        }
+
+        .path-description {
+            font-size: 0.95rem;
+            color: var(--rh-gray-dark);
+            line-height: 1.6;
+        }
+
+        /* ==================== FOOTER ==================== */
+        .site-footer {
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            margin-top: 80px;
+        }
+
+        .footer-content {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .footer-logo {
+            width: 40px;
+            height: 40px;
+            background: var(--rh-red);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-logo svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--rh-white);
+        }
+
+        .footer-text {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--rh-gray-light);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .footer-links a {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--rh-gray-light);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-links a:hover {
+            color: var(--rh-red);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .hero-header {
+                padding: 40px 16px 60px;
+            }
+
+            .hero-meta {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .main-content {
+                padding: 40px 16px;
+            }
+
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .course-info {
+                padding: 24px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .card-header {
+                padding: 20px 16px 16px;
+            }
+
+            .card-body {
+                padding: 0 16px 20px;
+            }
+
+            .card-footer {
+                padding: 12px 16px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .path-container {
+                padding-left: 32px;
+            }
+
+            .path-marker {
+                left: -32px;
+                width: 24px;
+                height: 24px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .hero-header {
+                background: var(--rh-white);
+                color: var(--rh-black);
+            }
+
+            .nav-card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--rh-gray-light);
+            }
+
+            .site-footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Keyboard Navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Hero Header -->
+    <header class="hero-header" role="banner">
+        <div class="hero-content">
+            <div class="course-badge">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <span>RH124</span>
+            </div>
+            <h1>Red Hat System Administration I</h1>
+            <p class="hero-subtitle">
+                Master essential 
+                <span class="tooltip-container">
+                    <button type="button" class="tooltip-trigger" aria-describedby="tooltip-linux">Linux</button>
+                    <span class="tooltip-content" id="tooltip-linux" role="tooltip">Linux is an open-source operating system kernel created by Linus Torvalds in 1991. It serves as the foundation for many operating systems including Red Hat Enterprise Linux.</span>
+                </span>
+                administration skills for 
+                <span class="tooltip-container tooltip-right">
+                    <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rhel">Red Hat Enterprise Linux</button>
+                    <span class="tooltip-content" id="tooltip-rhel" role="tooltip">Red Hat Enterprise Linux (RHEL) is a commercial Linux distribution developed by Red Hat for the enterprise market. It provides stability, security, and support for mission-critical workloads.</span>
+                </span>
+                environments
+            </p>
+            <nav class="hero-meta" aria-label="Course information">
+                <div class="meta-item">
+                    <svg class="meta-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                    <span>15-Week Semester</span>
+                </div>
+                <div class="meta-item">
+                    <svg class="meta-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/>
+                    </svg>
+                    <span>Spring 2025</span>
+                </div>
+                <div class="meta-item">
+                    <svg class="meta-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                    </svg>
+                    <span>
+                        <span class="tooltip-container tooltip-below">
+                            <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rhcsa" style="color: var(--rh-gray-light);">RHCSA</button>
+                            <span class="tooltip-content" id="tooltip-rhcsa" role="tooltip">Red Hat Certified System Administrator (RHCSA) is an entry-level certification that validates essential system administration skills in RHEL environments.</span>
+                        </span>
+                        Exam Prep
+                    </span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <!-- Course Materials Section -->
+        <section aria-labelledby="materials-heading">
+            <div class="section-header">
+                <h2 id="materials-heading">Course Materials</h2>
+                <p>Access your course content organized by topic. Click any card to open the interactive learning module.</p>
+            </div>
+
+            <div class="nav-grid" role="list">
+                <!-- Schedule Card -->
+                <a href="course_schedule.html" class="nav-card card-schedule" role="listitem" aria-labelledby="card-schedule-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Reference</span>
+                        <h3 class="card-title" id="card-schedule-title">Course Schedule</h3>
+                        <p class="card-subtitle">Full semester calendar with lab assignments</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Complete 15-week schedule covering both 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rh124">RH124</button>
+                                <span class="tooltip-content" id="tooltip-rh124" role="tooltip">Red Hat System Administration I - The first course in the RHCSA track covering essential Linux skills.</span>
+                            </span>
+                            and 
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rh134">RH134</button>
+                                <span class="tooltip-content" id="tooltip-rh134" role="tooltip">Red Hat System Administration II - Advanced course covering system configuration, storage, and security.</span>
+                            </span>
+                            content with labs and assessments.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Weekly topics and learning objectives</li>
+                            <li>Lab assignments for each chapter</li>
+                            <li>Exam dates and review sessions</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            Quick Reference
+                        </span>
+                        <span class="card-action">
+                            Open Schedule
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Introduction Card -->
+                <a href="rh124_course_introduction.html" class="nav-card card-intro" role="listitem" aria-labelledby="card-intro-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Introduction</span>
+                        <h3 class="card-title" id="card-intro-title">Course Introduction</h3>
+                        <p class="card-subtitle">Overview, objectives, and course orientation</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Get started with an overview of the course structure, learning objectives, and what to expect throughout the semester.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Course objectives and outcomes</li>
+                            <li>Red Hat certification paths</li>
+                            <li>Lab environment setup</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Start Here
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Chapter 1 Card -->
+                <a href="chapter1_intro_to_rhel.html" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch1-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Chapter 1</span>
+                        <h3 class="card-title" id="card-ch1-title">Introduction to Red Hat Enterprise Linux</h3>
+                        <p class="card-subtitle">Linux fundamentals and RHEL overview</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Learn about 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-opensource">open source</button>
+                                <span class="tooltip-content" id="tooltip-opensource" role="tooltip">Open source software is code that is publicly accessible and can be modified and shared. It promotes collaboration and transparency in software development.</span>
+                            </span>
+                            software, Linux history, and the Red Hat ecosystem that powers enterprise computing.
+                        </p>
+                        <ul class="card-topics">
+                            <li>What is open source software</li>
+                            <li>Linux distributions overview</li>
+                            <li>Red Hat Enterprise Linux features</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Chapter 2 Card -->
+                <a href="chapter2_accessing_command_line.html" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch2-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.58-2.59L7.5 9l4 4-4 4z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Chapter 2</span>
+                        <h3 class="card-title" id="card-ch2-title">Accessing the Command Line</h3>
+                        <p class="card-subtitle">Terminal basics and shell navigation</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Master the 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-bash">Bash shell</button>
+                                <span class="tooltip-content" id="tooltip-bash" role="tooltip">Bash (Bourne Again Shell) is the default command-line interpreter for most Linux distributions. It processes commands and executes scripts.</span>
+                            </span>
+                            environment and learn to navigate the Linux filesystem with confidence.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Local console and SSH access</li>
+                            <li>Bash shell commands and syntax</li>
+                            <li>Command history and editing</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Chapter 3 Card -->
+                <a href="chapter3_getting_help.html" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch3-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Chapter 3</span>
+                        <h3 class="card-title" id="card-ch3-title">Getting Help in Red Hat Enterprise Linux</h3>
+                        <p class="card-subtitle">Documentation and manual pages</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Learn to use 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-man">man pages</button>
+                                <span class="tooltip-content" id="tooltip-man" role="tooltip">Manual pages (man pages) are the built-in documentation system in Linux. They provide detailed information about commands, configuration files, and system calls.</span>
+                            </span>
+                            and other documentation resources to solve problems independently.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Reading and searching man pages</li>
+                            <li>Using info documentation</li>
+                            <li>Red Hat documentation resources</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Learning Path Section -->
+        <section class="learning-path" aria-labelledby="path-heading">
+            <div class="section-header">
+                <h2 id="path-heading">Recommended Learning Path</h2>
+                <p>Follow this suggested sequence to build your Linux administration skills progressively.</p>
+            </div>
+
+            <div class="path-container" role="list">
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">1</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Start with the Introduction</h3>
+                        <p class="path-description">
+                            Review course objectives, understand the certification path, and set up your lab environment before diving into technical content.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">2</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Understand RHEL Foundations</h3>
+                        <p class="path-description">
+                            Chapter 1 provides essential context about open source, Linux history, and the enterprise features that make RHEL the industry standard.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">3</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Master the Command Line</h3>
+                        <p class="path-description">
+                            Chapter 2 teaches the fundamental skills you'll use throughout your career—terminal navigation, shell commands, and efficient workflows.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">4</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Learn to Find Answers</h3>
+                        <p class="path-description">
+                            Chapter 3 equips you with the research skills to solve problems independently using built-in documentation and help systems.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">5</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Reference the Schedule</h3>
+                        <p class="path-description">
+                            Keep the course schedule handy to track lab assignments, exam dates, and your progress through the semester.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Course Information -->
+        <section class="course-info" aria-labelledby="info-heading">
+            <h3 id="info-heading">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                </svg>
+                Course Information
+            </h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Course Code</span>
+                    <span class="info-value">RH124 / RH134</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Course Title</span>
+                    <span class="info-value">Red Hat System Administration I & II</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Certification Path</span>
+                    <span class="info-value">
+                        <span class="tooltip-container tooltip-below">
+                            <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rhcsa2">RHCSA</button>
+                            <span class="tooltip-content" id="tooltip-rhcsa2" role="tooltip">The Red Hat Certified System Administrator (RHCSA) exam validates your ability to perform core system administration tasks in Red Hat Enterprise Linux.</span>
+                        </span>
+                        (EX200)
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Duration</span>
+                    <span class="info-value">15-Week Semester</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Format</span>
+                    <span class="info-value">Interactive Lectures + Hands-on Labs</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Prerequisites</span>
+                    <span class="info-value">Basic computer literacy</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="footer-logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="footer-text">RH124 Course Portal | Red Hat System Administration I</span>
+            </div>
+            <nav class="footer-links" aria-label="Footer navigation">
+                <a href="course_schedule.html">Schedule</a>
+                <a href="rh124_course_introduction.html">Introduction</a>
+                <a href="chapter1_intro_to_rhel.html">Chapter 1</a>
+                <a href="chapter2_accessing_command_line.html">Chapter 2</a>
+                <a href="chapter3_getting_help.html">Chapter 3</a>
+            </nav>
+        </div>
+    </footer>
+
+    <!-- Smart Tooltip Positioning Script -->
+    <script>
+        // Dynamically position tooltips to prevent screen bleed
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipContainers = document.querySelectorAll('.tooltip-container');
+            
+            function positionTooltip(container) {
+                const tooltip = container.querySelector('.tooltip-content');
+                const trigger = container.querySelector('.tooltip-trigger');
                 
-                            <div class="content">
-                                            <section class="welcome-section">
-                                                                <h2>Welcome to the Linux Administration Course</h2>
-                                                                <p>This comprehensive course covers the fundamentals of Red Hat Enterprise Linux (RHEL) administration. Whether you're new to Linux or looking to deepen your system administration skills, this course will guide you through essential concepts, hands-on practices, and real-world scenarios. Each chapter builds upon previous knowledge to create a complete learning path for aspiring Linux administrators.</p>
-                                            </section>section>
-                            
-                                            <section class="chapters-section" id="chapters">
-                                                                <h2>Course Chapters</h2>
-                                                                <div class="chapters-grid">
-                                                                                        <div class="chapter-card">
-                                                                                                                    <div class="chapter-header">
-                                                                                                                                                    <div class="chapter-number">Chapter 1</div>div>
-                                                                                                                                                    <h3 class="chapter-title">Introduction to RHEL</h3>
-                                                                                                                      </div>div>
-                                                                                                                    <div class="chapter-body">
-                                                                                                                                                    <span class="chapter-status">Completed</span>span>
-                                                                                                                                                    <p class="chapter-description">Get started with Red Hat Enterprise Linux. This chapter introduces you to RHEL fundamentals, system architecture, and key concepts that form the foundation for system administration.</p>
-                                                                                                                                                    <div class="chapter-topics">
-                                                                                                                                                                                        <h4>Topics Covered:</h4>
-                                                                                                                                                                                        <ul class="topics-list">
-                                                                                                                                                                                                                                <li>What is RHEL?</li>
-                                                                                                                                                                                                                                <li>System Architecture Basics</li>
-                                                                                                                                                                                                                                <li>Installation & Setup</li>
-                                                                                                                                                                                                                                <li>Linux File System</li>
-                                                                                                                                                                                                                            </ul>ul>
-                                                                                                                                                      </div>div>
-                                                                                                                                                    <a href="chapter1_intro_to_rhel.html" class="chapter-link">View Chapter</a>a>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
-                                                                
-                                                                                        <div class="chapter-card">
-                                                                                                                    <div class="chapter-header">
-                                                                                                                                                    <div class="chapter-number">Chapter 2</div>div>
-                                                                                                                                                    <h3 class="chapter-title">Accessing the Command Line</h3>
-                                                                                                                      </div>div>
-                                                                                                                    <div class="chapter-body">
-                                                                                                                                                    <span class="chapter-status">Completed</span>span>
-                                                                                                                                                    <p class="chapter-description">Master command line fundamentals. Learn how to access and navigate the Linux shell, execute commands, and become proficient with essential command-line tools.</p>
-                                                                                                                                                    <div class="chapter-topics">
-                                                                                                                                                                                        <h4>Topics Covered:</h4>
-                                                                                                                                                                                        <ul class="topics-list">
-                                                                                                                                                                                                                                <li>Shell Basics</li>
-                                                                                                                                                                                                                                <li>Command Syntax & Structure</li>
-                                                                                                                                                                                                                                <li>Navigation & Paths</li>
-                                                                                                                                                                                                                                <li>File Operations</li>
-                                                                                                                                                                                                                            </ul>ul>
-                                                                                                                                                      </div>div>
-                                                                                                                                                    <a href="chapter2_accessing_command_line.html" class="chapter-link">View Chapter</a>a>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
-                                                                
-                                                                                        <div class="chapter-card">
-                                                                                                                    <div class="chapter-header">
-                                                                                                                                                    <div class="chapter-number">Chapter 3</div>div>
-                                                                                                                                                    <h3 class="chapter-title">Getting Help from Local Documentation</h3>
-                                                                                                                      </div>div>
-                                                                                                                    <div class="chapter-body">
-                                                                                                                                                    <span class="chapter-status">Completed</span>span>
-                                                                                                                                                    <p class="chapter-description">Become self-sufficient in your Linux journey. Discover how to find answers using man pages, info pages, and local documentation—critical skills for any system administrator.</p>
-                                                                                                                                                    <div class="chapter-topics">
-                                                                                                                                                                                        <h4>Topics Covered:</h4>
-                                                                                                                                                                                        <ul class="topics-list">
-                                                                                                                                                                                                                                <li>Man Pages (Manual)</li>
-                                                                                                                                                                                                                                <li>Info Pages</li>
-                                                                                                                                                                                                                                <li>Help Commands</li>
-                                                                                                                                                                                                                                <li>Documentation Resources</li>
-                                                                                                                                                                                                                            </ul>ul>
-                                                                                                                                                      </div>div>
-                                                                                                                                                    <a href="chapter3_getting_help.html" class="chapter-link">View Chapter</a>a>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
-                                                                </div>div>
-                                            </section>section>
-                            
-                                            <section class="chapters-section" id="schedule">
-                                                                <h2>Course Schedule</h2>
-                                                                <div class="chapters-grid">
-                                                                                        <div class="chapter-card">
-                                                                                                                    <div class="chapter-header">
-                                                                                                                                                    <div class="chapter-number">Reference</div>div>
-                                                                                                                                                    <h3 class="chapter-title">Red Hat Schedule</h3>
-                                                                                                                      </div>div>
-                                                                                                                    <div class="chapter-body">
-                                                                                                                                                    <span class="chapter-status">Completed</span>span>
-                                                                                                                                                    <p class="chapter-description">View the course schedule, important dates, and milestones for this RHEL administration course. Plan your learning journey with this comprehensive timeline.</p>
-                                                                                                                                                    <div class="chapter-topics">
-                                                                                                                                                                                        <h4>Contents:</h4>
-                                                                                                                                                                                        <ul class="topics-list">
-                                                                                                                                                                                                                                <li>Course Timeline</li>
-                                                                                                                                                                                                                                <li>Key Milestones</li>
-                                                                                                                                                                                                                                <li>Important Dates</li>
-                                                                                                                                                                                                                            </ul>ul>
-                                                                                                                                                      </div>div>
-                                                                                                                                                    <a href="redhat-schedule.html" class="chapter-link">View Schedule</a>a>
-                                                                                                                      </div>div>
-                                                                                          </div>div>
-                                                                </div>div>
-                                            </section>section>
-                            
-                                            <section class="coming-soon-section" id="coming-soon">
-                                                                <h3>📚 More Chapters Coming Soon</h3>
-                                                                <p>We're actively developing additional chapters covering advanced topics like user management, file permissions, package management, networking, and system security. Check back soon for new content!</p>
-                                            </section>section>
-                            </div>div>
+                if (!tooltip || !trigger) return;
                 
-                            <footer>
-                                              <p>&copy; 2026 Linux Administration Course | RHEL24</p>p>
-                                              <p>Red Hat Enterprise Linux | Comprehensive System Administration Training</p>p>
-                                              <p>Last Updated: January 2026</p>p>
-                            </footer>
-                </main>main>
-        </div>div>
+                // Reset classes
+                container.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-below');
+                
+                // Get positions
+                const triggerRect = trigger.getBoundingClientRect();
+                const tooltipWidth = 300; // max-width from CSS
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                
+                // Check horizontal positioning
+                const spaceLeft = triggerRect.left;
+                const spaceRight = viewportWidth - triggerRect.right;
+                const centerOffset = tooltipWidth / 2;
+                
+                if (spaceLeft < centerOffset) {
+                    container.classList.add('tooltip-left');
+                } else if (spaceRight < centerOffset) {
+                    container.classList.add('tooltip-right');
+                }
+                
+                // Check if tooltip would go above viewport
+                if (triggerRect.top < 100) {
+                    container.classList.add('tooltip-below');
+                }
+            }
+            
+            // Position on hover/focus
+            tooltipContainers.forEach(container => {
+                const trigger = container.querySelector('.tooltip-trigger');
+                if (trigger) {
+                    trigger.addEventListener('mouseenter', () => positionTooltip(container));
+                    trigger.addEventListener('focus', () => positionTooltip(container));
+                }
+            });
+            
+            // Reposition on resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    tooltipContainers.forEach(positionTooltip);
+                }, 100);
+            });
+        });
 
-        <script>
-                  const navLinks = document.querySelectorAll('.sidebar-nav a');
-
-                  window.addEventListener('scroll', () => {
-                                let current = '';
-                                const sections = document.querySelectorAll('section');
-
-                                sections.forEach(section => {
-                                                  const sectionTop = section.offsetTop;
-                                                  if (pageYOffset >= sectionTop - 100) {
-                                                                        current = section.getAttribute('id');
-                                                  }
-                                });
-
-                                navLinks.forEach(link => {
-                                                  link.classList.remove('active');
-                                                  if (link.getAttribute('href') === '#' + current) {
-                                                                        link.classList.add('active');
-                                                  }
-                                });
-                  });
-
-                  navLinks.forEach(link => {
-                                link.addEventListener('click', function() {
-                                                  navLinks.forEach(l => l.classList.remove('active'));
-                                                  this.classList.add('active');
-                                });
-                  });
-        </script>
-  </body>
-</html>html>
-        </script>
-                            </footer></p></li></li></p></p></li></li>
-                                                </nav></h1>
-  </body>
-      </style></title>
-  </head>
+        // Keyboard accessibility for tooltips
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const focusedTooltip = document.querySelector('.tooltip-trigger:focus');
+                if (focusedTooltip) {
+                    focusedTooltip.blur();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
