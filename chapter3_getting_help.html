@@ -1,0 +1,2565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Getting Help from Local Documentation | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--rh-gray-dark);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .nav-btn:hover, .nav-btn:focus {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-gray-lighter);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+        }
+
+        .section-body ul, .section-body ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        .section-body li {
+            margin-bottom: 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+            border-left: 4px solid var(--rh-gold);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            padding: 12px 0 12px 35px;
+            position: relative;
+            border-bottom: 1px dashed var(--rh-gold);
+        }
+
+        .objectives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .term {
+            color: var(--rh-blue);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .term:hover, .term:focus {
+            color: var(--rh-blue-dark);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: var(--font-display);
+            font-weight: 400;
+            line-height: 1.5;
+            width: 300px;
+            max-width: 90vw;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning classes */
+        .tooltip.tooltip-top {
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-top::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-bottom {
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-bottom::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-left {
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-right {
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== KEY POINTS BOX ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F7FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        /* ==================== NOTE BOX ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ==================== WARNING BOX ==================== */
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-section {
+            color: #FF9900;
+        }
+
+        .code-block .code-highlight {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+        }
+
+        /* Inline code */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            color: var(--rh-red-dark);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: var(--rh-gray-lighter);
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expand-icon {
+            font-size: 0.8rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .expandable-content.open {
+            padding: 20px;
+            max-height: 3000px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F3FF;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            margin-bottom: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tab-btn {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--rh-gray);
+            cursor: pointer;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            font-family: var(--font-display);
+            color: var(--rh-red);
+            margin-bottom: 15px;
+        }
+
+        /* ==================== KEYBOARD SHORTCUT TABLE ==================== */
+        .shortcut-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .shortcut-table th,
+        .shortcut-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .shortcut-table th {
+            background: var(--rh-teal);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+        }
+
+        .shortcut-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .kbd {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin: 0 3px;
+            display: inline-block;
+            box-shadow: 0 2px 0 var(--rh-black);
+        }
+
+        /* ==================== MAN PAGE DIAGRAM ==================== */
+        .man-page-diagram {
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .man-page-diagram .man-header {
+            text-align: center;
+            color: var(--rh-gold);
+            font-weight: bold;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--rh-gray);
+            padding-bottom: 10px;
+        }
+
+        .man-page-diagram .man-section {
+            color: #00FFFF;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .man-page-diagram .man-content {
+            color: var(--rh-white);
+            margin-left: 20px;
+            margin-top: 5px;
+        }
+
+        /* ==================== INTERACTIVE SECTION CARDS ==================== */
+        .section-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .section-card {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .section-card:hover, .section-card:focus {
+            border-color: var(--rh-red);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-card .section-num {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin: 0 auto 15px;
+        }
+
+        .section-card h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .section-card p {
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== QUIZ STYLES ==================== */
+        .quiz-container {
+            background: linear-gradient(135deg, #F5F0FF 0%, #E6E0FF 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .quiz-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: border-color var(--transition-fast);
+        }
+
+        .quiz-question.correct {
+            border-color: var(--rh-green);
+            background: #F0FFF0;
+        }
+
+        .quiz-question.incorrect {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .question-number {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .quiz-option input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .quiz-option.selected {
+            border-color: var(--rh-purple);
+            background: #F0E6FF;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            color: var(--rh-green);
+            border: 1px solid var(--rh-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFE6E6;
+            color: var(--rh-red-dark);
+            border: 1px solid var(--rh-red);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .quiz-btn:hover, .quiz-btn:focus {
+            background: #552288;
+            transform: scale(1.02);
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF5CC 100%);
+            border-left: 4px solid var(--rh-green);
+            padding: 25px;
+            border-radius: var(--radius-md);
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(51, 153, 51, 0.3);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .summary-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border-radius: var(--radius-md);
+            margin-top: 30px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .completion-btn:hover, .completion-btn:focus {
+            background: #267326;
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 40px;
+            font-family: var(--font-display);
+        }
+
+        /* ==================== INTERACTIVE DEMO ==================== */
+        .interactive-demo {
+            background: var(--rh-black);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .demo-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .demo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demo-dot.red { background: #FF5F56; }
+        .demo-dot.yellow { background: #FFBD2E; }
+        .demo-dot.green { background: #27CA40; }
+
+        .demo-title {
+            color: var(--rh-gray-light);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .demo-content {
+            font-family: var(--font-mono);
+            color: #00FF00;
+            line-height: 1.6;
+        }
+
+        .demo-input {
+            background: transparent;
+            border: none;
+            color: #FFFF00;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            width: 100%;
+            outline: none;
+        }
+
+        .demo-output {
+            color: var(--rh-white);
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav-container {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .section-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .section-nav,
+            .progress-container,
+            .quiz-btn,
+            .completion-btn {
+                display: none;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--rh-gray-light);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • CHAPTER 3</span>
+            <h1>Getting Help from Local Documentation</h1>
+            <p class="chapter-subtitle">Master the art of finding answers using man pages, info documentation, and built-in help systems</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-overview" class="nav-btn">Overview</a>
+            <a href="#section-manpages" class="nav-btn">Man Pages</a>
+            <a href="#section-sections" class="nav-btn">Sections</a>
+            <a href="#section-navigation" class="nav-btn">Navigation</a>
+            <a href="#section-searching" class="nav-btn">Searching</a>
+            <a href="#section-other" class="nav-btn">Other Help</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter progress">
+        <div class="progress-wrapper">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content" role="main">
+        
+        <!-- Section 1: Overview -->
+        <section id="section-overview" class="content-section" aria-labelledby="overview-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="overview-heading">Chapter Overview</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>Learning Objectives</h3>
+                    <ul class="objectives-list">
+                        <li>Find information in local Linux system manual pages</li>
+                        <li>Understand man page organization and sections</li>
+                        <li>Navigate and search within man pages effectively</li>
+                        <li>Use <code class="inline">apropos</code> and <code class="inline">whatis</code> to find relevant documentation</li>
+                        <li>Access GNU Info documentation with <code class="inline">pinfo</code></li>
+                        <li>Use the <code class="inline">--help</code> option for quick command reference</li>
+                        <li>Locate additional documentation resources in <code class="inline">/usr/share/doc</code></li>
+                    </ul>
+                </div>
+
+                <p>One of the most important skills for any Linux administrator is knowing how to find help when you need it. Unlike graphical operating systems where help is often accessed through menus, Linux provides powerful command-line documentation tools that are comprehensive and always available—even when you don't have network access.</p>
+
+                <p>The <span class="term" tabindex="0" data-tooltip="Manual pages (man pages) are the traditional form of online documentation in Unix and Linux systems. They provide detailed information about commands, configuration files, system calls, and more.">man pages</span> system has been the backbone of Unix/Linux documentation since the early 1970s. Software packages include these pages to document their functionality, and you can access them directly from the command line using the <code class="inline">man</code> command.</p>
+
+                <div class="key-points">
+                    <h4>Why Learn Documentation Tools?</h4>
+                    <ul>
+                        <li><strong>Self-sufficiency:</strong> Find answers without relying on internet access</li>
+                        <li><strong>Accuracy:</strong> Documentation matches your specific system version</li>
+                        <li><strong>Completeness:</strong> Man pages contain all options and detailed explanations</li>
+                        <li><strong>Efficiency:</strong> Quick access to command syntax and examples</li>
+                        <li><strong>Professional skill:</strong> Expected knowledge for system administrators</li>
+                    </ul>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">📚</span>
+                        <span>Historical Note</span>
+                    </div>
+                    <p>Man pages originated from the historical Linux Programmer's Manual, which due to its size was split into multiple numbered sections. Each section contains information about a particular type of topic, from user commands to system administration tools.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Introduction to Man Pages -->
+        <section id="section-manpages" class="content-section" aria-labelledby="manpages-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="manpages-heading">Introduction to Man Pages</h2>
+            </div>
+            <div class="section-body">
+                <p>The <code class="inline">man</code> command is your primary tool for accessing documentation on a Linux system. Man pages are stored in subdirectories of <code class="inline">/usr/share/man</code> and are organized by section number.</p>
+
+                <h3>Basic Usage</h3>
+                <p>To read a man page, simply type <code class="inline">man</code> followed by the topic name:</p>
+
+                <div class="code-block">
+                    <code><span class="code-comment"># Read the man page for the ls command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man ls</span>
+
+<span class="code-comment"># Read the man page for the passwd command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man passwd</span>
+
+<span class="code-comment"># Read the man page for the man command itself</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man man</span></code>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="man-anatomy">
+                        <span>Anatomy of a Man Page</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="man-anatomy" class="expandable-content">
+                        <p>Man pages follow a consistent structure with standard headings. Not all pages include every heading, as some don't apply to all topics.</p>
+
+                        <div class="man-page-diagram" role="img" aria-label="Example man page structure">
+                            <div class="man-header">LS(1)                    User Commands                    LS(1)</div>
+                            <div class="man-section">NAME</div>
+                            <div class="man-content">ls - list directory contents</div>
+                            <div class="man-section">SYNOPSIS</div>
+                            <div class="man-content">ls [OPTION]... [FILE]...</div>
+                            <div class="man-section">DESCRIPTION</div>
+                            <div class="man-content">List information about the FILEs (the current directory by default).</div>
+                            <div class="man-section">OPTIONS</div>
+                            <div class="man-content">-a, --all    do not ignore entries starting with .</div>
+                            <div class="man-section">SEE ALSO</div>
+                            <div class="man-content">dir(1), dircolors(1), vdir(1)</div>
+                        </div>
+
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Heading</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>NAME</strong></td>
+                                    <td>Subject name, usually a command or file name, with a brief description</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SYNOPSIS</strong></td>
+                                    <td>Summary of the command syntax</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DESCRIPTION</strong></td>
+                                    <td>In-depth description of the command or topic</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>OPTIONS</strong></td>
+                                    <td>Explanation of available command-line options</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>EXAMPLES</strong></td>
+                                    <td>Examples of how to use the command</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>FILES</strong></td>
+                                    <td>List of files and directories related to the man page</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>SEE ALSO</strong></td>
+                                    <td>Related information, typically other man page topics</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BUGS</strong></td>
+                                    <td>Known bugs or limitations in the software</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>AUTHOR</strong></td>
+                                    <td>Information about who contributed to the development</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h3>Understanding the Synopsis</h3>
+                <p>The <span class="term" tabindex="0" data-tooltip="The SYNOPSIS section shows the command syntax using special notation: items in brackets [] are optional, items in braces {} indicate choices, and items followed by ... can be repeated.">SYNOPSIS</span> section uses a specific notation to describe command syntax:</p>
+
+                <div class="code-block">
+                    <code><span class="code-section">SYNOPSIS</span>
+<span class="code-output">       ls [OPTION]... [FILE]...</span>
+
+<span class="code-comment"># Notation guide:</span>
+<span class="code-comment"># [OPTION]   - Square brackets mean the item is optional</span>
+<span class="code-comment"># ...        - Ellipsis means the item can be repeated</span>
+<span class="code-comment"># CAPS       - Replace with actual value (e.g., a real filename)</span>
+<span class="code-comment"># |          - Separates mutually exclusive choices</span>
+<span class="code-comment"># {a|b}      - Must choose one of the options</span></code>
+                </div>
+
+                <div class="key-points">
+                    <h4>Quick Tips for Reading Man Pages</h4>
+                    <ul>
+                        <li>The section number in parentheses (e.g., LS(1)) indicates which manual section the page belongs to</li>
+                        <li>Bold text usually represents commands or options to type exactly as shown</li>
+                        <li>Italic or underlined text represents variables you should replace with actual values</li>
+                        <li>The SEE ALSO section is valuable for finding related commands and concepts</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Man Page Sections -->
+        <section id="section-sections" class="content-section" aria-labelledby="sections-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="sections-heading">Man Page Sections</h2>
+            </div>
+            <div class="section-body">
+                <p>Man pages are organized into numbered sections based on the type of content. This organization is important because the same topic name can exist in multiple sections with different meanings.</p>
+
+                <h3>The Nine Standard Sections</h3>
+                <div class="section-cards" role="list">
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">1</div>
+                        <h4>User Commands</h4>
+                        <p>Commands run from the shell by regular users</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">2</div>
+                        <h4>System Calls</h4>
+                        <p>Programming functions to request kernel services</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">3</div>
+                        <h4>Library Functions</h4>
+                        <p>Functions provided by program libraries</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">4</div>
+                        <h4>Special Files</h4>
+                        <p>Device files and special filesystem entries</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">5</div>
+                        <h4>File Formats</h4>
+                        <p>Configuration files and data file formats</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">6</div>
+                        <h4>Games</h4>
+                        <p>Games and amusements (rarely used)</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">7</div>
+                        <h4>Conventions</h4>
+                        <p>Miscellaneous topics and protocols</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">8</div>
+                        <h4>System Admin</h4>
+                        <p>Commands for system administration (root)</p>
+                    </div>
+                    <div class="section-card" tabindex="0" role="listitem">
+                        <div class="section-num">9</div>
+                        <h4>Kernel</h4>
+                        <p>Linux kernel internals (non-standard)</p>
+                    </div>
+                </div>
+
+                <h3>Specifying a Section</h3>
+                <p>Some topics exist in multiple sections. For example, <code class="inline">passwd</code> exists as both a command (section 1) and a file format (section 5). To access a specific section:</p>
+
+                <div class="code-block">
+                    <code><span class="code-comment"># View the passwd command documentation (section 1)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man 1 passwd</span>
+
+<span class="code-comment"># View the passwd file format documentation (section 5)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man 5 passwd</span>
+
+<span class="code-comment"># Alternative syntax with section number</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man passwd.5</span>
+
+<span class="code-comment"># List all available sections for a topic</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -f passwd</span>
+<span class="code-output">passwd (1)           - update user's authentication tokens</span>
+<span class="code-output">passwd (5)           - password file</span></code>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span>Pro Tip</span>
+                    </div>
+                    <p>When you run <code class="inline">man topic</code> without specifying a section, man searches sections in a predefined order (typically 1, 8, 2, 3, 4, 5, 6, 7, 9) and displays the first match. This is why <code class="inline">man passwd</code> shows the command, not the file format.</p>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="section-examples">
+                        <span>Common Multi-Section Topics</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="section-examples" class="expandable-content">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Topic</th>
+                                    <th>Section 1 (Command)</th>
+                                    <th>Section 5 (File Format)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code class="inline">passwd</code></td>
+                                    <td>Change user password</td>
+                                    <td>Format of /etc/passwd file</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">crontab</code></td>
+                                    <td>Manage cron jobs</td>
+                                    <td>Crontab file format</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">hostname</code></td>
+                                    <td>Show/set system hostname</td>
+                                    <td>Hostname resolution config</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">shadow</code></td>
+                                    <td>N/A</td>
+                                    <td>Format of /etc/shadow file</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Navigating Man Pages -->
+        <section id="section-navigation" class="content-section" aria-labelledby="navigation-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="navigation-heading">Navigating Man Pages</h2>
+            </div>
+            <div class="section-body">
+                <p>Man pages are displayed using a <span class="term" tabindex="0" data-tooltip="A pager is a program that displays text one screen at a time, allowing you to scroll through long documents. The most common pager on Linux is 'less'.">pager program</span> (usually <code class="inline">less</code>), which provides powerful navigation and search capabilities. Learning these keyboard shortcuts will make you much more efficient at finding information.</p>
+
+                <h3>Basic Navigation</h3>
+                <table class="shortcut-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="kbd">Space</span> or <span class="kbd">Page Down</span></td>
+                            <td>Move forward one screen</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">b</span> or <span class="kbd">Page Up</span></td>
+                            <td>Move backward one screen</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">↓</span> or <span class="kbd">j</span></td>
+                            <td>Move down one line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">↑</span> or <span class="kbd">k</span></td>
+                            <td>Move up one line</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">g</span></td>
+                            <td>Go to beginning of document</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">G</span></td>
+                            <td>Go to end of document</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">q</span></td>
+                            <td>Quit and return to shell</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Searching Within Man Pages</h3>
+                <p>One of the most powerful features of man pages is the ability to search for specific text:</p>
+
+                <table class="shortcut-table">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="kbd">/</span><em>pattern</em></td>
+                            <td>Search forward for <em>pattern</em></td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">?</span><em>pattern</em></td>
+                            <td>Search backward for <em>pattern</em></td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">n</span></td>
+                            <td>Jump to next match</td>
+                        </tr>
+                        <tr>
+                            <td><span class="kbd">N</span></td>
+                            <td>Jump to previous match</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <code><span class="code-comment"># Example: Search for "recursive" in ls man page</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man ls</span>
+
+<span class="code-comment"># Once in the man page, type:</span>
+<span class="code-output">/recursive</span>
+
+<span class="code-comment"># The first match will be highlighted</span>
+<span class="code-comment"># Press 'n' to find next occurrence</span>
+<span class="code-comment"># Press 'N' to find previous occurrence</span></code>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="advanced-nav">
+                        <span>Advanced Navigation Tips</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="advanced-nav" class="expandable-content">
+                        <h4>Pattern Matching</h4>
+                        <p>The search function supports <span class="term" tabindex="0" data-tooltip="Regular expressions (regex) are patterns used to match character combinations in strings. They provide powerful text searching and manipulation capabilities.">regular expressions</span> for more powerful searches:</p>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Search for lines starting with a capital letter</span>
+<span class="code-output">/^[A-Z]</span>
+
+<span class="code-comment"># Search for "color" or "colour"</span>
+<span class="code-output">/colou?r</span>
+
+<span class="code-comment"># Search for words ending in "file"</span>
+<span class="code-output">/file\b</span></code>
+                        </div>
+
+                        <h4>Jumping to Sections</h4>
+                        <p>You can quickly jump to specific sections of a man page:</p>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Jump to OPTIONS section</span>
+<span class="code-output">/^OPTIONS</span>
+
+<span class="code-comment"># Jump to EXAMPLES section</span>
+<span class="code-output">/^EXAMPLES</span>
+
+<span class="code-comment"># Jump to SEE ALSO section</span>
+<span class="code-output">/^SEE ALSO</span></code>
+                        </div>
+
+                        <h4>Getting Help Within Less</h4>
+                        <p>Press <span class="kbd">h</span> while viewing a man page to see all available commands in the less pager.</p>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Remember These Essential Keys</h4>
+                    <ul>
+                        <li><span class="kbd">Space</span> — Page down (most common)</li>
+                        <li><span class="kbd">/</span> — Search forward</li>
+                        <li><span class="kbd">n</span> — Next search result</li>
+                        <li><span class="kbd">q</span> — Quit the man page</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Searching for Man Pages -->
+        <section id="section-searching" class="content-section" aria-labelledby="searching-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="searching-heading">Searching for Man Pages</h2>
+            </div>
+            <div class="section-body">
+                <p>Sometimes you don't know the exact command name but need to find documentation related to a topic. Linux provides several tools for searching through available man pages.</p>
+
+                <div class="tabs-container">
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-apropos" id="search-tab-1">apropos</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-whatis" id="search-tab-2">whatis</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-man-k" id="search-tab-3">man -k</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-man-f" id="search-tab-4">man -f</button></li>
+                    </ul>
+
+                    <div id="tab-apropos" class="tab-content active" role="tabpanel" aria-labelledby="search-tab-1">
+                        <h4>apropos - Search Man Page Descriptions</h4>
+                        <p>The <code class="inline">apropos</code> command searches the NAME sections of all man pages for a keyword. It's perfect when you know what you want to do but not the command name.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Find commands related to "password"</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos password</span>
+<span class="code-output">chage (1)            - change user password expiry information</span>
+<span class="code-output">chpasswd (8)         - update passwords in batch mode</span>
+<span class="code-output">passwd (1)           - update user's authentication tokens</span>
+<span class="code-output">passwd (5)           - password file</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># Find commands related to "partition"</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos partition</span>
+<span class="code-output">addpart (8)          - inform kernel of new partition</span>
+<span class="code-output">fdisk (8)            - manipulate disk partition table</span>
+<span class="code-output">parted (8)           - a partition manipulation program</span>
+<span class="code-output">...</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-whatis" class="tab-content" role="tabpanel" aria-labelledby="search-tab-2">
+                        <h4>whatis - Display One-Line Descriptions</h4>
+                        <p>The <code class="inline">whatis</code> command displays brief descriptions of commands. Unlike apropos, it only matches exact command names.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Get a quick description of ls</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">whatis ls</span>
+<span class="code-output">ls (1)               - list directory contents</span>
+
+<span class="code-comment"># Get descriptions for multiple commands</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">whatis cat head tail</span>
+<span class="code-output">cat (1)              - concatenate files and print on stdout</span>
+<span class="code-output">head (1)             - output the first part of files</span>
+<span class="code-output">tail (1)             - output the last part of files</span>
+
+<span class="code-comment"># Show all sections where passwd exists</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">whatis passwd</span>
+<span class="code-output">passwd (1)           - update user's authentication tokens</span>
+<span class="code-output">passwd (5)           - password file</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-man-k" class="tab-content" role="tabpanel" aria-labelledby="search-tab-3">
+                        <h4>man -k - Keyword Search (Same as apropos)</h4>
+                        <p>The <code class="inline">man -k</code> option performs the same search as <code class="inline">apropos</code>. It's useful to know both forms.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># These commands are equivalent:</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -k network</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos network</span>
+
+<span class="code-comment"># Search for firewall-related commands</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -k firewall</span>
+<span class="code-output">firewall-cmd (1)     - firewalld command line client</span>
+<span class="code-output">firewalld (1)        - Dynamic Firewall Manager</span>
+<span class="code-output">...</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-man-f" class="tab-content" role="tabpanel" aria-labelledby="search-tab-4">
+                        <h4>man -f - Find Exact Matches (Same as whatis)</h4>
+                        <p>The <code class="inline">man -f</code> option performs the same lookup as <code class="inline">whatis</code>.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># These commands are equivalent:</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -f crontab</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">whatis crontab</span>
+
+<span class="code-comment"># Find all man pages for a specific command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -f crontab</span>
+<span class="code-output">crontab (1)          - maintain crontab files</span>
+<span class="code-output">crontab (5)          - files used to schedule commands</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span>Database Update Required</span>
+                    </div>
+                    <p>The <code class="inline">apropos</code> and <code class="inline">whatis</code> commands rely on a database that must be up to date. If you get "nothing appropriate" errors, the administrator may need to run <code class="inline">mandb</code> to update the database. On a fresh system, this database is typically updated automatically.</p>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="search-tips">
+                        <span>Tips for Effective Searching</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="search-tips" class="expandable-content">
+                        <h4>Using Regular Expressions</h4>
+                        <p>Both <code class="inline">apropos</code> and <code class="inline">man -k</code> support regular expressions:</p>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Find commands starting with "ssh"</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos '^ssh'</span>
+
+<span class="code-comment"># Find commands ending in "ctl" (controller)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos 'ctl$'</span>
+
+<span class="code-comment"># Case-insensitive search</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos -i DNS</span></code>
+                        </div>
+
+                        <h4>Limiting Results by Section</h4>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Show only user commands (section 1)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos -s 1 copy</span>
+
+<span class="code-comment"># Show only admin commands (section 8)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos -s 8 mount</span></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Other Help Resources -->
+        <section id="section-other" class="content-section" aria-labelledby="other-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="other-heading">Other Help Resources</h2>
+            </div>
+            <div class="section-body">
+                <p>While man pages are the primary documentation system, Linux provides several other ways to get help with commands and configuration.</p>
+
+                <div class="tabs-container">
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-help" id="other-tab-1">--help Option</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-info" id="other-tab-2">Info Pages</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-doc" id="other-tab-3">/usr/share/doc</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-redhat" id="other-tab-4">Red Hat Resources</button></li>
+                    </ul>
+
+                    <div id="tab-help" class="tab-content active" role="tabpanel" aria-labelledby="other-tab-1">
+                        <h4>The --help Option</h4>
+                        <p>Most commands support a <code class="inline">--help</code> option that displays a quick summary of usage and options. This is faster than opening a full man page when you just need a reminder.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Get quick help for ls command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls --help</span>
+<span class="code-output">Usage: ls [OPTION]... [FILE]...</span>
+<span class="code-output">List information about the FILEs.</span>
+<span class="code-output"></span>
+<span class="code-output">  -a, --all             do not ignore entries starting with .</span>
+<span class="code-output">  -l                    use a long listing format</span>
+<span class="code-output">  -h, --human-readable  print sizes in human readable format</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># Some commands use -h instead of --help</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">grep --help</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date --help</span></code>
+                        </div>
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon" aria-hidden="true">💡</span>
+                                <span>Tip</span>
+                            </div>
+                            <p>Pipe <code class="inline">--help</code> output to <code class="inline">less</code> if it's too long: <code class="inline">ls --help | less</code></p>
+                        </div>
+                    </div>
+
+                    <div id="tab-info" class="tab-content" role="tabpanel" aria-labelledby="other-tab-2">
+                        <h4>GNU Info Documentation</h4>
+                        <p>The <span class="term" tabindex="0" data-tooltip="GNU Info is an alternative documentation system developed by the GNU Project. Info pages often contain more detailed, tutorial-style information compared to man pages.">GNU Info system</span> provides more detailed documentation for many GNU utilities. Use <code class="inline">pinfo</code> for a more user-friendly interface.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># View info documentation with pinfo (recommended)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">pinfo coreutils</span>
+
+<span class="code-comment"># View info for a specific command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">pinfo grep</span>
+
+<span class="code-comment"># Traditional info command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">info ls</span></code>
+                        </div>
+
+                        <h4>Info Navigation Keys</h4>
+                        <table class="shortcut-table">
+                            <thead>
+                                <tr>
+                                    <th>Key</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="kbd">↑</span> <span class="kbd">↓</span></td>
+                                    <td>Move cursor between links</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="kbd">Enter</span></td>
+                                    <td>Follow link at cursor</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="kbd">u</span></td>
+                                    <td>Go up one level</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="kbd">n</span> / <span class="kbd">p</span></td>
+                                    <td>Next / previous node</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="kbd">q</span></td>
+                                    <td>Quit info viewer</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="tab-doc" class="tab-content" role="tabpanel" aria-labelledby="other-tab-3">
+                        <h4>The /usr/share/doc Directory</h4>
+                        <p>Many software packages install additional documentation in <code class="inline">/usr/share/doc</code>. This can include README files, configuration examples, changelogs, and tutorials.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># List documentation directories</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /usr/share/doc</span>
+<span class="code-output">bash              httpd             openssh</span>
+<span class="code-output">bind              kernel            python3</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># View README for a specific package</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /usr/share/doc/bash/</span>
+<span class="code-output">CHANGES    FAQ        INTRO      README</span>
+
+<span class="code-comment"># Read the README file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">less /usr/share/doc/bash/README</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-redhat" class="tab-content" role="tabpanel" aria-labelledby="other-tab-4">
+                        <h4>Red Hat Documentation Resources</h4>
+                        <p>Red Hat provides extensive online documentation for RHEL subscribers:</p>
+                        <ul>
+                            <li><strong>Red Hat Customer Portal:</strong> <code class="inline">https://access.redhat.com</code> - Knowledge base, solutions, and documentation</li>
+                            <li><strong>Product Documentation:</strong> Official guides for all RHEL versions</li>
+                            <li><strong>Knowledge Base:</strong> Searchable database of solutions and articles</li>
+                            <li><strong>Red Hat Learning:</strong> Training courses and certification paths</li>
+                        </ul>
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon" aria-hidden="true">📖</span>
+                                <span>Local Documentation</span>
+                            </div>
+                            <p>Remember that local documentation (man pages, info, /usr/share/doc) is always available, even without network access. This makes it invaluable for troubleshooting in disconnected environments.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Quick Reference: Getting Help</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Command</th>
+                            <th>Best For</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Man Pages</td>
+                            <td><code class="inline">man command</code></td>
+                            <td>Comprehensive documentation</td>
+                        </tr>
+                        <tr>
+                            <td>Quick Help</td>
+                            <td><code class="inline">command --help</code></td>
+                            <td>Option reminders</td>
+                        </tr>
+                        <tr>
+                            <td>Keyword Search</td>
+                            <td><code class="inline">apropos keyword</code></td>
+                            <td>Finding commands by topic</td>
+                        </tr>
+                        <tr>
+                            <td>Brief Description</td>
+                            <td><code class="inline">whatis command</code></td>
+                            <td>Quick command summaries</td>
+                        </tr>
+                        <tr>
+                            <td>Info Pages</td>
+                            <td><code class="inline">pinfo command</code></td>
+                            <td>GNU utilities, tutorials</td>
+                        </tr>
+                        <tr>
+                            <td>Package Docs</td>
+                            <td><code class="inline">/usr/share/doc/</code></td>
+                            <td>Examples, README files</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 7: Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3>Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="b">
+                        <p class="question-text"><span class="question-number">1</span>Which command would you use to find all man pages related to "network configuration"?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                man network
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                apropos network
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                whatis network
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                info network
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="c">
+                        <p class="question-text"><span class="question-number">2</span>The passwd command exists in both section 1 and section 5. What command displays the file format documentation in section 5?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                man passwd 5
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                man -s passwd 5
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                man 5 passwd
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                man passwd -5
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">3</span>While viewing a man page, which key do you press to search for a specific term?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                /
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                s
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                f
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                Ctrl+F
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">4</span>Which man page section contains system administration commands that require root privileges?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Section 1
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Section 2
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Section 5
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Section 8
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">5</span>What is the quickest way to see a brief description of what the "tar" command does?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                man tar | head
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                whatis tar
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                apropos tar
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                info tar --brief
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Lab Exercise -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="lab-heading">Lab: Getting Help from Local Documentation</h2>
+            </div>
+            <div class="section-body">
+                <p>In this lab, you'll practice using the various help systems available in Red Hat Enterprise Linux. Complete each task to build your documentation skills.</p>
+
+                <div class="objectives-box">
+                    <h3>Lab Objectives</h3>
+                    <ul class="objectives-list">
+                        <li>Use man pages to find command options</li>
+                        <li>Search for man pages by keyword</li>
+                        <li>Navigate within man pages efficiently</li>
+                        <li>Access specific man page sections</li>
+                        <li>Use alternative documentation sources</li>
+                    </ul>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                        <span>Task 1: Finding Information in Man Pages</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-1" class="expandable-content">
+                        <p>Use the <code class="inline">man</code> command to find specific information about the <code class="inline">ls</code> command.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Open the ls man page</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man ls</span>
+
+<span class="code-comment"># Once inside, search for the option to sort by time</span>
+<span class="code-output">/sort.*time</span>
+<span class="code-comment"># Press 'n' to find next match</span>
+
+<span class="code-comment"># Find the option to display human-readable sizes</span>
+<span class="code-output">/human</span>
+
+<span class="code-comment"># Press 'q' to quit when done</span></code>
+                        </div>
+                        <p><strong>Question:</strong> What option makes ls display file sizes in human-readable format (KB, MB, GB)?</p>
+                        <p><strong>Answer:</strong> The <code class="inline">-h</code> or <code class="inline">--human-readable</code> option.</p>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                        <span>Task 2: Searching with apropos</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-2" class="expandable-content">
+                        <p>Use <code class="inline">apropos</code> to find commands related to specific tasks.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Find commands related to copying files</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos copy</span>
+
+<span class="code-comment"># Find commands related to user management</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos "user account"</span>
+
+<span class="code-comment"># Find commands related to disk space</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">apropos "disk space"</span>
+<span class="code-output">df (1)               - report file system disk space usage</span>
+<span class="code-output">du (1)               - estimate file space usage</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                        <span>Task 3: Working with Multiple Sections</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-3" class="expandable-content">
+                        <p>Practice accessing specific man page sections.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Find all sections for crontab</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man -f crontab</span>
+<span class="code-output">crontab (1)          - maintain crontab files for individual users</span>
+<span class="code-output">crontab (5)          - tables for driving cron</span>
+
+<span class="code-comment"># View the crontab file format (section 5)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man 5 crontab</span>
+
+<span class="code-comment"># View the crontab command usage (section 1)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">man 1 crontab</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                        <span>Task 4: Using --help for Quick Reference</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-4" class="expandable-content">
+                        <p>Use the <code class="inline">--help</code> option to quickly find command options.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Get quick help for the cp command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cp --help</span>
+
+<span class="code-comment"># Find the option for recursive copy</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cp --help | grep -i recursive</span>
+<span class="code-output">  -r, -R, --recursive       copy directories recursively</span>
+
+<span class="code-comment"># Get help for the date command</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">date --help</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
+                        <span>Task 5: Exploring /usr/share/doc</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-5" class="expandable-content">
+                        <p>Browse the system documentation directory.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># List available documentation directories</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /usr/share/doc | head -20</span>
+
+<span class="code-comment"># Check documentation for bash</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /usr/share/doc/bash*/</span>
+
+<span class="code-comment"># View a README file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">less /usr/share/doc/bash*/README</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Lab Completion Checklist</h4>
+                    <ul>
+                        <li>✓ Navigated man pages and searched for specific options</li>
+                        <li>✓ Used apropos to find commands by keyword</li>
+                        <li>✓ Accessed man pages from different sections</li>
+                        <li>✓ Used --help for quick command reference</li>
+                        <li>✓ Explored /usr/share/doc for package documentation</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Chapter Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>Man pages</strong> are the primary documentation system in Linux, accessed with the <code class="inline">man</code> command. They provide comprehensive information about commands, configuration files, and system concepts.</li>
+                        <li><strong>Man page sections</strong> (1-9) organize documentation by type. User commands are in section 1, file formats in section 5, and admin commands in section 8.</li>
+                        <li><strong>Navigation keys</strong> like Space (page down), <span class="kbd">/</span> (search), <span class="kbd">n</span> (next match), and <span class="kbd">q</span> (quit) help you efficiently find information in man pages.</li>
+                        <li><strong>apropos</strong> and <strong>man -k</strong> search man page descriptions by keyword, helping you find relevant commands when you don't know the exact name.</li>
+                        <li><strong>whatis</strong> and <strong>man -f</strong> display brief one-line descriptions of commands and show which sections contain documentation for a topic.</li>
+                        <li><strong>The --help option</strong> provides quick command-line reference without opening a full man page.</li>
+                        <li><strong>GNU Info pages</strong> (accessed with <code class="inline">pinfo</code>) provide detailed, tutorial-style documentation for many GNU utilities.</li>
+                        <li><strong>/usr/share/doc</strong> contains additional package documentation including README files, examples, and changelogs.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 4, you'll learn about registering systems with Red Hat Subscription Management, including:</p>
+                    <ul>
+                        <li>Understanding Red Hat subscriptions and entitlements</li>
+                        <li>Registering systems using <code class="inline">subscription-manager</code></li>
+                        <li>Attaching subscriptions to your system</li>
+                        <li>Managing software repositories</li>
+                        <li>Working with Simple Content Access</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 3 Complete!</h2>
+                    <p>You've mastered the documentation tools that will help you find answers throughout your Linux journey.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 3 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== TOOLTIP SYSTEM ====================
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                // Create tooltip element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = term.getAttribute('data-tooltip');
+                tooltip.setAttribute('role', 'tooltip');
+                term.appendChild(tooltip);
+
+                // Position tooltip to avoid screen edges
+                function positionTooltip() {
+                    const termRect = term.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+
+                    // Remove existing position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+
+                    // Calculate available space in each direction
+                    const spaceAbove = termRect.top;
+                    const spaceBelow = viewportHeight - termRect.bottom;
+                    const spaceLeft = termRect.left;
+                    const spaceRight = viewportWidth - termRect.right;
+
+                    // Default to top, but adjust based on available space
+                    if (spaceAbove >= 100) {
+                        tooltip.classList.add('tooltip-top');
+                        // Check horizontal overflow
+                        if (termRect.left + 150 > viewportWidth) {
+                            tooltip.style.left = 'auto';
+                            tooltip.style.right = '0';
+                            tooltip.style.transform = 'none';
+                        } else if (termRect.left < 150) {
+                            tooltip.style.left = '0';
+                            tooltip.style.right = 'auto';
+                            tooltip.style.transform = 'none';
+                        }
+                    } else if (spaceBelow >= 100) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else if (spaceRight >= 320) {
+                        tooltip.classList.add('tooltip-right');
+                    } else if (spaceLeft >= 320) {
+                        tooltip.classList.add('tooltip-left');
+                    } else {
+                        tooltip.classList.add('tooltip-bottom');
+                    }
+                }
+
+                // Show tooltip
+                function showTooltip() {
+                    positionTooltip();
+                    tooltip.classList.add('show');
+                }
+
+                // Hide tooltip
+                function hideTooltip() {
+                    tooltip.classList.remove('show');
+                }
+
+                // Event listeners
+                term.addEventListener('mouseenter', showTooltip);
+                term.addEventListener('mouseleave', hideTooltip);
+                term.addEventListener('focus', showTooltip);
+                term.addEventListener('blur', hideTooltip);
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandableHeaders = document.querySelectorAll('.expandable-header');
+            
+            expandableHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const expanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !expanded);
+                    
+                    const content = document.getElementById(this.getAttribute('aria-controls'));
+                    if (content) {
+                        content.classList.toggle('open');
+                    }
+                });
+
+                // Keyboard accessibility
+                header.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+
+            // ==================== TABS ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // Remove active state from all tabs
+                        tabBtns.forEach(b => b.setAttribute('aria-selected', 'false'));
+                        tabContents.forEach(c => c.classList.remove('active'));
+
+                        // Activate clicked tab
+                        this.setAttribute('aria-selected', 'true');
+                        const targetId = this.getAttribute('aria-controls');
+                        const targetContent = document.getElementById(targetId);
+                        if (targetContent) {
+                            targetContent.classList.add('active');
+                        }
+                    });
+
+                    // Keyboard navigation
+                    btn.addEventListener('keydown', function(e) {
+                        const tabs = Array.from(tabBtns);
+                        const index = tabs.indexOf(this);
+                        let newIndex;
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (index + 1) % tabs.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (index - 1 + tabs.length) % tabs.length;
+                        } else {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        tabs[newIndex].focus();
+                        tabs[newIndex].click();
+                    });
+                });
+            });
+
+            // ==================== QUIZ SYSTEM ====================
+            const quizBtn = document.getElementById('check-answers');
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            let score = 0;
+
+            if (quizBtn) {
+                quizBtn.addEventListener('click', function() {
+                    score = 0;
+
+                    quizQuestions.forEach(question => {
+                        const questionNum = question.getAttribute('data-question');
+                        const correctAnswer = question.getAttribute('data-correct');
+                        const selectedOption = question.querySelector('input:checked');
+                        const feedback = document.getElementById(`feedback-${questionNum}`);
+
+                        // Remove previous states
+                        question.classList.remove('correct', 'incorrect');
+                        feedback.classList.remove('show', 'correct', 'incorrect');
+
+                        if (selectedOption) {
+                            if (selectedOption.value === correctAnswer) {
+                                score++;
+                                question.classList.add('correct');
+                                feedback.textContent = '✓ Correct!';
+                                feedback.classList.add('show', 'correct');
+                            } else {
+                                question.classList.add('incorrect');
+                                feedback.textContent = '✗ Incorrect. Review this section and try again.';
+                                feedback.classList.add('show', 'incorrect');
+                            }
+                        } else {
+                            feedback.textContent = 'Please select an answer.';
+                            feedback.classList.add('show', 'incorrect');
+                        }
+                    });
+
+                    // Update score display
+                    document.getElementById('quiz-score').textContent = `Score: ${score}/5`;
+
+                    // Update progress
+                    updateProgress();
+                });
+            }
+
+            // Quiz option selection feedback
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const questionDiv = this.closest('.quiz-question');
+                    questionDiv.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            const visitedSections = new Set();
+
+            function updateProgress() {
+                const totalSections = sections.length;
+                const completedSections = visitedSections.size;
+                const percentage = Math.round((completedSections / totalSections) * 100);
+                
+                progressFill.style.width = `${percentage}%`;
+                progressPercent.textContent = `${percentage}%`;
+            }
+
+            // Track section visibility
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px',
+                threshold: 0.3
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visitedSections.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // ==================== SMOOTH SCROLL FOR NAV ====================
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Set focus for accessibility
+                        targetSection.setAttribute('tabindex', '-1');
+                        targetSection.focus();
+                    }
+                });
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', function() {
+                    this.textContent = '✓ Chapter Completed!';
+                    this.style.background = '#267326';
+                    this.disabled = true;
+                    
+                    // Mark all sections as visited
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    // Show completion message
+                    alert('Congratulations! You have completed Chapter 3: Getting Help from Local Documentation. Continue to Chapter 4 to learn about registering systems with Red Hat.');
+                });
+            }
+
+            // ==================== SECTION CARDS INTERACTION ====================
+            document.querySelectorAll('.section-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    // Visual feedback
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 150);
+                });
+
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
