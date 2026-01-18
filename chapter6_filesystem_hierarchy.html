@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Navigating the File-system Hierarchy | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #267326;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            padding: 10px 18px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .nav-btn:hover, .nav-btn:focus {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .nav-btn.active, .nav-btn.visited {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .nav-btn.visited:not(.active) {
+            background: var(--rh-green);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-gray-lighter);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            background: var(--rh-gray-light);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
+            height: 100%;
+            width: 0%;
+            border-radius: 5px;
+            transition: width var(--transition-med);
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .section-number {
+            background: var(--rh-red);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .section-body h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            color: var(--rh-gray-dark);
+            margin: 30px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--rh-gray-light);
+        }
+
+        .section-body h3:first-child {
+            margin-top: 0;
+        }
+
+        /* ==================== TOOLTIP SYSTEM ==================== */
+        .term {
+            color: var(--rh-blue);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            cursor: help;
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 10px 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 400;
+            line-height: 1.5;
+            width: max-content;
+            max-width: 280px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            pointer-events: none;
+            margin-bottom: 8px;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .term:hover .tooltip,
+        .term:focus .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip.tooltip-left {
+            left: 0;
+            transform: translateX(0);
+        }
+        .tooltip.tooltip-left::after {
+            left: 20px;
+        }
+
+        .tooltip.tooltip-right {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+        .tooltip.tooltip-right::after {
+            left: auto;
+            right: 20px;
+        }
+
+        .tooltip.tooltip-bottom {
+            bottom: auto;
+            top: 100%;
+            margin-bottom: 0;
+            margin-top: 8px;
+        }
+        .tooltip.tooltip-bottom::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== INLINE CODE ==================== */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            color: var(--rh-red-dark);
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        /* ==================== CODE BLOCK ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-path {
+            color: #FF99FF;
+        }
+
+        .code-block .code-dir {
+            color: #99CCFF;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+        }
+
+        /* ==================== KEY POINTS ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== NOTE BOX ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ==================== WARNING BOX ==================== */
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== INFO BOX ==================== */
+        .info-box {
+            background: linear-gradient(135deg, #E6F5FF 0%, #CCE9FF 100%);
+            border: 2px solid var(--rh-blue);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-blue-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #F0F5FF 0%, #E0ECFF 100%);
+            border-left: 4px solid var(--rh-red);
+            padding: 25px;
+            border-radius: var(--radius-md);
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-red);
+            margin-bottom: 15px;
+            border: none;
+            padding: 0;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* ==================== CARD GRID ==================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            transition: all var(--transition-fast);
+        }
+
+        .info-card:hover, .info-card:focus {
+            border-color: var(--rh-red);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-card h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        .card-icon {
+            font-size: 1.3rem;
+            margin-right: 8px;
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        /* ==================== DIRECTORY TREE ==================== */
+        .directory-tree {
+            background: linear-gradient(135deg, #1E1E2E 0%, #2D2D3D 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            overflow-x: auto;
+        }
+
+        .tree-container {
+            color: #E0E0E0;
+        }
+
+        .tree-root {
+            color: #FF6B6B;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tree-item {
+            margin-left: 20px;
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            padding-left: 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .tree-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tree-item.selected {
+            background: rgba(0, 102, 204, 0.3);
+        }
+
+        .tree-folder {
+            color: #4ECDC4;
+        }
+
+        .tree-icon {
+            font-size: 1rem;
+        }
+
+        .tree-desc {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin-top: 15px;
+            font-family: var(--font-body);
+            display: none;
+        }
+
+        .tree-desc.show {
+            display: block;
+        }
+
+        .tree-desc h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gold);
+            margin-bottom: 10px;
+        }
+
+        .tree-desc code {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+        }
+
+        .tab-btn {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--rh-gray);
+            cursor: pointer;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            font-family: var(--font-display);
+            color: var(--rh-red);
+            margin-bottom: 15px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F0FF;
+        }
+
+        /* ==================== PATH VISUALIZER ==================== */
+        .path-visualizer {
+            background: linear-gradient(135deg, #1E1E2E 0%, #2D2D3D 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .path-display {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            color: #4ECDC4;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .path-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .path-btn {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .path-btn:hover {
+            background: var(--rh-blue-dark);
+            transform: translateY(-2px);
+        }
+
+        .path-btn:disabled {
+            background: var(--rh-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .path-history {
+            margin-top: 20px;
+            color: var(--rh-gray-light);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .path-history .history-item {
+            padding: 5px 10px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--radius-sm);
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            margin: 15px 0;
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+        }
+
+        .expandable-header {
+            width: 100%;
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--rh-gray-dark);
+            transition: all var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expandable-header[aria-expanded="true"] {
+            background: var(--rh-teal);
+            color: var(--rh-white);
+        }
+
+        .expand-icon {
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 20px;
+            background: var(--rh-white);
+        }
+
+        .expandable-content.show {
+            display: block;
+        }
+
+        /* ==================== QUIZ STYLES ==================== */
+        .quiz-container {
+            background: linear-gradient(135deg, #F5F0FF 0%, #E6E0FF 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .quiz-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+            border: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: border-color var(--transition-fast);
+        }
+
+        .quiz-question.correct {
+            border-color: var(--rh-green);
+            background: #F0FFF0;
+        }
+
+        .quiz-question.incorrect {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .question-number {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .quiz-option input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .quiz-option.selected {
+            border-color: var(--rh-purple);
+            background: #F0E6FF;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--rh-red);
+            background: #FFE6E6;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            color: var(--rh-green-dark);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFE6E6;
+            color: var(--rh-red-dark);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .quiz-btn:hover {
+            background: #552288;
+            transform: translateY(-2px);
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-lg);
+            padding: 30px;
+            margin: 24px 0;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--rh-red);
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 14px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .summary-list li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--rh-red);
+            font-size: 0.7rem;
+            top: 5px;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            background: linear-gradient(135deg, var(--rh-green) 0%, var(--rh-green-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+        }
+
+        .completion-section p {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            opacity: 0.95;
+        }
+
+        .completion-btn {
+            background: var(--rh-white);
+            color: var(--rh-green-dark);
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-md);
+        }
+
+        .completion-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .completion-btn:disabled {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray);
+            cursor: default;
+            transform: none;
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body {
+                padding: 20px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-list {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                border-radius: var(--radius-md);
+            }
+
+            .path-display {
+                font-size: 1rem;
+            }
+
+            .directory-tree {
+                font-size: 0.85rem;
+            }
+
+            .tree-item {
+                margin-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Main Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • RHEL 10</span>
+            <h1>Chapter 6: Navigating the File-system Hierarchy</h1>
+            <p class="chapter-subtitle">Understand how Linux organizes files and directories, and master navigation commands to efficiently explore your system</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-intro" class="nav-btn">Introduction</a>
+            <a href="#section-fhs" class="nav-btn">FHS</a>
+            <a href="#section-directories" class="nav-btn">Key Directories</a>
+            <a href="#section-navigation" class="nav-btn">Navigation</a>
+            <a href="#section-paths" class="nav-btn">Paths</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="region" aria-label="Chapter progress">
+        <div class="progress-inner">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        
+        <!-- Section 1: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Describe how Linux files are organized in the file-system hierarchy</li>
+                        <li>Identify the purpose of various directories defined by the Filesystem Hierarchy Standard (FHS)</li>
+                        <li>Navigate directories using absolute and relative paths</li>
+                        <li>Use essential navigation commands: <code class="inline">pwd</code>, <code class="inline">cd</code>, and <code class="inline">ls</code></li>
+                        <li>Understand special directory references: <code class="inline">.</code> (current), <code class="inline">..</code> (parent), and <code class="inline">~</code> (home)</li>
+                        <li>Efficiently traverse the file system to locate files and directories</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Introduction -->
+        <section id="section-intro" class="content-section" aria-labelledby="intro-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="intro-heading">The Linux File-system Hierarchy</h2>
+            </div>
+            <div class="section-body">
+                <p>The Linux system stores all files on <span class="term" tabindex="0">file systems<span class="tooltip">A file system is a method and data structure that the operating system uses to control how data is stored and retrieved on a storage device.</span></span>, which are organized into a single inverted tree known as a <span class="term" tabindex="0">file-system hierarchy<span class="tooltip">The file-system hierarchy is the organized structure of directories and files on a Linux system, starting from the root directory (/) at the top.</span></span>. This hierarchy is an inverted tree because the tree root is at the top, and the branches of directories and subdirectories stretch below the root.</p>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon">📁</span>
+                        <span>Everything is a File</span>
+                    </div>
+                    <p>In Linux, almost everything is represented as a file—not just documents and images, but also hardware devices, processes, and even system information. This unified approach simplifies system administration and makes Linux remarkably flexible.</p>
+                </div>
+
+                <h3>The Root Directory</h3>
+                <p>The <span class="term" tabindex="0">root directory<span class="tooltip tooltip-bottom">The root directory, denoted by a forward slash (/), is the top-level directory in the Linux file-system hierarchy. All other files and directories exist under the root.</span></span>, denoted by a forward slash (<code class="inline">/</code>), is at the top of the file-system hierarchy. The forward slash (<code class="inline">/</code>) is also used as a directory separator in file names. For example, if <code class="inline">etc</code> is a subdirectory of the <code class="inline">/</code> directory, we refer to that directory as <code class="inline">/etc</code>. Likewise, if the <code class="inline">/etc</code> directory contains a file named <code class="inline">issue</code>, we refer to that file as <code class="inline">/etc/issue</code>.</p>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">📝</span>
+                        <span>Content Types in Directories</span>
+                    </div>
+                    <p>Directory contents are classified by type:</p>
+                    <ul>
+                        <li><strong>Static</strong> content remains unchanged until explicitly edited or reconfigured (e.g., binaries, libraries, documentation)</li>
+                        <li><strong>Dynamic</strong> or <strong>variable</strong> content might be modified or appended by active processes (e.g., logs, databases)</li>
+                        <li><strong>Persistent</strong> content remains after a reboot, such as configuration settings</li>
+                        <li><strong>Runtime</strong> content from a process or from the system is deleted on reboot (e.g., process IDs, temporary files)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: FHS -->
+        <section id="section-fhs" class="content-section" aria-labelledby="fhs-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="fhs-heading">Filesystem Hierarchy Standard (FHS)</h2>
+            </div>
+            <div class="section-body">
+                <p>Red Hat Enterprise Linux uses the <span class="term" tabindex="0">Filesystem Hierarchy Standard (FHS)<span class="tooltip">The FHS is a standard that defines the directory structure and directory contents in Unix-like operating systems, ensuring consistency across different Linux distributions.</span></span> to organize system files. This standard ensures that files are stored in predictable locations, making system administration easier and enabling software to find the files it needs.</p>
+
+                <h3>Interactive Directory Explorer</h3>
+                <p>Click on any directory below to learn about its purpose:</p>
+
+                <div class="directory-tree" role="tree" aria-label="Linux filesystem hierarchy">
+                    <div class="tree-container">
+                        <div class="tree-root">/ (root)</div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="bin">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/bin</span> → /usr/bin
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="boot">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/boot</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="dev">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/dev</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="etc">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/etc</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="home">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/home</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="root">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/root</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="run">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/run</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="sbin">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/sbin</span> → /usr/sbin
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="tmp">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/tmp</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="usr">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/usr</span>
+                        </div>
+                        <div class="tree-item" tabindex="0" role="treeitem" data-dir="var">
+                            <span class="tree-icon">📁</span>
+                            <span class="tree-folder">/var</span>
+                        </div>
+                    </div>
+                    <div class="tree-desc" id="dir-description">
+                        <h4>Select a directory above</h4>
+                        <p>Click on any directory to see its description and common uses.</p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon">⚠️</span>
+                        <span>Symbolic Links in RHEL 10</span>
+                    </div>
+                    <p>In RHEL 10, several traditional directories are now <span class="term" tabindex="0">symbolic links<span class="tooltip tooltip-bottom">A symbolic link (symlink) is a special type of file that points to another file or directory, similar to a shortcut in Windows.</span></span> to directories under <code class="inline">/usr</code>. For example, <code class="inline">/bin</code> is a symbolic link to <code class="inline">/usr/bin</code>, and <code class="inline">/sbin</code> links to <code class="inline">/usr/sbin</code>. This is part of the <strong>UsrMerge</strong> initiative to simplify the filesystem.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Key Directories -->
+        <section id="section-directories" class="content-section" aria-labelledby="directories-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="directories-heading">Key Directories in RHEL</h2>
+            </div>
+            <div class="section-body">
+                <p>Understanding the purpose of each major directory helps you locate files quickly and maintain your system effectively. Here's a comprehensive reference:</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Directory</th>
+                            <th>Purpose</th>
+                            <th>Content Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">/</code></td>
+                            <td>Root of the entire file-system hierarchy</td>
+                            <td>Special</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/boot</code></td>
+                            <td>Files needed to start the boot process (kernel, initramfs, bootloader)</td>
+                            <td>Static, Persistent</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/dev</code></td>
+                            <td>Special device files used by the system to access hardware</td>
+                            <td>Dynamic</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/etc</code></td>
+                            <td>System-specific configuration files</td>
+                            <td>Static, Persistent</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/home</code></td>
+                            <td>Home directories for regular users</td>
+                            <td>Variable, Persistent</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/root</code></td>
+                            <td>Home directory for the root superuser</td>
+                            <td>Variable, Persistent</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/run</code></td>
+                            <td>Runtime data since last boot (PID files, sockets)</td>
+                            <td>Dynamic, Runtime</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/tmp</code></td>
+                            <td>Temporary files; accessible by all users</td>
+                            <td>Dynamic, Runtime</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/usr</code></td>
+                            <td>Installed software, shared libraries, documentation</td>
+                            <td>Static, Persistent</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">/var</code></td>
+                            <td>Variable data: logs, databases, spool files, web content</td>
+                            <td>Variable, Persistent</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Important Subdirectories</h3>
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">📚</span> /usr/bin</h4>
+                        <p>User commands and utilities. Contains most of the executable programs available to regular users.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">🔧</span> /usr/sbin</h4>
+                        <p>System administration binaries. Commands typically used by root for system maintenance.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">📖</span> /usr/share</h4>
+                        <p>Architecture-independent data like documentation, man pages, and default configuration files.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">📋</span> /var/log</h4>
+                        <p>System log files. Critical for troubleshooting and monitoring system health.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">📦</span> /var/cache</h4>
+                        <p>Application cache data, including package manager caches.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">🔒</span> /etc/sysconfig</h4>
+                        <p>RHEL-specific system configuration files for services and system settings.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Navigation Commands -->
+        <section id="section-navigation" class="content-section" aria-labelledby="navigation-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="navigation-heading">Navigation Commands</h2>
+            </div>
+            <div class="section-body">
+                <p>Three essential commands form the foundation of file-system navigation in Linux. Mastering these commands is crucial for efficient system administration.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Navigation commands">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-pwd" id="tab-btn-pwd">pwd</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-cd" id="tab-btn-cd">cd</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-ls" id="tab-btn-ls">ls</button>
+                    </div>
+                    
+                    <div id="tab-pwd" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-pwd">
+                        <h4>pwd - Print Working Directory</h4>
+                        <p>The <code class="inline">pwd</code> command displays the absolute path of your <span class="term" tabindex="0">current working directory<span class="tooltip tooltip-bottom">The current working directory is the directory where you are currently located in the filesystem. It's the context for relative path references.</span></span>—your current location in the filesystem.</p>
+                        <div class="code-block">
+                            <span class="code-title">pwd Examples</span>
+                            <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">pwd</span>
+<span class="code-output">/home/student</span>
+
+<span class="code-comment"># After changing to /etc</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">pwd</span>
+<span class="code-output">/etc</span>
+
+<span class="code-comment"># The prompt often shows your current directory</span>
+<span class="code-comment"># but pwd always shows the full absolute path</span></code>
+                        </div>
+                        <div class="key-points">
+                            <h4>💡 When to Use pwd</h4>
+                            <ul>
+                                <li>When you're unsure of your current location</li>
+                                <li>Before running commands that depend on your location</li>
+                                <li>In scripts to verify the working directory</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-cd" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-cd">
+                        <h4>cd - Change Directory</h4>
+                        <p>The <code class="inline">cd</code> command changes your current working directory. It's the primary command for moving through the filesystem.</p>
+                        <div class="code-block">
+                            <span class="code-title">cd Examples</span>
+                            <code><span class="code-comment"># Change to /etc directory (absolute path)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd /etc</span>
+<span class="code-prompt">student@workstation:/etc$</span>
+
+<span class="code-comment"># Change to a subdirectory (relative path)</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">cd sysconfig</span>
+<span class="code-prompt">student@workstation:/etc/sysconfig$</span>
+
+<span class="code-comment"># Go up one directory level</span>
+<span class="code-prompt">student@workstation:/etc/sysconfig$</span> <span class="code-command">cd ..</span>
+<span class="code-prompt">student@workstation:/etc$</span>
+
+<span class="code-comment"># Return to your home directory</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">cd</span>
+<span class="code-prompt">student@workstation:~$</span>
+
+<span class="code-comment"># Or explicitly use ~</span>
+<span class="code-prompt">student@workstation:/var$</span> <span class="code-command">cd ~</span>
+<span class="code-prompt">student@workstation:~$</span>
+
+<span class="code-comment"># Return to previous directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd -</span>
+<span class="code-output">/var</span>
+<span class="code-prompt">student@workstation:/var$</span></code>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <span class="note-icon">🔄</span>
+                                <span>cd Shortcuts</span>
+                            </div>
+                            <ul>
+                                <li><code class="inline">cd</code> or <code class="inline">cd ~</code> — Go to your home directory</li>
+                                <li><code class="inline">cd -</code> — Return to your previous directory</li>
+                                <li><code class="inline">cd ..</code> — Go up one level (parent directory)</li>
+                                <li><code class="inline">cd ~username</code> — Go to another user's home directory</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-ls" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-ls">
+                        <h4>ls - List Directory Contents</h4>
+                        <p>The <code class="inline">ls</code> command lists the contents of a directory. It has many useful options for displaying detailed information.</p>
+                        <div class="code-block">
+                            <span class="code-title">ls Examples</span>
+                            <code><span class="code-comment"># Basic listing of current directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls</span>
+<span class="code-output">Desktop  Documents  Downloads  Music  Pictures  Videos</span>
+
+<span class="code-comment"># Long format with details</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -l</span>
+<span class="code-output">drwxr-xr-x. 2 student student 4096 Jan 10 09:30 Desktop</span>
+<span class="code-output">drwxr-xr-x. 2 student student 4096 Jan 10 09:30 Documents</span>
+<span class="code-output">...</span>
+
+<span class="code-comment"># Show hidden files (starting with .)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -a</span>
+<span class="code-output">.  ..  .bash_history  .bash_profile  .bashrc  Desktop  ...</span>
+
+<span class="code-comment"># Long format + hidden + human-readable sizes</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -lah</span>
+
+<span class="code-comment"># List a specific directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -l /var/log</span>
+
+<span class="code-comment"># List with classification markers</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -F /</span>
+<span class="code-output">bin@  boot/  dev/  etc/  home/  lib@  lib64@  ...</span></code>
+                        </div>
+                        <table class="comparison-table" style="margin-top:20px;">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code class="inline">-l</code></td><td>Long format (permissions, owner, size, date)</td></tr>
+                                <tr><td><code class="inline">-a</code></td><td>Show all files including hidden (dot files)</td></tr>
+                                <tr><td><code class="inline">-h</code></td><td>Human-readable file sizes (K, M, G)</td></tr>
+                                <tr><td><code class="inline">-R</code></td><td>Recursive listing of subdirectories</td></tr>
+                                <tr><td><code class="inline">-t</code></td><td>Sort by modification time (newest first)</td></tr>
+                                <tr><td><code class="inline">-S</code></td><td>Sort by file size (largest first)</td></tr>
+                                <tr><td><code class="inline">-F</code></td><td>Append indicator (/ for dirs, @ for links)</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h3>Interactive Path Navigator</h3>
+                <p>Practice navigating through the filesystem with this interactive simulator:</p>
+
+                <div class="path-visualizer" role="application" aria-label="Interactive path navigator">
+                    <div class="path-display" id="current-path">/home/student</div>
+                    <div class="path-controls">
+                        <button class="path-btn" id="nav-root" type="button">cd /</button>
+                        <button class="path-btn" id="nav-home" type="button">cd ~</button>
+                        <button class="path-btn" id="nav-parent" type="button">cd ..</button>
+                        <button class="path-btn" id="nav-etc" type="button">cd /etc</button>
+                        <button class="path-btn" id="nav-var" type="button">cd /var</button>
+                        <button class="path-btn" id="nav-log" type="button">cd log</button>
+                    </div>
+                    <div class="path-history">
+                        <strong>Command History:</strong>
+                        <div id="nav-history"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Absolute vs Relative Paths -->
+        <section id="section-paths" class="content-section" aria-labelledby="paths-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="paths-heading">Absolute and Relative Paths</h2>
+            </div>
+            <div class="section-body">
+                <p>A path is the route through the directory tree to locate a file or directory. Understanding the difference between absolute and relative paths is essential for navigating efficiently.</p>
+
+                <h3>Absolute Paths</h3>
+                <p>An <span class="term" tabindex="0">absolute path<span class="tooltip">An absolute path is a fully qualified name that specifies the exact location of a file starting from the root directory (/). It always begins with a forward slash.</span></span> specifies the exact location of a file in the file-system hierarchy. It begins at the root (<code class="inline">/</code>) directory and includes each subdirectory that must be traversed to reach the specific file. Every file in a file system has a unique absolute path name.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Absolute Path Examples</span>
+                    <code><span class="code-comment"># All absolute paths start with /</span>
+<span class="code-path">/home/student/Documents/report.txt</span>
+<span class="code-path">/etc/passwd</span>
+<span class="code-path">/var/log/messages</span>
+<span class="code-path">/usr/share/doc/bash/README</span>
+
+<span class="code-comment"># Using absolute paths with commands</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat /etc/hostname</span>
+<span class="code-output">workstation.example.com</span>
+
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -l /var/log/messages</span>
+<span class="code-output">-rw-------. 1 root root 245678 Jan 15 12:30 /var/log/messages</span></code>
+                </div>
+
+                <h3>Relative Paths</h3>
+                <p>A <span class="term" tabindex="0">relative path<span class="tooltip tooltip-bottom">A relative path specifies a location starting from your current working directory. It does not begin with a forward slash.</span></span> identifies a file location relative to the current working directory. Relative paths never start with a forward slash. They use special directory references to navigate:</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">📍</span> . (single dot)</h4>
+                        <p>Refers to the <strong>current directory</strong>. Useful when you need to explicitly reference where you are now.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">⬆️</span> .. (double dot)</h4>
+                        <p>Refers to the <strong>parent directory</strong>. Use this to move up one level in the directory tree.</p>
+                    </div>
+                    <div class="info-card" tabindex="0">
+                        <h4><span class="card-icon">🏠</span> ~ (tilde)</h4>
+                        <p>Shortcut to your <strong>home directory</strong>. <code class="inline">~bob</code> refers to user bob's home directory.</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-title">Relative Path Examples</span>
+                    <code><span class="code-comment"># Starting from /home/student</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">pwd</span>
+<span class="code-output">/home/student</span>
+
+<span class="code-comment"># Access Documents subdirectory (relative)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd Documents</span>
+<span class="code-prompt">student@workstation:~/Documents$</span> <span class="code-command">pwd</span>
+<span class="code-output">/home/student/Documents</span>
+
+<span class="code-comment"># Go up one level and into Downloads</span>
+<span class="code-prompt">student@workstation:~/Documents$</span> <span class="code-command">cd ../Downloads</span>
+<span class="code-prompt">student@workstation:~/Downloads$</span>
+
+<span class="code-comment"># Copy file from current to parent directory</span>
+<span class="code-prompt">student@workstation:~/Downloads$</span> <span class="code-command">cp file.txt ..</span>
+
+<span class="code-comment"># Copy file to current directory using .</span>
+<span class="code-prompt">student@workstation:~/Downloads$</span> <span class="code-command">cp /etc/hosts .</span>
+
+<span class="code-comment"># Navigate up multiple levels</span>
+<span class="code-prompt">student@workstation:/usr/share/doc$</span> <span class="code-command">cd ../../..</span>
+<span class="code-prompt">student@workstation:/$</span></code>
+                </div>
+
+                <h3>Comparing Path Types</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Absolute Path</th>
+                            <th>Relative Path</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Starts with</td>
+                            <td><code class="inline">/</code> (forward slash)</td>
+                            <td>Directory name, <code class="inline">.</code>, or <code class="inline">..</code></td>
+                        </tr>
+                        <tr>
+                            <td>Depends on location</td>
+                            <td>No - always the same</td>
+                            <td>Yes - depends on current directory</td>
+                        </tr>
+                        <tr>
+                            <td>Best used for</td>
+                            <td>Scripts, configuration files, absolute references</td>
+                            <td>Quick navigation, nearby files</td>
+                        </tr>
+                        <tr>
+                            <td>Example</td>
+                            <td><code class="inline">/home/student/file.txt</code></td>
+                            <td><code class="inline">../Documents/file.txt</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 7: Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="quiz-heading">Knowledge Assessment</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3>Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1">
+                        <p class="question-text"><span class="question-number">1</span>What character represents the root of the Linux file-system hierarchy?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                ~ (tilde)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                / (forward slash)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                \ (backslash)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                . (dot)
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2">
+                        <p class="question-text"><span class="question-number">2</span>Which directory contains system configuration files in RHEL?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                /var
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                /home
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                /etc
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                /usr
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3">
+                        <p class="question-text"><span class="question-number">3</span>What does <code class="inline">cd ..</code> do?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                Changes to your home directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                Changes to the root directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                Changes to the parent directory (one level up)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                Stays in the current directory
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4">
+                        <p class="question-text"><span class="question-number">4</span>Which path is an absolute path?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                ../Documents/file.txt
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Documents/file.txt
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                ./file.txt
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                /home/student/Documents/file.txt
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5">
+                        <p class="question-text"><span class="question-number">5</span>Where are system log files typically stored in RHEL?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                /etc/log
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                /var/log
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                /usr/log
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                /home/log
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Lab -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="lab-heading">Hands-on Lab: Navigating the Filesystem</h2>
+            </div>
+            <div class="section-body">
+                <p>Practice navigating the Linux filesystem using the commands you've learned. Complete each task to build confidence with directory navigation.</p>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                        <span>Task 1: Explore Your Home Directory</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-1" class="expandable-content">
+                        <p>Start by exploring your home directory and understanding your current location.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Verify you're in your home directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">pwd</span>
+<span class="code-output">/home/student</span>
+
+<span class="code-comment"># List all files including hidden ones</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -la</span>
+
+<span class="code-comment"># Notice the hidden configuration files starting with .</span>
+<span class="code-comment"># These include .bashrc, .bash_profile, .bash_history, etc.</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                        <span>Task 2: Navigate Using Absolute Paths</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-2" class="expandable-content">
+                        <p>Practice moving around the filesystem using absolute paths.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Navigate to the /etc directory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd /etc</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">pwd</span>
+<span class="code-output">/etc</span>
+
+<span class="code-comment"># List configuration files</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">ls</span>
+
+<span class="code-comment"># Navigate directly to /var/log</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">cd /var/log</span>
+<span class="code-prompt">student@workstation:/var/log$</span> <span class="code-command">pwd</span>
+<span class="code-output">/var/log</span>
+
+<span class="code-comment"># Examine log files</span>
+<span class="code-prompt">student@workstation:/var/log$</span> <span class="code-command">ls -l</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                        <span>Task 3: Navigate Using Relative Paths</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-3" class="expandable-content">
+                        <p>Practice using relative paths and special directory references.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Start from /var/log</span>
+<span class="code-prompt">student@workstation:/var/log$</span> <span class="code-command">pwd</span>
+<span class="code-output">/var/log</span>
+
+<span class="code-comment"># Move up one level using ..</span>
+<span class="code-prompt">student@workstation:/var/log$</span> <span class="code-command">cd ..</span>
+<span class="code-prompt">student@workstation:/var$</span> <span class="code-command">pwd</span>
+<span class="code-output">/var</span>
+
+<span class="code-comment"># Move up two levels</span>
+<span class="code-prompt">student@workstation:/var$</span> <span class="code-command">cd ../..</span>
+<span class="code-prompt">student@workstation:/$</span> <span class="code-command">pwd</span>
+<span class="code-output">/</span>
+
+<span class="code-comment"># Return home using ~</span>
+<span class="code-prompt">student@workstation:/$</span> <span class="code-command">cd ~</span>
+<span class="code-prompt">student@workstation:~$</span>
+
+<span class="code-comment"># Navigate to Documents subdirectory</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd Documents</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                        <span>Task 4: Explore System Directories</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-4" class="expandable-content">
+                        <p>Explore important system directories and understand their contents.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Explore /usr structure</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /usr</span>
+<span class="code-output">bin  games  include  lib  lib64  libexec  local  sbin  share  src</span>
+
+<span class="code-comment"># View /boot contents (boot files)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /boot</span>
+
+<span class="code-comment"># Check symbolic links</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -l /bin</span>
+<span class="code-output">lrwxrwxrwx. 1 root root 7 Jan  1 00:00 /bin -> usr/bin</span>
+
+<span class="code-comment"># Examine device files</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls /dev | head -20</span>
+
+<span class="code-comment"># View system hostname file</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat /etc/hostname</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
+                        <span>Task 5: Practice with cd - (Previous Directory)</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-5" class="expandable-content">
+                        <p>Learn to quickly toggle between two directories.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Start from home</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">pwd</span>
+<span class="code-output">/home/student</span>
+
+<span class="code-comment"># Go to /etc</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd /etc</span>
+<span class="code-prompt">student@workstation:/etc$</span>
+
+<span class="code-comment"># Toggle back with cd -</span>
+<span class="code-prompt">student@workstation:/etc$</span> <span class="code-command">cd -</span>
+<span class="code-output">/home/student</span>
+<span class="code-prompt">student@workstation:~$</span>
+
+<span class="code-comment"># Toggle again to return to /etc</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cd -</span>
+<span class="code-output">/etc</span>
+<span class="code-prompt">student@workstation:/etc$</span>
+
+<span class="code-comment"># This is great for working between two locations!</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Lab Completion Checklist</h4>
+                    <ul>
+                        <li>✓ Used <code class="inline">pwd</code> to confirm your location</li>
+                        <li>✓ Navigated using absolute paths starting with /</li>
+                        <li>✓ Used <code class="inline">..</code> to move up directory levels</li>
+                        <li>✓ Returned home with <code class="inline">cd ~</code> or just <code class="inline">cd</code></li>
+                        <li>✓ Used <code class="inline">cd -</code> to toggle between directories</li>
+                        <li>✓ Explored system directories: /etc, /var, /usr, /boot</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>The Linux filesystem is organized as an inverted tree</strong> starting from the root directory (<code class="inline">/</code>), with all files and directories branching below it.</li>
+                        <li><strong>The Filesystem Hierarchy Standard (FHS)</strong> defines standard directory locations in RHEL, ensuring consistency and predictability.</li>
+                        <li><strong>Important directories include:</strong> <code class="inline">/etc</code> (configuration), <code class="inline">/var</code> (variable data), <code class="inline">/home</code> (user homes), <code class="inline">/usr</code> (installed software), and <code class="inline">/tmp</code> (temporary files).</li>
+                        <li><strong>Three essential navigation commands:</strong> <code class="inline">pwd</code> (print working directory), <code class="inline">cd</code> (change directory), and <code class="inline">ls</code> (list contents).</li>
+                        <li><strong>Absolute paths</strong> start with <code class="inline">/</code> and specify the complete path from root. <strong>Relative paths</strong> are interpreted from your current location.</li>
+                        <li><strong>Special directory references:</strong> <code class="inline">.</code> (current directory), <code class="inline">..</code> (parent directory), and <code class="inline">~</code> (home directory) simplify navigation.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 7, you'll learn about managing files from the command line, including:</p>
+                    <ul>
+                        <li>Creating, copying, moving, and deleting files and directories</li>
+                        <li>Using wildcards for file matching (globbing)</li>
+                        <li>Understanding hard links and symbolic links</li>
+                        <li>Using the <code class="inline">find</code> and <code class="inline">locate</code> commands to search for files</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 6 Complete!</h2>
+                    <p>You've learned how to navigate the Linux file-system hierarchy effectively.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 6 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            let visitedSections = new Set();
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = percentage + '%';
+                progressFill.setAttribute('aria-valuenow', percentage);
+                progressPercent.textContent = percentage + '%';
+            }
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        visitedSections.add(sectionId);
+                        
+                        navBtns.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('href') === '#' + sectionId) {
+                                btn.classList.add('active');
+                            }
+                            if (visitedSections.has(btn.getAttribute('href').substring(1))) {
+                                btn.classList.add('visited');
+                            }
+                        });
+                        
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => sectionObserver.observe(section));
+
+            // ==================== TAB SYSTEM ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+                
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        tabBtns.forEach(b => b.setAttribute('aria-selected', 'false'));
+                        btn.setAttribute('aria-selected', 'true');
+                        
+                        const targetId = btn.getAttribute('aria-controls');
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === targetId) {
+                                content.classList.add('active');
+                            }
+                        });
+                    });
+
+                    btn.addEventListener('keydown', (e) => {
+                        const currentIndex = Array.from(tabBtns).indexOf(btn);
+                        let newIndex;
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (currentIndex + 1) % tabBtns.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (currentIndex - 1 + tabBtns.length) % tabBtns.length;
+                        } else {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        tabBtns[newIndex].click();
+                        tabBtns[newIndex].focus();
+                    });
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable');
+            
+            expandables.forEach(expandable => {
+                const header = expandable.querySelector('.expandable-header');
+                const content = expandable.querySelector('.expandable-content');
+                
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.classList.toggle('show');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== DIRECTORY TREE EXPLORER ====================
+            const treeItems = document.querySelectorAll('.tree-item');
+            const dirDescription = document.getElementById('dir-description');
+
+            const dirInfo = {
+                bin: {
+                    title: '/bin → /usr/bin',
+                    desc: 'Essential user command binaries needed for single-user mode and basic system operations. In RHEL 10, this is a symbolic link to <code>/usr/bin</code>. Contains commands like <code>ls</code>, <code>cp</code>, <code>mv</code>, <code>cat</code>, and <code>bash</code>.'
+                },
+                boot: {
+                    title: '/boot',
+                    desc: 'Contains files needed to boot the system, including the Linux kernel (<code>vmlinuz</code>), initial RAM disk (<code>initramfs</code>), and bootloader configuration (GRUB2). This directory is typically on its own partition.'
+                },
+                dev: {
+                    title: '/dev',
+                    desc: 'Contains special device files that represent hardware and virtual devices. Examples: <code>/dev/sda</code> (first disk), <code>/dev/null</code> (data sink), <code>/dev/tty</code> (terminal). These are created dynamically by the system.'
+                },
+                etc: {
+                    title: '/etc',
+                    desc: 'System-wide configuration files. This is where you\'ll find settings for services, network configuration, user databases (<code>/etc/passwd</code>), and much more. Name originated from "et cetera" but now means "Editable Text Configuration".'
+                },
+                home: {
+                    title: '/home',
+                    desc: 'Home directories for regular users. Each user gets a subdirectory here (e.g., <code>/home/student</code>) containing their personal files, configuration, and documents. The <code>~</code> shortcut refers to your home directory.'
+                },
+                root: {
+                    title: '/root',
+                    desc: 'Home directory for the root superuser. This is separate from <code>/home</code> to ensure the root user can still log in even if <code>/home</code> is on a separate partition that fails to mount.'
+                },
+                run: {
+                    title: '/run',
+                    desc: 'Runtime variable data since the last boot. Contains process IDs (PIDs), socket files, and lock files. This filesystem exists only in memory and is cleared on reboot. Replaced older locations like <code>/var/run</code>.'
+                },
+                sbin: {
+                    title: '/sbin → /usr/sbin',
+                    desc: 'System administration binaries. Commands here are typically used by the root user for system maintenance: <code>fdisk</code>, <code>mkfs</code>, <code>shutdown</code>, <code>ip</code>. In RHEL 10, this is a symbolic link to <code>/usr/sbin</code>.'
+                },
+                tmp: {
+                    title: '/tmp',
+                    desc: 'Temporary files that are world-writable. Programs can create temporary files here. Contents may be cleared on reboot. The sticky bit ensures users can only delete their own files. Use <code>/var/tmp</code> for longer-lived temporary files.'
+                },
+                usr: {
+                    title: '/usr',
+                    desc: 'Second-level hierarchy containing shareable, read-only data. Includes most user commands (<code>/usr/bin</code>), system binaries (<code>/usr/sbin</code>), libraries (<code>/usr/lib</code>), and documentation (<code>/usr/share</code>). "Unix System Resources".'
+                },
+                var: {
+                    title: '/var',
+                    desc: 'Variable data that changes during system operation: log files (<code>/var/log</code>), mail spools, print queues, package caches (<code>/var/cache</code>), and web content (<code>/var/www</code>). Contents persist across reboots.'
+                }
+            };
+
+            treeItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    treeItems.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    const dir = item.getAttribute('data-dir');
+                    const info = dirInfo[dir];
+                    
+                    if (info) {
+                        dirDescription.innerHTML = `<h4>${info.title}</h4><p>${info.desc}</p>`;
+                        dirDescription.classList.add('show');
+                    }
+                });
+
+                item.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        item.click();
+                    }
+                });
+            });
+
+            // ==================== PATH NAVIGATOR ====================
+            const pathDisplay = document.getElementById('current-path');
+            const navHistory = document.getElementById('nav-history');
+            let currentPath = '/home/student';
+            let pathStack = ['/home/student'];
+            let commandHistory = [];
+
+            function updatePathDisplay(command) {
+                pathDisplay.textContent = currentPath;
+                commandHistory.push(command + ' → ' + currentPath);
+                
+                // Keep only last 5 commands
+                if (commandHistory.length > 5) {
+                    commandHistory.shift();
+                }
+                
+                navHistory.innerHTML = commandHistory.map(cmd => 
+                    `<div class="history-item">${cmd}</div>`
+                ).join('');
+            }
+
+            function navigate(newPath, command) {
+                currentPath = newPath;
+                updatePathDisplay(command);
+            }
+
+            document.getElementById('nav-root').addEventListener('click', () => navigate('/', 'cd /'));
+            document.getElementById('nav-home').addEventListener('click', () => navigate('/home/student', 'cd ~'));
+            document.getElementById('nav-etc').addEventListener('click', () => navigate('/etc', 'cd /etc'));
+            document.getElementById('nav-var').addEventListener('click', () => navigate('/var', 'cd /var'));
+            
+            document.getElementById('nav-parent').addEventListener('click', () => {
+                if (currentPath === '/') return;
+                const parts = currentPath.split('/').filter(p => p);
+                parts.pop();
+                const newPath = '/' + parts.join('/') || '/';
+                navigate(newPath, 'cd ..');
+            });
+
+            document.getElementById('nav-log').addEventListener('click', () => {
+                if (currentPath === '/var') {
+                    navigate('/var/log', 'cd log');
+                } else {
+                    navigate('/var/log', 'cd /var/log');
+                }
+            });
+
+            // ==================== QUIZ SYSTEM ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreEl = document.getElementById('quiz-score');
+            
+            const correctAnswers = {
+                1: { answer: 'b', explanation: 'The forward slash (/) represents the root of the Linux filesystem hierarchy. All other directories branch from this root.' },
+                2: { answer: 'c', explanation: '/etc contains system-wide configuration files such as /etc/passwd, /etc/fstab, /etc/hosts, and service configurations.' },
+                3: { answer: 'c', explanation: 'The double dot (..) represents the parent directory, so cd .. moves you up one level in the directory tree.' },
+                4: { answer: 'd', explanation: 'Absolute paths always start with / (the root directory). /home/student/Documents/file.txt is the only option that begins with /.' },
+                5: { answer: 'b', explanation: '/var/log is the standard location for system and application log files in RHEL and other Linux distributions.' }
+            };
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let score = 0;
+                
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const selectedOption = question.querySelector('input:checked');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    const options = question.querySelectorAll('.quiz-option');
+                    
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect', 'selected');
+                    });
+
+                    if (selectedOption) {
+                        const selectedValue = selectedOption.value;
+                        const correctValue = correctAnswers[qNum].answer;
+                        const selectedLabel = selectedOption.closest('.quiz-option');
+                        
+                        if (selectedValue === correctValue) {
+                            score++;
+                            selectedLabel.classList.add('correct');
+                            feedback.className = 'quiz-feedback show correct';
+                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                        } else {
+                            selectedLabel.classList.add('incorrect');
+                            options.forEach(opt => {
+                                const input = opt.querySelector('input');
+                                if (input.value === correctValue) {
+                                    opt.classList.add('correct');
+                                }
+                            });
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                        }
+                    } else {
+                        feedback.className = 'quiz-feedback show incorrect';
+                        feedback.innerHTML = '⚠ Please select an answer.';
+                    }
+                });
+
+                quizScoreEl.textContent = `Score: ${score}/5`;
+                checkAnswersBtn.style.display = 'none';
+                resetQuizBtn.style.display = 'inline-block';
+            });
+
+            resetQuizBtn.addEventListener('click', () => {
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    const options = question.querySelectorAll('.quiz-option');
+                    const inputs = question.querySelectorAll('input');
+                    
+                    options.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect', 'selected');
+                    });
+                    inputs.forEach(input => {
+                        input.checked = false;
+                    });
+                    feedback.className = 'quiz-feedback';
+                    feedback.innerHTML = '';
+                });
+
+                quizScoreEl.textContent = 'Score: 0/5';
+                checkAnswersBtn.style.display = 'inline-block';
+                resetQuizBtn.style.display = 'none';
+            });
+
+            // Option selection highlighting
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const question = option.closest('.quiz-question');
+                    question.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                });
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', function() {
+                    this.textContent = '✓ Chapter Completed!';
+                    this.style.background = '#267326';
+                    this.disabled = true;
+                    
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    alert('Congratulations! You have completed Chapter 6: Navigating the File-system Hierarchy. Continue to Chapter 7 to learn about managing files from the command line.');
+                });
+            }
+
+            // ==================== SMOOTH SCROLLING ====================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // ==================== TOOLTIP POSITIONING ====================
+            const terms = document.querySelectorAll('.term');
+            terms.forEach(term => {
+                const tooltip = term.querySelector('.tooltip');
+                if (!tooltip) return;
+
+                term.addEventListener('mouseenter', () => {
+                    const rect = term.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    
+                    // Check if tooltip would go off left edge
+                    if (rect.left < tooltipRect.width / 2) {
+                        tooltip.classList.add('tooltip-left');
+                        tooltip.classList.remove('tooltip-right');
+                    }
+                    // Check if tooltip would go off right edge
+                    else if (window.innerWidth - rect.right < tooltipRect.width / 2) {
+                        tooltip.classList.add('tooltip-right');
+                        tooltip.classList.remove('tooltip-left');
+                    }
+                    // Check if tooltip would go off top
+                    if (rect.top < tooltipRect.height + 20) {
+                        tooltip.classList.add('tooltip-bottom');
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
