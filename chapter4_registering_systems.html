@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Registering Systems for Red Hat Support | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        /* Skip link for keyboard navigation */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: var(--rh-gray-lighter);
+            border: 2px solid transparent;
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--rh-gray-dark);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .nav-btn:hover, .nav-btn:focus {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-gray-lighter);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-red) 0%, var(--rh-red-dark) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            background: rgba(255,255,255,0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+        }
+
+        .section-body ul, .section-body ol {
+            margin-bottom: 20px;
+            padding-left: 25px;
+        }
+
+        .section-body li {
+            margin-bottom: 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+            border-left: 4px solid var(--rh-gold);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            padding: 12px 0 12px 35px;
+            position: relative;
+            border-bottom: 1px dashed var(--rh-gold);
+        }
+
+        .objectives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .objectives-list li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .term {
+            color: var(--rh-blue);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+            cursor: help;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .term:hover, .term:focus {
+            color: var(--rh-blue-dark);
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 15px 20px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: var(--font-display);
+            font-weight: 400;
+            line-height: 1.5;
+            width: 300px;
+            max-width: 90vw;
+            z-index: 2000;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+            pointer-events: none;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip.tooltip-top {
+            bottom: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-top::before {
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-bottom {
+            top: calc(100% + 12px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip.tooltip-bottom::before {
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-left {
+            right: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-left::before {
+            left: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-left-color: var(--rh-gray-dark);
+        }
+
+        .tooltip.tooltip-right {
+            left: calc(100% + 12px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.tooltip-right::before {
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            border-right-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== KEY POINTS BOX ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F7FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        /* ==================== NOTE BOX ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ==================== WARNING BOX ==================== */
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== SUCCESS BOX ==================== */
+        .success-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF5CC 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .success-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-green);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-section {
+            color: #FF9900;
+        }
+
+        .code-block .code-highlight {
+            color: #00FF00;
+            font-weight: bold;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            font-size: 0.75rem;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+        }
+
+        /* Inline code */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            color: var(--rh-red-dark);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            background: var(--rh-gray-lighter);
+            padding: 18px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            border: none;
+            width: 100%;
+            text-align: left;
+            transition: background var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expand-icon {
+            font-size: 0.8rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .expandable-content.open {
+            padding: 20px;
+            max-height: 3000px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F3FF;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            margin-bottom: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .tab-btn {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--rh-gray);
+            cursor: pointer;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            transition: all var(--transition-fast);
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-gray-light);
+            color: var(--rh-gray-dark);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            font-family: var(--font-display);
+            color: var(--rh-red);
+            margin-bottom: 15px;
+        }
+
+        /* ==================== CARD GRID ==================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            transition: all var(--transition-fast);
+        }
+
+        .info-card:hover, .info-card:focus {
+            border-color: var(--rh-red);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .info-card h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+        }
+
+        .card-icon {
+            font-size: 1.3rem;
+            margin-right: 8px;
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        /* ==================== FLOW DIAGRAM ==================== */
+        .flow-diagram {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+        }
+
+        .flow-box {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 15px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .flow-box.highlight {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        .flow-box.highlight-blue {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            border-color: var(--rh-blue-dark);
+        }
+
+        .flow-box.highlight-green {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border-color: #267326;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== QUIZ STYLES ==================== */
+        .quiz-container {
+            background: linear-gradient(135deg, #F5F0FF 0%, #E6E0FF 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .quiz-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+            transition: border-color var(--transition-fast);
+        }
+
+        .quiz-question.correct {
+            border-color: var(--rh-green);
+            background: #F0FFF0;
+        }
+
+        .quiz-question.incorrect {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .question-number {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .quiz-option input {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .quiz-option.selected {
+            border-color: var(--rh-purple);
+            background: #F0E6FF;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            color: var(--rh-green);
+            border: 1px solid var(--rh-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFE6E6;
+            color: var(--rh-red-dark);
+            border: 1px solid var(--rh-red);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .quiz-btn:hover, .quiz-btn:focus {
+            background: #552288;
+            transform: scale(1.02);
+        }
+
+        /* ==================== LAB STYLES ==================== */
+        .lab-container {
+            background: linear-gradient(135deg, #E6FFF0 0%, #CCF5E0 100%);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .lab-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .lab-icon {
+            font-size: 2rem;
+        }
+
+        .lab-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+        }
+
+        .lab-step {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--rh-teal);
+        }
+
+        .lab-step h4 {
+            font-family: var(--font-display);
+            color: var(--rh-teal);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF5CC 100%);
+            border-left: 4px solid var(--rh-green);
+            padding: 25px;
+            border-radius: var(--radius-md);
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(51, 153, 51, 0.3);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .summary-list li::before {
+            content: '✔';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: 700;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border-radius: var(--radius-md);
+            margin-top: 30px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-green);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .completion-btn:hover, .completion-btn:focus {
+            background: #267326;
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 25px 20px;
+            margin-top: 40px;
+            font-family: var(--font-display);
+        }
+
+        /* ==================== ARCHITECTURE DIAGRAM ==================== */
+        .architecture-diagram {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .diagram-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .diagram-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .diagram-box {
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 15px 25px;
+            text-align: center;
+            min-width: 160px;
+            transition: all var(--transition-fast);
+        }
+
+        .diagram-box:hover {
+            border-color: var(--rh-red);
+            transform: translateY(-2px);
+        }
+
+        .diagram-box.cloud {
+            background: linear-gradient(135deg, #E6F3FF 0%, #CCE5FF 100%);
+            border-color: var(--rh-blue);
+        }
+
+        .diagram-box.server {
+            background: linear-gradient(135deg, #FFF5E6 0%, #FFE4CC 100%);
+            border-color: var(--rh-gold);
+        }
+
+        .diagram-box.rhel {
+            background: linear-gradient(135deg, #FFE6E6 0%, #FFCCCC 100%);
+            border-color: var(--rh-red);
+        }
+
+        .diagram-box h5 {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .diagram-box p {
+            font-size: 0.8rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        .diagram-connector {
+            font-size: 1.5rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav-container {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 0.8rem;
+            }
+
+            .flow-diagram {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .diagram-row {
+                flex-direction: column;
+            }
+
+            .diagram-connector {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            .section-nav,
+            .progress-container,
+            .quiz-btn,
+            .completion-btn {
+                display: none;
+            }
+
+            .content-section {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid var(--rh-gray-light);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • CHAPTER 4</span>
+            <h1>Registering Systems for Red Hat Support</h1>
+            <p class="chapter-subtitle">Learn how to register your RHEL systems to access software updates, security patches, and Red Hat support services</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-overview" class="nav-btn">Overview</a>
+            <a href="#section-benefits" class="nav-btn">Benefits</a>
+            <a href="#section-sca" class="nav-btn">Simple Content Access</a>
+            <a href="#section-registration" class="nav-btn">Registration</a>
+            <a href="#section-tools" class="nav-btn">Tools</a>
+            <a href="#section-insights" class="nav-btn">Insights</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter progress">
+        <div class="progress-wrapper">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        
+        <!-- Section 1: Overview -->
+        <section id="section-overview" class="content-section" aria-labelledby="overview-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="overview-heading">Chapter Overview</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>🎯 Learning Objectives</h3>
+                    <ul class="objectives-list">
+                        <li>Understand the benefits of a Red Hat subscription</li>
+                        <li>Explain the <span class="term" tabindex="0" data-tooltip="Simple Content Access - A subscription model that eliminates the need to attach subscriptions on a per-system basis, simplifying subscription management.">Simple Content Access (SCA)</span> model</li>
+                        <li>Register a system using your Red Hat account</li>
+                        <li>Use the <code class="inline">rhc</code> and <code class="inline">subscription-manager</code> commands</li>
+                        <li>Connect systems to <span class="term" tabindex="0" data-tooltip="A predictive analytics service that identifies and remediates threats to security, performance, availability, and stability of RHEL systems.">Red Hat Insights</span></li>
+                        <li>Manage software repositories and system entitlements</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>Why This Chapter Matters</h4>
+                    <p>System registration is one of the first tasks you'll perform when deploying a new RHEL system. Without proper registration, your system cannot receive software updates, security patches, or access Red Hat's support resources. Understanding how to register and manage subscriptions is fundamental to maintaining secure, up-to-date enterprise Linux systems.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Benefits of Red Hat Subscription -->
+        <section id="section-benefits" class="content-section" aria-labelledby="benefits-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="benefits-heading">Benefits of a Red Hat Subscription</h2>
+            </div>
+            <div class="section-body">
+                <p>Red Hat provides access to software repositories through the <span class="term" tabindex="0" data-tooltip="Content Delivery Network - A globally distributed network that delivers software packages and updates to registered RHEL systems.">Red Hat Content Delivery Network (CDN)</span> in a subscription-based model. Software repositories provide regularly updated packages, including security patches, bug fixes, and enhancements.</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📦</span> Software Updates</h4>
+                        <p>Access to regularly updated packages from Red Hat repositories, including the latest features and improvements.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🔒</span> Security Patches</h4>
+                        <p>Timely security updates to protect your systems from known vulnerabilities and emerging threats.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🐛</span> Bug Fixes</h4>
+                        <p>Regular bug fixes and stability improvements to ensure reliable system operation.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📚</span> Knowledgebase</h4>
+                        <p>Access to Red Hat's extensive Customer Portal with technical documentation, solutions, and articles.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🎧</span> Technical Support</h4>
+                        <p>Expert assistance from Red Hat engineers for troubleshooting and resolving issues.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📊</span> Red Hat Insights</h4>
+                        <p>Predictive analytics for proactive issue identification and automated remediation.</p>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">💡</span>
+                        <span>Developer Subscription</span>
+                    </div>
+                    <p>Red Hat provides <strong>free individual RHEL developer subscriptions</strong> for development, testing, prototyping, and limited production use. This is an excellent option for learning and small-scale deployments. Visit <code class="inline">developers.redhat.com</code> to sign up.</p>
+                </div>
+
+                <h4 style="font-family: var(--font-display); margin: 25px 0 15px;">Subscription Architecture</h4>
+                <div class="architecture-diagram">
+                    <p class="diagram-title">How RHEL Systems Connect to Red Hat Services</p>
+                    <div class="diagram-row">
+                        <div class="diagram-box rhel">
+                            <h5>🖥️ RHEL System</h5>
+                            <p>Your registered system</p>
+                        </div>
+                        <span class="diagram-connector" aria-hidden="true">⟷</span>
+                        <div class="diagram-box cloud">
+                            <h5>☁️ Hybrid Cloud Console</h5>
+                            <p>console.redhat.com</p>
+                        </div>
+                        <span class="diagram-connector" aria-hidden="true">⟷</span>
+                        <div class="diagram-box server">
+                            <h5>📦 Red Hat CDN</h5>
+                            <p>Software repositories</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Simple Content Access -->
+        <section id="section-sca" class="content-section" aria-labelledby="sca-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="sca-heading">Simple Content Access (SCA)</h2>
+            </div>
+            <div class="section-body">
+                <p>In 2024, Red Hat transitioned to a subscription model named <span class="term" tabindex="0" data-tooltip="Simple Content Access - An access-based subscription model that enforces the existence of a valid subscription on a per-organization basis rather than per-system.">Simple Content Access (SCA)</span>. This model significantly simplifies subscription management by eliminating the need to attach subscriptions on a per-system basis.</p>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="true" aria-controls="sca-benefits">
+                        <span>Key Benefits of Simple Content Access</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="sca-benefits" class="expandable-content open">
+                        <ul>
+                            <li><strong>Organization-level validation:</strong> Subscriptions are validated at the organization level, not per-system</li>
+                            <li><strong>No subscription attachment:</strong> No need to manually attach subscriptions to individual systems</li>
+                            <li><strong>Reduced complexity:</strong> Eliminates subscription management and tooling overhead</li>
+                            <li><strong>Immediate content access:</strong> Systems get access to content repositories as soon as they're registered</li>
+                            <li><strong>Simplified inventory:</strong> Manage your entire fleet through the Hybrid Cloud Console</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="sca-changes">
+                        <span>Changes from Traditional Subscription Management</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="sca-changes" class="expandable-content">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Traditional Model</th>
+                                    <th>Simple Content Access</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Subscription Scope</td>
+                                    <td>Per-system attachment required</td>
+                                    <td>Organization-wide access</td>
+                                </tr>
+                                <tr>
+                                    <td>Entitlement Reporting</td>
+                                    <td>subscription-manager reports per-system</td>
+                                    <td>Hybrid Cloud Console only</td>
+                                </tr>
+                                <tr>
+                                    <td>Management Portal</td>
+                                    <td>Customer Portal (access.redhat.com)</td>
+                                    <td>Hybrid Cloud Console (console.redhat.com)</td>
+                                </tr>
+                                <tr>
+                                    <td>Content Access</td>
+                                    <td>After subscription attachment</td>
+                                    <td>Immediately after registration</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <div class="success-box-header">
+                        <span class="note-icon">✅</span>
+                        <span>Hybrid Cloud Console</span>
+                    </div>
+                    <p>Customer-facing subscription services have moved from the Red Hat Customer Portal (<code class="inline">access.redhat.com</code>) to the <strong>Red Hat Hybrid Cloud Console</strong> (<code class="inline">console.redhat.com</code>). The Hybrid Cloud Console provides a unified experience for systems management and closer integration with Red Hat Insights.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Registration Methods -->
+        <section id="section-registration" class="content-section" aria-labelledby="registration-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="registration-heading">Registering a RHEL System</h2>
+            </div>
+            <div class="section-body">
+                <p>You can use different options to register a system to the Red Hat subscription service. For example, you might use the graphical RHEL web console or command-line tools such as <span class="term" tabindex="0" data-tooltip="Remote Host Configuration - A command-line tool that registers systems and enables Red Hat services including content, analytics, and remote management.">rhc (remote host configuration)</span> or <span class="term" tabindex="0" data-tooltip="A command-line tool for managing Red Hat subscriptions, repositories, and system registration.">subscription-manager</span>.</p>
+
+                <h4 style="font-family: var(--font-display); margin: 25px 0 15px;">Registration Actions</h4>
+                <p>You can use these tools to perform the following actions with your systems:</p>
+                <ul>
+                    <li><strong>Register</strong> a system to associate it with a Red Hat account that has an active subscription. During registration, the system receives unique identity certificates for authentication.</li>
+                    <li><strong>Enable additional repositories</strong> to provide access to software packages as needed. Default repositories are automatically enabled for installed products.</li>
+                    <li><strong>Review and track</strong> available or consumed entitlements on the Subscription Inventory page of the Hybrid Cloud Console.</li>
+                    <li><strong>Optionally, register with Red Hat Insights</strong> for predictive analytics and proactive issue resolution.</li>
+                </ul>
+
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Registration methods">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-rhc" id="tab-btn-rhc">rhc Command</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-subman" id="tab-btn-subman">subscription-manager</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-activation" id="tab-btn-activation">Activation Keys</button>
+                    </div>
+
+                    <div id="tab-rhc" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-rhc">
+                        <h4>The rhc Command (Recommended)</h4>
+                        <p>The <code class="inline">rhc</code> command-line tool is available for registering RHEL 8.8 and later systems. By default, the <code class="inline">rhc</code> tool enables three features: <strong>content</strong>, <strong>analytics</strong>, and <strong>remote-management</strong>. These features allow your system to access content repositories and enable Red Hat Insights analytics and remediation services with a single command.</p>
+                        
+                        <div class="code-block">
+                            <span class="code-title">Terminal</span>
+                            <code><span class="code-comment"># Register with username and password (interactive)</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">rhc connect</span>
+<span class="code-output">Connecting host.example.com to Red Hat.</span>
+<span class="code-output">Username: your-rh-username</span>
+<span class="code-output">Password: ********</span>
+<span class="code-output">Successfully connected to Red Hat!</span>
+
+<span class="code-comment"># Register with an activation key (non-interactive)</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">rhc connect --activation-key=mykey --organization=12345678</span>
+
+<span class="code-comment"># Check connection status</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">rhc status</span>
+<span class="code-output">Connection status: Connected to Red Hat</span>
+
+<span class="code-comment"># Disconnect a system</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">rhc disconnect</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-subman" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-subman">
+                        <h4>The subscription-manager Command</h4>
+                        <p>The <code class="inline">subscription-manager</code> command is a traditional tool for system registration. Unlike <code class="inline">rhc</code>, it cannot connect your system to Red Hat Insights. After registration, you can use the <code class="inline">insights-client</code> command to enable Red Hat Insights.</p>
+                        
+                        <div class="code-block">
+                            <span class="code-title">Terminal</span>
+                            <code><span class="code-comment"># Register with username and password</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager register</span>
+<span class="code-output">Registering to: subscription.rhsm.redhat.com:443/subscription</span>
+<span class="code-output">Username: your-rh-username</span>
+<span class="code-output">Password: ********</span>
+<span class="code-output">The system has been registered with ID: abc123-def456-ghi789</span>
+
+<span class="code-comment"># Register with activation key</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager register --activationkey=mykey --org=12345678</span>
+
+<span class="code-comment"># Check registration status</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager status</span>
+<span class="code-output">+-------------------------------------------+</span>
+<span class="code-output">   System Status Details</span>
+<span class="code-output">+-------------------------------------------+</span>
+<span class="code-output">Overall Status: Registered</span>
+
+<span class="code-comment"># Unregister a system</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager unregister</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-activation" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-activation">
+                        <h4>Using Activation Keys</h4>
+                        <p><span class="term" tabindex="0" data-tooltip="Pre-configured tokens that enable automated system registration with predefined settings for repositories, roles, and configurations.">Activation keys</span> are created in the Hybrid Cloud Console and allow automated, non-interactive registration. They are ideal for:</p>
+                        <ul>
+                            <li>Automated deployments and provisioning scripts</li>
+                            <li>Kickstart installations</li>
+                            <li>Configuration management tools (Ansible, Puppet, etc.)</li>
+                            <li>Cloud instance registration</li>
+                        </ul>
+                        
+                        <div class="code-block">
+                            <span class="code-title">Terminal</span>
+                            <code><span class="code-comment"># Using rhc with activation key</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">rhc connect --activation-key=production-servers --organization=12345678</span>
+
+<span class="code-comment"># Using subscription-manager with activation key</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager register \</span>
+    <span class="code-command">--activationkey=production-servers \</span>
+    <span class="code-command">--org=12345678</span></code>
+                        </div>
+
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon">🔑</span>
+                                <span>Finding Your Organization ID</span>
+                            </div>
+                            <p>Your Organization ID is available in the Hybrid Cloud Console. Navigate to <strong>Settings → Activation Keys</strong> to view your Organization ID and create new activation keys.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Registration Tools Comparison -->
+        <section id="section-tools" class="content-section" aria-labelledby="tools-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="tools-heading">Registration Tools Comparison</h2>
+            </div>
+            <div class="section-body">
+                <p>Understanding the differences between <code class="inline">rhc</code> and <code class="inline">subscription-manager</code> helps you choose the right tool for your use case.</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>rhc</th>
+                            <th>subscription-manager</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Minimum RHEL Version</td>
+                            <td>RHEL 8.8+</td>
+                            <td>All RHEL versions</td>
+                        </tr>
+                        <tr>
+                            <td>Content Access</td>
+                            <td>✔ Automatic</td>
+                            <td>✔ Automatic</td>
+                        </tr>
+                        <tr>
+                            <td>Red Hat Insights</td>
+                            <td>✔ Automatic</td>
+                            <td>✘ Requires insights-client</td>
+                        </tr>
+                        <tr>
+                            <td>Remote Management</td>
+                            <td>✔ Automatic</td>
+                            <td>✘ Not available</td>
+                        </tr>
+                        <tr>
+                            <td>Single Command Setup</td>
+                            <td>✔ Yes</td>
+                            <td>✘ Multiple steps needed</td>
+                        </tr>
+                        <tr>
+                            <td>Activation Key Support</td>
+                            <td>✔ Yes</td>
+                            <td>✔ Yes</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="key-points">
+                    <h4>💡 Recommendation</h4>
+                    <p>For RHEL 8.8 and later systems, use <code class="inline">rhc connect</code> for the simplest registration experience. It automatically enables:</p>
+                    <ul>
+                        <li><strong>content:</strong> Access to Red Hat software repositories</li>
+                        <li><strong>analytics:</strong> Connection to Red Hat Insights for predictive analytics</li>
+                        <li><strong>remote-management:</strong> Ability to receive automated remediation from the Hybrid Cloud Console</li>
+                    </ul>
+                </div>
+
+                <h4 style="font-family: var(--font-display); margin: 25px 0 15px;">Managing Repositories</h4>
+                <p>After registration, you may need to enable additional repositories for specific software packages. Use the <code class="inline">subscription-manager repos</code> command to list and manage repositories:</p>
+
+                <div class="code-block">
+                    <span class="code-title">Terminal</span>
+                    <code><span class="code-comment"># List all available repositories</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager repos --list</span>
+
+<span class="code-comment"># List only enabled repositories</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager repos --list-enabled</span>
+
+<span class="code-comment"># Enable a specific repository</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager repos --enable=rhel-10-for-x86_64-appstream-rpms</span>
+
+<span class="code-comment"># Disable a repository</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">subscription-manager repos --disable=rhel-10-for-x86_64-supplementary-rpms</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Red Hat Insights -->
+        <section id="section-insights" class="content-section" aria-labelledby="insights-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="insights-heading">Red Hat Insights</h2>
+            </div>
+            <div class="section-body">
+                <p><span class="term" tabindex="0" data-tooltip="A SaaS-based service that provides predictive analytics, vulnerability detection, and automated remediation for RHEL systems.">Red Hat Insights</span> is a predictive analytics service included with all RHEL subscriptions. It identifies and remediates threats to security, performance, availability, and stability before they become outages.</p>
+
+                <div class="card-grid">
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🔍</span> Advisor</h4>
+                        <p>Identifies configuration issues, security risks, and provides recommendations with automated remediation.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">🛡️</span> Vulnerability</h4>
+                        <p>Detects CVEs affecting your systems and prioritizes them based on risk assessment.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📋</span> Compliance</h4>
+                        <p>Monitors systems against security baselines like DISA STIG and PCI-DSS.</p>
+                    </div>
+                    <div class="info-card" tabindex="0" role="article">
+                        <h4><span class="card-icon" aria-hidden="true">📈</span> Resource Optimization</h4>
+                        <p>Provides recommendations for optimizing system resources and performance.</p>
+                    </div>
+                </div>
+
+                <h4 style="font-family: var(--font-display); margin: 25px 0 15px;">Enabling Red Hat Insights</h4>
+                <p>If you registered with <code class="inline">rhc connect</code>, Insights is automatically enabled. For systems registered with <code class="inline">subscription-manager</code>, enable Insights separately:</p>
+
+                <div class="code-block">
+                    <span class="code-title">Terminal</span>
+                    <code><span class="code-comment"># Register with Red Hat Insights</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">insights-client --register</span>
+<span class="code-output">Successfully registered host host.example.com</span>
+<span class="code-output">Automatic scheduling for Insights has been enabled.</span>
+<span class="code-output">Starting to collect Insights data for host.example.com</span>
+<span class="code-output">Writing RHSM facts to /etc/rhsm/facts/insights-client.facts ...</span>
+<span class="code-output">Uploading Insights data.</span>
+<span class="code-output">Successfully uploaded report from host.example.com to account 006...</span>
+<span class="code-output">View the Red Hat Insights console at https://console.redhat.com/insights/</span>
+
+<span class="code-comment"># Check Insights client status</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">insights-client --status</span>
+
+<span class="code-comment"># Manually upload data to Insights</span>
+<span class="code-prompt">root@host:~#</span> <span class="code-command">insights-client</span></code>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">🔒</span>
+                        <span>Data Privacy</span>
+                    </div>
+                    <p>Red Hat Insights collects system configuration data to provide recommendations. Sensitive data like passwords, keys, and user content is filtered out before transmission. You can review what data is collected using <code class="inline">insights-client --no-upload</code> to generate a local report.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3>Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="b">
+                        <p class="question-text"><span class="question-number">1</span>What is the primary benefit of Simple Content Access (SCA)?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                Free access to all Red Hat software
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                Eliminates per-system subscription attachment
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Automatic software installation
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                Unlimited technical support calls
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="c">
+                        <p class="question-text"><span class="question-number">2</span>Which command registers a system AND automatically enables Red Hat Insights?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                <code class="inline">subscription-manager register</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                <code class="inline">insights-client --register</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                <code class="inline">rhc connect</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                <code class="inline">yum register</code>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="d">
+                        <p class="question-text"><span class="question-number">3</span>Where do you manage subscription inventory under the SCA model?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                Using the subscription-manager command
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                In the /etc/yum.repos.d directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                Through the Red Hat Customer Portal only
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                On the Hybrid Cloud Console (console.redhat.com)
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="a">
+                        <p class="question-text"><span class="question-number">4</span>What are activation keys primarily used for?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Non-interactive, automated system registration
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Encrypting network traffic to Red Hat servers
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Unlocking premium features in applications
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Resetting forgotten passwords
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">5</span>What does Red Hat Insights provide?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Backup and disaster recovery services
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                Predictive analytics and vulnerability detection
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Free software downloads
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                Hardware monitoring sensors
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Lab Exercise -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="lab-heading">Hands-On Lab</h2>
+            </div>
+            <div class="section-body">
+                <div class="lab-container">
+                    <div class="lab-header">
+                        <span class="lab-icon">🔬</span>
+                        <h3>Lab: Register Systems for Red Hat Support</h3>
+                    </div>
+                    <p>In this lab, you will practice registering a RHEL system using different methods and verify the registration status.</p>
+
+                    <div class="warning-box">
+                        <div class="warning-box-header">
+                            <span class="note-icon">⚠️</span>
+                            <span>Lab Environment</span>
+                        </div>
+                        <p>This lab requires access to a RHEL system and valid Red Hat credentials. If using the classroom environment, your instructor will provide the necessary accounts and activation keys.</p>
+                    </div>
+
+                    <div class="lab-step">
+                        <h4>Task 1: Check Current Registration Status</h4>
+                        <p>Before registering, verify the current status of your system.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Check if the system is registered</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo subscription-manager status</span>
+
+<span class="code-comment"># View system identity (if registered)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo subscription-manager identity</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <h4>Task 2: Register Using rhc connect</h4>
+                        <p>Register your system using the recommended rhc tool.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Register with rhc (interactive)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo rhc connect</span>
+
+<span class="code-comment"># Or use an activation key (non-interactive)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo rhc connect --activation-key=lab-key --organization=YOUR_ORG_ID</span>
+
+<span class="code-comment"># Verify the connection</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo rhc status</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <h4>Task 3: Verify Repository Access</h4>
+                        <p>Confirm that your system can access Red Hat repositories.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># List enabled repositories</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo subscription-manager repos --list-enabled</span>
+
+<span class="code-comment"># Test package download</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo dnf check-update</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <h4>Task 4: Verify Red Hat Insights</h4>
+                        <p>Confirm that Red Hat Insights is enabled and collecting data.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Check Insights client status</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo insights-client --status</span>
+
+<span class="code-comment"># Manually collect and upload data</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">sudo insights-client</span>
+
+<span class="code-comment"># View the Insights dashboard</span>
+<span class="code-output"># Open https://console.redhat.com/insights/ in a browser</span></code>
+                        </div>
+                    </div>
+
+                    <div class="key-points">
+                        <h4>Lab Completion Checklist</h4>
+                        <ul>
+                            <li>✓ Verified initial system registration status</li>
+                            <li>✓ Registered the system using rhc connect</li>
+                            <li>✓ Confirmed access to Red Hat repositories</li>
+                            <li>✓ Verified Red Hat Insights is enabled and uploading data</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>📝 Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>Red Hat subscriptions</strong> provide access to software repositories, security patches, technical support, and the Knowledgebase through the Content Delivery Network (CDN).</li>
+                        <li><strong>Simple Content Access (SCA)</strong> is the current subscription model that validates subscriptions at the organization level, eliminating per-system attachment requirements.</li>
+                        <li><strong>The Hybrid Cloud Console</strong> (console.redhat.com) is the primary interface for managing subscriptions, viewing inventory, and accessing Red Hat Insights.</li>
+                        <li><strong>rhc connect</strong> is the recommended command for registering RHEL 8.8+ systems, automatically enabling content access, analytics, and remote management.</li>
+                        <li><strong>subscription-manager</strong> remains available for all RHEL versions but requires additional steps to enable Red Hat Insights.</li>
+                        <li><strong>Activation keys</strong> enable non-interactive, automated registration and are ideal for scripted deployments and configuration management.</li>
+                        <li><strong>Red Hat Insights</strong> provides predictive analytics, vulnerability detection, compliance monitoring, and automated remediation for registered systems.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 5, you'll learn about getting help using AI assistants, including:</p>
+                    <ul>
+                        <li>Using Red Hat's AI-powered assistance features</li>
+                        <li>Leveraging AI for troubleshooting and documentation</li>
+                        <li>Best practices for interacting with AI assistants</li>
+                        <li>Understanding AI capabilities and limitations</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 4 Complete!</h2>
+                    <p>You've learned how to register RHEL systems and access Red Hat support services.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 4 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== TOOLTIP FUNCTIONALITY ====================
+            const terms = document.querySelectorAll('.term');
+            
+            terms.forEach(term => {
+                const tooltipText = term.getAttribute('data-tooltip');
+                const tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = tooltipText;
+                term.appendChild(tooltip);
+
+                function positionTooltip() {
+                    const termRect = term.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    const viewportHeight = window.innerHeight;
+
+                    // Remove existing position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+
+                    // Determine best position
+                    const spaceAbove = termRect.top;
+                    const spaceBelow = viewportHeight - termRect.bottom;
+                    const spaceLeft = termRect.left;
+                    const spaceRight = viewportWidth - termRect.right;
+
+                    if (spaceAbove >= 150) {
+                        tooltip.classList.add('tooltip-top');
+                    } else if (spaceBelow >= 150) {
+                        tooltip.classList.add('tooltip-bottom');
+                    } else if (spaceRight >= 320) {
+                        tooltip.classList.add('tooltip-right');
+                    } else {
+                        tooltip.classList.add('tooltip-left');
+                    }
+
+                    // Prevent horizontal overflow
+                    tooltip.style.left = '';
+                    tooltip.style.right = '';
+                    tooltip.style.transform = '';
+
+                    const newRect = tooltip.getBoundingClientRect();
+                    if (newRect.left < 10) {
+                        tooltip.style.left = '10px';
+                        tooltip.style.transform = 'translateX(0)';
+                    } else if (newRect.right > viewportWidth - 10) {
+                        tooltip.style.right = '10px';
+                        tooltip.style.left = 'auto';
+                        tooltip.style.transform = 'translateX(0)';
+                    }
+                }
+
+                term.addEventListener('mouseenter', () => {
+                    positionTooltip();
+                    tooltip.classList.add('show');
+                });
+
+                term.addEventListener('mouseleave', () => {
+                    tooltip.classList.remove('show');
+                });
+
+                term.addEventListener('focus', () => {
+                    positionTooltip();
+                    tooltip.classList.add('show');
+                });
+
+                term.addEventListener('blur', () => {
+                    tooltip.classList.remove('show');
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable-header');
+            
+            expandables.forEach(header => {
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    const content = header.nextElementSibling;
+                    content.classList.toggle('open');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== TABS ====================
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active state from all buttons and content
+                    tabButtons.forEach(btn => btn.setAttribute('aria-selected', 'false'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    // Set active state on clicked button and corresponding content
+                    button.setAttribute('aria-selected', 'true');
+                    const tabId = button.getAttribute('aria-controls');
+                    document.getElementById(tabId).classList.add('active');
+                });
+
+                button.addEventListener('keydown', (e) => {
+                    let index = Array.from(tabButtons).indexOf(button);
+                    if (e.key === 'ArrowRight') {
+                        index = (index + 1) % tabButtons.length;
+                        tabButtons[index].focus();
+                        tabButtons[index].click();
+                    } else if (e.key === 'ArrowLeft') {
+                        index = (index - 1 + tabButtons.length) % tabButtons.length;
+                        tabButtons[index].focus();
+                        tabButtons[index].click();
+                    }
+                });
+            });
+
+            // ==================== QUIZ FUNCTIONALITY ====================
+            const quizAnswers = {
+                1: { correct: 'b', feedback: 'Correct! SCA eliminates the need to attach subscriptions on a per-system basis, simplifying subscription management.' },
+                2: { correct: 'c', feedback: 'Correct! The rhc connect command registers the system and automatically enables Red Hat Insights analytics and remote management.' },
+                3: { correct: 'd', feedback: 'Correct! Under the SCA model, subscription inventory is managed through the Hybrid Cloud Console at console.redhat.com.' },
+                4: { correct: 'a', feedback: 'Correct! Activation keys allow automated, non-interactive registration ideal for scripted deployments.' },
+                5: { correct: 'b', feedback: 'Correct! Red Hat Insights provides predictive analytics, vulnerability detection, compliance monitoring, and automated remediation.' }
+            };
+
+            const incorrectFeedback = {
+                1: 'Incorrect. SCA simplifies subscription management by validating at the organization level rather than per-system.',
+                2: 'Incorrect. Only rhc connect automatically enables Red Hat Insights along with system registration.',
+                3: 'Incorrect. The Hybrid Cloud Console (console.redhat.com) is the primary interface for managing subscriptions under SCA.',
+                4: 'Incorrect. Activation keys are pre-configured tokens for automated, non-interactive system registration.',
+                5: 'Incorrect. Red Hat Insights provides predictive analytics and vulnerability detection, not backup services.'
+            };
+
+            let score = 0;
+
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const siblings = this.closest('.quiz-options').querySelectorAll('.quiz-option');
+                    siblings.forEach(sib => sib.classList.remove('selected'));
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                });
+            });
+
+            document.getElementById('check-answers').addEventListener('click', function() {
+                score = 0;
+                
+                document.querySelectorAll('.quiz-question').forEach(question => {
+                    const qNum = question.dataset.question;
+                    const selected = question.querySelector('input:checked');
+                    const feedback = document.getElementById(`feedback-${qNum}`);
+                    
+                    question.classList.remove('correct', 'incorrect');
+                    feedback.classList.remove('correct', 'incorrect', 'show');
+                    
+                    if (selected) {
+                        if (selected.value === quizAnswers[qNum].correct) {
+                            question.classList.add('correct');
+                            feedback.textContent = quizAnswers[qNum].feedback;
+                            feedback.classList.add('correct', 'show');
+                            score++;
+                        } else {
+                            question.classList.add('incorrect');
+                            feedback.textContent = incorrectFeedback[qNum];
+                            feedback.classList.add('incorrect', 'show');
+                        }
+                    } else {
+                        feedback.textContent = 'Please select an answer.';
+                        feedback.classList.add('incorrect', 'show');
+                    }
+                });
+
+                document.getElementById('quiz-score').textContent = `Score: ${score}/5`;
+            });
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            let visitedSections = new Set();
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = `${percentage}%`;
+                progressPercent.textContent = `${percentage}%`;
+            }
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visitedSections.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // ==================== SMOOTH SCROLL FOR NAV ====================
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        targetSection.setAttribute('tabindex', '-1');
+                        targetSection.focus();
+                    }
+                });
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', function() {
+                    this.textContent = '✔ Chapter Completed!';
+                    this.style.background = '#267326';
+                    this.disabled = true;
+                    
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    alert('Congratulations! You have completed Chapter 4: Registering Systems for Red Hat Support. Continue to Chapter 5 to learn about getting help using AI assistants.');
+                });
+            }
+
+            // ==================== INFO CARD INTERACTIONS ====================
+            document.querySelectorAll('.info-card').forEach(card => {
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        card.click();
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
