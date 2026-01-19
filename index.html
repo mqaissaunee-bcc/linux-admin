@@ -457,6 +457,14 @@
             background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-red-light) 100%);
         }
 
+        .card-lab .card-header::before {
+            background: linear-gradient(90deg, var(--rh-teal) 0%, #33CCCC 100%);
+        }
+
+        .card-lab .card-icon {
+            background: linear-gradient(135deg, var(--rh-teal) 0%, #33CCCC 100%);
+        }
+
         .card-icon {
             width: 56px;
             height: 56px;
@@ -1331,6 +1339,97 @@
                         </span>
                     </div>
                 </a>
+
+                <!-- Chapter 8 Card -->
+                <a href="chapter8_editing_text_files.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch8-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Chapter 8</span>
+                        <h3 class="card-title" id="card-ch8-title">Editing Text Files from the Shell</h3>
+                        <p class="card-subtitle">Master Vim and Nano text editors</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Learn to edit configuration files and scripts using 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-vim">Vim</button>
+                                <span class="tooltip-content" id="tooltip-vim" role="tooltip">Vim is a powerful modal text editor available on virtually all Linux systems. It uses different modes (normal, insert, command) for efficient text editing and is essential for system administration.</span>
+                            </span>
+                            and 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-nano">Nano</button>
+                                <span class="tooltip-content" id="tooltip-nano" role="tooltip">Nano is a simple, user-friendly text editor with on-screen command hints. It's ideal for beginners and quick edits, using familiar keyboard shortcuts like Ctrl+O to save.</span>
+                            </span>
+                            —essential skills for any Linux administrator.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Vim modes and basic commands</li>
+                            <li>Nano for quick edits</li>
+                            <li>Editing configuration files</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Chapter 8 Practice Lab Card -->
+                <a href="chapter8_practice_lab.html" target="_blank" rel="noopener noreferrer" class="nav-card card-lab" role="listitem" aria-labelledby="card-ch8lab-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8h16v10zm-2-1h-6v-2h6v2zM7.5 17l-1.41-1.41L8.67 13l-2.58-2.59L7.5 9l4 4-4 4z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Practice Lab</span>
+                        <h3 class="card-title" id="card-ch8lab-title">Chapter 8: Vim &amp; Nano Interactive Simulators</h3>
+                        <p class="card-subtitle">Hands-on practice with text editors</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Practice your text editing skills in a safe, 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-simulator">interactive simulator</button>
+                                <span class="tooltip-content" id="tooltip-simulator" role="tooltip">Interactive simulators let you practice Linux commands in a browser-based environment without risk to real systems. Perfect for learning editor commands before working on production files.</span>
+                            </span>
+                            environment. Learn Vim and Nano commands through guided exercises.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Interactive Vim simulator</li>
+                            <li>Interactive Nano simulator</li>
+                            <li>Guided editing exercises</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            1-2 Hours
+                        </span>
+                        <span class="card-action">
+                            Start Lab
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -1425,6 +1524,26 @@
                 <div class="path-item" role="listitem">
                     <div class="path-marker" aria-hidden="true">9</div>
                     <div class="path-content">
+                        <h3 class="path-title">Edit Text Files</h3>
+                        <p class="path-description">
+                            Chapter 8 teaches you to use Vim and Nano text editors—essential tools for editing configuration files and scripts on any Linux system.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">10</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Practice with Simulators</h3>
+                        <p class="path-description">
+                            Reinforce your text editing skills with the Chapter 8 Practice Lab—interactive Vim and Nano simulators that let you practice safely in your browser.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">11</div>
+                    <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
                             Keep the course schedule handy to track lab assignments, exam dates, and your progress through the semester.
@@ -1498,6 +1617,8 @@
                 <a href="chapter5_ai_assistants.html" target="_blank" rel="noopener noreferrer">Chapter 5</a>
                 <a href="chapter6_filesystem_hierarchy.html" target="_blank" rel="noopener noreferrer">Chapter 6</a>
                 <a href="chapter7_managing_files.html" target="_blank" rel="noopener noreferrer">Chapter 7</a>
+                <a href="chapter8_editing_text_files.html" target="_blank" rel="noopener noreferrer">Chapter 8</a>
+                <a href="chapter8_practice_lab.html" target="_blank" rel="noopener noreferrer">Ch. 8 Lab</a>
             </nav>
         </div>
     </footer>
