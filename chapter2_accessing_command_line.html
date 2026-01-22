@@ -365,7 +365,7 @@
         }
 
         .objectives-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -469,6 +469,31 @@
             top: 50%;
             transform: translateY(-50%);
             border-right-color: var(--rh-gray-dark);
+        }
+
+        /* Edge-adjusted tooltip positions - prevents screen bleeding */
+        .tooltip.tooltip-edge-left {
+            left: 0 !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-left::before {
+            left: 20px !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-right {
+            left: auto !important;
+            right: 0 !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-right::before {
+            left: auto !important;
+            right: 20px !important;
+            transform: translateX(0) !important;
         }
 
         /* ==================== KEY POINTS BOX ==================== */
@@ -1182,7 +1207,7 @@
         }
 
         .summary-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1286,7 +1311,7 @@
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 2</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 2</span>
             <h1>Accessing the Command Line</h1>
             <p class="chapter-subtitle">Log in to a Linux system and run simple commands by using the shell.</p>
         </div>
@@ -1368,7 +1393,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">📝</span>
+                        <span class="note-icon">ðŸ“</span>
                         <span>Note</span>
                     </div>
                     <p>Many system administrators choose not to run a graphical environment on their servers because users do not log in to servers as a desktop workspace. A server's workload can more effectively use the significant resources that a graphical environment consumes.</p>
@@ -1407,7 +1432,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="headless-content">
                         <span>Headless Servers and Serial Consoles</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="headless-content" class="expandable-content">
                         <p>A <span class="term" tabindex="0" data-tooltip="A server that does not have a keyboard and display permanently connected to it. Data centers often use headless servers to save space and expense.">headless server</span> does not have a keyboard and display permanently connected to it. A data center might be filled with many racks of headless servers, and not providing each with a keyboard and display saves space and expense.</p>
@@ -1539,7 +1564,7 @@
                         </tr>
                         <tr>
                             <td>Application Grid</td>
-                            <td>Click Activities → Application Grid (9 dots) → Utilities → Terminal</td>
+                            <td>Click Activities â†’ Application Grid (9 dots) â†’ Utilities â†’ Terminal</td>
                         </tr>
                         <tr>
                             <td>Right-Click Desktop</td>
@@ -1554,7 +1579,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">💡</span>
+                        <span class="note-icon">ðŸ’¡</span>
                         <span>Tip: Adding Terminal to Favorites</span>
                     </div>
                     <p>For quick access, right-click the Terminal icon in the Dash and select "Add to Favorites". The Terminal will then always appear in your Dash for one-click access.</p>
@@ -1587,10 +1612,10 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon">⚠️</span>
+                        <span class="note-icon">âš ï¸</span>
                         <span>Important: The Root Prompt</span>
                     </div>
-                    <p>When logged in as the <strong>root</strong> (superuser) account, the prompt ends with <code class="inline">#</code> instead of <code class="inline">$</code>. The root user has full system access—be careful with commands when you see the <code class="inline">#</code> prompt!</p>
+                    <p>When logged in as the <strong>root</strong> (superuser) account, the prompt ends with <code class="inline">#</code> instead of <code class="inline">$</code>. The root user has full system accessâ€”be careful with commands when you see the <code class="inline">#</code> prompt!</p>
                 </div>
 
                 <h3>Basic Command Syntax</h3>
@@ -1610,7 +1635,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="options-content">
                         <span>Understanding Options (Short vs Long)</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="options-content" class="expandable-content">
                         <p>Options come in two formats:</p>
@@ -1665,7 +1690,7 @@
                         <div class="terminal-line">
                             <span class="terminal-prompt">student@workstation:~$</span>
                             <span class="terminal-command">passwd</span>
-                            <span class="terminal-output"> ← Command auto-completed!</span>
+                            <span class="terminal-output"> â† Command auto-completed!</span>
                         </div>
                         <div class="terminal-line">
                             <span class="terminal-prompt">student@workstation:~$</span>
@@ -1675,7 +1700,7 @@
                             <span class="terminal-output">pam.conf  pam.d/  passwd  passwd-</span>
                         </div>
                         <div class="terminal-line">
-                            <span class="terminal-output">← Multiple matches shown. Type more letters to narrow down.</span>
+                            <span class="terminal-output">â† Multiple matches shown. Type more letters to narrow down.</span>
                         </div>
                     </div>
                 </div>
@@ -1692,11 +1717,11 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="kbd">↑</span> Up Arrow</td>
+                            <td><span class="kbd">â†‘</span> Up Arrow</td>
                             <td>Previous command in history</td>
                         </tr>
                         <tr>
-                            <td><span class="kbd">↓</span> Down Arrow</td>
+                            <td><span class="kbd">â†“</span> Down Arrow</td>
                             <td>Next command in history</td>
                         </tr>
                         <tr>
@@ -1746,7 +1771,7 @@
                             <td>Clear from cursor to end of line</td>
                         </tr>
                         <tr>
-                            <td><span class="kbd">Ctrl</span>+<span class="kbd">←</span>/<span class="kbd">→</span></td>
+                            <td><span class="kbd">Ctrl</span>+<span class="kbd">â†</span>/<span class="kbd">â†’</span></td>
                             <td>Move cursor one word left/right</td>
                         </tr>
                         <tr>
@@ -1811,7 +1836,7 @@
                         </div>
                         <div class="warning-box">
                             <div class="warning-box-header">
-                                <span class="note-icon">🔒</span>
+                                <span class="note-icon">ðŸ”’</span>
                                 <span>Password Requirements</span>
                             </div>
                             <p>RHEL enforces password quality rules. Passwords typically must be at least 8 characters, include mixed case, numbers, and special characters, and not be based on dictionary words.</p>
@@ -2105,7 +2130,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
                         <span>Task 1: Display System Information</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-1" class="expandable-content">
                         <p>Use the <code class="inline">date</code> command to display the current date and time in different formats.</p>
@@ -2128,7 +2153,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
                         <span>Task 2: Working with File Contents</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-2" class="expandable-content">
                         <p>Practice viewing file contents using <code class="inline">cat</code>, <code class="inline">head</code>, and <code class="inline">tail</code> commands.</p>
@@ -2151,7 +2176,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
                         <span>Task 3: Using Command History and Tab Completion</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-3" class="expandable-content">
                         <p>Practice using shell efficiency features.</p>
@@ -2174,7 +2199,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
                         <span>Task 4: Identifying File Types</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-4" class="expandable-content">
                         <p>Use the <code class="inline">file</code> command to identify different types of files.</p>
@@ -2197,12 +2222,12 @@
                 <div class="key-points">
                     <h4>Lab Completion Checklist</h4>
                     <ul>
-                        <li>✓ Displayed date in multiple formats</li>
-                        <li>✓ Viewed file contents with cat, head, and tail</li>
-                        <li>✓ Used wc to count lines in a file</li>
-                        <li>✓ Used Tab completion to explore directories</li>
-                        <li>✓ Accessed command history with history command and arrow keys</li>
-                        <li>✓ Identified file types using the file command</li>
+                        <li>âœ“ Displayed date in multiple formats</li>
+                        <li>âœ“ Viewed file contents with cat, head, and tail</li>
+                        <li>âœ“ Used wc to count lines in a file</li>
+                        <li>âœ“ Used Tab completion to explore directories</li>
+                        <li>âœ“ Accessed command history with history command and arrow keys</li>
+                        <li>âœ“ Identified file types using the file command</li>
                     </ul>
                 </div>
             </div>
@@ -2242,7 +2267,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 2 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 2 Complete!</h2>
                     <p>You've learned the fundamentals of accessing and using the Linux command line.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2253,8 +2278,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 2 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 2 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2280,8 +2305,11 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
 
-                    // Remove existing position classes
-                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+                    // Remove existing position classes and reset inline styles
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-edge-left', 'tooltip-edge-right');
+                    tooltip.style.left = '';
+                    tooltip.style.right = '';
+                    tooltip.style.transform = '';
 
                     // Determine best position
                     if (termRect.top > tooltipRect.height + 20) {
@@ -2294,15 +2322,16 @@
                         tooltip.classList.add('tooltip-right');
                     }
 
-                    // Adjust horizontal position if tooltip would overflow
-                    const tooltipLeft = termRect.left + (termRect.width / 2) - (tooltipRect.width / 2);
-                    if (tooltipLeft < 10) {
-                        tooltip.style.left = '10px';
-                        tooltip.style.transform = 'translateX(0)';
-                    } else if (tooltipLeft + tooltipRect.width > viewportWidth - 10) {
-                        tooltip.style.left = 'auto';
-                        tooltip.style.right = '10px';
-                        tooltip.style.transform = 'translateX(0)';
+                    // Adjust horizontal position if tooltip would overflow (for top/bottom)
+                    if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
+                        const tooltipWidth = 300;
+                        const centerX = termRect.left + termRect.width / 2;
+                        
+                        if (centerX - tooltipWidth/2 < 10) {
+                            tooltip.classList.add('tooltip-edge-left');
+                        } else if (centerX + tooltipWidth/2 > viewportWidth - 10) {
+                            tooltip.classList.add('tooltip-edge-right');
+                        }
                     }
                 }
 
@@ -2313,9 +2342,6 @@
 
                 function hideTooltip() {
                     tooltip.classList.remove('show');
-                    tooltip.style.left = '';
-                    tooltip.style.right = '';
-                    tooltip.style.transform = '';
                 }
 
                 // Mouse events
@@ -2439,7 +2465,7 @@
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             // Highlight correct answer
@@ -2450,11 +2476,11 @@
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2573,7 +2599,7 @@
                 updateProgress();
                 
                 // Visual feedback
-                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.textContent = 'âœ“ Chapter Completed!';
                 completeBtn.style.background = 'var(--rh-green)';
                 completeBtn.disabled = true;
                 
@@ -2583,7 +2609,7 @@
 
             // Check if already completed
             if (localStorage.getItem('ch2-complete') === 'true') {
-                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.textContent = 'âœ“ Chapter Completed!';
                 completeBtn.style.background = 'var(--rh-green)';
             }
 

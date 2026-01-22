@@ -505,16 +505,28 @@
             border-right-color: var(--rh-black);
         }
 
-        /* Edge adjustments */
+        /* Edge adjustments for top/bottom tooltips */
         .tooltip-adjust-left {
             left: 0 !important;
-            transform: translateX(0) translateY(-50%) !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip-adjust-left::before {
+            left: 20px !important;
+            transform: translateX(0) !important;
         }
 
         .tooltip-adjust-right {
             left: auto !important;
             right: 0 !important;
-            transform: translateX(0) translateY(-50%) !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip-adjust-right::before {
+            left: auto !important;
+            right: 20px !important;
+            transform: translateX(0) !important;
         }
 
         .term:hover .tooltip,
@@ -588,7 +600,7 @@
         }
 
         .objectives-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             top: 0;
@@ -1377,7 +1389,7 @@
         }
 
         .summary-list li::before {
-            content: '▶';
+            content: 'â–¶';
             position: absolute;
             left: 0;
             color: var(--rh-red);
@@ -1608,27 +1620,27 @@
     <header class="hero-header" role="banner">
         <div class="hero-content">
             <span class="course-badge">
-                <span aria-hidden="true">🎓</span>
-                RH124 • Course Introduction
+                <span aria-hidden="true">ðŸŽ“</span>
+                RH124 â€¢ Course Introduction
             </span>
             <h1>Red Hat System Administration I</h1>
-            <p class="hero-subtitle">Welcome to your journey into enterprise Linux administration. Master the essential skills to manage and maintain Red Hat Enterprise Linux 10 systems.</p>
+            <p class="hero-subtitle">Welcome to your journey into enterprise Linux administration. Master the essential skills to manage and maintain Red Hat Enterprise Linux systems.</p>
             
             <div class="hero-meta">
                 <div class="meta-item">
-                    <span aria-hidden="true">📚</span>
+                    <span aria-hidden="true">ðŸ“š</span>
                     <span>15-Week Course</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">⏱️</span>
+                    <span aria-hidden="true">â±ï¸</span>
                     <span>75+ Hours Content</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">🏆</span>
+                    <span aria-hidden="true">ðŸ†</span>
                     <span>RHCSA Exam Prep</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">💻</span>
+                    <span aria-hidden="true">ðŸ’»</span>
                     <span>Hands-on Labs</span>
                 </div>
             </div>
@@ -1674,7 +1686,7 @@
             </div>
             <div class="section-body">
                 <div class="welcome-box">
-                    <h3>🎉 Welcome, Future Linux Administrator!</h3>
+                    <h3>ðŸŽ‰ Welcome, Future Linux Administrator!</h3>
                     <p>You're about to embark on an exciting journey into the world of enterprise Linux. <span class="term" tabindex="0" data-tooltip="Red Hat System Administration I - The first course in the RHCSA certification track covering essential Linux administration skills.">RH124</span> is your gateway to becoming a skilled system administrator capable of managing mission-critical infrastructure.</p>
                     <p>This course builds the foundation you'll need for the <span class="term" tabindex="0" data-tooltip="Red Hat Certified System Administrator - A professional certification validating skills in core system administration on Red Hat Enterprise Linux.">RHCSA certification</span>, the industry-recognized credential that validates your Linux administration skills.</p>
                 </div>
@@ -1701,7 +1713,7 @@
                 </div>
 
                 <div class="key-points">
-                    <h4>💡 What You'll Gain</h4>
+                    <h4>ðŸ’¡ What You'll Gain</h4>
                     <ul>
                         <li>Practical, hands-on skills that translate directly to real-world job responsibilities</li>
                         <li>Deep understanding of Linux fundamentals applicable across all distributions</li>
@@ -1719,32 +1731,32 @@
                 <h2 id="overview-heading">Course Overview</h2>
             </div>
             <div class="section-body">
-                <p>RH124 (Red Hat System Administration I) is the first course in the <span class="term" tabindex="0" data-tooltip="A professional certification track that validates practical Linux system administration skills through hands-on, performance-based exams.">RHCSA certification track</span>. This comprehensive course covers essential skills for system administrators who need to manage and support Red Hat Enterprise Linux 10 systems.</p>
+                <p>RH124 (Red Hat System Administration I) is the first course in the <span class="term" tabindex="0" data-tooltip="A professional certification track that validates practical Linux system administration skills through hands-on, performance-based exams.">RHCSA certification track</span>. This comprehensive course covers essential skills for system administrators who need to manage and support Red Hat Enterprise Linux systems.</p>
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🖥️</span> Command Line Mastery</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ–¥ï¸</span> Command Line Mastery</h4>
                         <p>Learn to efficiently navigate and manage Linux systems using the powerful <span class="term" tabindex="0" data-tooltip="Bourne Again Shell - The default command-line interpreter in RHEL that provides a text-based interface for running commands and scripts.">bash shell</span> and essential command-line tools.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📁</span> File System Management</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“</span> File System Management</h4>
                         <p>Master the Linux file system hierarchy, file permissions, and storage management techniques.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">👥</span> User Administration</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ‘¥</span> User Administration</h4>
                         <p>Manage users, groups, and access controls to maintain secure multi-user environments.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🔧</span> System Services</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ”§</span> System Services</h4>
                         <p>Control and configure system services using <span class="term" tabindex="0" data-tooltip="The system and service manager for Linux that controls what programs run when a Linux system boots.">systemd</span> for reliable service management.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Network Configuration</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸŒ</span> Network Configuration</h4>
                         <p>Configure basic networking settings to enable system connectivity and remote access.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📦</span> Software Management</h4>
-                        <p>Install, update, and manage software packages using <span class="term" tabindex="0" data-tooltip="Dandified YUM - The package manager for RHEL 8+ that handles software installation, updates, and dependency resolution.">DNF</span>, RPM, and <span class="term" tabindex="0" data-tooltip="A universal application packaging format that provides sandboxed applications with all dependencies included.">Flatpak</span>.</p>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“¦</span> Software Management</h4>
+                        <p>Install, update, and manage software packages using <span class="term" tabindex="0" data-tooltip="Dandified YUM - The package manager for RHEL 8+ that handles software installation, updates, and dependency resolution.">DNF</span> and RPM tools.</p>
                     </div>
                 </div>
 
@@ -1752,15 +1764,15 @@
                     <h4 class="diagram-title">Course Learning Path</h4>
                     <div class="flow-diagram">
                         <div class="flow-box highlight">RH124</div>
-                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <span class="flow-arrow" aria-hidden="true">â†’</span>
                         <div class="flow-box">RH134</div>
-                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <span class="flow-arrow" aria-hidden="true">â†’</span>
                         <div class="flow-box highlight-blue">RHCSA Exam</div>
                     </div>
                 </div>
 
                 <div class="note-box">
-                    <p class="note-box-title">📘 Course Format</p>
+                    <p class="note-box-title">ðŸ“˜ Course Format</p>
                     <p>This course combines instructor-led lectures with extensive hands-on laboratory exercises. You'll spend approximately 50% of your time in labs, applying concepts in realistic scenarios.</p>
                 </div>
             </div>
@@ -1778,18 +1790,16 @@
                     <ul class="objectives-list">
                         <li>Access the command line and manage files from the shell</li>
                         <li>Navigate the Linux file system hierarchy and locate files</li>
-                        <li>Get help from man pages, info documentation, and AI assistants</li>
-                        <li>Register systems for Red Hat support and updates</li>
+                        <li>Get help from man pages, info documentation, and other sources</li>
                         <li>Create, view, edit, and manage text files using command-line tools</li>
                         <li>Manage local users, groups, and password policies</li>
                         <li>Control file access with Linux file system permissions</li>
-                        <li>Redirect shell input and output for efficient scripting</li>
                         <li>Monitor and manage Linux processes and system resources</li>
                         <li>Control and configure system services with systemd</li>
                         <li>Configure networking and basic firewall settings</li>
-                        <li>Install software using RPM and Flatpak package formats</li>
-                        <li>Configure and secure SSH for remote access</li>
-                        <li>Analyze and store system logs for troubleshooting</li>
+                        <li>Mount and unmount file systems, and archive files</li>
+                        <li>Install and update software packages using DNF</li>
+                        <li>Schedule recurring tasks with cron and manage temporary files</li>
                     </ul>
                 </div>
 
@@ -1799,27 +1809,27 @@
                 
                 <div class="explore-grid" role="tablist" aria-label="Topic exploration">
                     <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="cli">
-                        <span class="explore-icon" aria-hidden="true">💻</span>
+                        <span class="explore-icon" aria-hidden="true">ðŸ’»</span>
                         <h4>Command Line</h4>
                         <p>Shell navigation & commands</p>
                     </div>
                     <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="files">
-                        <span class="explore-icon" aria-hidden="true">📂</span>
+                        <span class="explore-icon" aria-hidden="true">ðŸ“‚</span>
                         <h4>File Management</h4>
                         <p>Organization & permissions</p>
                     </div>
                     <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="users">
-                        <span class="explore-icon" aria-hidden="true">👤</span>
+                        <span class="explore-icon" aria-hidden="true">ðŸ‘¤</span>
                         <h4>User Admin</h4>
                         <p>Accounts & security</p>
                     </div>
                     <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="services">
-                        <span class="explore-icon" aria-hidden="true">⚙️</span>
+                        <span class="explore-icon" aria-hidden="true">âš™ï¸</span>
                         <h4>Services</h4>
                         <p>systemd management</p>
                     </div>
                     <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="network">
-                        <span class="explore-icon" aria-hidden="true">🌐</span>
+                        <span class="explore-icon" aria-hidden="true">ðŸŒ</span>
                         <h4>Networking</h4>
                         <p>Configuration & connectivity</p>
                     </div>
@@ -1827,19 +1837,18 @@
 
                 <!-- Topic Details -->
                 <div class="explore-detail" id="detail-cli" role="tabpanel">
-                    <h4>🖥️ Command Line Interface Mastery</h4>
-                    <p>The command line is the heart of Linux administration. In RHEL 10, you'll learn:</p>
+                    <h4>ðŸ–¥ï¸ Command Line Interface Mastery</h4>
+                    <p>The command line is the heart of Linux administration. You'll learn:</p>
                     <ul>
                         <li>Navigating the shell with <code class="inline">cd</code>, <code class="inline">pwd</code>, and <code class="inline">ls</code></li>
                         <li>Using tab completion and command history for efficiency</li>
                         <li>Understanding shell expansion and quoting</li>
                         <li>Managing virtual consoles and SSH remote access</li>
                         <li>Reading and navigating man pages and documentation</li>
-                        <li>Using AI assistants for help (new in RHEL 10!)</li>
                     </ul>
                 </div>
                 <div class="explore-detail" id="detail-files" role="tabpanel">
-                    <h4>📂 File System Management</h4>
+                    <h4>ðŸ“‚ File System Management</h4>
                     <p>Linux organizes everything as files. You'll master:</p>
                     <ul>
                         <li>The Linux <span class="term" tabindex="0" data-tooltip="Filesystem Hierarchy Standard - The standard directory structure for Linux systems defining where different types of files should be stored.">FHS</span> directory structure</li>
@@ -1850,7 +1859,7 @@
                     </ul>
                 </div>
                 <div class="explore-detail" id="detail-users" role="tabpanel">
-                    <h4>👤 User and Group Administration</h4>
+                    <h4>ðŸ‘¤ User and Group Administration</h4>
                     <p>Security starts with proper access control. You'll learn:</p>
                     <ul>
                         <li>Creating and managing user accounts with <code class="inline">useradd</code></li>
@@ -1861,19 +1870,18 @@
                     </ul>
                 </div>
                 <div class="explore-detail" id="detail-services" role="tabpanel">
-                    <h4>⚙️ System Services with systemd</h4>
-                    <p>RHEL 10 uses systemd for service management. You'll master:</p>
+                    <h4>âš™ï¸ System Services with systemd</h4>
+                    <p>Modern Linux uses systemd for service management. You'll master:</p>
                     <ul>
                         <li>Understanding systemd units and targets</li>
                         <li>Starting, stopping, and restarting services with <code class="inline">systemctl</code></li>
                         <li>Enabling services to start at boot</li>
                         <li>Viewing service status and troubleshooting</li>
                         <li>Analyzing boot performance with <code class="inline">systemd-analyze</code></li>
-                        <li>Working with GNOME 47 desktop environment on Wayland</li>
                     </ul>
                 </div>
                 <div class="explore-detail" id="detail-network" role="tabpanel">
-                    <h4>🌐 Network Configuration</h4>
+                    <h4>ðŸŒ Network Configuration</h4>
                     <p>Connect your systems to the network. You'll learn:</p>
                     <ul>
                         <li>Understanding IPv4 networking fundamentals</li>
@@ -1903,76 +1911,57 @@
                     </div>
                     
                     <div id="tab-rh124" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-rh124">
-                        <h4>RH124: Red Hat System Administration I (RHEL 10)</h4>
-                        <p style="margin-bottom: 16px;">Covers Weeks 1-7 of the semester (Chapters 1-20):</p>
+                        <h4>RH124: Red Hat System Administration I</h4>
+                        <p style="margin-bottom: 16px;">Covers Weeks 1-8 of the semester:</p>
                         <ul>
-                            <li><strong>Chapter 1:</strong> Introduction to Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 2:</strong> Accessing the Command Line</li>
-                            <li><strong>Chapter 3:</strong> Getting Help in Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 4:</strong> Registering Systems for Red Hat Support</li>
-                            <li><strong>Chapter 5:</strong> Getting Help Using AI Assistants</li>
-                            <li><strong>Chapter 6:</strong> Navigating the File-system Hierarchy</li>
-                            <li><strong>Chapter 7:</strong> Managing Files from the Command Line</li>
-                            <li><strong>Chapter 8:</strong> Editing Text Files from the Shell</li>
-                            <li><strong>Chapter 9:</strong> Redirecting Shell Input and Output</li>
-                            <li><strong>Chapter 10:</strong> Managing Local Users and Groups</li>
-                            <li><strong>Chapter 11:</strong> Controlling Access to Files</li>
-                            <li><strong>Chapter 12:</strong> Installing Software with RPM</li>
-                            <li><strong>Chapter 13:</strong> Installing Software with Flatpak</li>
-                            <li><strong>Chapter 14:</strong> Accessing Removable Media</li>
-                            <li><strong>Chapter 15:</strong> Monitoring and Managing Linux Processes</li>
-                            <li><strong>Chapter 16:</strong> Controlling Services and Daemons</li>
-                            <li><strong>Chapter 17:</strong> Introduction to Linux Networking</li>
-                            <li><strong>Chapter 18:</strong> Managing Network Configuration</li>
-                            <li><strong>Chapter 19:</strong> Configuring and Securing SSH</li>
-                            <li><strong>Chapter 20:</strong> Analyzing and Storing Logs</li>
+                            <li><strong>Chapter 1:</strong> Get Started with Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 2:</strong> Access the Command Line</li>
+                            <li><strong>Chapter 3:</strong> Manage Files from the Command Line</li>
+                            <li><strong>Chapter 4:</strong> Get Help in Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 5:</strong> Create, View, and Edit Text Files</li>
+                            <li><strong>Chapter 6:</strong> Manage Local Users and Groups</li>
+                            <li><strong>Chapter 7:</strong> Control Access to Files</li>
+                            <li><strong>Chapter 8:</strong> Monitor and Manage Linux Processes</li>
+                            <li><strong>Chapter 9:</strong> Control Services and Daemons</li>
+                            <li><strong>Chapter 10:</strong> Configure and Secure SSH</li>
+                            <li><strong>Chapter 11:</strong> Analyze and Store Logs</li>
+                            <li><strong>Chapter 12:</strong> Manage Networking</li>
+                            <li><strong>Chapter 13:</strong> Install and Update Software</li>
+                            <li><strong>Chapter 14:</strong> Access Linux File Systems</li>
+                            <li><strong>Chapter 15:</strong> Analyze Servers and Get Support</li>
                         </ul>
                     </div>
                     
                     <div id="tab-rh134" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-rh134">
-                        <h4>RH134: Red Hat System Administration II (RHEL 10)</h4>
-                        <p style="margin-bottom: 16px;">Covers Weeks 8-15 of the semester (Chapters 1-19):</p>
+                        <h4>RH134: Red Hat System Administration II</h4>
+                        <p style="margin-bottom: 16px;">Covers Weeks 9-15 of the semester:</p>
                         <ul>
                             <li><strong>Chapter 1:</strong> Improve Command-line Productivity</li>
-                            <li><strong>Chapter 2:</strong> Scheduling Future Tasks</li>
-                            <li><strong>Chapter 3:</strong> Configuring Time Synchronization</li>
-                            <li><strong>Chapter 4:</strong> Managing SELinux Security</li>
-                            <li><strong>Chapter 5:</strong> Managing Basic Storage</li>
-                            <li><strong>Chapter 6:</strong> Managing Storage with Logical Volume Manager</li>
-                            <li><strong>Chapter 7:</strong> Implementing Advanced Storage Features</li>
-                            <li><strong>Chapter 8:</strong> Managing Layered Storage with Stratis</li>
-                            <li><strong>Chapter 9:</strong> Tuning System Performance</li>
-                            <li><strong>Chapter 10:</strong> Managing Basic Storage (Advanced)</li>
-                            <li><strong>Chapter 11:</strong> Manage Logical Volumes</li>
-                            <li><strong>Chapter 12:</strong> Controlling the Boot Process</li>
-                            <li><strong>Chapter 13:</strong> Recovering Superuser Access</li>
-                            <li><strong>Chapter 14:</strong> Managing Network Security</li>
-                            <li><strong>Chapter 15:</strong> Accessing Network-attached Storage</li>
-                            <li><strong>Chapter 16:</strong> Installing Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 17:</strong> Managing Containers with Podman</li>
-                            <li><strong>Chapter 18:</strong> Managing Image-based Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 19:</strong> Comprehensive Review</li>
+                            <li><strong>Chapter 2:</strong> Schedule Future Tasks</li>
+                            <li><strong>Chapter 3:</strong> Tune System Performance</li>
+                            <li><strong>Chapter 4:</strong> Manage SELinux Security</li>
+                            <li><strong>Chapter 5:</strong> Manage Basic Storage</li>
+                            <li><strong>Chapter 6:</strong> Manage Logical Volumes</li>
+                            <li><strong>Chapter 7:</strong> Implement Advanced Storage Features</li>
+                            <li><strong>Chapter 8:</strong> Access Network-Attached Storage</li>
+                            <li><strong>Chapter 9:</strong> Control the Boot Process</li>
+                            <li><strong>Chapter 10:</strong> Manage Network Security</li>
+                            <li><strong>Chapter 11:</strong> Run Containers</li>
                         </ul>
                     </div>
                     
                     <div id="tab-schedule" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-schedule">
-                        <h4>Semester Schedule Overview (RHEL 10)</h4>
+                        <h4>Semester Schedule Overview</h4>
                         <p style="margin-bottom: 16px;">Weekly breakdown of the complete course:</p>
                         <ul>
-                            <li><strong>Week 1:</strong> Introduction, Ch 1-3 (Intro to RHEL, Command Line, Getting Help)</li>
-                            <li><strong>Week 2:</strong> Ch 4-7 (Registration, AI Help, File Hierarchy, Managing Files)</li>
-                            <li><strong>Week 3:</strong> Ch 8-10 (Text Editing, Shell I/O, Users & Groups)</li>
-                            <li><strong>Week 4:</strong> Ch 11-13 (File Access, RPM, Flatpak)</li>
-                            <li><strong>Week 5:</strong> Ch 14-15 (Removable Media, Process Management)</li>
-                            <li><strong>Week 6:</strong> Ch 16-19 (Services, Networking Intro, Config, SSH)</li>
-                            <li><strong>Week 7:</strong> Ch 20 + <em>Midterm Exam</em></li>
-                            <li><strong>Week 8:</strong> RH134 Ch 1-4 (Productivity, Tasks, Time Sync, SELinux)</li>
-                            <li><strong>Week 9:</strong> <em>Spring Break</em></li>
-                            <li><strong>Week 10:</strong> RH134 Ch 5-8 (Storage, LVM, Advanced Storage, Stratis)</li>
-                            <li><strong>Week 11:</strong> RH134 Ch 9-11 (Performance Tuning, Storage, LVM)</li>
-                            <li><strong>Week 12:</strong> RH134 Ch 12-14 (Boot Process, Superuser Recovery, Network Security)</li>
-                            <li><strong>Week 13:</strong> RH134 Ch 15-18 (NAS, Installation, Podman, Image-based RHEL)</li>
-                            <li><strong>Week 14:</strong> Ch 19 + <em>Make-up Week & Comprehensive Review</em></li>
+                            <li><strong>Weeks 1-3:</strong> RH124 Chapters 1-5 (Command Line Fundamentals)</li>
+                            <li><strong>Weeks 4-6:</strong> RH124 Chapters 6-10 (Users, Permissions, Services)</li>
+                            <li><strong>Week 7:</strong> RH124 Chapters 11-13 + Midterm Review</li>
+                            <li><strong>Week 8:</strong> <em>Midterm Exam</em></li>
+                            <li><strong>Week 9:</strong> RH124 Chapters 14-15 + RH134 Begin</li>
+                            <li><strong>Weeks 10-12:</strong> RH134 Chapters 2-7 (Advanced Administration)</li>
+                            <li><strong>Week 13:</strong> <em>Spring Break / Make-up Week</em></li>
+                            <li><strong>Week 14:</strong> RH134 Chapters 8-11 (Storage, Containers)</li>
                             <li><strong>Week 15:</strong> <em>Final Exam / RHCSA Preparation</em></li>
                         </ul>
                     </div>
@@ -2045,14 +2034,14 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-classroom">
-                        <span>🏫 Classroom Lab Environment</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ« Classroom Lab Environment</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="env-classroom" class="expandable-content">
                         <div class="expandable-inner">
                             <p>The classroom provides fully configured lab stations with:</p>
                             <ul>
-                                <li>Pre-installed RHEL 10 workstations with GNOME 47 desktop</li>
+                                <li>Pre-installed RHEL 10 workstations</li>
                                 <li>Virtual machine environment for hands-on exercises</li>
                                 <li>Network connectivity to lab servers</li>
                                 <li>Access to the Red Hat Training environment</li>
@@ -2064,8 +2053,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-home">
-                        <span>🏠 Personal Practice Environment</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ  Personal Practice Environment</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="env-home" class="expandable-content">
                         <div class="expandable-inner">
@@ -2083,8 +2072,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-systems">
-                        <span>💻 Lab System Overview</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ’» Lab System Overview</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="env-systems" class="expandable-content">
                         <div class="expandable-inner">
@@ -2105,7 +2094,7 @@
                 </div>
 
                 <div class="note-box success">
-                    <p class="note-box-title">✓ Getting Started Tip</p>
+                    <p class="note-box-title">âœ“ Getting Started Tip</p>
                     <p>Don't worry if the environment seems complex at first! Your initial labs will guide you through connecting to and using each system. By the end of Week 1, navigating the lab will feel natural.</p>
                 </div>
             </div>
@@ -2124,19 +2113,19 @@
                 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">⌨️</span> Basic Computer Skills</h4>
+                        <h4><span class="card-icon" aria-hidden="true">âŒ¨ï¸</span> Basic Computer Skills</h4>
                         <p>Comfortable using a computer, navigating applications, and basic file operations in any operating system.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🔤</span> Text Editing</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ”¤</span> Text Editing</h4>
                         <p>Experience with any text editor (Notepad, Word, etc.). You'll learn Linux editors during the course.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Network Basics</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸŒ</span> Network Basics</h4>
                         <p>Understanding of what IP addresses are and basic network concepts (can be learned alongside the course).</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📚</span> Learning Commitment</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“š</span> Learning Commitment</h4>
                         <p>Willingness to practice outside of class. Linux skills develop through hands-on repetition.</p>
                     </div>
                 </div>
@@ -2151,7 +2140,7 @@
                 </ul>
 
                 <div class="key-points">
-                    <h4>⏰ Time Commitment</h4>
+                    <h4>â° Time Commitment</h4>
                     <p>Plan to dedicate sufficient time for success in this course:</p>
                     <ul>
                         <li><strong>Class Time:</strong> 3-4 hours per week (lecture + lab)</li>
@@ -2170,7 +2159,7 @@
                 <h2 id="assessment-heading">Self-Assessment</h2>
             </div>
             <div class="section-body">
-                <p>This brief quiz helps you assess your readiness for the course. Don't worry if you can't answer all questions—the course will cover everything you need!</p>
+                <p>This brief quiz helps you assess your readiness for the course. Don't worry if you can't answer all questionsâ€”the course will cover everything you need!</p>
 
                 <div class="quiz-container">
                     <div class="quiz-header">
@@ -2303,7 +2292,7 @@
                 </div>
 
                 <div class="note-box" style="margin-top: 24px;">
-                    <p class="note-box-title">📝 About This Assessment</p>
+                    <p class="note-box-title">ðŸ“ About This Assessment</p>
                     <p>This quiz is for self-evaluation only and is not graded. Even if you miss some questions, don't worry! The course starts from fundamentals and builds up your knowledge progressively.</p>
                 </div>
             </div>
@@ -2320,8 +2309,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="true" aria-controls="res-official">
-                        <span>📕 Official Red Hat Resources</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ“• Official Red Hat Resources</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="res-official" class="expandable-content expanded">
                         <div class="expandable-inner">
@@ -2337,8 +2326,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-community">
-                        <span>🌐 Community Resources</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸŒ Community Resources</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="res-community" class="expandable-content">
                         <div class="expandable-inner">
@@ -2354,8 +2343,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-exam">
-                        <span>🏆 Certification Resources</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ† Certification Resources</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="res-exam" class="expandable-content">
                         <div class="expandable-inner">
@@ -2365,15 +2354,15 @@
                                 <li><strong>Practice Exams:</strong> Various third-party practice tests available</li>
                                 <li><strong>Study Groups:</strong> Join or form study groups with classmates</li>
                             </ul>
-                            <p style="margin-top: 12px;"><strong>Exam Code:</strong> EX200 (RHCSA exam for RHEL 10)</p>
+                            <p style="margin-top: 12px;"><strong>Exam Code:</strong> EX200 (RHCSA exam for RHEL 9)</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-books">
-                        <span>📚 Recommended Reading</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ“š Recommended Reading</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="res-books" class="expandable-content">
                         <div class="expandable-inner">
@@ -2388,9 +2377,9 @@
                 </div>
 
                 <div class="key-points">
-                    <h4>💡 Resource Usage Tips</h4>
+                    <h4>ðŸ’¡ Resource Usage Tips</h4>
                     <ul>
-                        <li>The <code class="inline">man</code> command is your best friend—use it often!</li>
+                        <li>The <code class="inline">man</code> command is your best friendâ€”use it often!</li>
                         <li>Official Red Hat documentation should be your first reference</li>
                         <li>Practice in your lab environment to reinforce learning</li>
                         <li>Don't hesitate to ask questions in class or office hours</li>
@@ -2447,25 +2436,24 @@
                     </li>
                     <li class="checklist-item">
                         <input type="checkbox" class="checklist-checkbox" id="check-10" aria-label="Get excited to learn Linux">
-                        <label class="checklist-label" for="check-10">Get excited about your journey into Linux administration! 🚀</label>
+                        <label class="checklist-label" for="check-10">Get excited about your journey into Linux administration! ðŸš€</label>
                     </li>
                 </ul>
 
                 <div class="summary-box" style="margin-top: 30px;">
                     <h3>Course Introduction Summary</h3>
                     <ul class="summary-list">
-                        <li><strong>RH124 is the foundation</strong> for your RHCSA certification journey, covering essential RHEL 10 administration skills.</li>
+                        <li><strong>RH124 is the foundation</strong> for your RHCSA certification journey, covering essential Linux administration skills.</li>
                         <li><strong>The course structure</strong> spans 15 weeks with RH124 in the first half and RH134 in the second half, preparing you for the RHCSA exam.</li>
-                        <li><strong>RHEL 10 introduces</strong> new features including AI-assisted help, Flatpak software management, GNOME 47 desktop, and image-based deployment.</li>
-                        <li><strong>Hands-on practice</strong> is essential—expect to spend significant time in labs applying what you learn.</li>
+                        <li><strong>Hands-on practice</strong> is essentialâ€”expect to spend significant time in labs applying what you learn.</li>
                         <li><strong>No prior Linux experience</strong> is required, but basic computer skills and commitment to learning are essential.</li>
-                        <li><strong>Resources abound</strong>—from official Red Hat documentation to community forums, help is always available.</li>
+                        <li><strong>Resources abound</strong>â€”from official Red Hat documentation to community forums, help is always available.</li>
                         <li><strong>Your success depends</strong> on consistent practice, asking questions, and engaging with the material.</li>
                     </ul>
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎯 Ready to Begin!</h2>
+                    <h2>ðŸŽ¯ Ready to Begin!</h2>
                     <p>You've completed the course introduction. Next up: Chapter 1 - Introduction to Red Hat Enterprise Linux!</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Introduction Complete</button>
                 </div>
@@ -2476,8 +2464,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Course Introduction • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.85rem;">© Red Hat, Inc. Course materials adapted for educational use.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Course Introduction â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">Â© Red Hat, Inc. Course materials adapted for educational use.</p>
     </footer>
 
     <!-- JavaScript - All functionality with embedded code for Canvas LMS compatibility -->
@@ -2694,7 +2682,7 @@
                                 score++;
                                 selectedLabel.classList.add('correct');
                                 feedback.className = 'quiz-feedback show correct';
-                                feedback.innerHTML = '✓ Correct! Great job.';
+                                feedback.innerHTML = 'âœ“ Correct! Great job.';
                             } else {
                                 selectedLabel.classList.add('incorrect');
                                 // Highlight correct answer
@@ -2705,11 +2693,11 @@
                                     }
                                 });
                                 feedback.className = 'quiz-feedback show incorrect';
-                                feedback.innerHTML = '✗ Not quite. See the correct answer highlighted above.';
+                                feedback.innerHTML = 'âœ— Not quite. See the correct answer highlighted above.';
                             }
                         } else {
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '⚠ Please select an answer.';
+                            feedback.innerHTML = 'âš  Please select an answer.';
                         }
                     });
 
@@ -2856,7 +2844,7 @@
                     updateProgress();
                     
                     // Visual feedback
-                    completeBtn.textContent = '✓ Introduction Completed!';
+                    completeBtn.textContent = 'âœ“ Introduction Completed!';
                     completeBtn.style.background = '#339933';
                     completeBtn.disabled = true;
                     
@@ -2866,7 +2854,7 @@
 
                 // Check if already completed
                 if (localStorage.getItem('intro-complete') === 'true') {
-                    completeBtn.textContent = '✓ Introduction Completed!';
+                    completeBtn.textContent = 'âœ“ Introduction Completed!';
                     completeBtn.style.background = '#339933';
                 }
             }

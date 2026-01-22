@@ -604,7 +604,7 @@
         }
 
         .objectives-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             top: 0;
@@ -1118,7 +1118,7 @@
         }
 
         .summary-list li::before {
-            content: '▶';
+            content: 'â–¶';
             position: absolute;
             left: 0;
             color: var(--rh-red);
@@ -1228,7 +1228,7 @@
     <!-- Main Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • RHEL 10</span>
+            <span class="course-badge">RH124 â€¢ RHEL 10</span>
             <h1>Chapter 6: Navigating the File-system Hierarchy</h1>
             <p class="chapter-subtitle">Understand how Linux organizes files and directories, and master navigation commands to efficiently explore your system</p>
         </div>
@@ -1297,10 +1297,10 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon">📁</span>
+                        <span class="note-icon">ðŸ“</span>
                         <span>Everything is a File</span>
                     </div>
-                    <p>In Linux, almost everything is represented as a file—not just documents and images, but also hardware devices, processes, and even system information. This unified approach simplifies system administration and makes Linux remarkably flexible.</p>
+                    <p>In Linux, almost everything is represented as a fileâ€”not just documents and images, but also hardware devices, processes, and even system information. This unified approach simplifies system administration and makes Linux remarkably flexible.</p>
                 </div>
 
                 <h3>The Root Directory</h3>
@@ -1308,7 +1308,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">📝</span>
+                        <span class="note-icon">ðŸ“</span>
                         <span>Content Types in Directories</span>
                     </div>
                     <p>Directory contents are classified by type:</p>
@@ -1338,47 +1338,47 @@
                     <div class="tree-container">
                         <div class="tree-root">/ (root)</div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="bin">
-                            <span class="tree-icon">📁</span>
-                            <span class="tree-folder">/bin</span> → /usr/bin
+                            <span class="tree-icon">ðŸ“</span>
+                            <span class="tree-folder">/bin</span> â†’ /usr/bin
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="boot">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/boot</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="dev">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/dev</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="etc">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/etc</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="home">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/home</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="root">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/root</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="run">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/run</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="sbin">
-                            <span class="tree-icon">📁</span>
-                            <span class="tree-folder">/sbin</span> → /usr/sbin
+                            <span class="tree-icon">ðŸ“</span>
+                            <span class="tree-folder">/sbin</span> â†’ /usr/sbin
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="tmp">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/tmp</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="usr">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/usr</span>
                         </div>
                         <div class="tree-item" tabindex="0" role="treeitem" data-dir="var">
-                            <span class="tree-icon">📁</span>
+                            <span class="tree-icon">ðŸ“</span>
                             <span class="tree-folder">/var</span>
                         </div>
                     </div>
@@ -1390,7 +1390,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon">⚠️</span>
+                        <span class="note-icon">âš ï¸</span>
                         <span>Symbolic Links in RHEL 10</span>
                     </div>
                     <p>In RHEL 10, several traditional directories are now <span class="term" tabindex="0">symbolic links<span class="tooltip tooltip-bottom">A symbolic link (symlink) is a special type of file that points to another file or directory, similar to a shortcut in Windows.</span></span> to directories under <code class="inline">/usr</code>. For example, <code class="inline">/bin</code> is a symbolic link to <code class="inline">/usr/bin</code>, and <code class="inline">/sbin</code> links to <code class="inline">/usr/sbin</code>. This is part of the <strong>UsrMerge</strong> initiative to simplify the filesystem.</p>
@@ -1472,27 +1472,27 @@
                 <h3>Important Subdirectories</h3>
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📚</span> /usr/bin</h4>
+                        <h4><span class="card-icon">ðŸ“š</span> /usr/bin</h4>
                         <p>User commands and utilities. Contains most of the executable programs available to regular users.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔧</span> /usr/sbin</h4>
+                        <h4><span class="card-icon">ðŸ”§</span> /usr/sbin</h4>
                         <p>System administration binaries. Commands typically used by root for system maintenance.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📖</span> /usr/share</h4>
+                        <h4><span class="card-icon">ðŸ“–</span> /usr/share</h4>
                         <p>Architecture-independent data like documentation, man pages, and default configuration files.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📋</span> /var/log</h4>
+                        <h4><span class="card-icon">ðŸ“‹</span> /var/log</h4>
                         <p>System log files. Critical for troubleshooting and monitoring system health.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📦</span> /var/cache</h4>
+                        <h4><span class="card-icon">ðŸ“¦</span> /var/cache</h4>
                         <p>Application cache data, including package manager caches.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔒</span> /etc/sysconfig</h4>
+                        <h4><span class="card-icon">ðŸ”’</span> /etc/sysconfig</h4>
                         <p>RHEL-specific system configuration files for services and system settings.</p>
                     </div>
                 </div>
@@ -1517,7 +1517,7 @@
                     
                     <div id="tab-pwd" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-pwd">
                         <h4>pwd - Print Working Directory</h4>
-                        <p>The <code class="inline">pwd</code> command displays the absolute path of your <span class="term" tabindex="0">current working directory<span class="tooltip tooltip-bottom">The current working directory is the directory where you are currently located in the filesystem. It's the context for relative path references.</span></span>—your current location in the filesystem.</p>
+                        <p>The <code class="inline">pwd</code> command displays the absolute path of your <span class="term" tabindex="0">current working directory<span class="tooltip tooltip-bottom">The current working directory is the directory where you are currently located in the filesystem. It's the context for relative path references.</span></span>â€”your current location in the filesystem.</p>
                         <div class="code-block">
                             <span class="code-title">pwd Examples</span>
                             <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">pwd</span>
@@ -1531,7 +1531,7 @@
 <span class="code-comment"># but pwd always shows the full absolute path</span></code>
                         </div>
                         <div class="key-points">
-                            <h4>💡 When to Use pwd</h4>
+                            <h4>ðŸ’¡ When to Use pwd</h4>
                             <ul>
                                 <li>When you're unsure of your current location</li>
                                 <li>Before running commands that depend on your location</li>
@@ -1572,14 +1572,14 @@
                         </div>
                         <div class="info-box">
                             <div class="info-box-header">
-                                <span class="note-icon">🔄</span>
+                                <span class="note-icon">ðŸ”„</span>
                                 <span>cd Shortcuts</span>
                             </div>
                             <ul>
-                                <li><code class="inline">cd</code> or <code class="inline">cd ~</code> — Go to your home directory</li>
-                                <li><code class="inline">cd -</code> — Return to your previous directory</li>
-                                <li><code class="inline">cd ..</code> — Go up one level (parent directory)</li>
-                                <li><code class="inline">cd ~username</code> — Go to another user's home directory</li>
+                                <li><code class="inline">cd</code> or <code class="inline">cd ~</code> â€” Go to your home directory</li>
+                                <li><code class="inline">cd -</code> â€” Return to your previous directory</li>
+                                <li><code class="inline">cd ..</code> â€” Go up one level (parent directory)</li>
+                                <li><code class="inline">cd ~username</code> â€” Go to another user's home directory</li>
                             </ul>
                         </div>
                     </div>
@@ -1687,15 +1687,15 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📍</span> . (single dot)</h4>
+                        <h4><span class="card-icon">ðŸ“</span> . (single dot)</h4>
                         <p>Refers to the <strong>current directory</strong>. Useful when you need to explicitly reference where you are now.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">⬆️</span> .. (double dot)</h4>
+                        <h4><span class="card-icon">â¬†ï¸</span> .. (double dot)</h4>
                         <p>Refers to the <strong>parent directory</strong>. Use this to move up one level in the directory tree.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🏠</span> ~ (tilde)</h4>
+                        <h4><span class="card-icon">ðŸ </span> ~ (tilde)</h4>
                         <p>Shortcut to your <strong>home directory</strong>. <code class="inline">~bob</code> refers to user bob's home directory.</p>
                     </div>
                 </div>
@@ -1912,7 +1912,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
                         <span>Task 1: Explore Your Home Directory</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-1" class="expandable-content">
                         <p>Start by exploring your home directory and understanding your current location.</p>
@@ -1933,7 +1933,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
                         <span>Task 2: Navigate Using Absolute Paths</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-2" class="expandable-content">
                         <p>Practice moving around the filesystem using absolute paths.</p>
@@ -1960,7 +1960,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
                         <span>Task 3: Navigate Using Relative Paths</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-3" class="expandable-content">
                         <p>Practice using relative paths and special directory references.</p>
@@ -1992,7 +1992,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
                         <span>Task 4: Explore System Directories</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-4" class="expandable-content">
                         <p>Explore important system directories and understand their contents.</p>
@@ -2020,7 +2020,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
                         <span>Task 5: Practice with cd - (Previous Directory)</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-5" class="expandable-content">
                         <p>Learn to quickly toggle between two directories.</p>
@@ -2051,12 +2051,12 @@
                 <div class="key-points">
                     <h4>Lab Completion Checklist</h4>
                     <ul>
-                        <li>✓ Used <code class="inline">pwd</code> to confirm your location</li>
-                        <li>✓ Navigated using absolute paths starting with /</li>
-                        <li>✓ Used <code class="inline">..</code> to move up directory levels</li>
-                        <li>✓ Returned home with <code class="inline">cd ~</code> or just <code class="inline">cd</code></li>
-                        <li>✓ Used <code class="inline">cd -</code> to toggle between directories</li>
-                        <li>✓ Explored system directories: /etc, /var, /usr, /boot</li>
+                        <li>âœ“ Used <code class="inline">pwd</code> to confirm your location</li>
+                        <li>âœ“ Navigated using absolute paths starting with /</li>
+                        <li>âœ“ Used <code class="inline">..</code> to move up directory levels</li>
+                        <li>âœ“ Returned home with <code class="inline">cd ~</code> or just <code class="inline">cd</code></li>
+                        <li>âœ“ Used <code class="inline">cd -</code> to toggle between directories</li>
+                        <li>âœ“ Explored system directories: /etc, /var, /usr, /boot</li>
                     </ul>
                 </div>
             </div>
@@ -2093,7 +2093,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 6 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 6 Complete!</h2>
                     <p>You've learned how to navigate the Linux file-system hierarchy effectively.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2104,8 +2104,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 6 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 6 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2223,7 +2223,7 @@
 
             const dirInfo = {
                 bin: {
-                    title: '/bin → /usr/bin',
+                    title: '/bin â†’ /usr/bin',
                     desc: 'Essential user command binaries needed for single-user mode and basic system operations. In RHEL 10, this is a symbolic link to <code>/usr/bin</code>. Contains commands like <code>ls</code>, <code>cp</code>, <code>mv</code>, <code>cat</code>, and <code>bash</code>.'
                 },
                 boot: {
@@ -2251,7 +2251,7 @@
                     desc: 'Runtime variable data since the last boot. Contains process IDs (PIDs), socket files, and lock files. This filesystem exists only in memory and is cleared on reboot. Replaced older locations like <code>/var/run</code>.'
                 },
                 sbin: {
-                    title: '/sbin → /usr/sbin',
+                    title: '/sbin â†’ /usr/sbin',
                     desc: 'System administration binaries. Commands here are typically used by the root user for system maintenance: <code>fdisk</code>, <code>mkfs</code>, <code>shutdown</code>, <code>ip</code>. In RHEL 10, this is a symbolic link to <code>/usr/sbin</code>.'
                 },
                 tmp: {
@@ -2299,7 +2299,7 @@
 
             function updatePathDisplay(command) {
                 pathDisplay.textContent = currentPath;
-                commandHistory.push(command + ' → ' + currentPath);
+                commandHistory.push(command + ' â†’ ' + currentPath);
                 
                 // Keep only last 5 commands
                 if (commandHistory.length > 5) {
@@ -2373,7 +2373,7 @@
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             options.forEach(opt => {
@@ -2383,11 +2383,11 @@
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2433,7 +2433,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', function() {
-                    this.textContent = '✓ Chapter Completed!';
+                    this.textContent = 'âœ“ Chapter Completed!';
                     this.style.background = '#267326';
                     this.disabled = true;
                     
@@ -2469,16 +2469,18 @@
                 term.addEventListener('mouseenter', () => {
                     const rect = term.getBoundingClientRect();
                     const tooltipRect = tooltip.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    
+                    // Reset all position classes
+                    tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
                     
                     // Check if tooltip would go off left edge
                     if (rect.left < tooltipRect.width / 2) {
                         tooltip.classList.add('tooltip-left');
-                        tooltip.classList.remove('tooltip-right');
                     }
                     // Check if tooltip would go off right edge
-                    else if (window.innerWidth - rect.right < tooltipRect.width / 2) {
+                    else if (viewportWidth - rect.right < tooltipRect.width / 2) {
                         tooltip.classList.add('tooltip-right');
-                        tooltip.classList.remove('tooltip-left');
                     }
                     // Check if tooltip would go off top
                     if (rect.top < tooltipRect.height + 20) {

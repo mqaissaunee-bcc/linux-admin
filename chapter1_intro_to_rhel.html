@@ -358,7 +358,7 @@
         }
 
         .objectives-box h3::before {
-            content: '🎯';
+            content: 'ðŸŽ¯';
             font-size: 1.3rem;
         }
 
@@ -378,7 +378,7 @@
         }
 
         .objectives-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -484,6 +484,31 @@
             border-right-color: var(--rh-gray-dark);
         }
 
+        /* Edge-adjusted tooltip positions - prevents screen bleeding */
+        .tooltip.tooltip-edge-left {
+            left: 0 !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-left::before {
+            left: 20px !important;
+            right: auto !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-right {
+            left: auto !important;
+            right: 0 !important;
+            transform: translateX(0) !important;
+        }
+
+        .tooltip.tooltip-edge-right::before {
+            left: auto !important;
+            right: 20px !important;
+            transform: translateX(0) !important;
+        }
+
         /* ==================== KEY POINTS BOX ==================== */
         .key-points {
             background: linear-gradient(135deg, #E6F3FF 0%, #CCE7FF 100%);
@@ -504,7 +529,7 @@
         }
 
         .key-points h4::before {
-            content: '💡';
+            content: 'ðŸ’¡';
         }
 
         .key-points ul {
@@ -761,7 +786,7 @@
         }
 
         .quiz-title::before {
-            content: '📝';
+            content: 'ðŸ“';
             font-size: 1.5rem;
         }
 
@@ -1106,7 +1131,7 @@
         }
 
         .summary-box h3::before {
-            content: '📋';
+            content: 'ðŸ“‹';
             font-size: 1.5rem;
         }
 
@@ -1126,7 +1151,7 @@
         }
 
         .summary-list li::before {
-            content: '✓';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1289,7 +1314,7 @@
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 1</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 1</span>
             <h1>Introduction to Red Hat Enterprise Linux</h1>
             <p class="chapter-subtitle">Define and explain the following concepts: open source, Linux, Linux distributions, and Red Hat Enterprise Linux.</p>
         </div>
@@ -1361,19 +1386,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🌐</span> Web & Cloud</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸŒ</span> Web & Cloud</h4>
                         <p>Linux provides the core technologies that power the cloud revolution, including container-based microservices, software-defined storage, and big data solutions.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">💻</span> Supercomputing</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ’»</span> Supercomputing</h4>
                         <p>Linux runs on most of the top 500 supercomputers in the world, driving scientific research and complex calculations.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📱</span> Mobile & IoT</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“±</span> Mobile & IoT</h4>
                         <p>Android, the world's most popular mobile operating system, is built on the Linux kernel. IoT devices commonly run Linux.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🏢</span> Enterprise</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ¢</span> Enterprise</h4>
                         <p>In modern data centers, Linux and Microsoft Windows are the predominant operating systems, with Linux use continuing to expand.</p>
                     </div>
                 </div>
@@ -1381,7 +1406,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="reasons-content">
                         <span>Reasons to Learn Linux</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="reasons-content" class="expandable-content">
                         <ul>
@@ -1540,7 +1565,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="distro-characteristics">
                         <span>Common Characteristics of Linux Distributions</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="distro-characteristics" class="expandable-content">
                         <ul>
@@ -1556,7 +1581,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="distro-variety">
                         <span>Why So Many Distributions?</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="distro-variety" class="expandable-content">
                         <p>Different distributions serve different needs:</p>
@@ -1596,19 +1621,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">✓</span> Extensively Tested</h4>
+                        <h4><span class="card-icon" aria-hidden="true">âœ“</span> Extensively Tested</h4>
                         <p>RHEL undergoes rigorous hardware, integration, and performance testing before release.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🤝</span> Partner Ecosystem</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ¤</span> Partner Ecosystem</h4>
                         <p>A worldwide ecosystem of support partners for hardware and software certifications.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📚</span> Training & Certification</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“š</span> Training & Certification</h4>
                         <p>Comprehensive training, consulting services, and professional certifications.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🔧</span> Multi-Year Support</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ”§</span> Multi-Year Support</h4>
                         <p>Support and maintenance guarantees that enterprises require for production systems.</p>
                     </div>
                 </div>
@@ -1616,7 +1641,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="rhel-subscription">
                         <span>RHEL Subscription Model</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="rhel-subscription" class="expandable-content">
                         <p>RHEL uses a <span class="term" tabindex="0" data-tooltip="A business model where customers pay for ongoing support, updates, and services rather than a one-time license fee.">subscription-based support model</span>, not license fees for open-source software:</p>
@@ -1660,17 +1685,17 @@
                             <strong>Fedora Rawhide</strong><br>
                             <small>Continuous Development</small>
                         </div>
-                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <span class="flow-arrow" aria-hidden="true">â†“</span>
                         <div class="flow-box" style="background: #3C6EB4; color: white; border-color: #3C6EB4;">
                             <strong>Fedora Release</strong><br>
                             <small>Community Testing</small>
                         </div>
-                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <span class="flow-arrow" aria-hidden="true">â†“</span>
                         <div class="flow-box" style="background: #9CCD2A; color: black; border-color: #9CCD2A;">
                             <strong>CentOS Stream</strong><br>
                             <small>RHEL Development Preview</small>
                         </div>
-                        <span class="flow-arrow" aria-hidden="true">↓</span>
+                        <span class="flow-arrow" aria-hidden="true">â†“</span>
                         <div class="flow-box highlight">
                             <strong>RHEL</strong><br>
                             <small>Enterprise Production</small>
@@ -1731,9 +1756,9 @@
                     <h4>The Development Pipeline</h4>
                     <p>Understanding the relationship between these projects is essential for system administrators:</p>
                     <ul>
-                        <li><strong>Fedora Rawhide → Fedora:</strong> New features are developed and tested</li>
-                        <li><strong>Fedora → CentOS Stream:</strong> Selected packages mature for enterprise use</li>
-                        <li><strong>CentOS Stream → RHEL:</strong> Rigorous testing produces the stable release</li>
+                        <li><strong>Fedora Rawhide â†’ Fedora:</strong> New features are developed and tested</li>
+                        <li><strong>Fedora â†’ CentOS Stream:</strong> Selected packages mature for enterprise use</li>
+                        <li><strong>CentOS Stream â†’ RHEL:</strong> Rigorous testing produces the stable release</li>
                     </ul>
                 </div>
             </div>
@@ -1888,7 +1913,7 @@
                 <div class="summary-box">
                     <h3>Key Takeaways</h3>
                     <ul class="summary-list">
-                        <li><strong>Linux is critical for IT professionals</strong> — it powers web servers, cloud infrastructure, supercomputers, mobile devices, and enterprise systems worldwide.</li>
+                        <li><strong>Linux is critical for IT professionals</strong> â€” it powers web servers, cloud infrastructure, supercomputers, mobile devices, and enterprise systems worldwide.</li>
                         <li><strong>Open source software</strong> provides freely available source code that can be studied, modified, and redistributed, enabling collaborative development and innovation.</li>
                         <li><strong>Linux distributions</strong> combine the Linux kernel with GNU utilities, applications, and tools to create complete, installable operating systems for different use cases.</li>
                         <li><strong>RHEL is an enterprise-grade distribution</strong> with extensive testing, a partner ecosystem, certifications, training, and multi-year support guarantees.</li>
@@ -1909,7 +1934,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 1 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 1 Complete!</h2>
                     <p>You've learned the fundamentals of Linux and Red Hat Enterprise Linux.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -1920,8 +1945,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 1 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. Course materials adapted for educational use.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 1 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. Course materials adapted for educational use.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -1951,8 +1976,11 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     
-                    // Remove all position classes
-                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
+                    // Remove all position classes and reset inline styles
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-edge-left', 'tooltip-edge-right');
+                    tooltip.style.left = '';
+                    tooltip.style.right = '';
+                    tooltip.style.transform = '';
                     
                     // Calculate available space
                     const spaceAbove = termRect.top;
@@ -1973,22 +2001,15 @@
                         tooltip.classList.add('tooltip-bottom');
                     }
 
-                    // Adjust horizontal position for top/bottom tooltips
+                    // Adjust horizontal position for top/bottom tooltips to prevent screen bleeding
                     if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
                         const tooltipWidth = 300;
                         const centerX = termRect.left + termRect.width / 2;
                         
                         if (centerX - tooltipWidth/2 < 10) {
-                            tooltip.style.left = '0';
-                            tooltip.style.transform = 'translateX(0)';
+                            tooltip.classList.add('tooltip-edge-left');
                         } else if (centerX + tooltipWidth/2 > viewportWidth - 10) {
-                            tooltip.style.left = 'auto';
-                            tooltip.style.right = '0';
-                            tooltip.style.transform = 'translateX(0)';
-                        } else {
-                            tooltip.style.left = '50%';
-                            tooltip.style.right = 'auto';
-                            tooltip.style.transform = 'translateX(-50%)';
+                            tooltip.classList.add('tooltip-edge-right');
                         }
                     }
                 }
@@ -2123,7 +2144,7 @@
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             // Highlight correct answer
@@ -2134,11 +2155,11 @@
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2257,7 +2278,7 @@
                 updateProgress();
                 
                 // Visual feedback
-                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.textContent = 'âœ“ Chapter Completed!';
                 completeBtn.style.background = 'var(--rh-green)';
                 completeBtn.disabled = true;
                 
@@ -2267,7 +2288,7 @@
 
             // Check if already completed
             if (localStorage.getItem('ch1-complete') === 'true') {
-                completeBtn.textContent = '✓ Chapter Completed!';
+                completeBtn.textContent = 'âœ“ Chapter Completed!';
                 completeBtn.style.background = 'var(--rh-green)';
             }
 
