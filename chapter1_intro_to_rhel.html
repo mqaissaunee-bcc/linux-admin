@@ -484,31 +484,6 @@
             border-right-color: var(--rh-gray-dark);
         }
 
-        /* Edge-adjusted tooltip positions - prevents screen bleeding */
-        .tooltip.tooltip-edge-left {
-            left: 0 !important;
-            right: auto !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-left::before {
-            left: 20px !important;
-            right: auto !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-right {
-            left: auto !important;
-            right: 0 !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-right::before {
-            left: auto !important;
-            right: 20px !important;
-            transform: translateX(0) !important;
-        }
-
         /* ==================== KEY POINTS BOX ==================== */
         .key-points {
             background: linear-gradient(135deg, #E6F3FF 0%, #CCE7FF 100%);
@@ -1976,11 +1951,8 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
                     
-                    // Remove all position classes and reset inline styles
-                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-edge-left', 'tooltip-edge-right');
-                    tooltip.style.left = '';
-                    tooltip.style.right = '';
-                    tooltip.style.transform = '';
+                    // Remove all position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
                     
                     // Calculate available space
                     const spaceAbove = termRect.top;
@@ -2001,15 +1973,22 @@
                         tooltip.classList.add('tooltip-bottom');
                     }
 
-                    // Adjust horizontal position for top/bottom tooltips to prevent screen bleeding
+                    // Adjust horizontal position for top/bottom tooltips
                     if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
                         const tooltipWidth = 300;
                         const centerX = termRect.left + termRect.width / 2;
                         
                         if (centerX - tooltipWidth/2 < 10) {
-                            tooltip.classList.add('tooltip-edge-left');
+                            tooltip.style.left = '0';
+                            tooltip.style.transform = 'translateX(0)';
                         } else if (centerX + tooltipWidth/2 > viewportWidth - 10) {
-                            tooltip.classList.add('tooltip-edge-right');
+                            tooltip.style.left = 'auto';
+                            tooltip.style.right = '0';
+                            tooltip.style.transform = 'translateX(0)';
+                        } else {
+                            tooltip.style.left = '50%';
+                            tooltip.style.right = 'auto';
+                            tooltip.style.transform = 'translateX(-50%)';
                         }
                     }
                 }
