@@ -345,7 +345,7 @@
         }
 
         .objectives-list li::before {
-            content: 'âœ”';
+            content: '✔';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -448,31 +448,6 @@
             top: 50%;
             transform: translateY(-50%);
             border-right-color: var(--rh-gray-dark);
-        }
-
-        /* Edge-adjusted tooltip positions - prevents screen bleeding */
-        .tooltip.tooltip-edge-left {
-            left: 0 !important;
-            right: auto !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-left::before {
-            left: 20px !important;
-            right: auto !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-right {
-            left: auto !important;
-            right: 0 !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip.tooltip-edge-right::before {
-            left: auto !important;
-            right: 20px !important;
-            transform: translateX(0) !important;
         }
 
         /* ==================== KEY POINTS BOX ==================== */
@@ -1054,7 +1029,7 @@
         }
 
         .summary-list li::before {
-            content: 'âœ”';
+            content: '✔';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1245,7 +1220,7 @@
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 â€¢ CHAPTER 4</span>
+            <span class="course-badge">RH124 • CHAPTER 4</span>
             <h1>Registering Systems for Red Hat Support</h1>
             <p class="chapter-subtitle">Learn how to register your RHEL systems to access software updates, security patches, and Red Hat support services</p>
         </div>
@@ -1290,7 +1265,7 @@
             </div>
             <div class="section-body">
                 <div class="objectives-box">
-                    <h3>ðŸŽ¯ Learning Objectives</h3>
+                    <h3>🎯 Learning Objectives</h3>
                     <ul class="objectives-list">
                         <li>Understand the benefits of a Red Hat subscription</li>
                         <li>Explain the <span class="term" tabindex="0" data-tooltip="Simple Content Access - A subscription model that eliminates the need to attach subscriptions on a per-system basis, simplifying subscription management.">Simple Content Access (SCA)</span> model</li>
@@ -1319,34 +1294,34 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“¦</span> Software Updates</h4>
+                        <h4><span class="card-icon" aria-hidden="true">📦</span> Software Updates</h4>
                         <p>Access to regularly updated packages from Red Hat repositories, including the latest features and improvements.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ”’</span> Security Patches</h4>
+                        <h4><span class="card-icon" aria-hidden="true">🔒</span> Security Patches</h4>
                         <p>Timely security updates to protect your systems from known vulnerabilities and emerging threats.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ›</span> Bug Fixes</h4>
+                        <h4><span class="card-icon" aria-hidden="true">🐛</span> Bug Fixes</h4>
                         <p>Regular bug fixes and stability improvements to ensure reliable system operation.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“š</span> Knowledgebase</h4>
+                        <h4><span class="card-icon" aria-hidden="true">📚</span> Knowledgebase</h4>
                         <p>Access to Red Hat's extensive Customer Portal with technical documentation, solutions, and articles.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸŽ§</span> Technical Support</h4>
+                        <h4><span class="card-icon" aria-hidden="true">🎧</span> Technical Support</h4>
                         <p>Expert assistance from Red Hat engineers for troubleshooting and resolving issues.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“Š</span> Red Hat Insights</h4>
+                        <h4><span class="card-icon" aria-hidden="true">📊</span> Red Hat Insights</h4>
                         <p>Predictive analytics for proactive issue identification and automated remediation.</p>
                     </div>
                 </div>
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">ðŸ’¡</span>
+                        <span class="note-icon">💡</span>
                         <span>Developer Subscription</span>
                     </div>
                     <p>Red Hat provides <strong>free individual RHEL developer subscriptions</strong> for development, testing, prototyping, and limited production use. This is an excellent option for learning and small-scale deployments. Visit <code class="inline">developers.redhat.com</code> to sign up.</p>
@@ -1357,17 +1332,17 @@
                     <p class="diagram-title">How RHEL Systems Connect to Red Hat Services</p>
                     <div class="diagram-row">
                         <div class="diagram-box rhel">
-                            <h5>ðŸ–¥ï¸ RHEL System</h5>
+                            <h5>🖥️ RHEL System</h5>
                             <p>Your registered system</p>
                         </div>
-                        <span class="diagram-connector" aria-hidden="true">âŸ·</span>
+                        <span class="diagram-connector" aria-hidden="true">⟷</span>
                         <div class="diagram-box cloud">
-                            <h5>â˜ï¸ Hybrid Cloud Console</h5>
+                            <h5>☁️ Hybrid Cloud Console</h5>
                             <p>console.redhat.com</p>
                         </div>
-                        <span class="diagram-connector" aria-hidden="true">âŸ·</span>
+                        <span class="diagram-connector" aria-hidden="true">⟷</span>
                         <div class="diagram-box server">
-                            <h5>ðŸ“¦ Red Hat CDN</h5>
+                            <h5>📦 Red Hat CDN</h5>
                             <p>Software repositories</p>
                         </div>
                     </div>
@@ -1387,7 +1362,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="true" aria-controls="sca-benefits">
                         <span>Key Benefits of Simple Content Access</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
                     </button>
                     <div id="sca-benefits" class="expandable-content open">
                         <ul>
@@ -1403,7 +1378,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="sca-changes">
                         <span>Changes from Traditional Subscription Management</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
                     </button>
                     <div id="sca-changes" class="expandable-content">
                         <table class="comparison-table">
@@ -1442,7 +1417,7 @@
 
                 <div class="success-box">
                     <div class="success-box-header">
-                        <span class="note-icon">âœ…</span>
+                        <span class="note-icon">✅</span>
                         <span>Hybrid Cloud Console</span>
                     </div>
                     <p>Customer-facing subscription services have moved from the Red Hat Customer Portal (<code class="inline">access.redhat.com</code>) to the <strong>Red Hat Hybrid Cloud Console</strong> (<code class="inline">console.redhat.com</code>). The Hybrid Cloud Console provides a unified experience for systems management and closer integration with Red Hat Insights.</p>
@@ -1551,10 +1526,10 @@
 
                         <div class="note-box">
                             <div class="note-box-header">
-                                <span class="note-icon">ðŸ”‘</span>
+                                <span class="note-icon">🔑</span>
                                 <span>Finding Your Organization ID</span>
                             </div>
-                            <p>Your Organization ID is available in the Hybrid Cloud Console. Navigate to <strong>Settings â†’ Activation Keys</strong> to view your Organization ID and create new activation keys.</p>
+                            <p>Your Organization ID is available in the Hybrid Cloud Console. Navigate to <strong>Settings → Activation Keys</strong> to view your Organization ID and create new activation keys.</p>
                         </div>
                     </div>
                 </div>
@@ -1586,34 +1561,34 @@
                         </tr>
                         <tr>
                             <td>Content Access</td>
-                            <td>âœ” Automatic</td>
-                            <td>âœ” Automatic</td>
+                            <td>✔ Automatic</td>
+                            <td>✔ Automatic</td>
                         </tr>
                         <tr>
                             <td>Red Hat Insights</td>
-                            <td>âœ” Automatic</td>
-                            <td>âœ˜ Requires insights-client</td>
+                            <td>✔ Automatic</td>
+                            <td>✘ Requires insights-client</td>
                         </tr>
                         <tr>
                             <td>Remote Management</td>
-                            <td>âœ” Automatic</td>
-                            <td>âœ˜ Not available</td>
+                            <td>✔ Automatic</td>
+                            <td>✘ Not available</td>
                         </tr>
                         <tr>
                             <td>Single Command Setup</td>
-                            <td>âœ” Yes</td>
-                            <td>âœ˜ Multiple steps needed</td>
+                            <td>✔ Yes</td>
+                            <td>✘ Multiple steps needed</td>
                         </tr>
                         <tr>
                             <td>Activation Key Support</td>
-                            <td>âœ” Yes</td>
-                            <td>âœ” Yes</td>
+                            <td>✔ Yes</td>
+                            <td>✔ Yes</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="key-points">
-                    <h4>ðŸ’¡ Recommendation</h4>
+                    <h4>💡 Recommendation</h4>
                     <p>For RHEL 8.8 and later systems, use <code class="inline">rhc connect</code> for the simplest registration experience. It automatically enables:</p>
                     <ul>
                         <li><strong>content:</strong> Access to Red Hat software repositories</li>
@@ -1653,19 +1628,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ”</span> Advisor</h4>
+                        <h4><span class="card-icon" aria-hidden="true">🔍</span> Advisor</h4>
                         <p>Identifies configuration issues, security risks, and provides recommendations with automated remediation.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ›¡ï¸</span> Vulnerability</h4>
+                        <h4><span class="card-icon" aria-hidden="true">🛡️</span> Vulnerability</h4>
                         <p>Detects CVEs affecting your systems and prioritizes them based on risk assessment.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“‹</span> Compliance</h4>
+                        <h4><span class="card-icon" aria-hidden="true">📋</span> Compliance</h4>
                         <p>Monitors systems against security baselines like DISA STIG and PCI-DSS.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“ˆ</span> Resource Optimization</h4>
+                        <h4><span class="card-icon" aria-hidden="true">📈</span> Resource Optimization</h4>
                         <p>Provides recommendations for optimizing system resources and performance.</p>
                     </div>
                 </div>
@@ -1694,7 +1669,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">ðŸ”’</span>
+                        <span class="note-icon">🔒</span>
                         <span>Data Privacy</span>
                     </div>
                     <p>Red Hat Insights collects system configuration data to provide recommendations. Sensitive data like passwords, keys, and user content is filtered out before transmission. You can review what data is collected using <code class="inline">insights-client --no-upload</code> to generate a local report.</p>
@@ -1849,14 +1824,14 @@
             <div class="section-body">
                 <div class="lab-container">
                     <div class="lab-header">
-                        <span class="lab-icon">ðŸ”¬</span>
+                        <span class="lab-icon">🔬</span>
                         <h3>Lab: Register Systems for Red Hat Support</h3>
                     </div>
                     <p>In this lab, you will practice registering a RHEL system using different methods and verify the registration status.</p>
 
                     <div class="warning-box">
                         <div class="warning-box-header">
-                            <span class="note-icon">âš ï¸</span>
+                            <span class="note-icon">⚠️</span>
                             <span>Lab Environment</span>
                         </div>
                         <p>This lab requires access to a RHEL system and valid Red Hat credentials. If using the classroom environment, your instructor will provide the necessary accounts and activation keys.</p>
@@ -1919,10 +1894,10 @@
                     <div class="key-points">
                         <h4>Lab Completion Checklist</h4>
                         <ul>
-                            <li>âœ“ Verified initial system registration status</li>
-                            <li>âœ“ Registered the system using rhc connect</li>
-                            <li>âœ“ Confirmed access to Red Hat repositories</li>
-                            <li>âœ“ Verified Red Hat Insights is enabled and uploading data</li>
+                            <li>✓ Verified initial system registration status</li>
+                            <li>✓ Registered the system using rhc connect</li>
+                            <li>✓ Confirmed access to Red Hat repositories</li>
+                            <li>✓ Verified Red Hat Insights is enabled and uploading data</li>
                         </ul>
                     </div>
                 </div>
@@ -1937,7 +1912,7 @@
             </div>
             <div class="section-body">
                 <div class="summary-box">
-                    <h3>ðŸ“ Key Takeaways</h3>
+                    <h3>📝 Key Takeaways</h3>
                     <ul class="summary-list">
                         <li><strong>Red Hat subscriptions</strong> provide access to software repositories, security patches, technical support, and the Knowledgebase through the Content Delivery Network (CDN).</li>
                         <li><strong>Simple Content Access (SCA)</strong> is the current subscription model that validates subscriptions at the organization level, eliminating per-system attachment requirements.</li>
@@ -1961,7 +1936,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>ðŸŽ‰ Chapter 4 Complete!</h2>
+                    <h2>🎉 Chapter 4 Complete!</h2>
                     <p>You've learned how to register RHEL systems and access Red Hat support services.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -1972,8 +1947,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I â€¢ Chapter 4 â€¢ Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I • Chapter 4 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -1997,11 +1972,8 @@
                     const viewportWidth = window.innerWidth;
                     const viewportHeight = window.innerHeight;
 
-                    // Remove existing position classes and reset inline styles
-                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-edge-left', 'tooltip-edge-right');
-                    tooltip.style.left = '';
-                    tooltip.style.right = '';
-                    tooltip.style.transform = '';
+                    // Remove existing position classes
+                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right');
 
                     // Determine best position
                     const spaceAbove = termRect.top;
@@ -2019,16 +1991,19 @@
                         tooltip.classList.add('tooltip-left');
                     }
 
-                    // Adjust horizontal position if tooltip would overflow (for top/bottom)
-                    if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
-                        const tooltipWidth = 300;
-                        const centerX = termRect.left + termRect.width / 2;
-                        
-                        if (centerX - tooltipWidth/2 < 10) {
-                            tooltip.classList.add('tooltip-edge-left');
-                        } else if (centerX + tooltipWidth/2 > viewportWidth - 10) {
-                            tooltip.classList.add('tooltip-edge-right');
-                        }
+                    // Prevent horizontal overflow
+                    tooltip.style.left = '';
+                    tooltip.style.right = '';
+                    tooltip.style.transform = '';
+
+                    const newRect = tooltip.getBoundingClientRect();
+                    if (newRect.left < 10) {
+                        tooltip.style.left = '10px';
+                        tooltip.style.transform = 'translateX(0)';
+                    } else if (newRect.right > viewportWidth - 10) {
+                        tooltip.style.right = '10px';
+                        tooltip.style.left = 'auto';
+                        tooltip.style.transform = 'translateX(0)';
                     }
                 }
 
@@ -2208,7 +2183,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', function() {
-                    this.textContent = 'âœ” Chapter Completed!';
+                    this.textContent = '✔ Chapter Completed!';
                     this.style.background = '#267326';
                     this.disabled = true;
                     
