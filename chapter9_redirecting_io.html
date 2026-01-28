@@ -1,0 +1,2593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Redirecting Shell Input and Output | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #267326;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: var(--rh-gray-lighter);
+            color: var(--rh-gray-dark);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .nav-btn.visited {
+            border-color: var(--rh-green);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-lighter);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+        }
+
+        .section-body h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+
+        .section-body h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCFFCC 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* ==================== INLINE CODE ==================== */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            color: var(--rh-red-dark);
+        }
+
+        /* ==================== TOOLTIP SYSTEM ==================== */
+        .tooltip-container {
+            position: relative;
+            display: inline;
+        }
+
+        .tooltip-trigger {
+            border: none;
+            background: none;
+            padding: 0;
+            font: inherit;
+            color: var(--rh-blue);
+            border-bottom: 2px dotted var(--rh-blue);
+            cursor: help;
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            width: 280px;
+            max-width: 90vw;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip-trigger:hover + .tooltip-content,
+        .tooltip-trigger:focus + .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning variants */
+        .tooltip-content.tooltip-left {
+            left: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-left::after {
+            left: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right::after {
+            left: auto;
+            right: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-bottom {
+            bottom: auto;
+            top: calc(100% + 10px);
+        }
+
+        .tooltip-content.tooltip-bottom::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 100px;
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-gray-lighter);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            margin-top: 0;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-error {
+            color: #FF6666;
+        }
+
+        .code-block .code-file {
+            color: #99FF99;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+        }
+
+        /* ==================== NOTE BOX ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        /* ==================== WARNING BOX ==================== */
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== INFO BOX ==================== */
+        .info-box {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border: 2px solid var(--rh-blue);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-blue-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== KEY POINTS ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-top: 0;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F0FF;
+        }
+
+        /* ==================== DIAGRAM ==================== */
+        .diagram-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+        }
+
+        .flow-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .flow-box {
+            background: var(--rh-white);
+            border: 3px solid var(--rh-gray);
+            border-radius: var(--radius-md);
+            padding: 15px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        .flow-box.highlight {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .flow-box.highlight-blue {
+            border-color: var(--rh-blue);
+            background: #E6F0FF;
+        }
+
+        .flow-box.highlight-green {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .flow-arrow {
+            color: var(--rh-gray);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* ==================== STREAM DIAGRAM ==================== */
+        .stream-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .stream-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stream-box {
+            background: var(--rh-white);
+            border: 3px solid var(--rh-gray);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            min-width: 140px;
+        }
+
+        .stream-box.stdin {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .stream-box.stdout {
+            border-color: var(--rh-blue);
+            background: #E6F0FF;
+        }
+
+        .stream-box.stderr {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .stream-box.process {
+            border-color: var(--rh-purple);
+            background: #F0E6FF;
+            min-width: 180px;
+        }
+
+        .stream-box h5 {
+            font-family: var(--font-display);
+            margin-bottom: 5px;
+        }
+
+        .stream-box .fd-number {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            transition: all var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .expandable-header[aria-expanded="true"] {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .expand-icon {
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 20px;
+            background: var(--rh-white);
+        }
+
+        .expandable-content.expanded {
+            display: block;
+        }
+
+        /* ==================== INTERACTIVE TERMINAL ==================== */
+        .terminal-simulator {
+            background: var(--rh-black);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin: 25px 0;
+        }
+
+        .terminal-titlebar {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 8px 15px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-dot.red { background: #FF5F56; }
+        .terminal-dot.yellow { background: #FFBD2E; }
+        .terminal-dot.green { background: #27C93F; }
+
+        .terminal-screen {
+            padding: 15px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: #00FF00;
+            min-height: 150px;
+        }
+
+        /* ==================== PIPELINE VISUALIZATION ==================== */
+        .pipeline-visual {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin: 25px 0;
+        }
+
+        .pipeline-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .pipeline-cmd {
+            background: var(--rh-black);
+            color: #FFFF00;
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .pipeline-pipe {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            padding: 8px 15px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-weight: 700;
+        }
+
+        .pipeline-output {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        /* ==================== QUIZ SECTION ==================== */
+        .quiz-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .quiz-header h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin: 0;
+        }
+
+        .quiz-score {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+        }
+
+        .quiz-question.correct {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .quiz-question.incorrect {
+            border-color: var(--rh-red);
+            background: #FFF0F0;
+        }
+
+        .question-text {
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            color: var(--rh-red);
+            margin-right: 8px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: #E6F0FF;
+            border-color: var(--rh-blue);
+        }
+
+        .quiz-option input {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .quiz-option.correct {
+            background: #E6FFE6;
+            border-color: var(--rh-green);
+        }
+
+        .quiz-option.incorrect {
+            background: #FFF0F0;
+            border-color: var(--rh-red);
+        }
+
+        .quiz-feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            color: var(--rh-green-dark);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFF0F0;
+            color: var(--rh-red-dark);
+        }
+
+        .quiz-btn {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 30px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .quiz-btn:hover, .quiz-btn:focus {
+            background: #4B2D8A;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .quiz-btn:disabled {
+            background: var(--rh-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ==================== SUMMARY ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #F0F0F0 0%, #E6E6E6 100%);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--rh-gray-light);
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--rh-red);
+            font-weight: bold;
+        }
+
+        /* ==================== COMPLETION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCFFCC 100%);
+            border-radius: var(--radius-md);
+            margin-top: 30px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border: none;
+            padding: 15px 40px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .completion-btn:hover {
+            background: var(--rh-green-dark);
+            transform: scale(1.05);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body {
+                padding: 20px;
+            }
+
+            .tab-btn {
+                min-width: 80px;
+                padding: 10px 12px;
+                font-size: 0.85rem;
+            }
+
+            .nav-container {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .stream-row {
+                flex-direction: column;
+            }
+
+            .pipeline-row {
+                flex-direction: column;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • CHAPTER 9</span>
+            <h1>Redirecting Shell Input and Output</h1>
+            <p class="chapter-subtitle">Master the flow of data between commands using redirection and pipes</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-streams" class="nav-btn">Streams</a>
+            <a href="#section-redirect-output" class="nav-btn">Redirect Output</a>
+            <a href="#section-redirect-error" class="nav-btn">Redirect Errors</a>
+            <a href="#section-pipes" class="nav-btn">Pipes</a>
+            <a href="#section-tee" class="nav-btn">tee Command</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="region" aria-label="Chapter progress">
+        <div class="progress-inner">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-text">0% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        
+        <!-- Section 1: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Describe the standard input, output, and error streams</li>
+                        <li>Redirect command output to a file using <code class="inline">></code> and <code class="inline">>></code></li>
+                        <li>Redirect standard error separately from standard output</li>
+                        <li>Combine standard output and error redirection</li>
+                        <li>Use pipes to connect the output of one command to the input of another</li>
+                        <li>Construct complex command pipelines to process data</li>
+                        <li>Use <code class="inline">tee</code> to save output while still viewing it</li>
+                        <li>Discard unwanted output using <code class="inline">/dev/null</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Standard Streams -->
+        <section id="section-streams" class="content-section" aria-labelledby="streams-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="streams-heading">Standard Input, Output, and Error</h2>
+            </div>
+            <div class="section-body">
+                <p>A running program, or 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-process">process</button>
+                        <span class="tooltip-content" id="tooltip-process" role="tooltip">A process is an instance of a running program. Each process has a unique process ID (PID) and its own memory space.</span>
+                    </span>, reads input and writes output. When you run a command from the shell prompt, it typically reads its input from the keyboard and sends its output to the terminal window.</p>
+
+                <p>A process uses numbered channels called 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-fd">file descriptors</button>
+                        <span class="tooltip-content" id="tooltip-fd" role="tooltip">File descriptors are non-negative integers that the kernel uses to track open files and I/O streams. They serve as handles for reading from or writing to files, devices, and network connections.</span>
+                    </span> to get input and to send output. All processes start with at least three file descriptors:</p>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">The Three Standard I/O Streams</h4>
+                    <div class="stream-diagram">
+                        <div class="stream-row">
+                            <div class="stream-box stdin">
+                                <h5>Standard Input</h5>
+                                <span class="fd-number">stdin (fd 0)</span>
+                                <p style="font-size: 0.85rem; margin-top: 8px;">Keyboard input</p>
+                            </div>
+                            <span class="flow-arrow" aria-hidden="true">→</span>
+                            <div class="stream-box process">
+                                <h5>Process</h5>
+                                <span class="fd-number">(Running Command)</span>
+                            </div>
+                            <span class="flow-arrow" aria-hidden="true">→</span>
+                            <div class="stream-box stdout">
+                                <h5>Standard Output</h5>
+                                <span class="fd-number">stdout (fd 1)</span>
+                                <p style="font-size: 0.85rem; margin-top: 8px;">Terminal display</p>
+                            </div>
+                        </div>
+                        <div class="stream-row" style="margin-top: 10px;">
+                            <div style="width: 180px;"></div>
+                            <div class="stream-box process" style="visibility: hidden; height: 0; padding: 0; border: none;"></div>
+                            <span class="flow-arrow" aria-hidden="true">↘</span>
+                            <div class="stream-box stderr">
+                                <h5>Standard Error</h5>
+                                <span class="fd-number">stderr (fd 2)</span>
+                                <p style="font-size: 0.85rem; margin-top: 8px;">Error messages</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Stream</th>
+                            <th>File Descriptor</th>
+                            <th>Default Source/Destination</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>stdin</strong></td>
+                            <td><code class="inline">0</code></td>
+                            <td>Keyboard</td>
+                            <td>Reads input from the user</td>
+                        </tr>
+                        <tr>
+                            <td><strong>stdout</strong></td>
+                            <td><code class="inline">1</code></td>
+                            <td>Terminal</td>
+                            <td>Sends normal output to the terminal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>stderr</strong></td>
+                            <td><code class="inline">2</code></td>
+                            <td>Terminal</td>
+                            <td>Sends error messages to the terminal</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span>Why Separate stdout and stderr?</span>
+                    </div>
+                    <p>Having separate channels for normal output and error messages allows you to handle them independently. You can save normal output to a file while still seeing errors on screen, or save errors to a log file while viewing normal output. This separation is crucial for scripting and automation.</p>
+                </div>
+
+                <h3>Demonstrating the Streams</h3>
+                <p>The following example shows how both stdout and stderr appear on the terminal by default:</p>
+
+                <div class="code-block">
+                    <span class="code-title">stdout and stderr Example</span>
+                    <code><span class="code-comment"># List two items: one exists, one doesn't</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile</span>
+<span class="code-error">ls: cannot access '/etc/nofile': No such file or directory</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># The error message (stderr) appears before the normal output (stdout)</span>
+<span class="code-comment"># Both streams go to the terminal by default</span></code>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">📘</span>
+                        <span>Understanding the Output Order</span>
+                    </div>
+                    <p>In the example above, the error message appears first because stderr is typically unbuffered (written immediately), while stdout may be line-buffered. The order you see might vary depending on the specific command and system configuration.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Redirecting Output -->
+        <section id="section-redirect-output" class="content-section" aria-labelledby="redirect-output-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="redirect-output-heading">Redirecting Output to a File</h2>
+            </div>
+            <div class="section-body">
+                <p>
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-redirect">I/O redirection</button>
+                        <span class="tooltip-content" id="tooltip-redirect" role="tooltip">I/O redirection changes where a process gets its input or sends its output. Instead of using the keyboard for input or the terminal for output, you can use files.</span>
+                    </span> changes how the process gets its input or output. Instead of getting input from the keyboard or sending output and errors to the terminal, the process can read from or write to files.</p>
+
+                <p>You can redirect the standard output (stdout) of a process to suppress the process output from appearing on the terminal. If you redirect standard output to a file and the file does not exist, then the file is created. If the file does exist and the redirection does not append to the file, then the redirection overwrites the file's contents.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Output redirection operators">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-overwrite" id="tab-btn-overwrite">Overwrite (&gt;)</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-append" id="tab-btn-append">Append (&gt;&gt;)</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-devnull" id="tab-btn-devnull">/dev/null</button>
+                    </div>
+                    
+                    <div id="tab-overwrite" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-overwrite">
+                        <h4>Overwrite with &gt;</h4>
+                        <p>The <code class="inline">></code> operator redirects stdout to a file, overwriting the file if it exists or creating it if it doesn't.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Redirect output to a new file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">date > /tmp/saved-timestamp.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/saved-timestamp.txt</span>
+<span class="code-output">Wed Jan 29 10:15:32 EST 2026</span>
+
+<span class="code-comment"># Running again OVERWRITES the previous content</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">date > /tmp/saved-timestamp.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/saved-timestamp.txt</span>
+<span class="code-output">Wed Jan 29 10:15:45 EST 2026</span>
+
+<span class="code-comment"># Save command output to a file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l /etc > /tmp/etc-listing.txt</span></code>
+                        </div>
+                        <div class="warning-box">
+                            <div class="warning-box-header">
+                                <span class="note-icon" aria-hidden="true">⚠️</span>
+                                <span>Data Loss Warning</span>
+                            </div>
+                            <p>Using <code class="inline">></code> will overwrite any existing file content without warning! Always verify the filename before redirecting to avoid accidentally losing important data.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-append" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-append">
+                        <h4>Append with &gt;&gt;</h4>
+                        <p>The <code class="inline">>></code> operator appends output to the end of an existing file, or creates the file if it doesn't exist.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Create a file with initial content</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "First entry" > /tmp/mylog.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/mylog.txt</span>
+<span class="code-output">First entry</span>
+
+<span class="code-comment"># Append more content (notice >> instead of >)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "Second entry" >> /tmp/mylog.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "Third entry" >> /tmp/mylog.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/mylog.txt</span>
+<span class="code-output">First entry</span>
+<span class="code-output">Second entry</span>
+<span class="code-output">Third entry</span>
+
+<span class="code-comment"># Useful for logging timestamps</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">date >> /tmp/mylog.txt</span></code>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <span class="note-icon" aria-hidden="true">💡</span>
+                                <span>Tip: Building Log Files</span>
+                            </div>
+                            <p>Use <code class="inline">>></code> when building log files or collecting output from multiple commands. This preserves existing content and adds new entries at the end.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-devnull" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-devnull">
+                        <h4>Discarding Output with /dev/null</h4>
+                        <p>The special file <code class="inline">/dev/null</code> is a "black hole" that discards any data written to it. It's useful when you want to suppress output.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Normal command shows output</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># Discard the output by redirecting to /dev/null</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts > /dev/null</span>
+<span class="code-prompt">[student@workstation ~]$</span>
+
+<span class="code-comment"># Common use: run a command silently, check only exit status</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -q "root" /etc/passwd > /dev/null</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo $?</span>
+<span class="code-output">0</span>  <span class="code-comment"># 0 means the pattern was found</span></code>
+                        </div>
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon" aria-hidden="true">📘</span>
+                                <span>What is /dev/null?</span>
+                            </div>
+                            <p><code class="inline">/dev/null</code> is a special device file that:</p>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li>Accepts and discards all data written to it</li>
+                                <li>Provides no data when read from (returns EOF immediately)</li>
+                                <li>Is often called the "bit bucket" or "black hole"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Output Redirection Operators Summary</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Effect</th>
+                            <th>If File Exists</th>
+                            <th>If File Doesn't Exist</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">&gt; file</code></td>
+                            <td>Redirect stdout to file</td>
+                            <td>Overwrites</td>
+                            <td>Creates</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&gt;&gt; file</code></td>
+                            <td>Append stdout to file</td>
+                            <td>Appends</td>
+                            <td>Creates</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&gt; /dev/null</code></td>
+                            <td>Discard stdout</td>
+                            <td colspan="2">Output is silently discarded</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 4: Redirecting Standard Error -->
+        <section id="section-redirect-error" class="content-section" aria-labelledby="redirect-error-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="redirect-error-heading">Redirecting Standard Error</h2>
+            </div>
+            <div class="section-body">
+                <p>Because <code class="inline">></code> redirects only stdout (file descriptor 1), error messages from stderr (file descriptor 2) still appear on the terminal. To redirect stderr, you need to specify the file descriptor number before the redirection operator.</p>
+
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Error redirection methods">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-stderr-only" id="tab-btn-stderr-only">stderr Only (2&gt;)</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-both-separate" id="tab-btn-both-separate">Both Separate</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-both-same" id="tab-btn-both-same">Both to Same File</button>
+                    </div>
+                    
+                    <div id="tab-stderr-only" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-stderr-only">
+                        <h4>Redirecting stderr Only (2&gt;)</h4>
+                        <p>Use <code class="inline">2></code> to redirect stderr to a file while stdout still goes to the terminal.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Without redirection - both stdout and stderr go to terminal</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile</span>
+<span class="code-error">ls: cannot access '/etc/nofile': No such file or directory</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># Redirect stderr to a file - only stdout appears on terminal</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile 2> /tmp/errors.txt</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># Check the error log</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/errors.txt</span>
+<span class="code-output">ls: cannot access '/etc/nofile': No such file or directory</span>
+
+<span class="code-comment"># Discard all error messages</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile 2> /dev/null</span>
+<span class="code-output">/etc/hosts</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-both-separate" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-both-separate">
+                        <h4>Redirecting stdout and stderr to Different Files</h4>
+                        <p>You can redirect stdout and stderr to separate files in the same command.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Redirect stdout to one file, stderr to another</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile > /tmp/output.txt 2> /tmp/errors.txt</span>
+
+<span class="code-comment"># Check the output file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/output.txt</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># Check the error file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/errors.txt</span>
+<span class="code-output">ls: cannot access '/etc/nofile': No such file or directory</span>
+
+<span class="code-comment"># Find files - save results, discard "Permission denied" errors</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">find /etc -name "*.conf" > /tmp/configs.txt 2> /dev/null</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-both-same" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-both-same">
+                        <h4>Redirecting Both Streams to the Same File</h4>
+                        <p>Use <code class="inline">&amp;></code> or <code class="inline">2>&amp;1</code> to send both stdout and stderr to the same file.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Method 1: Using &> (recommended, cleaner syntax)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile &> /tmp/all-output.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/all-output.txt</span>
+<span class="code-output">ls: cannot access '/etc/nofile': No such file or directory</span>
+<span class="code-output">/etc/hosts</span>
+
+<span class="code-comment"># Method 2: Using 2>&1 (redirect stderr to wherever stdout goes)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile > /tmp/all-output.txt 2>&1</span>
+
+<span class="code-comment"># Append both streams to a file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile &>> /tmp/all-output.txt</span>
+
+<span class="code-comment"># Discard ALL output (both stdout and stderr)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/hosts /etc/nofile &> /dev/null</span></code>
+                        </div>
+                        <div class="warning-box">
+                            <div class="warning-box-header">
+                                <span class="note-icon" aria-hidden="true">⚠️</span>
+                                <span>Order Matters with 2>&amp;1</span>
+                            </div>
+                            <p>When using <code class="inline">2>&1</code>, the order of redirections matters:</p>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li><code class="inline">> file 2>&1</code> — Correct: redirects stdout to file, then stderr to stdout (the file)</li>
+                                <li><code class="inline">2>&1 > file</code> — Wrong: redirects stderr to terminal (where stdout currently goes), then stdout to file</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Redirection Operators Summary</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Operator</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">&gt; file</code></td>
+                            <td>Redirect stdout to overwrite a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&gt;&gt; file</code></td>
+                            <td>Redirect stdout to append to a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">2&gt; file</code></td>
+                            <td>Redirect stderr to overwrite a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">2&gt;&gt; file</code></td>
+                            <td>Redirect stderr to append to a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&amp;&gt; file</code></td>
+                            <td>Redirect both stdout and stderr to overwrite a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">&amp;&gt;&gt; file</code></td>
+                            <td>Redirect both stdout and stderr to append to a file</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">2&gt;&amp;1</code></td>
+                            <td>Redirect stderr to the same destination as stdout</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 5: Pipes -->
+        <section id="section-pipes" class="content-section" aria-labelledby="pipes-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="pipes-heading">Constructing Pipelines</h2>
+            </div>
+            <div class="section-body">
+                <p>A 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-pipe">pipeline</button>
+                        <span class="tooltip-content" id="tooltip-pipe" role="tooltip">A pipeline is a sequence of commands connected by the pipe operator (|), where the output of each command becomes the input of the next command.</span>
+                    </span> is a sequence of one or more commands separated by the pipe character (<code class="inline">|</code>). A pipe connects the standard output of the first command to the standard input of the next command.</p>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">How Pipes Work</h4>
+                    <div class="flow-diagram">
+                        <div class="flow-box highlight">Command 1</div>
+                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <div class="flow-box highlight-blue">stdout | stdin</div>
+                        <span class="flow-arrow" aria-hidden="true">→</span>
+                        <div class="flow-box highlight-green">Command 2</div>
+                    </div>
+                </div>
+
+                <p>Pipelines allow you to combine simple commands to perform complex operations. The shell sets up the entire pipeline before running any commands, so all commands run concurrently.</p>
+
+                <h3>Basic Pipeline Examples</h3>
+
+                <div class="code-block">
+                    <span class="code-title">Simple Pipeline</span>
+                    <code><span class="code-comment"># Count the number of lines in /etc/passwd</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /etc/passwd | wc -l</span>
+<span class="code-output">45</span>
+
+<span class="code-comment"># Same result, but more efficient (wc can read files directly)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">wc -l /etc/passwd</span>
+<span class="code-output">45 /etc/passwd</span>
+
+<span class="code-comment"># List files and show only the first 5</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l /etc | head -5</span>
+<span class="code-output">total 1380</span>
+<span class="code-output">drwxr-xr-x.  3 root root       4096 Jan 15 10:00 abrt</span>
+<span class="code-output">-rw-r--r--.  1 root root         16 Jan 15 10:00 adjtime</span>
+<span class="code-output">-rw-r--r--.  1 root root       1529 Jun 23  2020 aliases</span>
+<span class="code-output">drwxr-xr-x.  3 root root       4096 Jan 15 10:00 alternatives</span></code>
+                </div>
+
+                <h3>Multi-Stage Pipelines</h3>
+                <p>Pipelines can have multiple stages, with each command processing the output of the previous one:</p>
+
+                <div class="pipeline-visual">
+                    <h4 style="text-align: center; font-family: var(--font-display); margin-bottom: 15px;">Example: Finding the 5 Largest Files</h4>
+                    <div class="pipeline-row">
+                        <div class="pipeline-cmd">ls -lS /usr/bin</div>
+                        <div class="pipeline-pipe">|</div>
+                        <div class="pipeline-cmd">head -6</div>
+                    </div>
+                    <p style="text-align: center; margin-top: 15px; font-family: var(--font-display); font-size: 0.9rem;">List files sorted by size → Show only first 6 lines (header + 5 files)</p>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-title">Complex Pipelines</span>
+                    <code><span class="code-comment"># Find all users with /bin/bash shell, sorted alphabetically</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep "/bin/bash" /etc/passwd | cut -d: -f1 | sort</span>
+<span class="code-output">root</span>
+<span class="code-output">student</span>
+<span class="code-output">user1</span>
+
+<span class="code-comment"># Count files by extension in current directory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls | rev | cut -d. -f1 | rev | sort | uniq -c | sort -rn | head</span>
+
+<span class="code-comment"># Find the 10 most common words in a file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /etc/services | tr -s ' ' '\n' | sort | uniq -c | sort -rn | head</span>
+
+<span class="code-comment"># Show memory usage of processes, sorted by memory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps aux | sort -k4 -rn | head</span></code>
+                </div>
+
+                <h3>Useful Commands for Pipelines</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Command</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">head</code></td>
+                            <td>Show first lines</td>
+                            <td><code class="inline">head -10</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">tail</code></td>
+                            <td>Show last lines</td>
+                            <td><code class="inline">tail -20</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">wc</code></td>
+                            <td>Count lines/words/chars</td>
+                            <td><code class="inline">wc -l</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">sort</code></td>
+                            <td>Sort lines</td>
+                            <td><code class="inline">sort -n</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">uniq</code></td>
+                            <td>Remove duplicates</td>
+                            <td><code class="inline">uniq -c</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">grep</code></td>
+                            <td>Filter lines by pattern</td>
+                            <td><code class="inline">grep "error"</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">cut</code></td>
+                            <td>Extract columns</td>
+                            <td><code class="inline">cut -d: -f1</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">tr</code></td>
+                            <td>Translate characters</td>
+                            <td><code class="inline">tr 'a-z' 'A-Z'</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span>Pipe vs. Redirect</span>
+                    </div>
+                    <p>Remember the difference:</p>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li><code class="inline">|</code> sends output to another <strong>command</strong></li>
+                        <li><code class="inline">></code> sends output to a <strong>file</strong></li>
+                    </ul>
+                    <p style="margin-top: 10px;">You can combine them: <code class="inline">ls -l | head > /tmp/first-files.txt</code></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: tee Command -->
+        <section id="section-tee" class="content-section" aria-labelledby="tee-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="tee-heading">The tee Command</h2>
+            </div>
+            <div class="section-body">
+                <p>In a pipeline, the 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-tee">tee</button>
+                        <span class="tooltip-content" id="tooltip-tee" role="tooltip">The tee command reads from stdin and writes to both stdout and one or more files simultaneously. It's named after the T-splitter used in plumbing.</span>
+                    </span> command copies its standard input to both its standard output and to one or more files. Think of <code class="inline">tee</code> as a T-junction in a pipeline that splits the data flow.</p>
+
+                <div class="diagram-container">
+                    <h4 class="diagram-title">How tee Works</h4>
+                    <svg width="100%" height="180" viewBox="0 0 500 180" aria-label="Diagram showing tee splitting output to screen and file">
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#0066CC"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Command box -->
+                        <rect x="20" y="60" width="100" height="50" fill="#FFF0F0" stroke="#CC0000" stroke-width="2" rx="5"/>
+                        <text x="70" y="90" text-anchor="middle" font-family="Segoe UI" font-size="14" fill="#333">Command</text>
+                        
+                        <!-- Arrow to tee -->
+                        <line x1="120" y1="85" x2="180" y2="85" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- Tee box -->
+                        <rect x="180" y="60" width="80" height="50" fill="#E6F0FF" stroke="#0066CC" stroke-width="2" rx="5"/>
+                        <text x="220" y="90" text-anchor="middle" font-family="Consolas" font-size="14" fill="#333">tee</text>
+                        
+                        <!-- Arrow to terminal -->
+                        <line x1="260" y1="85" x2="340" y2="85" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- Terminal box -->
+                        <rect x="340" y="60" width="100" height="50" fill="#E6FFE6" stroke="#339933" stroke-width="2" rx="5"/>
+                        <text x="390" y="90" text-anchor="middle" font-family="Segoe UI" font-size="14" fill="#333">Terminal</text>
+                        
+                        <!-- Arrow down to file -->
+                        <line x1="220" y1="110" x2="220" y2="150" stroke="#0066CC" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        
+                        <!-- File box -->
+                        <rect x="170" y="150" width="100" height="30" fill="#FFF9E6" stroke="#CC9900" stroke-width="2" rx="5"/>
+                        <text x="220" y="170" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#333">file.txt</text>
+                    </svg>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-title">tee Examples</span>
+                    <code><span class="code-comment"># Save output to file while also viewing it</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l /etc | tee /tmp/etc-list.txt | head -5</span>
+<span class="code-output">total 1380</span>
+<span class="code-output">drwxr-xr-x.  3 root root       4096 Jan 15 10:00 abrt</span>
+<span class="code-output">-rw-r--r--.  1 root root         16 Jan 15 10:00 adjtime</span>
+<span class="code-output">-rw-r--r--.  1 root root       1529 Jun 23  2020 aliases</span>
+<span class="code-output">drwxr-xr-x.  3 root root       4096 Jan 15 10:00 alternatives</span>
+
+<span class="code-comment"># The file contains the FULL output</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">wc -l /tmp/etc-list.txt</span>
+<span class="code-output">287 /tmp/etc-list.txt</span>
+
+<span class="code-comment"># Append to file with -a option</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">date | tee -a /tmp/timestamps.txt</span>
+<span class="code-output">Wed Jan 29 10:30:15 EST 2026</span>
+
+<span class="code-comment"># Write to multiple files at once</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "Important message" | tee file1.txt file2.txt file3.txt</span>
+<span class="code-output">Important message</span></code>
+                </div>
+
+                <h3>Practical Uses for tee</h3>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="tee-use-1">
+                        <span>Debugging Pipelines</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="tee-use-1" class="expandable-content">
+                        <p>Insert <code class="inline">tee</code> at various points in a pipeline to see intermediate results:</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Debug a complex pipeline by capturing intermediate output</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /etc/passwd | tee /tmp/step1.txt | cut -d: -f1 | tee /tmp/step2.txt | sort</span>
+
+<span class="code-comment"># Now you can examine /tmp/step1.txt and /tmp/step2.txt</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="tee-use-2">
+                        <span>Logging with Real-time Viewing</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="tee-use-2" class="expandable-content">
+                        <p>Save script output to a log while watching it run:</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Run a script, save output to log, and watch it</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">./my-script.sh 2>&1 | tee /tmp/script-output.log</span>
+
+<span class="code-comment"># Both stdout and stderr are captured and displayed</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="tee-use-3">
+                        <span>Writing to Files as Root</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="tee-use-3" class="expandable-content">
+                        <p>Use <code class="inline">sudo tee</code> to write to files that require root privileges:</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># This won't work - redirect happens before sudo</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo echo "new line" > /etc/somefile</span>
+<span class="code-error">bash: /etc/somefile: Permission denied</span>
+
+<span class="code-comment"># Use tee with sudo instead</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "new line" | sudo tee /etc/somefile</span>
+<span class="code-output">new line</span>
+
+<span class="code-comment"># Append with -a</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "another line" | sudo tee -a /etc/somefile</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>tee Command Options</h4>
+                    <ul>
+                        <li><code class="inline">tee file</code> — Write to file (overwrite) and stdout</li>
+                        <li><code class="inline">tee -a file</code> — Append to file and stdout</li>
+                        <li><code class="inline">tee file1 file2</code> — Write to multiple files and stdout</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container" role="region" aria-label="Chapter quiz">
+                    <div class="quiz-header">
+                        <h3 class="quiz-title">Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="c">
+                        <p class="question-text"><span class="question-number">Q1.</span> Which file descriptor number represents standard error (stderr)?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                0
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                1
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                2
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                3
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q2.</span> What does the command <code class="inline">ls >> file.txt</code> do if file.txt already exists?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                Overwrites the file with the new output
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                Appends the output to the end of the file
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                Displays an error because the file exists
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                Creates a backup of the original file first
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">Q3.</span> Which command redirects both stdout and stderr to the same file?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                <code class="inline">command &> file.txt</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                <code class="inline">command > file.txt</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                <code class="inline">command 2> file.txt</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                <code class="inline">command | file.txt</code>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">Q4.</span> What is the purpose of the pipe (<code class="inline">|</code>) operator?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Save command output to a file
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Run two commands in sequence
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Compare two files
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Connect the output of one command to the input of another
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q5.</span> What does the <code class="inline">tee</code> command do?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Displays the last lines of a file
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                Writes output to both a file and stdout simultaneously
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Translates characters from one set to another
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                Tests if a file exists
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Lab Exercises -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="lab-heading">Hands-On Lab Exercises</h2>
+            </div>
+            <div class="section-body">
+                <p>Practice the concepts you've learned with these guided exercises. Open a terminal on your RHEL system and complete each task.</p>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                        <span>Task 1: Basic Output Redirection</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-1" class="expandable-content">
+                        <p>Practice redirecting stdout to files using both overwrite and append modes.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Create a working directory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">mkdir ~/redirect-lab && cd ~/redirect-lab</span>
+
+<span class="code-comment"># Redirect the date to a file</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">date > timestamp.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat timestamp.txt</span>
+
+<span class="code-comment"># Overwrite with a new date</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">sleep 2 && date > timestamp.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat timestamp.txt</span>
+
+<span class="code-comment"># Now append multiple timestamps</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">date > timestamps.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">sleep 1 && date >> timestamps.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">sleep 1 && date >> timestamps.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat timestamps.txt</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                        <span>Task 2: Redirecting Standard Error</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-2" class="expandable-content">
+                        <p>Learn to handle error messages separately from normal output.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Generate both output and errors</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls /etc/hosts /etc/nonexistent</span>
+
+<span class="code-comment"># Redirect only errors to a file</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls /etc/hosts /etc/nonexistent 2> errors.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat errors.txt</span>
+
+<span class="code-comment"># Redirect stdout and stderr to separate files</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls /etc/hosts /etc/nonexistent > output.txt 2> errors.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">echo "=== Output ===" && cat output.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">echo "=== Errors ===" && cat errors.txt</span>
+
+<span class="code-comment"># Redirect both to the same file</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls /etc/hosts /etc/nonexistent &> all-output.txt</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat all-output.txt</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                        <span>Task 3: Building Pipelines</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-3" class="expandable-content">
+                        <p>Create powerful command combinations using pipes.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Count users in /etc/passwd</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat /etc/passwd | wc -l</span>
+
+<span class="code-comment"># List only usernames, sorted alphabetically</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cut -d: -f1 /etc/passwd | sort</span>
+
+<span class="code-comment"># Find users with bash shell</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">grep "/bin/bash" /etc/passwd | cut -d: -f1</span>
+
+<span class="code-comment"># Find the 5 largest files in /usr/bin</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls -lS /usr/bin | head -6</span>
+
+<span class="code-comment"># Count unique shells used by users</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cut -d: -f7 /etc/passwd | sort | uniq -c | sort -rn</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                        <span>Task 4: Using tee</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-4" class="expandable-content">
+                        <p>Practice saving output while viewing it simultaneously.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Save and view directory listing</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">ls -l /etc | tee etc-listing.txt | head</span>
+
+<span class="code-comment"># Verify the full listing was saved</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">wc -l etc-listing.txt</span>
+
+<span class="code-comment"># Append multiple entries to a log</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">echo "Starting log" | tee activity.log</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">date | tee -a activity.log</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">hostname | tee -a activity.log</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat activity.log</span>
+
+<span class="code-comment"># Debug a pipeline with tee</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cat /etc/passwd | tee step1.txt | cut -d: -f1 | tee step2.txt | sort | head</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
+                        <span>Task 5: Challenge Exercise</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="lab-task-5" class="expandable-content">
+                        <p>Combine multiple concepts to solve a practical problem.</p>
+                        <div class="info-box">
+                            <div class="info-box-header">
+                                <span class="note-icon" aria-hidden="true">🎯</span>
+                                <span>Challenge</span>
+                            </div>
+                            <p>Create a single command pipeline that:</p>
+                            <ol style="margin-top: 10px; margin-left: 20px;">
+                                <li>Searches for all "Permission denied" errors when running <code class="inline">find /etc</code></li>
+                                <li>Counts how many such errors occurred</li>
+                                <li>Saves the count to a file called <code class="inline">permission-errors.txt</code></li>
+                            </ol>
+                        </div>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Solution (try it yourself first!)</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">find /etc 2>&1 | grep "Permission denied" | wc -l | tee permission-errors.txt</span>
+
+<span class="code-comment"># Cleanup</span>
+<span class="code-prompt">[student@workstation redirect-lab]$</span> <span class="code-command">cd ~ && rm -rf ~/redirect-lab</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="key-points">
+                    <h4>Lab Completion Checklist</h4>
+                    <ul>
+                        <li>✓ Redirected stdout using <code class="inline">></code> and <code class="inline">>></code></li>
+                        <li>✓ Redirected stderr using <code class="inline">2></code></li>
+                        <li>✓ Combined stdout and stderr with <code class="inline">&></code></li>
+                        <li>✓ Built multi-stage pipelines with <code class="inline">|</code></li>
+                        <li>✓ Used <code class="inline">tee</code> to save and display output</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Concepts</h3>
+                    <ul class="summary-list">
+                        <li><strong>Standard streams:</strong> Every process has stdin (0), stdout (1), and stderr (2) for I/O communication.</li>
+                        <li><strong>Output redirection:</strong> Use <code class="inline">></code> to overwrite or <code class="inline">>></code> to append stdout to a file.</li>
+                        <li><strong>Error redirection:</strong> Use <code class="inline">2></code> to redirect stderr; <code class="inline">&></code> redirects both streams.</li>
+                        <li><strong>Pipelines:</strong> The <code class="inline">|</code> operator connects stdout of one command to stdin of the next.</li>
+                        <li><strong>The tee command:</strong> Splits output to both a file and stdout simultaneously.</li>
+                        <li><strong>/dev/null:</strong> A special file that discards all data written to it.</li>
+                        <li><strong>Order matters:</strong> When using <code class="inline">2>&1</code>, redirect stdout first, then redirect stderr to stdout.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 10, you'll learn about managing local users and groups, including:</p>
+                    <ul>
+                        <li>Creating and managing user accounts</li>
+                        <li>Working with groups</li>
+                        <li>Setting password policies</li>
+                        <li>Understanding user and group configuration files</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 9 Complete!</h2>
+                    <p>You've learned how to redirect shell input and output effectively.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 9 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            let visitedSections = new Set();
+
+            // Load saved progress
+            const savedProgress = localStorage.getItem('ch9-visited-sections');
+            if (savedProgress) {
+                visitedSections = new Set(JSON.parse(savedProgress));
+                updateProgress();
+            }
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = percentage + '%';
+                progressFill.setAttribute('aria-valuenow', percentage);
+                progressText.textContent = percentage + '% Complete';
+
+                // Update nav buttons
+                navBtns.forEach(btn => {
+                    const href = btn.getAttribute('href');
+                    if (href && visitedSections.has(href.substring(1))) {
+                        btn.classList.add('visited');
+                    }
+                });
+
+                // Save progress
+                localStorage.setItem('ch9-visited-sections', JSON.stringify([...visitedSections]));
+            }
+
+            // Intersection Observer for tracking viewed sections
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visitedSections.add(entry.target.id);
+                        updateProgress();
+                        
+                        // Update active nav
+                        navBtns.forEach(btn => btn.classList.remove('active'));
+                        const activeBtn = document.querySelector(`.nav-btn[href="#${entry.target.id}"]`);
+                        if (activeBtn) activeBtn.classList.add('active');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => sectionObserver.observe(section));
+
+            // ==================== TAB FUNCTIONALITY ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+
+                tabBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const targetId = btn.getAttribute('aria-controls');
+
+                        // Update buttons
+                        tabBtns.forEach(b => b.setAttribute('aria-selected', 'false'));
+                        btn.setAttribute('aria-selected', 'true');
+
+                        // Update content
+                        tabContents.forEach(content => {
+                            content.classList.remove('active');
+                            if (content.id === targetId) {
+                                content.classList.add('active');
+                            }
+                        });
+                    });
+
+                    // Keyboard navigation
+                    btn.addEventListener('keydown', (e) => {
+                        const btns = Array.from(tabBtns);
+                        const currentIndex = btns.indexOf(btn);
+
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            let newIndex;
+                            if (e.key === 'ArrowRight') {
+                                newIndex = (currentIndex + 1) % btns.length;
+                            } else {
+                                newIndex = (currentIndex - 1 + btns.length) % btns.length;
+                            }
+                            btns[newIndex].click();
+                            btns[newIndex].focus();
+                        }
+                    });
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable');
+
+            expandables.forEach(expandable => {
+                const header = expandable.querySelector('.expandable-header');
+                const content = expandable.querySelector('.expandable-content');
+
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.classList.toggle('expanded');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== QUIZ FUNCTIONALITY ====================
+            const quizContainer = document.querySelector('.quiz-container');
+            if (quizContainer) {
+                const checkAnswersBtn = document.getElementById('check-answers');
+                const resetQuizBtn = document.getElementById('reset-quiz');
+                const quizScore = document.getElementById('quiz-score');
+                const quizQuestions = document.querySelectorAll('.quiz-question');
+
+                const correctAnswers = {
+                    1: { answer: 'c', explanation: 'stderr uses file descriptor 2. stdin is 0, stdout is 1.' },
+                    2: { answer: 'b', explanation: 'The >> operator appends output to the end of an existing file without overwriting it.' },
+                    3: { answer: 'a', explanation: '&> redirects both stdout and stderr to the same file. Using just > only redirects stdout.' },
+                    4: { answer: 'd', explanation: 'The pipe operator connects the stdout of one command to the stdin of the next, allowing data to flow between commands.' },
+                    5: { answer: 'b', explanation: 'tee reads from stdin and writes to both stdout and one or more files, allowing you to save and view output simultaneously.' }
+                };
+
+                checkAnswersBtn.addEventListener('click', () => {
+                    let score = 0;
+
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const selectedOption = question.querySelector('input:checked');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        const options = question.querySelectorAll('.quiz-option');
+
+                        options.forEach(opt => {
+                            opt.classList.remove('correct', 'incorrect');
+                        });
+
+                        if (selectedOption) {
+                            const selectedValue = selectedOption.value;
+                            const correctValue = correctAnswers[qNum].answer;
+                            const selectedLabel = selectedOption.closest('.quiz-option');
+
+                            if (selectedValue === correctValue) {
+                                score++;
+                                selectedLabel.classList.add('correct');
+                                feedback.className = 'quiz-feedback show correct';
+                                feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            } else {
+                                selectedLabel.classList.add('incorrect');
+                                options.forEach(opt => {
+                                    const input = opt.querySelector('input');
+                                    if (input.value === correctValue) {
+                                        opt.classList.add('correct');
+                                    }
+                                });
+                                feedback.className = 'quiz-feedback show incorrect';
+                                feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            }
+                        } else {
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '⚠ Please select an answer.';
+                        }
+                    });
+
+                    quizScore.textContent = `Score: ${score}/5`;
+                    checkAnswersBtn.style.display = 'none';
+                    resetQuizBtn.style.display = 'inline-block';
+
+                    if (score === 5) {
+                        localStorage.setItem('ch9-quiz-passed', 'true');
+                    }
+                });
+
+                resetQuizBtn.addEventListener('click', () => {
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        const options = question.querySelectorAll('.quiz-option');
+                        const inputs = question.querySelectorAll('input');
+
+                        options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+                        inputs.forEach(input => input.checked = false);
+                        feedback.className = 'quiz-feedback';
+                        feedback.innerHTML = '';
+                    });
+
+                    quizScore.textContent = 'Score: 0/5';
+                    checkAnswersBtn.style.display = 'inline-block';
+                    resetQuizBtn.style.display = 'none';
+                });
+            }
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    localStorage.setItem('ch9-complete', 'true');
+
+                    alert('Congratulations! You have completed Chapter 9: Redirecting Shell Input and Output. Continue to Chapter 10 to learn about managing local users and groups.');
+                });
+
+                if (localStorage.getItem('ch9-complete') === 'true') {
+                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+                }
+            }
+
+            // ==================== TOOLTIP POSITIONING ====================
+            const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+
+            tooltipTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', positionTooltip);
+                trigger.addEventListener('focus', positionTooltip);
+            });
+
+            function positionTooltip(e) {
+                const trigger = e.target;
+                const container = trigger.closest('.tooltip-container');
+                const tooltip = container.querySelector('.tooltip-content');
+
+                // Reset classes
+                tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
+
+                const rect = trigger.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                // Check if tooltip would go off screen
+                if (rect.left + (rect.width / 2) - (tooltipRect.width / 2) < 10) {
+                    tooltip.classList.add('tooltip-left');
+                } else if (rect.right - (rect.width / 2) + (tooltipRect.width / 2) > window.innerWidth - 10) {
+                    tooltip.classList.add('tooltip-right');
+                }
+
+                // Check vertical positioning
+                if (rect.top < tooltipRect.height + 20) {
+                    tooltip.classList.add('tooltip-bottom');
+                }
+            }
+
+            // ==================== SMOOTH SCROLLING ====================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
