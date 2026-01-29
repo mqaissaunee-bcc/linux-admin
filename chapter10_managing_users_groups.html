@@ -1,0 +1,3072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Managing Local Users and Groups | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #267326;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: var(--rh-gray-lighter);
+            color: var(--rh-gray-dark);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .nav-btn.visited {
+            border-color: var(--rh-green);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-lighter);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 20px;
+        }
+
+        .section-body h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+
+        .section-body h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCFFCC 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin-bottom: 15px;
+            margin-top: 0;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+        }
+
+        .objectives-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* ==================== INLINE CODE ==================== */
+        code.inline {
+            background: var(--rh-gray-lighter);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            color: var(--rh-red-dark);
+        }
+
+        /* ==================== TOOLTIP SYSTEM ==================== */
+        .tooltip-container {
+            position: relative;
+            display: inline;
+        }
+
+        .tooltip-trigger {
+            border: none;
+            background: none;
+            padding: 0;
+            font: inherit;
+            color: var(--rh-blue);
+            border-bottom: 2px dotted var(--rh-blue);
+            cursor: help;
+        }
+
+        .tooltip-content {
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            width: 280px;
+            max-width: 90vw;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--rh-gray-dark);
+        }
+
+        .tooltip-trigger:hover + .tooltip-content,
+        .tooltip-trigger:focus + .tooltip-content {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Tooltip positioning variants */
+        .tooltip-content.tooltip-left {
+            left: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-left::after {
+            left: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right::after {
+            left: auto;
+            right: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-bottom {
+            bottom: auto;
+            top: calc(100% + 10px);
+        }
+
+        .tooltip-content.tooltip-bottom::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 100px;
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-gray-lighter);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            margin-top: 0;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-error {
+            color: #FF6666;
+        }
+
+        .code-block .code-file {
+            color: #99FF99;
+        }
+
+        .code-block .code-highlight {
+            color: #FF99FF;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+        }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border: 2px solid var(--rh-blue);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-blue-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== KEY POINTS ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-top: 0;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F0FF;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            margin: 15px 0;
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            text-align: left;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .expand-icon {
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 20px;
+            background: var(--rh-white);
+        }
+
+        .expandable-content.active {
+            display: block;
+        }
+
+        /* ==================== QUIZ STYLES ==================== */
+        .quiz-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quiz-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--rh-gray-dark);
+        }
+
+        .quiz-score {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--rh-gray-dark);
+        }
+
+        .question-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 3px 10px;
+            border-radius: var(--radius-sm);
+            margin-right: 10px;
+            font-size: 0.85rem;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-family: var(--font-display);
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .quiz-option input {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .quiz-option.correct {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .quiz-option.incorrect {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #E6FFE6;
+            color: var(--rh-green-dark);
+            border: 1px solid var(--rh-green);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #FFF0F0;
+            color: var(--rh-red-dark);
+            border: 1px solid var(--rh-red);
+        }
+
+        .quiz-btn {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .quiz-btn:hover {
+            background: var(--rh-red-dark);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== LAB STYLES ==================== */
+        .lab-container {
+            background: linear-gradient(135deg, #F0E6FF 0%, #E6D9FF 100%);
+            border: 2px solid var(--rh-purple);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .lab-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .lab-icon {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .lab-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--rh-purple);
+        }
+
+        .lab-step {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--rh-purple);
+        }
+
+        .step-number {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        /* ==================== FILE STRUCTURE DIAGRAM ==================== */
+        .file-diagram {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 20px 0;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .file-diagram-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .file-field {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: var(--radius-sm);
+            transition: background var(--transition-fast);
+        }
+
+        .file-field:hover {
+            background: var(--rh-white);
+        }
+
+        .field-name {
+            font-weight: 700;
+            color: var(--rh-blue);
+            min-width: 150px;
+        }
+
+        .field-separator {
+            color: var(--rh-red);
+            font-weight: 700;
+            margin: 0 10px;
+        }
+
+        .field-desc {
+            color: var(--rh-gray);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+        }
+
+        /* ==================== SUMMARY BOX ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCFFCC 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin-bottom: 15px;
+        }
+
+        .summary-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .summary-list li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 12px;
+        }
+
+        .summary-list li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            border-radius: var(--radius-lg);
+            margin-top: 40px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            padding: 15px 40px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 20px;
+        }
+
+        .completion-btn:hover {
+            background: var(--rh-green-dark);
+            transform: scale(1.05);
+        }
+
+        /* ==================== DIAGRAM CONTAINER ==================== */
+        .diagram-container {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .diagram-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        /* ==================== INTERACTIVE SIMULATOR ==================== */
+        .simulator-container {
+            background: var(--rh-black);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .simulator-header {
+            background: var(--rh-gray-dark);
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simulator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .simulator-dot.red { background: #FF5F56; }
+        .simulator-dot.yellow { background: #FFBD2E; }
+        .simulator-dot.green { background: #27C93F; }
+
+        .simulator-title {
+            color: var(--rh-gray-light);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            margin-left: 10px;
+        }
+
+        .simulator-body {
+            padding: 20px;
+            min-height: 300px;
+        }
+
+        .simulator-output {
+            color: #00FF00;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .simulator-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .simulator-prompt {
+            color: #00FFFF;
+            font-family: var(--font-mono);
+            margin-right: 10px;
+        }
+
+        .simulator-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #FFFF00;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .simulator-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 15px 20px;
+            background: var(--rh-gray-dark);
+        }
+
+        .sim-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .sim-btn.primary {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .sim-btn.secondary {
+            background: var(--rh-gray);
+            color: var(--rh-white);
+        }
+
+        .sim-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body {
+                padding: 20px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .tab-list {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                border-radius: var(--radius-md);
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 10px;
+            }
+
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .field-name {
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Main Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 • RHEL 10</span>
+            <h1>Chapter 10: Managing Local Users and Groups</h1>
+            <p class="chapter-subtitle">Create, modify, and manage user accounts and groups to control access and organize users on your Linux system</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-intro" class="nav-btn">Introduction</a>
+            <a href="#section-users" class="nav-btn">Users</a>
+            <a href="#section-groups" class="nav-btn">Groups</a>
+            <a href="#section-passwd" class="nav-btn">/etc/passwd</a>
+            <a href="#section-shadow" class="nav-btn">/etc/shadow</a>
+            <a href="#section-commands" class="nav-btn">Commands</a>
+            <a href="#section-sudo" class="nav-btn">Sudo</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="region" aria-label="Chapter progress">
+        <div class="progress-inner">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-text">0% Complete</span>
+            </div>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        
+        <!-- Section 1: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Describe the purpose of users and groups on a Linux system</li>
+                        <li>Understand User IDs (UIDs) and Group IDs (GIDs) and their ranges</li>
+                        <li>Interpret the structure and fields in <code class="inline">/etc/passwd</code></li>
+                        <li>Understand password storage and aging in <code class="inline">/etc/shadow</code></li>
+                        <li>Create, modify, and delete user accounts using <code class="inline">useradd</code>, <code class="inline">usermod</code>, and <code class="inline">userdel</code></li>
+                        <li>Set and manage user passwords with <code class="inline">passwd</code></li>
+                        <li>Create and manage groups using <code class="inline">groupadd</code>, <code class="inline">groupmod</code>, and <code class="inline">groupdel</code></li>
+                        <li>Configure administrative access using <code class="inline">sudo</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Introduction to Users and Groups -->
+        <section id="section-intro" class="content-section" aria-labelledby="intro-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="intro-heading">Introduction to Users and Groups</h2>
+            </div>
+            <div class="section-body">
+                <p>Linux is a multi-user operating system, meaning multiple users can use the system simultaneously. To manage access and security, Linux uses a system of 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-user">users</button>
+                        <span class="tooltip-content" id="tooltip-user" role="tooltip">A user is an entity that can access files, run processes, and perform various operations on the system. Each user has a unique User ID (UID) and belongs to at least one group.</span>
+                    </span> and 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-group">groups</button>
+                        <span class="tooltip-content" id="tooltip-group" role="tooltip">A group is a collection of users that share common access permissions. Groups simplify permission management by allowing you to grant permissions to multiple users at once.</span>
+                    </span> to control access to files, directories, and system resources.</p>
+
+                <h3>Why Users and Groups Matter</h3>
+                <div class="key-points">
+                    <h4>Key Benefits</h4>
+                    <ul>
+                        <li><strong>Security:</strong> Users can only access files and resources they have permission to use</li>
+                        <li><strong>Accountability:</strong> Actions can be traced back to specific users through logging</li>
+                        <li><strong>Organization:</strong> Groups allow efficient management of permissions for multiple users</li>
+                        <li><strong>Isolation:</strong> Each user has their own home directory and environment settings</li>
+                        <li><strong>Resource Control:</strong> Quotas and limits can be applied per user or group</li>
+                    </ul>
+                </div>
+
+                <h3>Types of User Accounts</h3>
+                <p>Linux systems have three main types of user accounts:</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Account Type</th>
+                            <th>UID Range</th>
+                            <th>Purpose</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Superuser (root)</strong></td>
+                            <td>0</td>
+                            <td>Full system access, administration</td>
+                            <td>root</td>
+                        </tr>
+                        <tr>
+                            <td><strong>System Users</strong></td>
+                            <td>1-999</td>
+                            <td>Run system services and daemons</td>
+                            <td>apache, mysql, nobody</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Regular Users</strong></td>
+                            <td>1000+</td>
+                            <td>Interactive login for people</td>
+                            <td>student, jdoe, admin</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span>RHEL 10 UID/GID Ranges</span>
+                    </div>
+                    <p>In RHEL 10, the UID and GID ranges are defined in <code class="inline">/etc/login.defs</code>. Regular users start at UID 1000, and system users use UIDs 1-999. These ranges can be customized if needed.</p>
+                </div>
+
+                <h3>Understanding User IDs (UIDs)</h3>
+                <p>Every user account has a unique numeric identifier called a 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-uid">UID (User ID)</button>
+                        <span class="tooltip-content" id="tooltip-uid" role="tooltip">The UID is a numeric value that the kernel uses to identify users. While usernames are for human convenience, the system internally works with UIDs. UID 0 is always root.</span>
+                    </span>. The kernel uses UIDs internally to identify users and determine permissions.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Viewing User Information</span>
+                    <code><span class="code-comment"># Display current user's UID and groups</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">id</span>
+<span class="code-output">uid=1000(student) gid=1000(student) groups=1000(student),10(wheel)</span>
+
+<span class="code-comment"># Display information for a specific user</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">id root</span>
+<span class="code-output">uid=0(root) gid=0(root) groups=0(root)</span>
+
+<span class="code-comment"># Show just the username</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">whoami</span>
+<span class="code-output">student</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Understanding Users -->
+        <section id="section-users" class="content-section" aria-labelledby="users-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="users-heading">Understanding Linux Users</h2>
+            </div>
+            <div class="section-body">
+                <p>Each user account in Linux is defined by several key attributes stored in system configuration files. Understanding these attributes is essential for effective user management.</p>
+
+                <h3>User Account Attributes</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Description</th>
+                            <th>Stored In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Username</strong></td>
+                            <td>Human-readable name for the account</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>UID</strong></td>
+                            <td>Unique numeric identifier</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GID</strong></td>
+                            <td>Primary group ID</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GECOS/Comment</strong></td>
+                            <td>Full name and other info</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Home Directory</strong></td>
+                            <td>User's personal file space</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Login Shell</strong></td>
+                            <td>Default command interpreter</td>
+                            <td>/etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Password Hash</strong></td>
+                            <td>Encrypted password</td>
+                            <td>/etc/shadow</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>The Root User</h3>
+                <p>The 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-root">root user</button>
+                        <span class="tooltip-content" id="tooltip-root" role="tooltip">The root user (also called superuser) has UID 0 and has unrestricted access to all files, commands, and system resources. Root can override any permission and perform any administrative task.</span>
+                    </span> (UID 0) is the superuser with unlimited privileges. Root can:</p>
+                <ul style="margin-left: 25px; margin-bottom: 20px;">
+                    <li>Read, write, or delete any file regardless of permissions</li>
+                    <li>Create, modify, or delete user accounts</li>
+                    <li>Install and remove software</li>
+                    <li>Modify system configuration</li>
+                    <li>Start and stop system services</li>
+                </ul>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span>Security Warning</span>
+                    </div>
+                    <p>Avoid logging in directly as root for regular tasks. Use <code class="inline">sudo</code> to perform administrative tasks while logged in as a regular user. This provides better accountability and reduces the risk of accidental system damage.</p>
+                </div>
+
+                <h3>System Users</h3>
+                <p>System users (UIDs 1-999) are created to run system services. They typically:</p>
+                <ul style="margin-left: 25px; margin-bottom: 20px;">
+                    <li>Cannot log in interactively (shell set to <code class="inline">/sbin/nologin</code>)</li>
+                    <li>Own files related to their service</li>
+                    <li>Have limited permissions specific to their service</li>
+                </ul>
+
+                <div class="code-block">
+                    <span class="code-title">Example System Users</span>
+                    <code><span class="code-comment"># View system users</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -E "nologin|false" /etc/passwd | head -5</span>
+<span class="code-output">bin:x:1:1:bin:/bin:/sbin/nologin</span>
+<span class="code-output">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span>
+<span class="code-output">adm:x:3:4:adm:/var/adm:/sbin/nologin</span>
+<span class="code-output">lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin</span>
+<span class="code-output">mail:x:8:12:mail:/var/spool/mail:/sbin/nologin</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Understanding Groups -->
+        <section id="section-groups" class="content-section" aria-labelledby="groups-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="groups-heading">Understanding Linux Groups</h2>
+            </div>
+            <div class="section-body">
+                <p>Groups provide a way to organize users and grant permissions to multiple users simultaneously. Every user belongs to at least one group.</p>
+
+                <h3>Primary vs. Supplementary Groups</h3>
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Group types">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-primary" id="tab-btn-primary">Primary Group</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-supplementary" id="tab-btn-supplementary">Supplementary Groups</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-comparison" id="tab-btn-comparison">Comparison</button>
+                    </div>
+                    
+                    <div id="tab-primary" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-primary">
+                        <h4>Primary Group (Login Group)</h4>
+                        <p>Each user has exactly one primary group, specified in <code class="inline">/etc/passwd</code>.</p>
+                        <ul style="margin-top: 15px; margin-left: 20px;">
+                            <li>The primary group is used for new files the user creates</li>
+                            <li>By default, RHEL creates a private group with the same name as the username</li>
+                            <li>This is called the <strong>User Private Group (UPG)</strong> scheme</li>
+                            <li>The GID in <code class="inline">/etc/passwd</code> identifies the primary group</li>
+                        </ul>
+                        <div class="code-block">
+                            <code><span class="code-comment"># User's primary group owns newly created files</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">touch newfile.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l newfile.txt</span>
+<span class="code-output">-rw-r--r--. 1 student student 0 Jan 29 10:00 newfile.txt</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-supplementary" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-supplementary">
+                        <h4>Supplementary (Secondary) Groups</h4>
+                        <p>Users can belong to multiple supplementary groups for additional permissions.</p>
+                        <ul style="margin-top: 15px; margin-left: 20px;">
+                            <li>Listed in <code class="inline">/etc/group</code></li>
+                            <li>Grant access to shared resources</li>
+                            <li>A user can belong to up to 65,535 supplementary groups</li>
+                            <li>Common examples: wheel, developers, marketing</li>
+                        </ul>
+                        <div class="code-block">
+                            <code><span class="code-comment"># View all groups a user belongs to</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">groups student</span>
+<span class="code-output">student : student wheel</span>
+
+<span class="code-comment"># The 'groups' command shows primary first, then supplementary</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-comparison" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-comparison">
+                        <h4>Comparison Table</h4>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Aspect</th>
+                                    <th>Primary Group</th>
+                                    <th>Supplementary Groups</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Count per user</td>
+                                    <td>Exactly one</td>
+                                    <td>Zero or more</td>
+                                </tr>
+                                <tr>
+                                    <td>Defined in</td>
+                                    <td>/etc/passwd (GID field)</td>
+                                    <td>/etc/group</td>
+                                </tr>
+                                <tr>
+                                    <td>New file ownership</td>
+                                    <td>Yes (group owner)</td>
+                                    <td>No</td>
+                                </tr>
+                                <tr>
+                                    <td>Permission access</td>
+                                    <td>Yes</td>
+                                    <td>Yes</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <h3>The /etc/group File</h3>
+                <p>Group information is stored in <code class="inline">/etc/group</code>. Each line defines one group with four colon-separated fields:</p>
+
+                <div class="file-diagram">
+                    <div class="file-diagram-title">Structure of /etc/group</div>
+                    <div class="file-field">
+                        <span class="field-name">groupname</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">password</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">GID</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">members</span>
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px dashed var(--rh-gray-light);">
+                    <div class="file-field">
+                        <span class="field-name">wheel</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">x</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">10</span>
+                        <span class="field-separator">:</span>
+                        <span class="field-name">student,admin</span>
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Group Name</td>
+                            <td>Human-readable group identifier</td>
+                            <td>wheel</td>
+                        </tr>
+                        <tr>
+                            <td>Password</td>
+                            <td>Usually 'x' (password in /etc/gshadow if used)</td>
+                            <td>x</td>
+                        </tr>
+                        <tr>
+                            <td>GID</td>
+                            <td>Unique numeric Group ID</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td>Members</td>
+                            <td>Comma-separated list of supplementary members</td>
+                            <td>student,admin</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">ℹ️</span>
+                        <span>The wheel Group</span>
+                    </div>
+                    <p>The <code class="inline">wheel</code> group is special in RHEL. Members of this group can use <code class="inline">sudo</code> to run commands as root. Adding a user to the wheel group grants them administrative privileges.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: The /etc/passwd File -->
+        <section id="section-passwd" class="content-section" aria-labelledby="passwd-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="passwd-heading">The /etc/passwd File</h2>
+            </div>
+            <div class="section-body">
+                <p>The <code class="inline">/etc/passwd</code> file is the primary database for user account information. Despite its name, it does not contain passwords (those are in <code class="inline">/etc/shadow</code>). This file is readable by all users.</p>
+
+                <h3>File Structure</h3>
+                <p>Each line in <code class="inline">/etc/passwd</code> represents one user account with seven colon-separated fields:</p>
+
+                <div class="file-diagram">
+                    <div class="file-diagram-title">Structure of /etc/passwd Entry</div>
+                    <div class="file-field" style="flex-wrap: wrap;">
+                        <span class="field-name">username</span><span class="field-separator">:</span>
+                        <span class="field-name">password</span><span class="field-separator">:</span>
+                        <span class="field-name">UID</span><span class="field-separator">:</span>
+                        <span class="field-name">GID</span><span class="field-separator">:</span>
+                        <span class="field-name">GECOS</span><span class="field-separator">:</span>
+                        <span class="field-name">home</span><span class="field-separator">:</span>
+                        <span class="field-name">shell</span>
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px dashed var(--rh-gray-light);">
+                    <div class="file-field" style="flex-wrap: wrap;">
+                        <span style="color: var(--rh-blue);">student</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-gray);">x</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-green);">1000</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-purple);">1000</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-orange);">Student User</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-teal);">/home/student</span><span class="field-separator">:</span>
+                        <span style="color: var(--rh-red);">/bin/bash</span>
+                    </div>
+                </div>
+
+                <h3>Field Descriptions</h3>
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-1">
+                        <span>Field 1: Username</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-1" class="expandable-content">
+                        <p>The username is the human-readable identifier for the account. It must:</p>
+                        <ul style="margin-left: 20px;">
+                            <li>Be unique on the system</li>
+                            <li>Start with a lowercase letter or underscore</li>
+                            <li>Contain only lowercase letters, digits, underscores, or dashes</li>
+                            <li>Be no longer than 32 characters (recommended: 8 or fewer)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-2">
+                        <span>Field 2: Password Placeholder</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-2" class="expandable-content">
+                        <p>This field historically contained the encrypted password. Modern systems show:</p>
+                        <ul style="margin-left: 20px;">
+                            <li><code class="inline">x</code> - Password is stored in <code class="inline">/etc/shadow</code> (most common)</li>
+                            <li><code class="inline">*</code> - Account is disabled / cannot login with password</li>
+                            <li>Empty - No password required (dangerous!)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-3">
+                        <span>Field 3: UID (User ID)</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-3" class="expandable-content">
+                        <p>The numeric user identifier. Key ranges in RHEL 10:</p>
+                        <ul style="margin-left: 20px;">
+                            <li><strong>0</strong> - Root (superuser)</li>
+                            <li><strong>1-999</strong> - System accounts</li>
+                            <li><strong>1000-60000</strong> - Regular users (default range)</li>
+                            <li><strong>65534</strong> - Often used for "nobody" user</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-4">
+                        <span>Field 4: GID (Primary Group ID)</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-4" class="expandable-content">
+                        <p>The numeric ID of the user's primary group. With RHEL's UPG scheme:</p>
+                        <ul style="margin-left: 20px;">
+                            <li>Each user gets a private group with the same name</li>
+                            <li>The GID typically matches the UID for regular users</li>
+                            <li>New files are owned by this group</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-5">
+                        <span>Field 5: GECOS (Comment)</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-5" class="expandable-content">
+                        <p>The GECOS field contains descriptive information about the user:</p>
+                        <ul style="margin-left: 20px;">
+                            <li>Typically contains the user's full name</li>
+                            <li>Can include office location, phone numbers (comma-separated)</li>
+                            <li>Used by programs like <code class="inline">finger</code> and mail systems</li>
+                            <li>Can be changed with <code class="inline">chfn</code> command</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-6">
+                        <span>Field 6: Home Directory</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-6" class="expandable-content">
+                        <p>The absolute path to the user's home directory:</p>
+                        <ul style="margin-left: 20px;">
+                            <li>Usually <code class="inline">/home/username</code> for regular users</li>
+                            <li>Root's home is <code class="inline">/root</code></li>
+                            <li>System users may have service-specific directories</li>
+                            <li>Set as the working directory upon login</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="field-7">
+                        <span>Field 7: Login Shell</span>
+                        <span class="expand-icon" aria-hidden="true">▼</span>
+                    </button>
+                    <div id="field-7" class="expandable-content">
+                        <p>The program that runs when the user logs in:</p>
+                        <ul style="margin-left: 20px;">
+                            <li><code class="inline">/bin/bash</code> - Default shell for interactive users</li>
+                            <li><code class="inline">/sbin/nologin</code> - Prevents interactive login (system accounts)</li>
+                            <li><code class="inline">/bin/false</code> - Also prevents login</li>
+                            <li>Valid shells are listed in <code class="inline">/etc/shells</code></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Viewing /etc/passwd</h3>
+                <div class="code-block">
+                    <span class="code-title">/etc/passwd Examples</span>
+                    <code><span class="code-comment"># View the entire file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /etc/passwd</span>
+
+<span class="code-comment"># View specific user</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep "^student:" /etc/passwd</span>
+<span class="code-output">student:x:1000:1000:Student User:/home/student:/bin/bash</span>
+
+<span class="code-comment"># Use getent to query user database</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">getent passwd student</span>
+<span class="code-output">student:x:1000:1000:Student User:/home/student:/bin/bash</span>
+
+<span class="code-comment"># Count total users</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">wc -l /etc/passwd</span>
+<span class="code-output">45 /etc/passwd</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: The /etc/shadow File -->
+        <section id="section-shadow" class="content-section" aria-labelledby="shadow-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="shadow-heading">The /etc/shadow File</h2>
+            </div>
+            <div class="section-body">
+                <p>The <code class="inline">/etc/shadow</code> file stores encrypted passwords and password aging information. Unlike <code class="inline">/etc/passwd</code>, this file is only readable by root, protecting password hashes from unauthorized access.</p>
+
+                <h3>File Structure</h3>
+                <p>Each line has nine colon-separated fields:</p>
+
+                <div class="file-diagram">
+                    <div class="file-diagram-title">Structure of /etc/shadow Entry</div>
+                    <div style="font-size: 0.85rem; color: var(--rh-gray);">
+                        username:password:lastchange:min:max:warn:inactive:expire:reserved
+                    </div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px dashed var(--rh-gray-light);">
+                    <div style="font-size: 0.85rem; word-break: break-all;">
+                        <span style="color: var(--rh-blue);">student</span>:<span style="color: var(--rh-gray);">$6$xyz...hash...</span>:<span style="color: var(--rh-green);">19750</span>:<span style="color: var(--rh-purple);">0</span>:<span style="color: var(--rh-orange);">99999</span>:<span style="color: var(--rh-teal);">7</span>:::
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Username</td>
+                            <td>Must match entry in /etc/passwd</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Password Hash</td>
+                            <td>Encrypted password ($algorithm$salt$hash)</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Last Change</td>
+                            <td>Days since Jan 1, 1970 when password was last changed</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Minimum Age</td>
+                            <td>Minimum days before password can be changed</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Maximum Age</td>
+                            <td>Maximum days before password must be changed</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>Warning Period</td>
+                            <td>Days before expiration to warn user</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>Inactive Period</td>
+                            <td>Days after expiration until account is disabled</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>Expiration Date</td>
+                            <td>Days since Jan 1, 1970 when account expires</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>Reserved</td>
+                            <td>Reserved for future use</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Password Hash Format</h3>
+                <p>The password hash field uses the format: <code class="inline">$algorithm$salt$encrypted_hash</code></p>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Algorithm ID</th>
+                            <th>Name</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>$1$</td>
+                            <td>MD5</td>
+                            <td>Weak, not recommended</td>
+                        </tr>
+                        <tr>
+                            <td>$5$</td>
+                            <td>SHA-256</td>
+                            <td>Good security</td>
+                        </tr>
+                        <tr>
+                            <td>$6$</td>
+                            <td>SHA-512</td>
+                            <td>RHEL 10 default, recommended</td>
+                        </tr>
+                        <tr>
+                            <td>$y$</td>
+                            <td>yescrypt</td>
+                            <td>Modern, strong (optional in RHEL 10)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Special Password Field Values</h3>
+                <div class="code-block">
+                    <code><span class="code-comment"># Locked account (!! or !)</span>
+<span class="code-output">locked_user:!!:19750:0:99999:7:::</span>
+
+<span class="code-comment"># Never had a password (*)</span>
+<span class="code-output">system_user:*:19000:0:99999:7:::</span>
+
+<span class="code-comment"># Empty field = no password required (dangerous!)</span>
+<span class="code-output">risky_user::19750:0:99999:7:::</span></code>
+                </div>
+
+                <h3>Viewing Password Aging Information</h3>
+                <div class="code-block">
+                    <span class="code-title">chage Command</span>
+                    <code><span class="code-comment"># View password aging info for current user</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chage -l student</span>
+<span class="code-output">Last password change                    : Jan 15, 2026</span>
+<span class="code-output">Password expires                        : never</span>
+<span class="code-output">Password inactive                       : never</span>
+<span class="code-output">Account expires                         : never</span>
+<span class="code-output">Minimum number of days between password change  : 0</span>
+<span class="code-output">Maximum number of days between password change  : 99999</span>
+<span class="code-output">Number of days of warning before password expires : 7</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon" aria-hidden="true">🔒</span>
+                        <span>Security Note</span>
+                    </div>
+                    <p>Never edit <code class="inline">/etc/shadow</code> directly. Always use commands like <code class="inline">passwd</code>, <code class="inline">chage</code>, or <code class="inline">usermod</code> to modify password information. Direct editing can corrupt the file or introduce security vulnerabilities.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: User and Group Commands -->
+        <section id="section-commands" class="content-section" aria-labelledby="commands-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="commands-heading">Managing Users and Groups</h2>
+            </div>
+            <div class="section-body">
+                <p>RHEL provides several commands for managing user accounts and groups. All user/group management commands require root privileges.</p>
+
+                <h3>User Management Commands</h3>
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="User commands">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="cmd-useradd" id="cmd-btn-useradd">useradd</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="cmd-usermod" id="cmd-btn-usermod">usermod</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="cmd-userdel" id="cmd-btn-userdel">userdel</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="cmd-passwd" id="cmd-btn-passwd">passwd</button>
+                    </div>
+                    
+                    <div id="cmd-useradd" class="tab-content active" role="tabpanel" aria-labelledby="cmd-btn-useradd">
+                        <h4>useradd - Create New Users</h4>
+                        <p>The <code class="inline">useradd</code> command creates new user accounts.</p>
+                        
+                        <table class="comparison-table" style="margin: 15px 0;">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code class="inline">-c "comment"</code></td>
+                                    <td>Set the GECOS/comment field</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-d /path</code></td>
+                                    <td>Specify home directory path</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-g group</code></td>
+                                    <td>Set primary group</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-G group1,group2</code></td>
+                                    <td>Add to supplementary groups</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-m</code></td>
+                                    <td>Create home directory (default in RHEL)</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-M</code></td>
+                                    <td>Do not create home directory</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-s /bin/shell</code></td>
+                                    <td>Specify login shell</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-u UID</code></td>
+                                    <td>Specify user ID</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-r</code></td>
+                                    <td>Create a system account</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Create a basic user</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd jdoe</span>
+
+<span class="code-comment"># Create user with full details</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -c "Jane Doe" -G wheel,developers jdoe</span>
+
+<span class="code-comment"># Create user with specific UID and shell</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -u 2000 -s /bin/zsh newuser</span>
+
+<span class="code-comment"># Create a system user (no home, nologin shell)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -r -s /sbin/nologin appuser</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="cmd-usermod" class="tab-content" role="tabpanel" aria-labelledby="cmd-btn-usermod">
+                        <h4>usermod - Modify Existing Users</h4>
+                        <p>The <code class="inline">usermod</code> command modifies existing user accounts.</p>
+                        
+                        <table class="comparison-table" style="margin: 15px 0;">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code class="inline">-c "comment"</code></td>
+                                    <td>Change the comment field</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-d /path</code></td>
+                                    <td>Change home directory</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-g group</code></td>
+                                    <td>Change primary group</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-aG group</code></td>
+                                    <td>Append to supplementary groups</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-l newname</code></td>
+                                    <td>Change username</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-L</code></td>
+                                    <td>Lock the account</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-U</code></td>
+                                    <td>Unlock the account</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-s /bin/shell</code></td>
+                                    <td>Change login shell</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Add user to wheel group (IMPORTANT: use -aG not just -G)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -aG wheel jdoe</span>
+
+<span class="code-comment"># Change user's shell</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -s /bin/zsh jdoe</span>
+
+<span class="code-comment"># Lock a user account</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -L jdoe</span>
+
+<span class="code-comment"># Unlock a user account</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -U jdoe</span>
+
+<span class="code-comment"># Rename a user</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -l jane_doe jdoe</span></code>
+                        </div>
+
+                        <div class="warning-box">
+                            <div class="warning-box-header">
+                                <span class="note-icon" aria-hidden="true">⚠️</span>
+                                <span>Important: -aG vs -G</span>
+                            </div>
+                            <p>Always use <code class="inline">-aG</code> (append to groups) when adding supplementary groups. Using just <code class="inline">-G</code> replaces all existing supplementary groups!</p>
+                        </div>
+                    </div>
+                    
+                    <div id="cmd-userdel" class="tab-content" role="tabpanel" aria-labelledby="cmd-btn-userdel">
+                        <h4>userdel - Delete Users</h4>
+                        <p>The <code class="inline">userdel</code> command removes user accounts.</p>
+                        
+                        <table class="comparison-table" style="margin: 15px 0;">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>(none)</td>
+                                    <td>Remove user but keep home directory</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-r</code></td>
+                                    <td>Remove user AND home directory/mail spool</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-f</code></td>
+                                    <td>Force removal even if user is logged in</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Remove user but keep their files</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">userdel jdoe</span>
+
+<span class="code-comment"># Remove user and all their files</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">userdel -r jdoe</span>
+
+<span class="code-comment"># Find files owned by deleted user's UID</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">find / -uid 1001 -ls 2>/dev/null</span></code>
+                        </div>
+
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon" aria-hidden="true">💡</span>
+                                <span>Best Practice</span>
+                            </div>
+                            <p>Before deleting a user, consider whether you need to preserve their files. If using <code class="inline">userdel</code> without <code class="inline">-r</code>, the orphaned files will show numeric UIDs in <code class="inline">ls -l</code> output.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="cmd-passwd" class="tab-content" role="tabpanel" aria-labelledby="cmd-btn-passwd">
+                        <h4>passwd - Manage Passwords</h4>
+                        <p>The <code class="inline">passwd</code> command sets and manages user passwords.</p>
+                        
+                        <table class="comparison-table" style="margin: 15px 0;">
+                            <thead>
+                                <tr>
+                                    <th>Option</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>(none)</td>
+                                    <td>Change your own password</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">username</code></td>
+                                    <td>Change another user's password (root only)</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-l</code></td>
+                                    <td>Lock the password</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-u</code></td>
+                                    <td>Unlock the password</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-d</code></td>
+                                    <td>Delete password (make account passwordless)</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-e</code></td>
+                                    <td>Expire password (force change at next login)</td>
+                                </tr>
+                                <tr>
+                                    <td><code class="inline">-S</code></td>
+                                    <td>Display password status</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="code-block">
+                            <code><span class="code-comment"># Change your own password</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">passwd</span>
+<span class="code-output">Changing password for user student.</span>
+<span class="code-output">Current password: ********</span>
+<span class="code-output">New password: ********</span>
+<span class="code-output">Retype new password: ********</span>
+<span class="code-output">passwd: all authentication tokens updated successfully.</span>
+
+<span class="code-comment"># Set password for another user (as root)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd jdoe</span>
+<span class="code-output">Changing password for user jdoe.</span>
+<span class="code-output">New password: ********</span>
+<span class="code-output">Retype new password: ********</span>
+<span class="code-output">passwd: all authentication tokens updated successfully.</span>
+
+<span class="code-comment"># Force password change at next login</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd -e jdoe</span>
+<span class="code-output">Expiring password for user jdoe.</span>
+<span class="code-output">passwd: Success</span>
+
+<span class="code-comment"># Check password status</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd -S jdoe</span>
+<span class="code-output">jdoe PS 2026-01-29 0 99999 7 -1 (Password set, SHA512 crypt.)</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Group Management Commands</h3>
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Group commands">
+                        <button class="tab-btn" role="tab" aria-selected="true" aria-controls="cmd-groupadd" id="cmd-btn-groupadd">groupadd</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="cmd-groupmod" id="cmd-btn-groupmod">groupmod</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="cmd-groupdel" id="cmd-btn-groupdel">groupdel</button>
+                    </div>
+                    
+                    <div id="cmd-groupadd" class="tab-content active" role="tabpanel" aria-labelledby="cmd-btn-groupadd">
+                        <h4>groupadd - Create Groups</h4>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Create a new group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupadd developers</span>
+
+<span class="code-comment"># Create a group with specific GID</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupadd -g 5000 marketing</span>
+
+<span class="code-comment"># Create a system group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupadd -r appgroup</span>
+
+<span class="code-comment"># Verify the group was created</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">getent group developers</span>
+<span class="code-output">developers:x:1001:</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="cmd-groupmod" class="tab-content" role="tabpanel" aria-labelledby="cmd-btn-groupmod">
+                        <h4>groupmod - Modify Groups</h4>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Rename a group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupmod -n dev_team developers</span>
+
+<span class="code-comment"># Change a group's GID</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupmod -g 5001 dev_team</span></code>
+                        </div>
+                    </div>
+                    
+                    <div id="cmd-groupdel" class="tab-content" role="tabpanel" aria-labelledby="cmd-btn-groupdel">
+                        <h4>groupdel - Delete Groups</h4>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Delete a group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupdel developers</span>
+
+<span class="code-comment"># Note: You cannot delete a group if it is any user's primary group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupdel jdoe</span>
+<span class="code-error">groupdel: cannot remove the primary group of user 'jdoe'</span></code>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Quick Reference Table</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Command</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Create user</td>
+                            <td><code class="inline">useradd username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Create user with details</td>
+                            <td><code class="inline">useradd -c "Full Name" -G wheel username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Set/change password</td>
+                            <td><code class="inline">passwd username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Add user to group</td>
+                            <td><code class="inline">usermod -aG groupname username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Lock user account</td>
+                            <td><code class="inline">usermod -L username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Delete user and files</td>
+                            <td><code class="inline">userdel -r username</code></td>
+                        </tr>
+                        <tr>
+                            <td>Create group</td>
+                            <td><code class="inline">groupadd groupname</code></td>
+                        </tr>
+                        <tr>
+                            <td>Delete group</td>
+                            <td><code class="inline">groupdel groupname</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 8: Gaining Superuser Access with sudo -->
+        <section id="section-sudo" class="content-section" aria-labelledby="sudo-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="sudo-heading">Gaining Superuser Access with sudo</h2>
+            </div>
+            <div class="section-body">
+                <p>The 
+                    <span class="tooltip-container">
+                        <button type="button" class="tooltip-trigger" aria-describedby="tooltip-sudo">sudo</button>
+                        <span class="tooltip-content" id="tooltip-sudo" role="tooltip">sudo (superuser do) allows permitted users to run commands as root or another user. It provides better security than sharing the root password by logging all commands and limiting what users can do.</span>
+                    </span> command allows authorized users to run commands with elevated privileges without logging in as root. This is the preferred method for performing administrative tasks.</p>
+
+                <h3>Why Use sudo Instead of root?</h3>
+                <div class="key-points">
+                    <h4>Benefits of sudo</h4>
+                    <ul>
+                        <li><strong>Accountability:</strong> All sudo commands are logged with the username</li>
+                        <li><strong>Granular Control:</strong> Limit which commands users can run</li>
+                        <li><strong>No Shared Password:</strong> Users authenticate with their own password</li>
+                        <li><strong>Temporary Access:</strong> Elevated privileges only for specific commands</li>
+                        <li><strong>Reduced Risk:</strong> Less chance of running dangerous commands accidentally</li>
+                    </ul>
+                </div>
+
+                <h3>The wheel Group</h3>
+                <p>In RHEL, members of the <code class="inline">wheel</code> group can use sudo to run any command as root. This is configured in <code class="inline">/etc/sudoers</code>.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Using sudo</span>
+                    <code><span class="code-comment"># Run a single command as root</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo useradd newuser</span>
+<span class="code-output">[sudo] password for student: ********</span>
+
+<span class="code-comment"># Run a command as a different user</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo -u apache cat /etc/httpd/conf/httpd.conf</span>
+
+<span class="code-comment"># Start an interactive root shell</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-prompt">[root@workstation ~]#</span>
+
+<span class="code-comment"># Check what you can run with sudo</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo -l</span>
+<span class="code-output">User student may run the following commands on workstation:</span>
+<span class="code-output">    (ALL) ALL</span></code>
+                </div>
+
+                <h3>Granting sudo Access</h3>
+                <p>To give a user full sudo privileges, add them to the wheel group:</p>
+                
+                <div class="code-block">
+                    <code><span class="code-comment"># Add existing user to wheel group</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -aG wheel jdoe</span>
+
+<span class="code-comment"># Or create user with wheel membership</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -G wheel -c "Jane Doe" jdoe</span>
+
+<span class="code-comment"># Verify wheel membership</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groups jdoe</span>
+<span class="code-output">jdoe : jdoe wheel</span></code>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">ℹ️</span>
+                        <span>Group Changes Take Effect</span>
+                    </div>
+                    <p>After adding a user to a group, they must log out and log back in for the new group membership to take effect. Alternatively, use <code class="inline">newgrp wheel</code> to activate the group in the current session.</p>
+                </div>
+
+                <h3>Configuring sudo</h3>
+                <p>sudo is configured in <code class="inline">/etc/sudoers</code>. Always edit this file using <code class="inline">visudo</code>, which validates syntax before saving:</p>
+
+                <div class="code-block">
+                    <span class="code-title">/etc/sudoers Configuration</span>
+                    <code><span class="code-comment"># Edit sudoers safely</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">visudo</span>
+
+<span class="code-comment"># Example sudoers entries:</span>
+
+<span class="code-comment"># Allow root to run any commands anywhere</span>
+<span class="code-file">root    ALL=(ALL)       ALL</span>
+
+<span class="code-comment"># Allow members of wheel group to run all commands</span>
+<span class="code-file">%wheel  ALL=(ALL)       ALL</span>
+
+<span class="code-comment"># Allow jdoe to run specific commands without password</span>
+<span class="code-file">jdoe    ALL=(ALL)       NOPASSWD: /usr/bin/systemctl restart httpd</span>
+
+<span class="code-comment"># Allow developers group to run commands as apache user</span>
+<span class="code-file">%developers ALL=(apache) ALL</span></code>
+                </div>
+
+                <h3>sudo vs su</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>sudo</th>
+                            <th>su</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Password Required</td>
+                            <td>User's own password</td>
+                            <td>Target user's password</td>
+                        </tr>
+                        <tr>
+                            <td>Logging</td>
+                            <td>Detailed logging to /var/log/secure</td>
+                            <td>Minimal logging</td>
+                        </tr>
+                        <tr>
+                            <td>Granular Control</td>
+                            <td>Yes, per command/user</td>
+                            <td>No, all or nothing</td>
+                        </tr>
+                        <tr>
+                            <td>Scope</td>
+                            <td>Single command by default</td>
+                            <td>New shell session</td>
+                        </tr>
+                        <tr>
+                            <td>Recommended</td>
+                            <td>Yes, for admin tasks</td>
+                            <td>Only when necessary</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <span class="code-title">su Command Examples</span>
+                    <code><span class="code-comment"># Switch to root (requires root password)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">su -</span>
+<span class="code-output">Password: ********</span>
+<span class="code-prompt">[root@workstation ~]#</span>
+
+<span class="code-comment"># Switch to another user</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">su - jdoe</span>
+<span class="code-output">Password: ********</span>
+<span class="code-prompt">[jdoe@workstation ~]$</span>
+
+<span class="code-comment"># The '-' (or '-l') option creates a login shell with user's environment</span>
+<span class="code-comment"># Without '-', you keep your current environment</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Knowledge Check Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3 class="quiz-title">Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q1.</span> What is the UID range for regular users in RHEL 10?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                0-999
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                1000 and above
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                1-499
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                500-999
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="c">
+                        <p class="question-text"><span class="question-number">Q2.</span> Which file stores encrypted user passwords?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                /etc/passwd
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                /etc/group
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                /etc/shadow
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                /etc/security/passwd
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">Q3.</span> What command adds an existing user to a supplementary group?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                <code class="inline">usermod -aG groupname username</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                <code class="inline">useradd -G groupname username</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                <code class="inline">groupadd username groupname</code>
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                <code class="inline">usermod -G groupname username</code>
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">Q4.</span> Which group grants sudo privileges in RHEL?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                sudo
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                admin
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                root
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                wheel
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q5.</span> What does the <code class="inline">userdel -r</code> command do?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Removes the user but keeps their home directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                Removes the user and their home directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Recursively removes all users
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                Renames the user
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Hands-on Lab -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">10</span>
+                <h2 id="lab-heading">Hands-on Lab</h2>
+            </div>
+            <div class="section-body">
+                <div class="lab-container">
+                    <div class="lab-header">
+                        <div class="lab-icon" aria-hidden="true">🔬</div>
+                        <h3 class="lab-title">Lab: Managing Local Users and Groups</h3>
+                    </div>
+                    
+                    <p>In this lab, you will create user accounts, manage groups, set passwords, and configure sudo access.</p>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 1</span> <strong>Create a New Group</strong></p>
+                        <p>Create a group called <code class="inline">developers</code> for your development team.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupadd developers</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">getent group developers</span>
+<span class="code-output">developers:x:1001:</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 2</span> <strong>Create User Accounts</strong></p>
+                        <p>Create two users: <code class="inline">alice</code> (a developer) and <code class="inline">bob</code> (a system administrator).</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Create alice as a developer</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -c "Alice Developer" -G developers alice</span>
+
+<span class="code-comment"># Create bob as an administrator</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">useradd -c "Bob Admin" -G wheel bob</span>
+
+<span class="code-comment"># Verify the users were created</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">id alice</span>
+<span class="code-output">uid=1001(alice) gid=1001(alice) groups=1001(alice),1002(developers)</span>
+
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">id bob</span>
+<span class="code-output">uid=1002(bob) gid=1002(bob) groups=1002(bob),10(wheel)</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 3</span> <strong>Set User Passwords</strong></p>
+                        <p>Set passwords for both users and force Alice to change her password on first login.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Set passwords</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd alice</span>
+<span class="code-output">Changing password for user alice.</span>
+<span class="code-output">New password: redhat123</span>
+<span class="code-output">Retype new password: redhat123</span>
+<span class="code-output">passwd: all authentication tokens updated successfully.</span>
+
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd bob</span>
+<span class="code-output">Changing password for user bob.</span>
+<span class="code-output">New password: redhat456</span>
+<span class="code-output">Retype new password: redhat456</span>
+<span class="code-output">passwd: all authentication tokens updated successfully.</span>
+
+<span class="code-comment"># Force Alice to change password at next login</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">passwd -e alice</span>
+<span class="code-output">Expiring password for user alice.</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 4</span> <strong>View Password Aging Information</strong></p>
+                        <p>Check the password status and aging information for alice.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">chage -l alice</span>
+<span class="code-output">Last password change                    : password must be changed</span>
+<span class="code-output">Password expires                        : password must be changed</span>
+<span class="code-output">Password inactive                       : password must be changed</span>
+<span class="code-output">Account expires                         : never</span>
+<span class="code-output">...</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 5</span> <strong>Test sudo Access</strong></p>
+                        <p>Verify that Bob can use sudo (as a wheel member) but Alice cannot.</p>
+                        <div class="code-block">
+                            <code><span class="code-comment"># Switch to bob and test sudo</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">su - bob</span>
+<span class="code-prompt">[bob@workstation ~]$</span> <span class="code-command">sudo whoami</span>
+<span class="code-output">[sudo] password for bob: ********</span>
+<span class="code-output">root</span>
+<span class="code-prompt">[bob@workstation ~]$</span> <span class="code-command">exit</span>
+
+<span class="code-comment"># Switch to alice and try sudo (should fail)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">su - alice</span>
+<span class="code-prompt">[alice@workstation ~]$</span> <span class="code-command">sudo whoami</span>
+<span class="code-output">[sudo] password for alice: ********</span>
+<span class="code-error">alice is not in the sudoers file. This incident will be reported.</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 6</span> <strong>Modify User Group Membership</strong></p>
+                        <p>Add Alice to the wheel group so she can also use sudo.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">usermod -aG wheel alice</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">id alice</span>
+<span class="code-output">uid=1001(alice) gid=1001(alice) groups=1001(alice),10(wheel),1002(developers)</span></code>
+                        </div>
+                    </div>
+
+                    <div class="lab-step">
+                        <p><span class="step-number">Step 7</span> <strong>Clean Up (Optional)</strong></p>
+                        <p>Remove the users and group created in this lab.</p>
+                        <div class="code-block">
+                            <code><span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">userdel -r alice</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">userdel -r bob</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">groupdel developers</span></code>
+                        </div>
+                    </div>
+
+                    <div class="note-box" style="margin-top: 20px;">
+                        <div class="note-box-header">
+                            <span class="note-icon" aria-hidden="true">✅</span>
+                            <span>Lab Complete</span>
+                        </div>
+                        <p>You have successfully created users and groups, set passwords, configured password aging, and tested sudo access.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: Chapter Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">11</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>Linux uses UIDs and GIDs</strong> to identify users and groups internally. Root has UID 0, system users use 1-999, and regular users start at 1000.</li>
+                        <li><strong>/etc/passwd</strong> stores user account information including username, UID, GID, home directory, and shell. It is readable by all users.</li>
+                        <li><strong>/etc/shadow</strong> stores encrypted passwords and password aging information. It is only readable by root for security.</li>
+                        <li><strong>/etc/group</strong> stores group definitions and supplementary group memberships.</li>
+                        <li><strong>useradd, usermod, userdel</strong> create, modify, and remove user accounts. Always use <code class="inline">-aG</code> with usermod to append groups.</li>
+                        <li><strong>groupadd, groupmod, groupdel</strong> manage groups. You cannot delete a user's primary group.</li>
+                        <li><strong>passwd</strong> sets user passwords. Use <code class="inline">passwd -e</code> to force password change at next login.</li>
+                        <li><strong>sudo</strong> is the preferred method for running administrative commands. Add users to the wheel group for full sudo access.</li>
+                    </ul>
+                </div>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 11, you'll learn about controlling access to files, including:</p>
+                    <ul>
+                        <li>Understanding Linux file permissions (read, write, execute)</li>
+                        <li>Using chmod to modify permissions</li>
+                        <li>Changing file ownership with chown and chgrp</li>
+                        <li>Understanding and using special permissions (SUID, SGID, sticky bit)</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>🎉 Chapter 10 Complete!</h2>
+                    <p>You've learned how to manage local users and groups in Red Hat Enterprise Linux.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I • Chapter 10 • Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const navBtns = document.querySelectorAll('.nav-btn');
+            let visitedSections = new Set();
+
+            // Load saved progress
+            const savedProgress = localStorage.getItem('ch10-visited-sections');
+            if (savedProgress) {
+                visitedSections = new Set(JSON.parse(savedProgress));
+                updateProgress();
+            }
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = percentage + '%';
+                progressFill.setAttribute('aria-valuenow', percentage);
+                progressText.textContent = percentage + '% Complete';
+
+                // Update nav buttons
+                navBtns.forEach(btn => {
+                    const href = btn.getAttribute('href');
+                    if (href && visitedSections.has(href.substring(1))) {
+                        btn.classList.add('visited');
+                    }
+                });
+
+                // Save progress
+                localStorage.setItem('ch10-visited-sections', JSON.stringify([...visitedSections]));
+            }
+
+            // Intersection Observer for section tracking
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visitedSections.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            sections.forEach(section => observer.observe(section));
+
+            // ==================== TABS ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabList = container.querySelector('.tab-list');
+                const tabs = container.querySelectorAll('.tab-btn');
+                const panels = container.querySelectorAll('.tab-content');
+
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        // Deactivate all tabs
+                        tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                        panels.forEach(p => p.classList.remove('active'));
+
+                        // Activate clicked tab
+                        tab.setAttribute('aria-selected', 'true');
+                        const panelId = tab.getAttribute('aria-controls');
+                        const panel = document.getElementById(panelId);
+                        if (panel) panel.classList.add('active');
+                    });
+
+                    // Keyboard navigation
+                    tab.addEventListener('keydown', (e) => {
+                        const tabsArray = Array.from(tabs);
+                        const index = tabsArray.indexOf(tab);
+                        let newIndex;
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (index + 1) % tabsArray.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (index - 1 + tabsArray.length) % tabsArray.length;
+                        } else if (e.key === 'Home') {
+                            newIndex = 0;
+                        } else if (e.key === 'End') {
+                            newIndex = tabsArray.length - 1;
+                        }
+
+                        if (newIndex !== undefined) {
+                            e.preventDefault();
+                            tabsArray[newIndex].focus();
+                            tabsArray[newIndex].click();
+                        }
+                    });
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable-header');
+            
+            expandables.forEach(header => {
+                header.addEventListener('click', () => {
+                    const expanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !expanded);
+                    
+                    const content = header.nextElementSibling;
+                    if (content) {
+                        content.classList.toggle('active');
+                    }
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== QUIZ ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScore = document.getElementById('quiz-score');
+
+            const correctAnswers = {
+                '1': { answer: 'b', explanation: 'In RHEL 10, regular users have UIDs starting at 1000. UIDs 1-999 are reserved for system accounts, and UID 0 is always root.' },
+                '2': { answer: 'c', explanation: '/etc/shadow stores encrypted passwords and password aging information. It is only readable by root for security reasons.' },
+                '3': { answer: 'a', explanation: 'usermod -aG appends the user to a supplementary group without removing existing group memberships. Using -G without -a replaces all supplementary groups.' },
+                '4': { answer: 'd', explanation: 'In RHEL, members of the wheel group can use sudo to run commands as root. This is configured in /etc/sudoers.' },
+                '5': { answer: 'b', explanation: 'The -r option tells userdel to remove the user\'s home directory and mail spool along with the account.' }
+            };
+
+            if (checkAnswersBtn) {
+                checkAnswersBtn.addEventListener('click', () => {
+                    let score = 0;
+
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const selected = question.querySelector('input:checked');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        const options = question.querySelectorAll('.quiz-option');
+
+                        options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+
+                        if (selected) {
+                            const userAnswer = selected.value;
+                            const isCorrect = userAnswer === correctAnswers[qNum].answer;
+
+                            if (isCorrect) {
+                                score++;
+                                selected.parentElement.classList.add('correct');
+                                feedback.className = 'quiz-feedback show correct';
+                                feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            } else {
+                                selected.parentElement.classList.add('incorrect');
+                                // Highlight correct answer
+                                options.forEach(opt => {
+                                    if (opt.querySelector('input').value === correctAnswers[qNum].answer) {
+                                        opt.classList.add('correct');
+                                    }
+                                });
+                                feedback.className = 'quiz-feedback show incorrect';
+                                feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            }
+                        } else {
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '⚠ Please select an answer.';
+                        }
+                    });
+
+                    quizScore.textContent = `Score: ${score}/5`;
+                    checkAnswersBtn.style.display = 'none';
+                    resetQuizBtn.style.display = 'inline-block';
+
+                    if (score === 5) {
+                        localStorage.setItem('ch10-quiz-passed', 'true');
+                    }
+                });
+
+                resetQuizBtn.addEventListener('click', () => {
+                    quizQuestions.forEach(question => {
+                        const qNum = question.getAttribute('data-question');
+                        const feedback = document.getElementById(`feedback-${qNum}`);
+                        const options = question.querySelectorAll('.quiz-option');
+                        const inputs = question.querySelectorAll('input');
+
+                        options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+                        inputs.forEach(input => input.checked = false);
+                        feedback.className = 'quiz-feedback';
+                        feedback.innerHTML = '';
+                    });
+
+                    quizScore.textContent = 'Score: 0/5';
+                    checkAnswersBtn.style.display = 'inline-block';
+                    resetQuizBtn.style.display = 'none';
+                });
+            }
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    localStorage.setItem('ch10-complete', 'true');
+
+                    alert('Congratulations! You have completed Chapter 10: Managing Local Users and Groups. Continue to Chapter 11 to learn about controlling access to files.');
+                });
+
+                if (localStorage.getItem('ch10-complete') === 'true') {
+                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+                }
+            }
+
+            // ==================== TOOLTIP POSITIONING ====================
+            const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+
+            tooltipTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', positionTooltip);
+                trigger.addEventListener('focus', positionTooltip);
+            });
+
+            function positionTooltip(e) {
+                const trigger = e.target;
+                const container = trigger.closest('.tooltip-container');
+                const tooltip = container.querySelector('.tooltip-content');
+
+                // Reset classes
+                tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
+
+                const rect = trigger.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                // Check if tooltip would go off screen
+                if (rect.left + (rect.width / 2) - (tooltipRect.width / 2) < 10) {
+                    tooltip.classList.add('tooltip-left');
+                } else if (rect.right - (rect.width / 2) + (tooltipRect.width / 2) > window.innerWidth - 10) {
+                    tooltip.classList.add('tooltip-right');
+                }
+
+                // Check vertical positioning
+                if (rect.top < tooltipRect.height + 20) {
+                    tooltip.classList.add('tooltip-bottom');
+                }
+            }
+
+            // ==================== SMOOTH SCROLLING ====================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
