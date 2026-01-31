@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Accessing Removable Media | RH124</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;
+            --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;
+            --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0;
+            --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;
+            --rh-blue-dark: #004C99;
+            --rh-teal: #009999;
+            --rh-gold: #CC9900;
+            --rh-green: #339933;
+            --rh-green-dark: #267326;
+            --rh-purple: #663399;
+            --rh-orange: #FF6600;
+            
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-med: 0.3s ease;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        *:focus {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        *:focus:not(:focus-visible) {
+            outline: none;
+        }
+
+        *:focus-visible {
+            outline: 3px solid var(--rh-blue);
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 12px 24px;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            z-index: 10000;
+            transition: top var(--transition-fast);
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        @media (prefers-contrast: high) {
+            :root {
+                --rh-gray-light: #888888;
+                --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
+            color: var(--rh-white);
+            padding: 40px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--rh-red);
+        }
+
+        .main-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .main-header h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .chapter-subtitle {
+            font-size: 1.1rem;
+            color: var(--rh-gray-light);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        .section-nav {
+            background: var(--rh-white);
+            border-bottom: 1px solid var(--rh-gray-light);
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            background: var(--rh-gray-lighter);
+            color: var(--rh-gray-dark);
+            text-decoration: none;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all var(--transition-fast);
+            border: 2px solid transparent;
+        }
+
+        .nav-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .nav-btn.visited {
+            border-color: var(--rh-green);
+        }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .progress-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--rh-gray-lighter);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        /* ==================== MAIN CONTENT ==================== */
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .content-section {
+            background: var(--rh-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark) 0%, var(--rh-black) 100%);
+            color: var(--rh-white);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .section-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: var(--rh-red);
+            border-radius: 50%;
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .section-body {
+            padding: 30px;
+        }
+
+        .section-body p {
+            margin-bottom: 15px;
+        }
+
+        .section-body h3 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.3rem;
+            margin: 25px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--rh-red);
+        }
+
+        .section-body h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-trigger {
+            background: none;
+            border: none;
+            border-bottom: 2px dotted var(--rh-blue);
+            color: var(--rh-blue);
+            font-size: inherit;
+            font-family: inherit;
+            cursor: help;
+            padding: 0;
+        }
+
+        .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            line-height: 1.5;
+            width: 280px;
+            max-width: 90vw;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            transition: opacity var(--transition-fast), visibility var(--transition-fast);
+        }
+
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px;
+            border-style: solid;
+            border-color: var(--rh-gray-dark) transparent transparent transparent;
+        }
+
+        .tooltip-trigger:hover + .tooltip-content,
+        .tooltip-trigger:focus + .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-content.tooltip-left {
+            left: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-left::after {
+            left: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-right::after {
+            left: auto;
+            right: 20px;
+            transform: translateX(0);
+        }
+
+        .tooltip-content.tooltip-bottom {
+            bottom: auto;
+            top: calc(100% + 10px);
+        }
+
+        .tooltip-content.tooltip-bottom::after {
+            top: auto;
+            bottom: 100%;
+            border-top-color: transparent;
+            border-bottom-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 25px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+            list-style: none;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-width: 100px;
+        }
+
+        .tab-btn:hover {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .tab-btn[aria-selected="true"] {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-gray-lighter);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h4 {
+            margin-top: 0;
+        }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .code-block code {
+            display: block;
+            white-space: pre;
+        }
+
+        .code-block .code-comment {
+            color: #888888;
+        }
+
+        .code-block .code-prompt {
+            color: #00FFFF;
+        }
+
+        .code-block .code-command {
+            color: #FFFF00;
+        }
+
+        .code-block .code-output {
+            color: #FFFFFF;
+        }
+
+        .code-block .code-error {
+            color: #FF6666;
+        }
+
+        .code-block .code-file {
+            color: #99FF99;
+        }
+
+        .code-block .code-highlight {
+            color: #FF99FF;
+        }
+
+        .code-title {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 5px 15px;
+            border-radius: 0 var(--radius-md) 0 var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.75rem;
+        }
+
+        code.inline {
+            background: var(--rh-gray-lighter);
+            padding: 3px 8px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9em;
+            color: var(--rh-red-dark);
+        }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFF0CC 100%);
+            border: 2px solid var(--rh-gold);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 10px;
+        }
+
+        .note-icon {
+            font-size: 1.2rem;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #FFF0F0 0%, #FFE0E0 100%);
+            border: 2px solid var(--rh-red);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
+            margin-bottom: 10px;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border: 2px solid var(--rh-blue);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-blue-dark);
+            margin-bottom: 10px;
+        }
+
+        /* ==================== KEY POINTS ==================== */
+        .key-points {
+            background: linear-gradient(135deg, #E6F0FF 0%, #CCE5FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin: 25px 0;
+        }
+
+        .key-points h4 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-top: 0;
+        }
+
+        .key-points ul {
+            list-style: disc;
+            padding-left: 20px;
+        }
+
+        .key-points li {
+            margin-bottom: 8px;
+        }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--rh-gray-lighter);
+        }
+
+        .comparison-table tr:hover {
+            background: #E6F0FF;
+        }
+
+        /* ==================== DEVICE NAMING DIAGRAM ==================== */
+        .device-diagram {
+            background: var(--rh-gray-lighter);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .device-diagram-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .device-visual {
+            font-family: var(--font-mono);
+            font-size: 1.3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .dev-part {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .dev-prefix {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+        }
+
+        .dev-type {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .dev-disk {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .dev-part-num {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .device-labels {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .dev-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+        }
+
+        .dev-label-color {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--radius-sm);
+        }
+
+        /* ==================== FLOW DIAGRAM ==================== */
+        .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+        }
+
+        .flow-box {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 15px 25px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .flow-box.highlight {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            border-color: var(--rh-red-dark);
+        }
+
+        .flow-box.highlight-blue {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            border-color: var(--rh-blue-dark);
+        }
+
+        .flow-box.highlight-green {
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border-color: var(--rh-green-dark);
+        }
+
+        .flow-box.highlight-purple {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+            border-color: #4d2673;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== CARD GRID ==================== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .info-card {
+            background: var(--rh-white);
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: all var(--transition-fast);
+        }
+
+        .info-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--rh-blue);
+        }
+
+        .info-card h4 {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-icon {
+            font-size: 1.3rem;
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: var(--rh-gray);
+            margin: 0;
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF2CC 100%);
+            border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            border: none;
+            padding: 0;
+        }
+
+        .objectives-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .objectives-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+        }
+
+        .objectives-list li::before {
+            content: '\2713';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable {
+            margin: 15px 0;
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+
+        .expandable-header {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--rh-gray-lighter);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            transition: background var(--transition-fast);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expand-icon {
+            transition: transform var(--transition-fast);
+            font-size: 0.8rem;
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 20px;
+            background: var(--rh-white);
+        }
+
+        .expandable-content.show {
+            display: block;
+        }
+
+        /* ==================== INTERACTIVE MOUNT SIMULATOR ==================== */
+        .mount-simulator {
+            background: var(--rh-gray-lighter);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .mount-simulator-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-gray-dark);
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .mount-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .mount-select {
+            padding: 10px 15px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-sm);
+            background: var(--rh-white);
+            min-width: 200px;
+        }
+
+        .mount-btn {
+            padding: 10px 25px;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .mount-btn.mount {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .mount-btn.mount:hover {
+            background: var(--rh-green-dark);
+        }
+
+        .mount-btn.unmount {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+
+        .mount-btn.unmount:hover {
+            background: var(--rh-red-dark);
+        }
+
+        .mount-output {
+            background: var(--rh-black);
+            color: #00FF00;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        .mount-status {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-indicator.mounted {
+            background: var(--rh-green);
+        }
+
+        .status-indicator.unmounted {
+            background: var(--rh-gray);
+        }
+
+        /* ==================== QUIZ STYLES ==================== */
+        .quiz-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .quiz-title {
+            font-family: var(--font-display);
+            color: var(--rh-gray-dark);
+            font-size: 1.2rem;
+        }
+
+        .quiz-score {
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-blue);
+            font-size: 1.1rem;
+        }
+
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid transparent;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray-dark);
+            margin-bottom: 15px;
+        }
+
+        .question-number {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            padding: 2px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            margin-right: 10px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .quiz-option:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .quiz-option input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--rh-blue);
+        }
+
+        .quiz-option.correct {
+            background: #D4EDDA;
+            border: 2px solid var(--rh-green);
+        }
+
+        .quiz-option.incorrect {
+            background: #F8D7DA;
+            border: 2px solid var(--rh-red);
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #D4EDDA;
+            color: var(--rh-green-dark);
+        }
+
+        .quiz-feedback.incorrect {
+            background: #F8D7DA;
+            color: var(--rh-red-dark);
+        }
+
+        .quiz-btn {
+            padding: 12px 30px;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-right: 10px;
+        }
+
+        .quiz-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        #check-answers {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        #reset-quiz {
+            background: var(--rh-gray);
+            color: var(--rh-white);
+        }
+
+        /* ==================== LAB STYLES ==================== */
+        .lab-container {
+            background: linear-gradient(135deg, #F0E6FF 0%, #E6D9FF 100%);
+            border: 2px solid var(--rh-purple);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .lab-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .lab-icon {
+            font-size: 2rem;
+        }
+
+        .lab-title {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+            font-size: 1.3rem;
+        }
+
+        .lab-step {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .lab-step h4 {
+            font-family: var(--font-display);
+            color: var(--rh-purple);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== COMPLETION SECTION ==================== */
+        .completion-section {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #E6FFE6 0%, #CCF2CC 100%);
+            border-radius: var(--radius-md);
+            margin-top: 30px;
+        }
+
+        .completion-section h2 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin-bottom: 15px;
+        }
+
+        .completion-btn {
+            padding: 15px 40px;
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: var(--rh-green);
+            color: var(--rh-white);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            margin-top: 15px;
+        }
+
+        .completion-btn:hover {
+            background: var(--rh-green-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer {
+            background: var(--rh-black);
+            color: var(--rh-gray-light);
+            text-align: center;
+            padding: 30px 20px;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== STORAGE ARCHITECTURE DIAGRAM ==================== */
+        .storage-diagram {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .storage-layers {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .storage-layer {
+            padding: 20px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-white);
+        }
+
+        .layer-app {
+            background: var(--rh-red);
+        }
+
+        .layer-vfs {
+            background: var(--rh-blue);
+        }
+
+        .layer-fs {
+            background: var(--rh-purple);
+        }
+
+        .layer-block {
+            background: var(--rh-teal);
+        }
+
+        .layer-device {
+            background: var(--rh-gray-dark);
+        }
+
+        .storage-arrow {
+            text-align: center;
+            font-size: 1.5rem;
+            color: var(--rh-gray);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .nav-container {
+                gap: 5px;
+            }
+
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .device-visual {
+                font-size: 1rem;
+            }
+
+            .dev-part {
+                padding: 8px 10px;
+                min-width: 40px;
+            }
+
+            .mount-controls {
+                flex-direction: column;
+            }
+
+            .mount-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Header -->
+    <header class="main-header" role="banner">
+        <div class="header-content">
+            <span class="course-badge">RH124 RHEL 10</span>
+            <h1>Chapter 14: Accessing Removable Media</h1>
+            <p class="chapter-subtitle">Learn to mount, unmount, and manage removable storage devices on Linux systems</p>
+        </div>
+    </header>
+
+    <!-- Section Navigation -->
+    <nav class="section-nav" role="navigation" aria-label="Chapter sections">
+        <div class="nav-container">
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-block-devices" class="nav-btn">Block Devices</a>
+            <a href="#section-examining" class="nav-btn">Examining Devices</a>
+            <a href="#section-mount-points" class="nav-btn">Mount Points</a>
+            <a href="#section-mounting" class="nav-btn">Mounting</a>
+            <a href="#section-unmounting" class="nav-btn">Unmounting</a>
+            <a href="#section-removable" class="nav-btn">Removable Media</a>
+            <a href="#section-udisks" class="nav-btn">udisks2</a>
+            <a href="#section-fstab" class="nav-btn">/etc/fstab</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-lab" class="nav-btn">Lab</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
+        </div>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-container" role="region" aria-label="Reading progress">
+        <div class="progress-inner">
+            <div class="progress-label">
+                <span>Progress</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content" role="main">
+
+        <!-- Section 1: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">1</span>
+                <h2 id="objectives-heading">Learning Objectives</h2>
+            </div>
+            <div class="section-body">
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Identify and describe block device naming conventions in Linux</li>
+                        <li>Use <code class="inline">lsblk</code> and <code class="inline">blkid</code> to examine storage devices</li>
+                        <li>Understand the concept of mount points and file system access</li>
+                        <li>Mount and unmount file systems manually using command-line tools</li>
+                        <li>Work with removable storage devices like USB drives and optical media</li>
+                        <li>Manage removable media using the <code class="inline">udisks2</code> service</li>
+                        <li>Configure persistent mounts in <code class="inline">/etc/fstab</code></li>
+                    </ul>
+                </div>
+
+                <p>In Linux, all storage devices are accessed through the file system hierarchy. Before you can read or write data to a storage device, it must be <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-mount">mounted</button><span class="tooltip-content" role="tooltip" id="tooltip-mount">Mounting is the process of making a file system accessible at a particular point in the Linux directory tree. When you mount a device, you're essentially connecting it to the file system hierarchy.</span></span> to a specific location in the directory tree. This chapter covers how to work with both fixed and removable storage devices.</p>
+
+                <div class="flow-diagram">
+                    <div class="flow-box highlight">Storage Device</div>
+                    <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+                    <div class="flow-box highlight-blue">Mount Command</div>
+                    <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+                    <div class="flow-box highlight-green">Mount Point</div>
+                    <span class="flow-arrow" aria-hidden="true">&#8594;</span>
+                    <div class="flow-box highlight-purple">Accessible Files</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Understanding Block Devices -->
+        <section id="section-block-devices" class="content-section" aria-labelledby="block-devices-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="block-devices-heading">Understanding Block Devices</h2>
+            </div>
+            <div class="section-body">
+                <p>In Linux, storage devices are represented as <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-block">block devices</button><span class="tooltip-content" role="tooltip" id="tooltip-block">Block devices transfer data in fixed-size blocks (typically 512 bytes or 4KB). They support random access, meaning you can read or write any block without accessing others. Examples include hard drives, SSDs, and USB drives.</span></span> in the <code class="inline">/dev</code> directory. Understanding how these devices are named helps you identify and work with storage effectively.</p>
+
+                <h3>Device Naming Convention</h3>
+                <p>RHEL uses a systematic naming convention for storage devices:</p>
+
+                <div class="device-diagram">
+                    <div class="device-diagram-title">Block Device Naming Structure</div>
+                    <div class="device-visual">
+                        <span class="dev-part dev-prefix">/dev/</span>
+                        <span class="dev-part dev-type">sd</span>
+                        <span class="dev-part dev-disk">a</span>
+                        <span class="dev-part dev-part-num">1</span>
+                    </div>
+                    <div class="device-labels">
+                        <span class="dev-label"><span class="dev-label-color" style="background: var(--rh-gray-dark);"></span> Device Directory</span>
+                        <span class="dev-label"><span class="dev-label-color" style="background: var(--rh-blue);"></span> Driver Type</span>
+                        <span class="dev-label"><span class="dev-label-color" style="background: var(--rh-green);"></span> Disk Letter</span>
+                        <span class="dev-label"><span class="dev-label-color" style="background: var(--rh-red);"></span> Partition Number</span>
+                    </div>
+                </div>
+
+                <h3>Device Type Prefixes</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Prefix</th>
+                            <th>Device Type</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">sd</code></td>
+                            <td>SCSI/SATA/USB storage devices</td>
+                            <td>/dev/sda, /dev/sdb</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">nvme</code></td>
+                            <td>NVMe solid-state drives</td>
+                            <td>/dev/nvme0n1, /dev/nvme0n1p1</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">vd</code></td>
+                            <td>Virtual disks (KVM/QEMU)</td>
+                            <td>/dev/vda, /dev/vdb</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">sr</code></td>
+                            <td>Optical drives (CD/DVD)</td>
+                            <td>/dev/sr0, /dev/sr1</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">loop</code></td>
+                            <td>Loop devices (disk images)</td>
+                            <td>/dev/loop0, /dev/loop1</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon">&#128712;</span>
+                        <span>NVMe Device Naming</span>
+                    </div>
+                    <p>NVMe devices use a slightly different naming scheme: <code class="inline">/dev/nvme0n1p1</code> where <code class="inline">nvme0</code> is the controller, <code class="inline">n1</code> is the namespace (usually corresponds to a drive), and <code class="inline">p1</code> is the partition number.</p>
+                </div>
+
+                <h3>Storage Architecture</h3>
+                <div class="storage-diagram">
+                    <div class="device-diagram-title">Linux Storage Stack</div>
+                    <div class="storage-layers">
+                        <div class="storage-layer layer-app">Applications &amp; User Space</div>
+                        <div class="storage-arrow">&#8595;</div>
+                        <div class="storage-layer layer-vfs">Virtual File System (VFS)</div>
+                        <div class="storage-arrow">&#8595;</div>
+                        <div class="storage-layer layer-fs">File System (ext4, xfs, etc.)</div>
+                        <div class="storage-arrow">&#8595;</div>
+                        <div class="storage-layer layer-block">Block Layer</div>
+                        <div class="storage-arrow">&#8595;</div>
+                        <div class="storage-layer layer-device">Physical Device</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Examining Block Device Information -->
+        <section id="section-examining" class="content-section" aria-labelledby="examining-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="examining-heading">Examining Block Device Information</h2>
+            </div>
+            <div class="section-body">
+                <p>RHEL provides several commands to examine block devices and their properties. The most commonly used are <code class="inline">lsblk</code> and <code class="inline">blkid</code>.</p>
+
+                <div class="tabs-container">
+                    <ul class="tab-list" role="tablist">
+                        <li><button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-lsblk" id="examine-tab-1">lsblk</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-blkid" id="examine-tab-2">blkid</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-df" id="examine-tab-3">df</button></li>
+                        <li><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-findmnt" id="examine-tab-4">findmnt</button></li>
+                    </ul>
+
+                    <div id="tab-lsblk" class="tab-content active" role="tabpanel" aria-labelledby="examine-tab-1">
+                        <h4>lsblk - List Block Devices</h4>
+                        <p>The <code class="inline">lsblk</code> command displays information about block devices in a tree format, showing the relationship between disks and partitions.</p>
+                        <div class="code-block">
+                            <span class="code-title">lsblk Examples</span>
+                            <code><span class="code-comment"># Basic block device listing</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk</span>
+<span class="code-output">NAME          MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sda             8:0    0    50G  0 disk 
+├─sda1          8:1    0     1G  0 part /boot
+└─sda2          8:2    0    49G  0 part 
+  ├─rhel-root 253:0    0    45G  0 lvm  /
+  └─rhel-swap 253:1    0     4G  0 lvm  [SWAP]
+sdb             8:16   1    16G  0 disk 
+└─sdb1          8:17   1    16G  0 part /mnt/usb
+sr0            11:0    1  1024M  0 rom</span>
+
+<span class="code-comment"># Show file system type and UUID</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk -f</span>
+<span class="code-output">NAME          FSTYPE      FSVER    LABEL   UUID                                   MOUNTPOINTS
+sda                                                                               
+├─sda1        xfs                          a1b2c3d4-e5f6-7890-abcd-ef1234567890   /boot
+└─sda2        LVM2_member LVM2 001         f0e1d2c3-b4a5-9687-6543-21fedcba0987   
+  ├─rhel-root xfs                          11111111-2222-3333-4444-555555555555   /
+  └─rhel-swap swap        1                66666666-7777-8888-9999-000000000000   [SWAP]
+sdb                                                                               
+└─sdb1        vfat        FAT32    USBDATA 12345678-ABCD                          /mnt/usb</span>
+
+<span class="code-comment"># Show specific columns</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT,UUID</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-blkid" class="tab-content" role="tabpanel" aria-labelledby="examine-tab-2">
+                        <h4>blkid - Block Device Attributes</h4>
+                        <p>The <code class="inline">blkid</code> command displays attributes of block devices, particularly useful for finding <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-uuid">UUIDs</button><span class="tooltip-content" role="tooltip" id="tooltip-uuid">UUID (Universally Unique Identifier) is a 128-bit identifier that uniquely identifies a file system. Unlike device names which can change, UUIDs remain constant and are the preferred way to reference file systems.</span></span>.</p>
+                        <div class="code-block">
+                            <span class="code-title">blkid Examples</span>
+                            <code><span class="code-comment"># List all block device attributes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">blkid</span>
+<span class="code-output">/dev/sda1: UUID="a1b2c3d4-e5f6-7890-abcd-ef1234567890" TYPE="xfs"
+/dev/sda2: UUID="f0e1d2c3-b4a5-9687-6543-21fedcba0987" TYPE="LVM2_member"
+/dev/mapper/rhel-root: UUID="11111111-2222-3333-4444-555555555555" TYPE="xfs"
+/dev/mapper/rhel-swap: UUID="66666666-7777-8888-9999-000000000000" TYPE="swap"
+/dev/sdb1: UUID="12345678-ABCD" LABEL="USBDATA" TYPE="vfat"</span>
+
+<span class="code-comment"># Show information for specific device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">blkid /dev/sdb1</span>
+<span class="code-output">/dev/sdb1: UUID="12345678-ABCD" LABEL="USBDATA" TYPE="vfat"</span>
+
+<span class="code-comment"># Run as root for complete information</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">blkid -p /dev/sdb1</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-df" class="tab-content" role="tabpanel" aria-labelledby="examine-tab-3">
+                        <h4>df - Disk Free Space</h4>
+                        <p>The <code class="inline">df</code> command shows disk space usage for mounted file systems.</p>
+                        <div class="code-block">
+                            <span class="code-title">df Examples</span>
+                            <code><span class="code-comment"># Human-readable output</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -h</span>
+<span class="code-output">Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/rhel-root   45G   12G   33G  27% /
+/dev/sda1              1.0G  220M  780M  22% /boot
+/dev/sdb1               16G  4.0G   12G  25% /mnt/usb
+tmpfs                  1.9G     0  1.9G   0% /dev/shm</span>
+
+<span class="code-comment"># Show file system type</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -hT</span>
+<span class="code-output">Filesystem            Type      Size  Used Avail Use% Mounted on
+/dev/mapper/rhel-root xfs        45G   12G   33G  27% /
+/dev/sda1             xfs       1.0G  220M  780M  22% /boot
+/dev/sdb1             vfat       16G  4.0G   12G  25% /mnt/usb</span>
+
+<span class="code-comment"># Show only local file systems</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -hlT -x tmpfs -x devtmpfs</span></code>
+                        </div>
+                    </div>
+
+                    <div id="tab-findmnt" class="tab-content" role="tabpanel" aria-labelledby="examine-tab-4">
+                        <h4>findmnt - Find Mount Points</h4>
+                        <p>The <code class="inline">findmnt</code> command displays all mounted file systems in a tree format.</p>
+                        <div class="code-block">
+                            <span class="code-title">findmnt Examples</span>
+                            <code><span class="code-comment"># Show all mounts in tree format</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">findmnt</span>
+<span class="code-output">TARGET                        SOURCE           FSTYPE   OPTIONS
+/                             /dev/mapper/rhel-root xfs   rw,relatime
+├─/boot                       /dev/sda1        xfs      rw,relatime
+├─/mnt/usb                    /dev/sdb1        vfat     rw,relatime
+└─/tmp                        tmpfs            tmpfs    rw,nosuid,nodev</span>
+
+<span class="code-comment"># Show only specific mount point</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">findmnt /mnt/usb</span>
+<span class="code-output">TARGET   SOURCE    FSTYPE OPTIONS
+/mnt/usb /dev/sdb1 vfat   rw,relatime</span>
+
+<span class="code-comment"># Show mounts from /etc/fstab</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">findmnt --fstab</span></code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Understanding Mount Points -->
+        <section id="section-mount-points" class="content-section" aria-labelledby="mount-points-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="mount-points-heading">Understanding Mount Points</h2>
+            </div>
+            <div class="section-body">
+                <p>A <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-mountpoint">mount point</button><span class="tooltip-content" role="tooltip" id="tooltip-mountpoint">A mount point is an empty directory in the existing file system hierarchy where a new file system is attached. Once mounted, the directory displays the contents of the mounted file system.</span></span> is a directory in the existing file system hierarchy where you attach another file system. When a device is mounted on a directory, the contents of that directory become the contents of the mounted file system.</p>
+
+                <h3>Common Mount Points</h3>
+                <div class="card-grid">
+                    <div class="info-card">
+                        <h4><span class="card-icon">&#128194;</span> /mnt</h4>
+                        <p>Traditional location for temporarily mounting file systems. Often used for manual mounts.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4><span class="card-icon">&#128247;</span> /media</h4>
+                        <p>Standard location for automatically mounted removable media like USB drives and optical discs.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4><span class="card-icon">&#127968;</span> /run/media/$USER</h4>
+                        <p>Modern RHEL automatically mounts removable media here, organized by username.</p>
+                    </div>
+                    <div class="info-card">
+                        <h4><span class="card-icon">&#128190;</span> Custom Mounts</h4>
+                        <p>Administrators can create any directory as a mount point (e.g., /data, /backup).</p>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon">&#128161;</span>
+                        <span>Important Concept</span>
+                    </div>
+                    <p>The mount point directory must exist before mounting. Any existing files in the mount point directory become temporarily hidden (shadowed) when a file system is mounted there. They reappear when the file system is unmounted.</p>
+                </div>
+
+                <h3>Mount Point Requirements</h3>
+                <ul>
+                    <li>The mount point directory must exist before mounting</li>
+                    <li>Typically, mount points should be empty directories</li>
+                    <li>You need appropriate permissions (usually root) to mount/unmount</li>
+                    <li>Each file system can only be mounted at one location at a time</li>
+                    <li>Mount points create a unified file system tree from multiple devices</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 5: Mounting File Systems -->
+        <section id="section-mounting" class="content-section" aria-labelledby="mounting-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="mounting-heading">Mounting File Systems</h2>
+            </div>
+            <div class="section-body">
+                <p>The <code class="inline">mount</code> command attaches a file system to the directory tree. You can identify the file system by device name, label, or UUID.</p>
+
+                <h3>Basic Mount Syntax</h3>
+                <div class="code-block">
+                    <span class="code-title">Mount Command Syntax</span>
+                    <code><span class="code-comment"># General syntax</span>
+<span class="code-command">mount [OPTIONS] DEVICE MOUNT_POINT</span>
+
+<span class="code-comment"># Mount by device name</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount /dev/sdb1 /mnt/usb</span>
+
+<span class="code-comment"># Mount by UUID (recommended for persistent identification)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount UUID="12345678-ABCD" /mnt/usb</span>
+
+<span class="code-comment"># Mount by label</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount LABEL="USBDATA" /mnt/usb</span></code>
+                </div>
+
+                <h3>Creating and Using a Mount Point</h3>
+                <div class="code-block">
+                    <span class="code-title">Step-by-Step Mount Process</span>
+                    <code><span class="code-comment"># Step 1: Identify the device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk</span>
+<span class="code-output">NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+sdb      8:16   1   16G  0 disk 
+└─sdb1   8:17   1   16G  0 part</span>
+
+<span class="code-comment"># Step 2: Create the mount point directory</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mkdir /mnt/data</span>
+
+<span class="code-comment"># Step 3: Mount the file system</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount /dev/sdb1 /mnt/data</span>
+
+<span class="code-comment"># Step 4: Verify the mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">findmnt /mnt/data</span>
+<span class="code-output">TARGET    SOURCE    FSTYPE OPTIONS
+/mnt/data /dev/sdb1 vfat   rw,relatime</span>
+
+<span class="code-comment"># Step 5: Access the files</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /mnt/data</span></code>
+                </div>
+
+                <h3>Mount Options</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">-o ro</code></td>
+                            <td>Mount read-only</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">-o rw</code></td>
+                            <td>Mount read-write (default)</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">-o noexec</code></td>
+                            <td>Prevent execution of binaries</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">-o nosuid</code></td>
+                            <td>Ignore setuid/setgid bits</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">-o nodev</code></td>
+                            <td>Ignore device files</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">-t TYPE</code></td>
+                            <td>Specify file system type (ext4, xfs, vfat)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <span class="code-title">Mount with Options</span>
+                    <code><span class="code-comment"># Mount read-only</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -o ro /dev/sdb1 /mnt/usb</span>
+
+<span class="code-comment"># Mount with multiple options</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -o ro,noexec,nosuid /dev/sdb1 /mnt/usb</span>
+
+<span class="code-comment"># Specify file system type</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -t vfat /dev/sdb1 /mnt/usb</span></code>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon">&#9432;</span>
+                        <span>Using UUID vs Device Name</span>
+                    </div>
+                    <p>Device names like <code class="inline">/dev/sdb</code> can change when devices are added or removed. The UUID remains constant for a file system, making it the preferred method for identifying file systems in configuration files and scripts.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Unmounting File Systems -->
+        <section id="section-unmounting" class="content-section" aria-labelledby="unmounting-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="unmounting-heading">Unmounting File Systems</h2>
+            </div>
+            <div class="section-body">
+                <p>Before removing a storage device, you must <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-unmount">unmount</button><span class="tooltip-content" role="tooltip" id="tooltip-unmount">Unmounting ensures all cached data is written to the device and properly closes all open files. Removing a device without unmounting can cause data loss or corruption.</span></span> it to ensure all data is written and no processes are accessing the files.</p>
+
+                <h3>Using the umount Command</h3>
+                <div class="code-block">
+                    <span class="code-title">umount Examples</span>
+                    <code><span class="code-comment"># Unmount by mount point</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">umount /mnt/usb</span>
+
+<span class="code-comment"># Unmount by device name</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">umount /dev/sdb1</span>
+
+<span class="code-comment"># Verify the unmount</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">findmnt /mnt/usb</span>
+<span class="code-output">(no output - not mounted)</span></code>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon">&#9888;</span>
+                        <span>Device is Busy Error</span>
+                    </div>
+                    <p>If you get a "device is busy" error, a process is using files on the mounted file system. You need to stop those processes or change to a different directory before unmounting.</p>
+                </div>
+
+                <h3>Handling Busy Mounts</h3>
+                <div class="code-block">
+                    <span class="code-title">Troubleshooting Busy Mounts</span>
+                    <code><span class="code-comment"># Check what's using the mount point</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">lsof /mnt/usb</span>
+<span class="code-output">COMMAND   PID   USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+bash     1234 student  cwd    DIR   8,17     4096    2 /mnt/usb
+vim      1456 student    4r   REG   8,17    12345  100 /mnt/usb/file.txt</span>
+
+<span class="code-comment"># Alternative: use fuser to find processes</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">fuser -vm /mnt/usb</span>
+<span class="code-output">                     USER        PID ACCESS COMMAND
+/mnt/usb:            student    1234 ..c.. bash
+                     student    1456 F.... vim</span>
+
+<span class="code-comment"># Kill processes using the mount (use with caution!)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">fuser -km /mnt/usb</span>
+
+<span class="code-comment"># Lazy unmount - detach now, cleanup when idle</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">umount -l /mnt/usb</span></code>
+                </div>
+
+                <div class="expandable">
+                    <button class="expandable-header" aria-expanded="false" aria-controls="unmount-safety">
+                        <span>Best Practices for Safe Unmounting</span>
+                        <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                    </button>
+                    <div id="unmount-safety" class="expandable-content">
+                        <ol>
+                            <li><strong>Change directories:</strong> Make sure you're not inside the mount point (<code class="inline">cd ~</code>)</li>
+                            <li><strong>Close applications:</strong> Close any programs that might have files open on the device</li>
+                            <li><strong>Sync data:</strong> Run <code class="inline">sync</code> to flush cached writes to disk</li>
+                            <li><strong>Check for users:</strong> Use <code class="inline">lsof</code> or <code class="inline">fuser</code> to identify processes</li>
+                            <li><strong>Unmount gracefully:</strong> Use <code class="inline">umount</code> command</li>
+                            <li><strong>Wait for LED:</strong> If the device has an activity light, wait for it to stop blinking</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Working with Removable Media -->
+        <section id="section-removable" class="content-section" aria-labelledby="removable-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="removable-heading">Working with Removable Media</h2>
+            </div>
+            <div class="section-body">
+                <p>Removable media includes USB flash drives, external hard drives, SD cards, and optical media (CDs/DVDs). Modern RHEL systems automatically detect and can automatically mount these devices.</p>
+
+                <h3>USB Flash Drives</h3>
+                <p>When you connect a USB drive, the kernel detects it and creates device files. The drive typically appears as <code class="inline">/dev/sdb</code>, <code class="inline">/dev/sdc</code>, etc., depending on how many drives are already connected.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Working with USB Drives</span>
+                    <code><span class="code-comment"># Monitor kernel messages when inserting USB</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">dmesg | tail -20</span>
+<span class="code-output">[12345.678901] usb 2-1: new high-speed USB device number 3
+[12345.789012] usb-storage 2-1:1.0: USB Mass Storage device detected
+[12345.890123] scsi host4: usb-storage 2-1:1.0
+[12346.901234] sd 4:0:0:0: [sdb] 31266816 512-byte logical blocks
+[12346.912345] sd 4:0:0:0: [sdb] Write Protect is off
+[12347.023456]  sdb: sdb1</span>
+
+<span class="code-comment"># Check that the device appeared</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk -f</span>
+
+<span class="code-comment"># Manually mount if not auto-mounted</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mkdir -p /mnt/usb</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount /dev/sdb1 /mnt/usb</span></code>
+                </div>
+
+                <h3>Optical Media (CD/DVD)</h3>
+                <p>Optical drives appear as <code class="inline">/dev/sr0</code>, <code class="inline">/dev/sr1</code>, etc. They are typically mounted read-only.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Working with Optical Media</span>
+                    <code><span class="code-comment"># Check for optical drive</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk | grep sr</span>
+<span class="code-output">sr0    11:0    1  700M  0 rom</span>
+
+<span class="code-comment"># Mount a CD/DVD</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount /dev/sr0 /mnt/cdrom</span>
+<span class="code-output">mount: /mnt/cdrom: WARNING: source write-protected, mounted read-only.</span>
+
+<span class="code-comment"># Eject the disc after unmounting</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">umount /mnt/cdrom</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">eject /dev/sr0</span></code>
+                </div>
+
+                <h3>ISO Image Files</h3>
+                <p>ISO files are disk image files that can be mounted using <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-loop">loop devices</button><span class="tooltip-content" role="tooltip" id="tooltip-loop">A loop device is a pseudo-device that allows a regular file to be accessed as a block device. This is commonly used to mount disk image files like ISOs.</span></span>.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Mounting ISO Images</span>
+                    <code><span class="code-comment"># Mount an ISO file</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -o loop rhel-9.3-x86_64-dvd.iso /mnt/iso</span>
+
+<span class="code-comment"># Modern method (loop option is automatic)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount rhel-9.3-x86_64-dvd.iso /mnt/iso</span>
+
+<span class="code-comment"># View mounted ISO contents</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /mnt/iso</span>
+<span class="code-output">AppStream  BaseOS  EFI  images  isolinux  media.repo</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Managing Media with udisks2 -->
+        <section id="section-udisks" class="content-section" aria-labelledby="udisks-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="udisks-heading">Managing Media with udisks2</h2>
+            </div>
+            <div class="section-body">
+                <p>The <span class="tooltip-container"><button class="tooltip-trigger" aria-describedby="tooltip-udisks">udisks2</button><span class="tooltip-content" role="tooltip" id="tooltip-udisks">udisks2 is a daemon that handles automatic mounting and provides a D-Bus interface for managing storage devices. It allows non-root users to mount removable media in their own namespaces.</span></span> service provides automatic mounting for removable media and allows users to mount devices without root privileges. It's the backend for desktop environments like GNOME.</p>
+
+                <h3>udisksctl Command</h3>
+                <p>The <code class="inline">udisksctl</code> command provides a command-line interface to udisks2:</p>
+
+                <div class="code-block">
+                    <span class="code-title">udisksctl Usage</span>
+                    <code><span class="code-comment"># List all block devices</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl status</span>
+<span class="code-output">MODEL                   REVISION   SERIAL         DEVICE
+-------------------------------------------------------------
+VBOX HARDDISK           1.0        VB12345678     sda
+Kingston DataTraveler   PMAP       001A2B3C4D5E   sdb</span>
+
+<span class="code-comment"># Get detailed info about a device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl info -b /dev/sdb1</span>
+
+<span class="code-comment"># Mount a device (no root required for removable media)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl mount -b /dev/sdb1</span>
+<span class="code-output">Mounted /dev/sdb1 at /run/media/student/USBDATA</span>
+
+<span class="code-comment"># Unmount a device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl unmount -b /dev/sdb1</span>
+<span class="code-output">Unmounted /dev/sdb1</span>
+
+<span class="code-comment"># Power off a USB device (safe removal)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl power-off -b /dev/sdb</span></code>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon">&#128272;</span>
+                        <span>User Mount Location</span>
+                    </div>
+                    <p>When using <code class="inline">udisksctl</code>, removable media is mounted at <code class="inline">/run/media/USERNAME/LABEL</code> where USERNAME is your login name and LABEL is the file system label or UUID.</p>
+                </div>
+
+                <h3>Automatic vs Manual Mounting</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>When to Use</th>
+                            <th>Mount Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Desktop Auto-mount</td>
+                            <td>Desktop users with GUI</td>
+                            <td>/run/media/$USER/</td>
+                        </tr>
+                        <tr>
+                            <td>udisksctl</td>
+                            <td>CLI users, no root needed</td>
+                            <td>/run/media/$USER/</td>
+                        </tr>
+                        <tr>
+                            <td>mount command</td>
+                            <td>Administrators, custom mount points</td>
+                            <td>Any directory (typically /mnt)</td>
+                        </tr>
+                        <tr>
+                            <td>/etc/fstab</td>
+                            <td>Permanent, automated mounts</td>
+                            <td>Configured location</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Section 9: Configuring /etc/fstab -->
+        <section id="section-fstab" class="content-section" aria-labelledby="fstab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="fstab-heading">Configuring /etc/fstab</h2>
+            </div>
+            <div class="section-body">
+                <p>The <code class="inline">/etc/fstab</code> file contains static information about file systems. It defines which file systems are mounted automatically at boot and their mount options.</p>
+
+                <h3>fstab Entry Format</h3>
+                <div class="device-diagram">
+                    <div class="device-diagram-title">/etc/fstab Field Structure</div>
+                    <p style="font-family: var(--font-mono); margin: 15px 0;">DEVICE &nbsp; MOUNT_POINT &nbsp; FS_TYPE &nbsp; OPTIONS &nbsp; DUMP &nbsp; PASS</p>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Description</th>
+                            <th>Example</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DEVICE</td>
+                            <td>Device identifier (UUID, LABEL, or path)</td>
+                            <td>UUID=abc123...</td>
+                        </tr>
+                        <tr>
+                            <td>MOUNT_POINT</td>
+                            <td>Directory where mounted</td>
+                            <td>/mnt/data</td>
+                        </tr>
+                        <tr>
+                            <td>FS_TYPE</td>
+                            <td>File system type</td>
+                            <td>xfs, ext4, vfat</td>
+                        </tr>
+                        <tr>
+                            <td>OPTIONS</td>
+                            <td>Mount options</td>
+                            <td>defaults, ro, noexec</td>
+                        </tr>
+                        <tr>
+                            <td>DUMP</td>
+                            <td>Backup utility flag (0 = skip)</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>PASS</td>
+                            <td>fsck order (0 = skip, 1 = root, 2 = other)</td>
+                            <td>2</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <span class="code-title">Sample /etc/fstab</span>
+                    <code><span class="code-comment"># Device                                    Mount Point  Type   Options        Dump Pass</span>
+<span class="code-file">UUID=a1b2c3d4-e5f6-7890-abcd-ef1234567890  /boot        xfs    defaults       0    0</span>
+<span class="code-file">/dev/mapper/rhel-root                      /            xfs    defaults       0    0</span>
+<span class="code-file">/dev/mapper/rhel-swap                      none         swap   defaults       0    0</span>
+<span class="code-file">UUID=12345678-ABCD                         /mnt/usb     vfat   defaults,nofail 0   0</span></code>
+                </div>
+
+                <h3>Common Mount Options</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Option</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="inline">defaults</code></td>
+                            <td>rw, suid, dev, exec, auto, nouser, async</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">nofail</code></td>
+                            <td>Don't halt boot if device is missing</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">noauto</code></td>
+                            <td>Don't mount automatically at boot</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">user</code></td>
+                            <td>Allow non-root users to mount</td>
+                        </tr>
+                        <tr>
+                            <td><code class="inline">x-systemd.automount</code></td>
+                            <td>Mount on first access (lazy mount)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon">&#9888;</span>
+                        <span>Warning: nofail for Removable Media</span>
+                    </div>
+                    <p>Always use the <code class="inline">nofail</code> option for removable media in fstab. Without it, the system may fail to boot if the device is not connected!</p>
+                </div>
+
+                <h3>Testing fstab Changes</h3>
+                <div class="code-block">
+                    <span class="code-title">Validating fstab</span>
+                    <code><span class="code-comment"># Test mounting all fstab entries (safe test)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -a</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">findmnt --verify</span>
+
+<span class="code-comment"># Remount a file system to apply option changes</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -o remount /mnt/usb</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Knowledge Check Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">10</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3 class="quiz-title">Test Your Knowledge</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="c">
+                        <p class="question-text"><span class="question-number">Q1.</span> Which command displays block devices with their UUIDs and file system types?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                fdisk -l
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                df -h
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                lsblk -f
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                mount -a
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q2.</span> What directory does udisks2 use for mounting removable media for a user named "student"?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                /media/student
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                /run/media/student
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                /mnt/student
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                /home/student/media
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">Q3.</span> Which command would you use to safely remove a USB drive?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                umount /mnt/usb
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                rm /dev/sdb
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                eject /mnt/usb
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                disconnect /dev/sdb
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="d">
+                        <p class="question-text"><span class="question-number">Q4.</span> Which /etc/fstab option prevents the system from failing to boot if a device is missing?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                defaults
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                noauto
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                user
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                nofail
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q5.</span> What is the preferred way to identify a file system in /etc/fstab?</p>
+                        <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                Device name (/dev/sdb1)
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                UUID
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                Partition number
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                File system type
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <div class="quiz-actions">
+                        <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                        <button class="quiz-btn" id="reset-quiz" type="button" style="display: none;">Try Again</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 11: Hands-on Lab -->
+        <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">11</span>
+                <h2 id="lab-heading">Hands-on Lab</h2>
+            </div>
+            <div class="section-body">
+                <div class="lab-container">
+                    <div class="lab-header">
+                        <span class="lab-icon">&#128300;</span>
+                        <h3 class="lab-title">Lab: Accessing Removable Storage</h3>
+                    </div>
+                    <p>In this lab, you will practice mounting and unmounting storage devices, examining device information, and configuring persistent mounts.</p>
+
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                            <span>Task 1: Examine Block Devices</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div id="lab-task-1" class="expandable-content">
+                            <p>Use various commands to examine the storage devices on your system.</p>
+                            <div class="code-block">
+                                <code><span class="code-comment"># List all block devices</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk</span>
+
+<span class="code-comment"># Show file system information</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lsblk -f</span>
+
+<span class="code-comment"># Display block device attributes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">blkid</span>
+
+<span class="code-comment"># Show disk space usage</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -hT</span>
+
+<span class="code-comment"># Find current mount points</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">findmnt</span></code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                            <span>Task 2: Mount a File System Manually</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div id="lab-task-2" class="expandable-content">
+                            <p>Create a mount point and mount a file system manually.</p>
+                            <div class="code-block">
+                                <code><span class="code-comment"># Create a mount point directory</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mkdir -p /mnt/mydata</span>
+
+<span class="code-comment"># Identify the device to mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">lsblk -f | grep -v "loop"</span>
+
+<span class="code-comment"># Mount the device (replace sdb1 with your device)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount /dev/sdb1 /mnt/mydata</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">findmnt /mnt/mydata</span>
+
+<span class="code-comment"># List the contents</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -la /mnt/mydata</span></code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                            <span>Task 3: Unmount Safely</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div id="lab-task-3" class="expandable-content">
+                            <p>Practice safely unmounting the file system.</p>
+                            <div class="code-block">
+                                <code><span class="code-comment"># Make sure you're not in the mount point</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cd ~</span>
+
+<span class="code-comment"># Check if anything is using the mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">lsof /mnt/mydata</span>
+
+<span class="code-comment"># Sync data to disk</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">sync</span>
+
+<span class="code-comment"># Unmount the file system</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">umount /mnt/mydata</span>
+
+<span class="code-comment"># Verify it's unmounted</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">findmnt /mnt/mydata</span>
+<span class="code-comment"># (Should show no output)</span></code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                            <span>Task 4: Use udisksctl</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div id="lab-task-4" class="expandable-content">
+                            <p>Mount and unmount using udisksctl as a regular user.</p>
+                            <div class="code-block">
+                                <code><span class="code-comment"># Check udisks status</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl status</span>
+
+<span class="code-comment"># Mount using udisksctl (no root required)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl mount -b /dev/sdb1</span>
+<span class="code-output">Mounted /dev/sdb1 at /run/media/student/USBDATA</span>
+
+<span class="code-comment"># Access the files</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /run/media/student/USBDATA</span>
+
+<span class="code-comment"># Unmount using udisksctl</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl unmount -b /dev/sdb1</span>
+
+<span class="code-comment"># Safely power off the device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">udisksctl power-off -b /dev/sdb</span></code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
+                            <span>Task 5: Configure /etc/fstab Entry</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div id="lab-task-5" class="expandable-content">
+                            <p>Create a persistent mount entry in /etc/fstab.</p>
+                            <div class="code-block">
+                                <code><span class="code-comment"># Get the UUID of the device</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">blkid /dev/sdb1</span>
+<span class="code-output">/dev/sdb1: UUID="12345678-ABCD" LABEL="USBDATA" TYPE="vfat"</span>
+
+<span class="code-comment"># Create mount point</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mkdir -p /mnt/persistent</span>
+
+<span class="code-comment"># Add entry to /etc/fstab (use your actual UUID)</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">echo 'UUID=12345678-ABCD /mnt/persistent vfat defaults,nofail 0 0' >> /etc/fstab</span>
+
+<span class="code-comment"># Test the fstab entry</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">mount -a</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@workstation ~]#</span> <span class="code-command">findmnt /mnt/persistent</span></code>
+                            </div>
+                            <div class="warning-box">
+                                <div class="warning-box-header">
+                                    <span class="note-icon">&#9888;</span>
+                                    <span>Caution</span>
+                                </div>
+                                <p>Always use <code class="inline">nofail</code> for removable devices in fstab to prevent boot failures when the device is not connected.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Chapter Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">12</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="key-points">
+                    <h4>Key Takeaways</h4>
+                    <ul>
+                        <li><strong>Block devices</strong> represent storage in /dev with naming conventions like sda (SCSI/SATA), nvme0n1 (NVMe), and sr0 (optical).</li>
+                        <li><strong>lsblk and blkid</strong> are essential commands for examining block device information, UUIDs, and file system types.</li>
+                        <li><strong>Mount points</strong> are directories where file systems are attached to the directory tree hierarchy.</li>
+                        <li><strong>The mount command</strong> attaches file systems; always specify device and mount point. Use UUID for reliable identification.</li>
+                        <li><strong>The umount command</strong> safely detaches file systems. Always unmount before removing devices.</li>
+                        <li><strong>udisks2</strong> provides user-friendly mounting for removable media without root privileges.</li>
+                        <li><strong>/etc/fstab</strong> configures persistent mounts. Use <code class="inline">nofail</code> option for removable devices.</li>
+                    </ul>
+                </div>
+
+                <h3>Quick Reference</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Command</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>List block devices</td>
+                            <td><code class="inline">lsblk</code></td>
+                        </tr>
+                        <tr>
+                            <td>Show UUIDs and filesystem types</td>
+                            <td><code class="inline">lsblk -f</code> or <code class="inline">blkid</code></td>
+                        </tr>
+                        <tr>
+                            <td>Show disk space</td>
+                            <td><code class="inline">df -h</code></td>
+                        </tr>
+                        <tr>
+                            <td>Show current mounts</td>
+                            <td><code class="inline">findmnt</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mount a device</td>
+                            <td><code class="inline">mount /dev/sdb1 /mnt/usb</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mount by UUID</td>
+                            <td><code class="inline">mount UUID="..." /mnt/usb</code></td>
+                        </tr>
+                        <tr>
+                            <td>Unmount</td>
+                            <td><code class="inline">umount /mnt/usb</code></td>
+                        </tr>
+                        <tr>
+                            <td>User mount (no root)</td>
+                            <td><code class="inline">udisksctl mount -b /dev/sdb1</code></td>
+                        </tr>
+                        <tr>
+                            <td>Test fstab entries</td>
+                            <td><code class="inline">mount -a</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="key-points">
+                    <h4>What's Next?</h4>
+                    <p>In Chapter 15, you'll learn about monitoring and managing Linux processes, including:</p>
+                    <ul>
+                        <li>Understanding process states and lifecycle</li>
+                        <li>Viewing and managing processes with ps, top, and htop</li>
+                        <li>Controlling processes with signals</li>
+                        <li>Managing process priorities with nice and renice</li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>&#127881; Chapter 14 Complete!</h2>
+                    <p>You've learned how to access and manage removable media in Red Hat Enterprise Linux.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I - Chapter 14 - Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">&copy; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const progressFill = document.getElementById('progress-fill');
+            const progressPercent = document.getElementById('progress-percent');
+            const visitedSections = new Set();
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = percentage + '%';
+                progressFill.setAttribute('aria-valuenow', percentage);
+                progressPercent.textContent = percentage + '%';
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        visitedSections.add(sectionId);
+                        updateProgress();
+
+                        // Update navigation
+                        navButtons.forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.getAttribute('href') === '#' + sectionId) {
+                                btn.classList.add('active');
+                            }
+                            if (visitedSections.has(btn.getAttribute('href').substring(1))) {
+                                btn.classList.add('visited');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            sections.forEach(section => observer.observe(section));
+
+            // ==================== TAB FUNCTIONALITY ====================
+            const tabContainers = document.querySelectorAll('.tabs-container');
+            
+            tabContainers.forEach(container => {
+                const tabBtns = container.querySelectorAll('.tab-btn');
+                const tabContents = container.querySelectorAll('.tab-content');
+
+                tabBtns.forEach((btn, index) => {
+                    btn.addEventListener('click', () => {
+                        tabBtns.forEach(b => b.setAttribute('aria-selected', 'false'));
+                        tabContents.forEach(c => c.classList.remove('active'));
+
+                        btn.setAttribute('aria-selected', 'true');
+                        tabContents[index].classList.add('active');
+                    });
+
+                    btn.addEventListener('keydown', (e) => {
+                        let newIndex;
+                        const currentIndex = Array.from(tabBtns).indexOf(e.target);
+
+                        if (e.key === 'ArrowRight') {
+                            newIndex = (currentIndex + 1) % tabBtns.length;
+                        } else if (e.key === 'ArrowLeft') {
+                            newIndex = (currentIndex - 1 + tabBtns.length) % tabBtns.length;
+                        } else {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        tabBtns[newIndex].click();
+                        tabBtns[newIndex].focus();
+                    });
+                });
+            });
+
+            // ==================== EXPANDABLE SECTIONS ====================
+            const expandables = document.querySelectorAll('.expandable');
+            
+            expandables.forEach(expandable => {
+                const header = expandable.querySelector('.expandable-header');
+                const content = expandable.querySelector('.expandable-content');
+                
+                header.addEventListener('click', () => {
+                    const isExpanded = header.getAttribute('aria-expanded') === 'true';
+                    header.setAttribute('aria-expanded', !isExpanded);
+                    content.classList.toggle('show');
+                });
+
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        header.click();
+                    }
+                });
+            });
+
+            // ==================== QUIZ SYSTEM ====================
+            const quizQuestions = document.querySelectorAll('.quiz-question');
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreEl = document.getElementById('quiz-score');
+            
+            const correctAnswers = {
+                1: { answer: 'c', explanation: 'The lsblk -f command displays block devices along with their file system type, label, and UUID.' },
+                2: { answer: 'b', explanation: 'udisks2 mounts removable media at /run/media/USERNAME/ where USERNAME is the logged-in user.' },
+                3: { answer: 'a', explanation: 'The umount command safely detaches a mounted file system. Always unmount before physically removing a device.' },
+                4: { answer: 'd', explanation: 'The nofail option allows the system to continue booting even if the device is not present.' },
+                5: { answer: 'b', explanation: 'UUIDs are preferred because they remain constant, unlike device names which can change when devices are added or removed.' }
+            };
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let score = 0;
+
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const correctAns = correctAnswers[qNum].answer;
+                    const selected = question.querySelector('input:checked');
+                    const feedback = document.getElementById('feedback-' + qNum);
+                    const options = question.querySelectorAll('.quiz-option');
+
+                    options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+
+                    if (selected) {
+                        const selectedValue = selected.value;
+                        const selectedOption = selected.closest('.quiz-option');
+
+                        if (selectedValue === correctAns) {
+                            score++;
+                            selectedOption.classList.add('correct');
+                            feedback.className = 'quiz-feedback show correct';
+                            feedback.innerHTML = '\u2713 Correct! ' + correctAnswers[qNum].explanation;
+                        } else {
+                            selectedOption.classList.add('incorrect');
+                            options.forEach(opt => {
+                                if (opt.querySelector('input').value === correctAns) {
+                                    opt.classList.add('correct');
+                                }
+                            });
+                            feedback.className = 'quiz-feedback show incorrect';
+                            feedback.innerHTML = '\u2717 Incorrect. ' + correctAnswers[qNum].explanation;
+                        }
+                    } else {
+                        feedback.className = 'quiz-feedback show incorrect';
+                        feedback.innerHTML = '\u26A0 Please select an answer.';
+                    }
+                });
+
+                quizScoreEl.textContent = 'Score: ' + score + '/5';
+                checkAnswersBtn.style.display = 'none';
+                resetQuizBtn.style.display = 'inline-block';
+
+                if (score === 5) {
+                    localStorage.setItem('ch14-quiz-passed', 'true');
+                }
+            });
+
+            resetQuizBtn.addEventListener('click', () => {
+                quizQuestions.forEach(question => {
+                    const qNum = question.getAttribute('data-question');
+                    const feedback = document.getElementById('feedback-' + qNum);
+                    const options = question.querySelectorAll('.quiz-option');
+                    const inputs = question.querySelectorAll('input');
+
+                    options.forEach(opt => opt.classList.remove('correct', 'incorrect'));
+                    inputs.forEach(input => input.checked = false);
+                    feedback.className = 'quiz-feedback';
+                    feedback.innerHTML = '';
+                });
+
+                quizScoreEl.textContent = 'Score: 0/5';
+                checkAnswersBtn.style.display = 'inline-block';
+                resetQuizBtn.style.display = 'none';
+            });
+
+            // ==================== COMPLETION BUTTON ====================
+            const completeBtn = document.getElementById('mark-complete');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', () => {
+                    completeBtn.textContent = '\u2713 Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    localStorage.setItem('ch14-complete', 'true');
+
+                    alert('Congratulations! You have completed Chapter 14: Accessing Removable Media. Continue to Chapter 15 to learn about monitoring and managing Linux processes.');
+                });
+
+                if (localStorage.getItem('ch14-complete') === 'true') {
+                    completeBtn.textContent = '\u2713 Chapter Completed!';
+                    completeBtn.style.background = '#267326';
+                    completeBtn.disabled = true;
+                }
+            }
+
+            // ==================== TOOLTIP POSITIONING ====================
+            const tooltipTriggers = document.querySelectorAll('.tooltip-trigger');
+
+            tooltipTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', positionTooltip);
+                trigger.addEventListener('focus', positionTooltip);
+            });
+
+            function positionTooltip(e) {
+                const trigger = e.target;
+                const container = trigger.closest('.tooltip-container');
+                const tooltip = container.querySelector('.tooltip-content');
+
+                tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
+
+                const rect = trigger.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                if (rect.left + (rect.width / 2) - (tooltipRect.width / 2) < 10) {
+                    tooltip.classList.add('tooltip-left');
+                } else if (rect.right - (rect.width / 2) + (tooltipRect.width / 2) > window.innerWidth - 10) {
+                    tooltip.classList.add('tooltip-right');
+                }
+
+                if (rect.top < tooltipRect.height + 20) {
+                    tooltip.classList.add('tooltip-bottom');
+                }
+            }
+
+            // ==================== SMOOTH SCROLLING ====================
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>
