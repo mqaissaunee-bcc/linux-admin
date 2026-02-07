@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Monitoring and Managing Linux Processes | RH124</title>
+    <style>
+        :root {
+            --rh-red: #CC0000; --rh-red-dark: #990000; --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A; --rh-gray-dark: #333333; --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC; --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC; --rh-blue-dark: #004C99; --rh-teal: #009999;
+            --rh-gold: #CC9900; --rh-green: #339933; --rh-green-dark: #267326;
+            --rh-purple: #663399; --rh-orange: #FF6600;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1); --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px;
+            --transition-fast: 0.2s ease; --transition-med: 0.3s ease;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        .main-header { background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 50%, var(--rh-red-dark) 100%); color: var(--rh-white); padding: 40px 24px 30px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 300; opacity: 0.9; }
+        .progress-container { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 10px; max-width: 900px; margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.5s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.8rem; color: var(--rh-gray); margin-top: 6px; }
+        .section-nav { background: var(--rh-white); padding: 16px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: 900px; margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 8px 14px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+        main { max-width: 900px; margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+        .code-block { background: var(--rh-gray-dark); color: #E0E0E0; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-prompt { color: #66BB6A; }
+        .code-command { color: #FFFFFF; font-weight: bold; }
+        .code-output { color: #AAAAAA; }
+        .code-comment { color: #888888; font-style: italic; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; position: relative; font-weight: 600; }
+        .tooltip-content { display: none; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 400; line-height: 1.5; width: max-content; max-width: 320px; box-shadow: var(--shadow-lg); z-index: 1000; font-family: var(--font-display); text-decoration: none; }
+        .tooltip-content::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: var(--rh-gray-dark); }
+        .tooltip-term:hover .tooltip-content, .tooltip-term:focus .tooltip-content { display: block; }
+        .note-box { border-radius: var(--radius-md); padding: 20px; margin: 20px 0; border-left: 4px solid var(--rh-blue); background: linear-gradient(135deg, #E8F4FD, #F0F8FF); }
+        .note-box.warning { border-left-color: var(--rh-orange); background: linear-gradient(135deg, #FFF3E0, #FFF8F0); }
+        .note-box.tip { border-left-color: var(--rh-green); background: linear-gradient(135deg, #E8F5E9, #F0FFF0); }
+        .note-box.danger { border-left-color: var(--rh-red); background: linear-gradient(135deg, #FFEBEE, #FFF0F0); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+        .note-icon { font-size: 1.2rem; }
+        .note-box p { margin-bottom: 8px; }
+        .note-box p:last-child { margin-bottom: 0; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+        .info-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .info-table td { padding: 12px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .info-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .info-table tr:hover { background: #E8F4FD; }
+        .expandable { margin: 16px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--rh-gray-lighter); border: none; cursor: pointer; font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left; }
+        .expandable-toggle:hover { background: #E0E0E0; }
+        .expandable-toggle .toggle-icon { transition: transform var(--transition-fast); font-size: 1.2rem; }
+        .expandable-toggle[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+        .tabs { margin: 20px 0; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 12px 20px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--rh-gray); border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-content { display: none; padding: 20px 0; }
+        .tab-content.active { display: block; }
+        .diagram-container { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 30px; margin: 20px 0; text-align: center; overflow-x: auto; }
+        .process-lifecycle { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .process-box { padding: 14px 20px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all var(--transition-fast); border: 2px solid transparent; min-width: 100px; text-align: center; }
+        .process-box:hover, .process-box:focus { transform: scale(1.05); box-shadow: var(--shadow-md); }
+        .process-box.state-new { background: #E3F2FD; color: #1565C0; border-color: #1565C0; }
+        .process-box.state-running { background: #E8F5E9; color: #2E7D32; border-color: #2E7D32; }
+        .process-box.state-sleeping { background: #FFF3E0; color: #E65100; border-color: #E65100; }
+        .process-box.state-stopped { background: #F3E5F5; color: #6A1B9A; border-color: #6A1B9A; }
+        .process-box.state-zombie { background: #FFEBEE; color: #C62828; border-color: #C62828; }
+        .process-arrow { font-size: 1.5rem; color: var(--rh-gray); font-family: var(--font-display); }
+        .process-detail { background: var(--rh-white); border-radius: var(--radius-md); padding: 16px; margin-top: 16px; text-align: left; border: 1px solid var(--rh-gray-light); min-height: 80px; font-size: 0.92rem; }
+        .state-badge { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; font-family: var(--font-mono); font-weight: 700; font-size: 0.85rem; color: var(--rh-white); }
+        .state-badge.R { background: #2E7D32; } .state-badge.S { background: #E65100; } .state-badge.D { background: #BF360C; }
+        .state-badge.K { background: #4E342E; } .state-badge.I { background: #37474F; } .state-badge.T { background: #6A1B9A; }
+        .state-badge.Z { background: #C62828; } .state-badge.X { background: #880E4F; }
+        .quiz-container { margin: 20px 0; }
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; }
+        .question-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; }
+        .question-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--rh-red); color: var(--rh-white); border-radius: 50%; font-size: 0.8rem; margin-right: 10px; flex-shrink: 0; }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--rh-white); border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-display); font-size: 0.92rem; }
+        .quiz-option:hover { border-color: var(--rh-blue); background: #F0F8FF; }
+        .quiz-option.correct { border-color: var(--rh-green); background: #E8F5E9; }
+        .quiz-option.incorrect { border-color: var(--rh-red); background: #FFEBEE; }
+        .quiz-feedback { margin-top: 12px; padding: 12px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.88rem; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #E8F5E9; color: #2E7D32; border: 1px solid #2E7D32; }
+        .quiz-feedback.incorrect { background: #FFEBEE; color: #C62828; border: 1px solid #C62828; }
+        .quiz-score { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin: 16px 0; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin-right: 10px; }
+        .quiz-btn.primary { background: var(--rh-red); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-red-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); }
+        .lab-step { margin: 20px 0; padding-left: 16px; border-left: 3px solid var(--rh-teal); }
+        .step-number { display: inline-block; background: var(--rh-teal); color: var(--rh-white); padding: 2px 10px; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; margin-right: 8px; }
+        .summary-box { background: linear-gradient(135deg, #FFF8E1, #FFFDE7); border: 1px solid var(--rh-gold); border-radius: var(--radius-md); padding: 24px; }
+        .summary-box h3 { color: var(--rh-gold); margin-bottom: 16px; font-family: var(--font-display); }
+        .summary-list { list-style: none; padding: 0; }
+        .summary-list li { padding: 8px 0; border-bottom: 1px solid rgba(204,153,0,0.2); }
+        .summary-list li:last-child { border-bottom: none; }
+        .key-points { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .key-points h4 { font-family: var(--font-display); color: var(--rh-gray-dark); margin-bottom: 12px; }
+        .completion-section { text-align: center; padding: 30px 0; }
+        .completion-section h2 { font-family: var(--font-display); color: var(--rh-green); margin-bottom: 10px; }
+        .completion-btn { padding: 16px 40px; background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: all var(--transition-fast); margin-top: 16px; }
+        .completion-btn:hover { background: var(--rh-red-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .main-footer { text-align: center; padding: 30px 24px; background: var(--rh-gray-dark); color: var(--rh-gray-light); font-family: var(--font-display); font-size: 0.85rem; }
+        @media (max-width: 768px) { .section-body { padding: 20px; } .code-block { padding: 14px; font-size: 0.8rem; } .nav-list { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; } .process-lifecycle { flex-direction: column; } .process-arrow { transform: rotate(90deg); } }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header class="main-header" role="banner"><div class="header-content">
+        <span class="course-tag">RH124 - Red Hat System Administration I</span>
+        <h1 class="chapter-title">Chapter 15: Monitoring and Managing Linux Processes</h1>
+        <p class="chapter-subtitle">Investigate, control, and terminate processes on a RHEL system</p>
+    </div></header>
+    <div class="progress-container" role="complementary" aria-label="Reading progress">
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-track">
+            <div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-text"><span id="progress-percent">0%</span> Complete</div>
+    </div>
+    <nav class="section-nav" aria-label="Chapter sections"><ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn active">Objectives</a></li>
+        <li><a href="#section-definition" class="nav-btn">Processes</a></li>
+        <li><a href="#section-states" class="nav-btn">States</a></li>
+        <li><a href="#section-listing" class="nav-btn">Listing</a></li>
+        <li><a href="#section-jobcontrol" class="nav-btn">Job Control</a></li>
+        <li><a href="#section-signals" class="nav-btn">Signals</a></li>
+        <li><a href="#section-monitoring" class="nav-btn">Monitoring</a></li>
+        <li><a href="#section-top" class="nav-btn">top Utility</a></li>
+        <li><a href="#section-quiz" class="nav-btn">Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn">Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn">Summary</a></li>
+    </ul></nav>
+    <main id="main-content">
+    <!-- Section 1: Objectives -->
+    <section id="section-objectives" class="content-section" aria-labelledby="obj-h"><div class="section-header"><span class="section-number" aria-hidden="true">1</span><h2 id="obj-h">Learning Objectives</h2></div><div class="section-body">
+        <p>In this chapter, you will learn how to investigate, control, and terminate processes that run on a Red Hat Enterprise Linux system. By the end of this chapter, you should be able to:</p>
+        <ul>
+            <li>Understand the definition and lifecycle of a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt1">process<span class="tooltip-content" role="tooltip" id="tt1">A running instance of a launched, executable program. Each process has its own address space, security context, and unique process ID (PID).</span></span> in Linux</li>
+            <li>Identify the different <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt2">process states<span class="tooltip-content" role="tooltip" id="tt2">The current condition of a process: Running (R), Sleeping (S/D/K/I), Stopped (T), or Zombie (Z). Shown in the STAT column of ps or S column of top.</span></span> and what each state means</li>
+            <li>List and inspect running processes using <code class="inline">ps</code> and <code class="inline">top</code></li>
+            <li>Manage foreground and background processes with <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt3">job control<span class="tooltip-content" role="tooltip" id="tt3">Shell features that allow you to run commands in the foreground or background, suspend them, and resume them using commands like bg, fg, jobs, and the &amp; operator.</span></span></li>
+            <li>Send <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt4">signals<span class="tooltip-content" role="tooltip" id="tt4">Software interrupts sent to a process to report events. Common signals include SIGTERM (15) for graceful termination, SIGKILL (9) for forced termination, and SIGSTOP (19) to suspend.</span></span> to processes using <code class="inline">kill</code>, <code class="inline">killall</code>, and <code class="inline">pkill</code></li>
+            <li>Monitor system performance and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt5">load average<span class="tooltip-content" role="tooltip" id="tt5">A measurement the Linux kernel provides to represent the perceived system load over time. Reported as three values for 1, 5, and 15-minute averages. Compare to the number of CPU cores for context.</span></span></li>
+        </ul>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>RHCSA Exam Relevance</span></div><p>Process management is a fundamental skill for the RHCSA exam. You must be able to identify, manage, and kill processes, and understand job control from the command line.</p></div>
+    </div></section>
+    <!-- Section 2: Process Definition & Lifecycle -->
+    <section id="section-definition" class="content-section" aria-labelledby="def-h"><div class="section-header"><span class="section-number" aria-hidden="true">2</span><h2 id="def-h">Processes and the Process Lifecycle</h2></div><div class="section-body">
+        <h3>What Is a Process?</h3>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt6">process<span class="tooltip-content" role="tooltip" id="tt6">A running instance of an executable program, including allocated memory, security properties, execution threads, and a process state.</span></span> is a running instance of a launched, executable program. From the moment a process is created, it consists of:</p>
+        <ul>
+            <li>An <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt7">address space<span class="tooltip-content" role="tooltip" id="tt7">A range of virtual memory addresses allocated to a process containing program code, data, stack, and heap segments.</span></span> of allocated memory</li>
+            <li>Security properties, including ownership credentials and privileges</li>
+            <li>One or more execution <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt8">threads<span class="tooltip-content" role="tooltip" id="tt8">The smallest unit of execution within a process. Threads share the same address space but execute independently.</span></span> of program code</li>
+            <li>A process state</li>
+        </ul>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt9">environment<span class="tooltip-content" role="tooltip" id="tt9">A list of information associated with a process, including local and global variables, scheduling context, and allocated system resources such as file descriptors and network ports.</span></span> of a process includes local and global variables, a current scheduling context, and allocated system resources such as file descriptors and network ports.</p>
+
+        <h3>The Process Lifecycle</h3>
+        <p>An existing <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt10">parent process<span class="tooltip-content" role="tooltip" id="tt10">The process that creates a new (child) process through the fork system call. Its PID becomes the child's PPID.</span></span> duplicates its own address space through a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt11">fork<span class="tooltip-content" role="tooltip" id="tt11">A system call that creates a new child process by duplicating the parent process. The child inherits the parent's environment, file descriptors, and security context.</span></span> to create a new <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt12">child process<span class="tooltip-content" role="tooltip" id="tt12">A process created by another process (the parent) through the fork system call, receiving its own unique PID.</span></span>. Every process is assigned a unique <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt13">PID<span class="tooltip-content" role="tooltip" id="tt13">Process ID. A unique integer number assigned by the kernel to identify each process. Process 1 (systemd) is the ancestor of all other processes.</span></span> for tracking and security. Through the fork routine, a child inherits security identities, file descriptors, port and resource privileges, environment variables, and program code. The child can then execute its own program code via the <code class="inline">exec</code> system call.</p>
+        <p>Typically, a parent process <em>sleeps</em> while the child process runs, setting a <em>wait</em> request to be signaled when the child completes. After the child exits, it discards its resources and leaves a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt14">zombie<span class="tooltip-content" role="tooltip" id="tt14">A process that has completed execution but still has an entry in the process table. Exists until the parent process reads its exit status.</span></span> entry in the process table. The parent, signaled to wake when the child exits, cleans the process table of the child's entry.</p>
+
+        <h3>Interactive Process Lifecycle</h3>
+        <p>Click on each stage to learn more about it:</p>
+        <div class="diagram-container">
+            <div class="process-lifecycle" role="group" aria-label="Process lifecycle stages">
+                <div class="process-box state-new" tabindex="0" role="button" aria-label="Fork stage" data-stage="new">fork</div>
+                <span class="process-arrow" aria-hidden="true">&#8594;</span>
+                <div class="process-box state-running" tabindex="0" role="button" aria-label="Running state" data-stage="running">Running (R)</div>
+                <span class="process-arrow" aria-hidden="true">&#8594;</span>
+                <div class="process-box state-sleeping" tabindex="0" role="button" aria-label="Sleeping state" data-stage="sleeping">Sleeping (S/D)</div>
+                <span class="process-arrow" aria-hidden="true">&#8594;</span>
+                <div class="process-box state-stopped" tabindex="0" role="button" aria-label="Stopped state" data-stage="stopped">Stopped (T)</div>
+                <span class="process-arrow" aria-hidden="true">&#8594;</span>
+                <div class="process-box state-zombie" tabindex="0" role="button" aria-label="Zombie state" data-stage="zombie">Zombie (Z)</div>
+            </div>
+            <div class="process-detail" id="lifecycle-detail" aria-live="polite"><em>Click a stage above to see its description.</em></div>
+        </div>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128221;</span><span>Key Concept</span></div><p>All processes on RHEL are descendants of the first system process, <code class="inline">systemd</code> (PID 1), started by the kernel at boot time.</p></div>
+    </div></section>
+    <!-- Section 3: Process States -->
+    <section id="section-states" class="content-section" aria-labelledby="states-h"><div class="section-header"><span class="section-number" aria-hidden="true">3</span><h2 id="states-h">Linux Process States</h2></div><div class="section-body">
+        <p>In a multitasking OS, each CPU core can work on one process at a time. Processes are assigned a <em>state</em>, which changes as circumstances dictate. The <code class="inline">S</code> column of <code class="inline">top</code> or the <code class="inline">STAT</code> column of <code class="inline">ps</code> displays the current state.</p>
+        <table class="info-table" aria-label="Linux Process States"><thead><tr><th scope="col">State</th><th scope="col">Flag</th><th scope="col">Description</th></tr></thead><tbody>
+            <tr><td><strong>Running</strong></td><td><span class="state-badge R">R</span></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt15">TASK_RUNNING<span class="tooltip-content" role="tooltip" id="tt15">The process is either executing on a CPU or waiting to run in the runnable queue.</span></span>: Executing on a CPU or waiting to run. Can be executing user or kernel routines, or be queued and ready.</td></tr>
+            <tr><td><strong>Sleeping</strong></td><td><span class="state-badge S">S</span></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt16">TASK_INTERRUPTIBLE<span class="tooltip-content" role="tooltip" id="tt16">Process is waiting for a condition. When an event or signal satisfies the condition, it returns to Running. Responds to signals.</span></span>: Waiting for a condition. When an event or signal satisfies the condition, the process returns to Running.</td></tr>
+            <tr><td></td><td><span class="state-badge D">D</span></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt17">TASK_UNINTERRUPTIBLE<span class="tooltip-content" role="tooltip" id="tt17">Like S, but does NOT respond to signals. Used when interruption might cause unpredictable device states. Cannot be killed with SIGKILL.</span></span>: Also sleeping, but does not respond to signals. Used when interruption might cause unpredictable device states.</td></tr>
+            <tr><td></td><td><span class="state-badge K">K</span></td><td><strong>TASK_KILLABLE</strong>: Same as D, but modified to allow the process to respond to a kill signal. Often displayed as D.</td></tr>
+            <tr><td></td><td><span class="state-badge I">I</span></td><td><strong>TASK_REPORT_IDLE</strong>: A subset of D for kernel threads. Not counted in load average calculation.</td></tr>
+            <tr><td><strong>Stopped</strong></td><td><span class="state-badge T">T</span></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt18">TASK_STOPPED<span class="tooltip-content" role="tooltip" id="tt18">Process is suspended, usually by user signal (Ctrl+Z sends SIGTSTP) or another process. Can be resumed with SIGCONT.</span></span>: Suspended by a user or another process. Can be resumed by another signal.</td></tr>
+            <tr><td><strong>Zombie</strong></td><td><span class="state-badge Z">Z</span></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt19">EXIT_ZOMBIE<span class="tooltip-content" role="tooltip" id="tt19">Child process has exited and signaled its parent. All resources except the PID are released. Remains until the parent reaps it.</span></span>: Child has exited. All resources except PID released. Remains until parent reads exit status.</td></tr>
+            <tr><td></td><td><span class="state-badge X">X</span></td><td><strong>EXIT_DEAD</strong>: Parent has reaped the remaining child process structure. Cannot be observed in process-listing utilities.</td></tr>
+        </tbody></table>
+        <div class="note-box warning"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Important</span></div><p>A process in the <strong>D</strong> (uninterruptible sleep) state cannot be killed, even with <code class="inline">SIGKILL</code>. Many D-state processes indicate a possible hardware or storage problem.</p></div>
+    </div></section>
+    <!-- Section 4: Listing Processes -->
+    <section id="section-listing" class="content-section" aria-labelledby="list-h"><div class="section-header"><span class="section-number" aria-hidden="true">4</span><h2 id="list-h">Listing and Inspecting Processes</h2></div><div class="section-body">
+        <p>The <code class="inline">ps</code> command lists current processes. It supports three option styles: UNIX (dash), BSD (no dash), and GNU long (double dash).</p>
+        <div class="tabs"><div class="tab-buttons" role="tablist" aria-label="ps command formats">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-aux" id="btn-aux">ps aux (BSD)</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-ef" id="btn-ef">ps -ef (UNIX)</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-custom" id="btn-custom">Custom Output</button>
+        </div>
+        <div id="tab-aux" class="tab-content active" role="tabpanel" aria-labelledby="btn-aux">
+            <p>Displays all processes. Key columns: USER, PID, %CPU, %MEM, VSZ, RSS, TTY, STAT, START, TIME, COMMAND.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps aux</span>
+<span class="code-output">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="code-output">root         1  0.0  0.7  49516 41072 ?        S    11:57   0:02 /usr/lib/systemd/systemd</span>
+<span class="code-output">root         2  0.0  0.0      0     0 ?        S    11:57   0:00 [kthreadd]</span>
+<span class="code-output">student   2496  0.0  0.0 231132  3872 pts/0    R+   16:45   0:00 ps aux</span></code></div>
+            <p>The <code class="inline">STAT</code> column shows process state. Additional characters: <code class="inline">+</code> (foreground process group), <code class="inline">s</code> (session leader), <code class="inline">l</code> (multi-threaded).</p>
+        </div>
+        <div id="tab-ef" class="tab-content" role="tabpanel" aria-labelledby="btn-ef">
+            <p>Includes the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt20">PPID<span class="tooltip-content" role="tooltip" id="tt20">Parent Process ID. The PID of the process that created (forked) this process. Useful for tracing process hierarchy.</span></span> (Parent Process ID) column, useful for tracing parent-child relationships:</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps -ef</span>
+<span class="code-output">UID        PID  PPID  C STIME TTY          TIME CMD</span>
+<span class="code-output">root         1     0  0 11:57 ?        00:00:02 /usr/lib/systemd/systemd</span>
+<span class="code-output">student   2510  2450  0 16:46 pts/0    00:00:00 ps -ef</span></code></div>
+        </div>
+        <div id="tab-custom" class="tab-content" role="tabpanel" aria-labelledby="btn-custom">
+            <p>Use <code class="inline">-o</code> for custom columns and <code class="inline">--sort</code> to order output. Use <code class="inline">pgrep</code> to search by name or attribute:</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps -eo pid,ppid,user,%cpu,%mem,stat,comm --sort=-%cpu | head</span>
+
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pgrep -l -u student</span>
+<span class="code-output">2450 bash</span>
+<span class="code-output">2510 ps</span></code></div>
+        </div></div>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div><p>Use <code class="inline">pgrep -l <em>pattern</em></code> instead of <code class="inline">ps aux | grep <em>pattern</em></code> for cleaner output without the grep process itself appearing in results.</p></div>
+    </div></section>
+    <!-- Section 5: Job Control -->
+    <section id="section-jobcontrol" class="content-section" aria-labelledby="jc-h"><div class="section-header"><span class="section-number" aria-hidden="true">5</span><h2 id="jc-h">Managing Processes with Job Control</h2></div><div class="section-body">
+        <h3>Foreground and Background Processes</h3>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt21">foreground process<span class="tooltip-content" role="tooltip" id="tt21">A process connected to the terminal that receives keyboard input. Only one foreground process per terminal. The shell waits for it to finish.</span></span> receives keyboard input and controls the terminal. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt22">background process<span class="tooltip-content" role="tooltip" id="tt22">A process running without terminal keyboard input. The shell does not wait for it to finish. Started by appending &amp; to the command.</span></span> runs without that connection, allowing continued terminal use.</p>
+
+        <h3>Running Jobs in the Background</h3>
+        <p>Append <code class="inline">&amp;</code> to run a command in the background. The shell displays a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt23">job number<span class="tooltip-content" role="tooltip" id="tt23">A number unique to the shell session identifying a background job. Shown in brackets, e.g., [1]. Referenced with %1, %2, etc.</span></span> and PID:</p>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sleep 10000 &amp;</span>
+<span class="code-output">[1] 5947</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sleep 20000 &amp;</span>
+<span class="code-output">[2] 5948</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">jobs</span>
+<span class="code-output">[1]-  Running                 sleep 10000 &amp;</span>
+<span class="code-output">[2]+  Running                 sleep 20000 &amp;</span></code></div>
+
+        <table class="info-table" aria-label="Job Control Commands"><thead><tr><th scope="col">Command / Shortcut</th><th scope="col">Description</th></tr></thead><tbody>
+            <tr><td><code class="inline">command &amp;</code></td><td>Run a command in the background</td></tr>
+            <tr><td><code class="inline">jobs</code></td><td>List background jobs for the current session</td></tr>
+            <tr><td><code class="inline">fg %<em>n</em></code></td><td>Bring background job <em>n</em> to the foreground</td></tr>
+            <tr><td><code class="inline">bg %<em>n</em></code></td><td>Resume a suspended job <em>n</em> in the background</td></tr>
+            <tr><td><strong>Ctrl+Z</strong></td><td>Suspend the foreground process (sends SIGTSTP)</td></tr>
+            <tr><td><strong>Ctrl+C</strong></td><td>Terminate the foreground process (sends SIGINT)</td></tr>
+        </tbody></table>
+
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" aria-controls="ex-jc"><span>Example: Complete Job Control Workflow</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+        <div class="expandable-content" id="ex-jc">
+            <div class="code-block"><code><span class="code-comment"># Start a long-running process in the foreground</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">find / -name "*.conf" > /tmp/configs.txt 2>/dev/null</span>
+<span class="code-comment"># Press Ctrl+Z to suspend it</span>
+<span class="code-output">^Z</span>
+<span class="code-output">[1]+  Stopped                 find / -name "*.conf" ...</span>
+
+<span class="code-comment"># Resume it in the background</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bg %1</span>
+<span class="code-output">[1]+ find / -name "*.conf" > /tmp/configs.txt 2>/dev/null &amp;</span>
+
+<span class="code-comment"># Bring it back to the foreground when ready</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">fg %1</span></code></div>
+        </div></div>
+    </div></section>
+    <!-- Section 6: Signals -->
+    <section id="section-signals" class="content-section" aria-labelledby="sig-h"><div class="section-header"><span class="section-number" aria-hidden="true">6</span><h2 id="sig-h">Sending Signals to Processes</h2></div><div class="section-body">
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt24">signal<span class="tooltip-content" role="tooltip" id="tt24">A software interrupt delivered to a process to report events. Processes can catch, ignore, or use the default action for most signals.</span></span> is a software interrupt delivered to a process. You can use keyboard shortcuts for the foreground process, or commands to signal any process by PID or name.</p>
+
+        <h3>Fundamental Process Management Signals</h3>
+        <table class="info-table" aria-label="Common Linux Signals"><thead><tr><th scope="col">Signal</th><th scope="col">#</th><th scope="col">Description</th><th scope="col">Default</th></tr></thead><tbody>
+            <tr><td><strong>SIGHUP</strong></td><td>1</td><td>Hangup. Many daemons reload their configuration upon receiving this signal.</td><td>Terminate</td></tr>
+            <tr><td><strong>SIGINT</strong></td><td>2</td><td>Keyboard interrupt (<strong>Ctrl+C</strong>). Can be caught or ignored by the process.</td><td>Terminate</td></tr>
+            <tr><td><strong>SIGQUIT</strong></td><td>3</td><td>Keyboard quit (<strong>Ctrl+\</strong>). Similar to SIGINT but produces a core dump.</td><td>Core dump</td></tr>
+            <tr><td><strong>SIGKILL</strong></td><td>9</td><td>Kill, unblockable. Forces immediate termination. <em>Cannot</em> be caught, blocked, or ignored.</td><td>Terminate</td></tr>
+            <tr><td><strong>SIGTERM</strong></td><td>15</td><td>Terminate. Default signal sent by <code class="inline">kill</code>. Allows the process to perform cleanup.</td><td>Terminate</td></tr>
+            <tr><td><strong>SIGCONT</strong></td><td>18</td><td>Continue a stopped process. Sent automatically by <code class="inline">fg</code> or <code class="inline">bg</code>.</td><td>Resume</td></tr>
+            <tr><td><strong>SIGSTOP</strong></td><td>19</td><td>Stop, unblockable. <em>Cannot</em> be caught, blocked, or ignored.</td><td>Stop</td></tr>
+            <tr><td><strong>SIGTSTP</strong></td><td>20</td><td>Keyboard stop (<strong>Ctrl+Z</strong>). Unlike SIGSTOP, this can be caught.</td><td>Stop</td></tr>
+        </tbody></table>
+
+        <div class="note-box danger"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div><p><code class="inline">SIGKILL (9)</code> should only be used as a last resort. It does not allow the process to clean up temporary files, close network connections, or report termination to child processes. Always try <code class="inline">SIGTERM (15)</code> first.</p></div>
+
+        <h3>Commands for Sending Signals</h3>
+        <div class="tabs"><div class="tab-buttons" role="tablist" aria-label="Signal commands">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-kill" id="btn-kill">kill</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-killall" id="btn-killall">killall</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-pkill" id="btn-pkill">pkill</button>
+        </div>
+        <div id="tab-kill" class="tab-content active" role="tabpanel" aria-labelledby="btn-kill">
+            <p>Sends a signal to a process by PID. Default signal is SIGTERM (15).</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill 5947</span>           <span class="code-comment"># SIGTERM (graceful)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill -9 5947</span>        <span class="code-comment"># SIGKILL (forced)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill -SIGKILL 5947</span>  <span class="code-comment"># Same as above</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill -l</span>             <span class="code-comment"># List all signals</span></code></div>
+        </div>
+        <div id="tab-killall" class="tab-content" role="tabpanel" aria-labelledby="btn-killall">
+            <p>Sends a signal to all processes matching a command name. Exact match required.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">killall sleep</span>       <span class="code-comment"># SIGTERM to all sleep processes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">killall -9 httpd</span>    <span class="code-comment"># SIGKILL to all httpd processes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">killall -u student</span>  <span class="code-comment"># SIGTERM to all student's processes</span></code></div>
+        </div>
+        <div id="tab-pkill" class="tab-content" role="tabpanel" aria-labelledby="btn-pkill">
+            <p>Like <code class="inline">killall</code> but uses pattern matching. Supports user, terminal, and parent PID filters.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill sleep</span>              <span class="code-comment"># Matches command name pattern</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill -u student sleep</span>   <span class="code-comment"># Only student's sleep processes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill -t pts/0</span>           <span class="code-comment"># All processes on terminal pts/0</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill -P 2450</span>            <span class="code-comment"># Kill children of PID 2450</span></code></div>
+        </div></div>
+    </div></section>
+    <!-- Section 7: Monitoring Load Average -->
+    <section id="section-monitoring" class="content-section" aria-labelledby="mon-h"><div class="section-header"><span class="section-number" aria-hidden="true">7</span><h2 id="mon-h">Monitoring Process Activity and Load Average</h2></div><div class="section-body">
+        <h3>Understanding Load Average</h3>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt25">Load average<span class="tooltip-content" role="tooltip" id="tt25">A measurement from the Linux kernel representing perceived system load. Shown as three numbers for the 1-minute, 5-minute, and 15-minute averages. Includes processes in Running (R) and Uninterruptible Sleep (D) states.</span></span> is the Linux kernel's measurement of perceived system load over time. It counts the number of processes that are currently in the Running (R) and Uninterruptible Sleep (D) states. Load average is reported as three numbers: 1-minute, 5-minute, and 15-minute averages.</p>
+
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128221;</span><span>Interpreting Load Average</span></div>
+        <p>Load average must be compared to the number of CPU cores. To determine the number of logical CPUs:</p>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lscpu | grep "^CPU(s):"</span>
+<span class="code-output">CPU(s):                  4</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -c "^processor" /proc/cpuinfo</span>
+<span class="code-output">4</span></code></div></div>
+
+        <table class="info-table" aria-label="Load Average Interpretation"><thead><tr><th scope="col">Scenario (4 CPUs)</th><th scope="col">Load Avg</th><th scope="col">Meaning</th></tr></thead><tbody>
+            <tr><td>Idle</td><td>0.0</td><td>No active demand for CPU resources</td></tr>
+            <tr><td>Moderate</td><td>2.0</td><td>50% utilized, resources available for spikes</td></tr>
+            <tr><td>Full</td><td>4.0</td><td>Fully utilized; no waiting, but no spare capacity</td></tr>
+            <tr><td>Overloaded</td><td>8.0</td><td>Overloaded; requests are waiting for CPU time</td></tr>
+        </tbody></table>
+
+        <h3>Tools for Checking Load</h3>
+        <div class="code-block"><code><span class="code-comment"># uptime - quick load average check</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">uptime</span>
+<span class="code-output"> 16:55:40 up  5:00,  2 users,  load average: 0.12, 0.24, 0.18</span>
+
+<span class="code-comment"># w - logged-in users and load average</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">w</span>
+<span class="code-output"> 16:55:40 up  5:00,  2 users,  load average: 0.12, 0.24, 0.18</span>
+<span class="code-output">USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT</span>
+<span class="code-output">student  pts/0    192.168.1.100    11:57    0.00s  0.06s  0.01s w</span></code></div>
+
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" aria-controls="ex-trends"><span>Analyzing Load Average Trends</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+        <div class="expandable-content" id="ex-trends">
+            <p>Comparing the three values (1, 5, 15 min) reveals load trends:</p>
+            <table class="info-table" aria-label="Load trends"><thead><tr><th scope="col">Pattern</th><th scope="col">Meaning</th></tr></thead><tbody>
+                <tr><td>1 &gt; 5 &gt; 15</td><td>Load is <strong>increasing</strong>. Recent activity spike. Monitor closely.</td></tr>
+                <tr><td>1 &lt; 5 &lt; 15</td><td>Load is <strong>decreasing</strong>. System is recovering from peak load.</td></tr>
+                <tr><td>1 &#8776; 5 &#8776; 15</td><td>Load is <strong>stable</strong>. Sustained workload over time.</td></tr>
+            </tbody></table>
+        </div></div>
+    </div></section>
+
+    <!-- Section 8: top Utility -->
+    <section id="section-top" class="content-section" aria-labelledby="top-h"><div class="section-header"><span class="section-number" aria-hidden="true">8</span><h2 id="top-h">Real-Time Monitoring with top</h2></div><div class="section-body">
+        <p>The <code class="inline">top</code> command provides a dynamic, real-time view of running processes. It combines process listing, load average, CPU usage, and memory statistics in a single interactive interface that updates every few seconds.</p>
+
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">top</span>
+<span class="code-output">top - 17:02:45 up  5:05,  2 users,  load average: 0.42, 0.32, 0.25</span>
+<span class="code-output">Tasks: 186 total,   1 running, 185 sleeping,   0 stopped,   0 zombie</span>
+<span class="code-output">%Cpu(s):  2.3 us,  1.0 sy,  0.0 ni, 96.2 id,  0.3 wa,  0.1 hi,  0.1 si,  0.0 st</span>
+<span class="code-output">MiB Mem :   7953.4 total,   3521.2 free,   2145.8 used,   2286.4 buff/cache</span>
+<span class="code-output">MiB Swap:   2048.0 total,   2048.0 free,      0.0 used.   5412.8 avail Mem</span>
+<span class="code-output"></span>
+<span class="code-output">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span>
+<span class="code-output"> 1256 student   20   0  352648  85120  43560 S   3.0   1.0   0:28.15 gnome-shell</span>
+<span class="code-output">  956 root      20   0  298432  45020  22340 S   1.0   0.6   0:12.05 Xorg</span></code></div>
+
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" aria-controls="ex-topheader"><span>Line-by-Line Breakdown of top Header</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+        <div class="expandable-content" id="ex-topheader">
+            <table class="info-table" aria-label="top header lines explained"><thead><tr><th scope="col">Line</th><th scope="col">Description</th></tr></thead><tbody>
+                <tr><td><strong>Line 1</strong></td><td>System uptime, number of logged-in users, and load average (1, 5, 15 minutes)</td></tr>
+                <tr><td><strong>Line 2 (Tasks)</strong></td><td>Total number of processes: running, sleeping, stopped, zombie</td></tr>
+                <tr><td><strong>Line 3 (%Cpu)</strong></td><td>CPU usage: <strong>us</strong> (user), <strong>sy</strong> (system), <strong>ni</strong> (nice), <strong>id</strong> (idle), <strong>wa</strong> (I/O wait), <strong>hi</strong> (hw interrupt), <strong>si</strong> (sw interrupt), <strong>st</strong> (stolen)</td></tr>
+                <tr><td><strong>Line 4 (Mem)</strong></td><td>Physical memory: total, free, used, and buff/cache</td></tr>
+                <tr><td><strong>Line 5 (Swap)</strong></td><td>Swap space: total, free, used, and available memory</td></tr>
+            </tbody></table>
+        </div></div>
+
+        <h3>Interactive top Keystrokes</h3>
+        <table class="info-table" aria-label="top interactive commands"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+            <tr><td><code class="inline">h</code> or <code class="inline">?</code></td><td>Display help screen</td></tr>
+            <tr><td><code class="inline">q</code></td><td>Quit top</td></tr>
+            <tr><td><code class="inline">M</code></td><td>Sort by memory usage</td></tr>
+            <tr><td><code class="inline">P</code></td><td>Sort by CPU usage (default)</td></tr>
+            <tr><td><code class="inline">N</code></td><td>Sort by PID</td></tr>
+            <tr><td><code class="inline">k</code></td><td>Kill a process (prompts for PID and signal)</td></tr>
+            <tr><td><code class="inline">r</code></td><td>Renice a process (change priority)</td></tr>
+            <tr><td><code class="inline">u</code></td><td>Filter processes by user</td></tr>
+            <tr><td><code class="inline">1</code></td><td>Toggle individual CPU core display</td></tr>
+            <tr><td><code class="inline">s</code></td><td>Change refresh interval</td></tr>
+        </tbody></table>
+
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div><p>Press <code class="inline">1</code> in <code class="inline">top</code> to see usage for each individual CPU core. This is essential for diagnosing whether load is distributed across cores or concentrated on one. Press <code class="inline">Shift+W</code> to save your current top configuration so it persists between sessions.</p></div>
+    </div></section>
+    <!-- Section 9: Knowledge Check Quiz -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-h"><div class="section-header"><span class="section-number" aria-hidden="true">9</span><h2 id="quiz-h">Knowledge Check</h2></div><div class="section-body">
+        <p>Test your understanding of process management concepts. Select the best answer for each question.</p>
+        <div class="quiz-container">
+            <div class="quiz-question" data-question="1" data-correct="b">
+                <p class="question-text"><span class="question-number">1</span>What is the very first process started on a RHEL 10 system, with PID 1?</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                    <label class="quiz-option"><input type="radio" name="q1" value="a"> init</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="b"> systemd</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="c"> bash</label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="d"> kernel</label>
+                </div><div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+            <div class="quiz-question" data-question="2" data-correct="c">
+                <p class="question-text"><span class="question-number">2</span>Which process state flag indicates a process in uninterruptible sleep that cannot be killed?</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                    <label class="quiz-option"><input type="radio" name="q2" value="a"> S</label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="b"> T</label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="c"> D</label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="d"> Z</label>
+                </div><div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+            <div class="quiz-question" data-question="3" data-correct="a">
+                <p class="question-text"><span class="question-number">3</span>Which keyboard shortcut suspends the current foreground process?</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                    <label class="quiz-option"><input type="radio" name="q3" value="a"> Ctrl+Z</label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="b"> Ctrl+C</label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="c"> Ctrl+D</label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="d"> Ctrl+\</label>
+                </div><div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+            <div class="quiz-question" data-question="4" data-correct="d">
+                <p class="question-text"><span class="question-number">4</span>What is the default signal sent by the <code class="inline">kill</code> command when no signal is specified?</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                    <label class="quiz-option"><input type="radio" name="q4" value="a"> SIGKILL (9)</label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="b"> SIGHUP (1)</label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="c"> SIGINT (2)</label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="d"> SIGTERM (15)</label>
+                </div><div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+            <div class="quiz-question" data-question="5" data-correct="b">
+                <p class="question-text"><span class="question-number">5</span>On a system with 4 CPUs, what does a load average of 4.00 indicate?</p>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                    <label class="quiz-option"><input type="radio" name="q5" value="a"> The system is idle with no waiting</label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="b"> The system is fully utilized with no waiting requests</label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="c"> The system is overloaded with processes queuing</label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="d"> The system needs to be rebooted</label>
+                </div><div class="quiz-feedback" id="feedback-5"></div>
+            </div>
+        </div>
+        <div class="quiz-score" id="quiz-score">Score: 0/5</div>
+        <button class="quiz-btn primary" id="check-answers" type="button">Check Answers</button>
+        <button class="quiz-btn secondary" id="reset-quiz" type="button" style="display: none;">Reset Quiz</button>
+    </div></section>
+    <!-- Section 10: Hands-On Lab -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-h"><div class="section-header"><span class="section-number" aria-hidden="true">10</span><h2 id="lab-h">Hands-On Lab: Monitor and Manage Linux Processes</h2></div><div class="section-body">
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128187;</span><span>Lab Environment</span></div><p>This lab requires access to a RHEL system (physical, virtual machine, or classroom environment). You will practice listing processes, using job control, sending signals, and monitoring system load.</p></div>
+
+        <div class="lab-step"><p><span class="step-number">Step 1</span> <strong>List All Processes</strong></p>
+            <p>View all running processes with BSD and UNIX format options.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps aux | head -15</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps -ef | head -15</span></code></div>
+            <p>Compare the two outputs. Note the STAT column in <code class="inline">ps aux</code> and the PPID column in <code class="inline">ps -ef</code>.</p>
+        </div>
+
+        <div class="lab-step"><p><span class="step-number">Step 2</span> <strong>Start Background Processes</strong></p>
+            <p>Create three background sleep processes and use <code class="inline">jobs</code> to view them.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sleep 300 &amp;</span>
+<span class="code-output">[1] 12345</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sleep 400 &amp;</span>
+<span class="code-output">[2] 12346</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sleep 500 &amp;</span>
+<span class="code-output">[3] 12347</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">jobs</span></code></div>
+        </div>
+
+        <div class="lab-step"><p><span class="step-number">Step 3</span> <strong>Practice Job Control</strong></p>
+            <p>Bring a job to the foreground, suspend it, and resume it in the background.</p>
+            <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">fg %2</span>
+<span class="code-output">sleep 400</span>
+<span class="code-comment"># Press Ctrl+Z to suspend</span>
+<span class="code-output">^Z</span>
+<span class="code-output">[2]+  Stopped                 sleep 400</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bg %2</span>
+<span class="code-output">[2]+ sleep 400 &amp;</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">jobs</span></code></div>
+        </div>
+
+        <div class="lab-step"><p><span class="step-number">Step 4</span> <strong>Send Signals to Processes</strong></p>
+            <p>Use <code class="inline">kill</code> and <code class="inline">pkill</code> to terminate processes.</p>
+            <div class="code-block"><code><span class="code-comment"># Gracefully terminate the first sleep</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill %1</span>
+<span class="code-output">[1]   Terminated              sleep 300</span>
+
+<span class="code-comment"># Force kill the second sleep</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">kill -9 %2</span>
+<span class="code-output">[2]   Killed                  sleep 400</span>
+
+<span class="code-comment"># Kill remaining sleep processes by name</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill sleep</span>
+
+<span class="code-comment"># Verify all sleep processes are gone</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">jobs</span></code></div>
+        </div>
+
+        <div class="lab-step"><p><span class="step-number">Step 5</span> <strong>Monitor System Load</strong></p>
+            <p>Check system load and explore the <code class="inline">top</code> utility.</p>
+            <div class="code-block"><code><span class="code-comment"># Check current load average</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">uptime</span>
+
+<span class="code-comment"># Determine the number of CPUs</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lscpu | grep "^CPU(s):"</span>
+
+<span class="code-comment"># Start top and explore</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">top</span>
+<span class="code-comment"># Press 1 to toggle per-CPU view</span>
+<span class="code-comment"># Press M to sort by memory</span>
+<span class="code-comment"># Press P to sort by CPU</span>
+<span class="code-comment"># Press u then type "student" to filter</span>
+<span class="code-comment"># Press q to quit</span></code></div>
+        </div>
+
+        <div class="lab-step"><p><span class="step-number">Step 6</span> <strong>Generate and Observe Load</strong></p>
+            <p>Create CPU load and watch how it affects the system.</p>
+            <div class="code-block"><code><span class="code-comment"># Generate CPU load with dd (run in background)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">dd if=/dev/urandom of=/dev/null &amp;</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">dd if=/dev/urandom of=/dev/null &amp;</span>
+
+<span class="code-comment"># Watch the load average rise</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">watch uptime</span>
+<span class="code-comment"># Press Ctrl+C to stop watching</span>
+
+<span class="code-comment"># Clean up: kill the dd processes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">pkill dd</span>
+
+<span class="code-comment"># Verify load starts decreasing</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">uptime</span></code></div>
+        </div>
+
+        <div class="note-box tip" style="margin-top: 20px;"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Lab Complete</span></div><p>You have successfully listed processes, used job control, sent signals, monitored load average, and explored the <code class="inline">top</code> utility.</p></div>
+    </div></section>
+    <!-- Section 11: Chapter Summary -->
+    <section id="section-summary" class="content-section" aria-labelledby="sum-h"><div class="section-header"><span class="section-number" aria-hidden="true">11</span><h2 id="sum-h">Chapter Summary</h2></div><div class="section-body">
+        <div class="summary-box"><h3>Key Takeaways</h3>
+            <ul class="summary-list">
+                <li><strong>A process is a running instance of a program</strong> that includes an address space, security properties, execution threads, and a state. All processes descend from systemd (PID 1).</li>
+                <li><strong>Processes use fork and exec</strong> to create new child processes. The parent sleeps while the child runs, then cleans up the zombie entry when the child exits.</li>
+                <li><strong>Process states include Running (R), Sleeping (S/D/K/I), Stopped (T), and Zombie (Z)</strong>. The <code class="inline">ps</code> and <code class="inline">top</code> commands display each process's current state.</li>
+                <li><strong>ps aux and ps -ef</strong> are the most common ways to list processes. Use <code class="inline">pgrep</code> to search for processes by name or attribute.</li>
+                <li><strong>Job control</strong> allows you to manage foreground and background processes using <code class="inline">&amp;</code>, <code class="inline">fg</code>, <code class="inline">bg</code>, <code class="inline">jobs</code>, and Ctrl+Z.</li>
+                <li><strong>Signals are software interrupts</strong>. Use SIGTERM (15) for graceful termination and SIGKILL (9) only as a last resort. The <code class="inline">kill</code>, <code class="inline">killall</code>, and <code class="inline">pkill</code> commands send signals.</li>
+                <li><strong>Load average</strong> represents system busyness over 1, 5, and 15 minutes. Compare it to the number of CPU cores to determine if the system is overloaded.</li>
+                <li><strong>top</strong> provides real-time process monitoring with interactive sorting, filtering, and process management capabilities.</li>
+            </ul>
+        </div>
+        <div class="key-points"><h4>What's Next?</h4>
+            <p>In Chapter 16, you will learn about controlling services and daemons, including:</p>
+            <ul>
+                <li>Understanding systemd units and targets</li>
+                <li>Starting, stopping, and restarting services with <code class="inline">systemctl</code></li>
+                <li>Enabling services to start at boot</li>
+                <li>Viewing service status and troubleshooting</li>
+            </ul>
+        </div>
+        <div class="completion-section">
+            <h2>&#127881; Chapter 15 Complete!</h2>
+            <p>You've learned how to monitor and manage Linux processes in Red Hat Enterprise Linux.</p>
+            <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+        </div>
+    </div></section>
+
+    </main>
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I &#8226; Chapter 15 &#8226; Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+    <script>
+    (function() {
+        'use strict';
+
+        // Progress tracking
+        var sections = document.querySelectorAll('.content-section');
+        var navButtons = document.querySelectorAll('.nav-btn');
+        var progressFill = document.getElementById('progress-fill');
+        var progressPercent = document.getElementById('progress-percent');
+        var progressTrack = document.getElementById('progress-track');
+        var visitedSections = new Set();
+
+        function updateProgress() {
+            var pct = Math.round((visitedSections.size / sections.length) * 100);
+            progressFill.style.width = pct + '%';
+            if (progressTrack) progressTrack.setAttribute('aria-valuenow', pct);
+            progressPercent.textContent = pct + '%';
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var sid = entry.target.id;
+                    visitedSections.add(sid);
+                    updateProgress();
+                    navButtons.forEach(function(btn) {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('href') === '#' + sid) btn.classList.add('active');
+                        if (visitedSections.has(btn.getAttribute('href').substring(1))) btn.classList.add('visited');
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(function(s) { observer.observe(s); });
+
+        // Tooltip positioning
+        document.querySelectorAll('.tooltip-term').forEach(function(term) {
+            function showTip() {
+                var tip = term.querySelector('.tooltip-content');
+                if (!tip) return;
+                tip.style.display = 'block';
+                tip.style.left = '50%'; tip.style.transform = 'translateX(-50%)';
+                tip.style.bottom = 'calc(100% + 10px)'; tip.style.top = 'auto';
+                var r = tip.getBoundingClientRect();
+                if (r.left < 8) { tip.style.left = 'calc(50% + ' + (8 - r.left) + 'px)'; }
+                else if (r.right > window.innerWidth - 8) { tip.style.left = 'calc(50% - ' + (r.right - window.innerWidth + 8) + 'px)'; }
+                if (r.top < 8) { tip.style.bottom = 'auto'; tip.style.top = 'calc(100% + 10px)'; }
+            }
+            function hideTip() { var t = term.querySelector('.tooltip-content'); if (t) t.style.display = ''; }
+            term.addEventListener('mouseenter', showTip);
+            term.addEventListener('mouseleave', hideTip);
+            term.addEventListener('focus', showTip);
+            term.addEventListener('blur', hideTip);
+        });
+
+        // Expandable sections
+        document.querySelectorAll('.expandable-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function() {
+                var expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', !expanded);
+                var c = document.getElementById(toggle.getAttribute('aria-controls'));
+                if (c) c.classList.toggle('show');
+            });
+        });
+
+        // Tabbed interfaces
+        document.querySelectorAll('.tab-buttons').forEach(function(tg) {
+            tg.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var parent = btn.closest('.tabs');
+                    parent.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+                    parent.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                    btn.classList.add('active'); btn.setAttribute('aria-selected', 'true');
+                    var target = document.getElementById(btn.getAttribute('aria-controls'));
+                    if (target) target.classList.add('active');
+                });
+            });
+        });
+
+        // Process lifecycle interactive diagram
+        var stageData = {
+            'new': { title: 'Fork (New Process)', desc: 'A parent process duplicates its address space using the fork() system call. The new child process inherits the parent\'s environment, security context, file descriptors, and program code. The child is assigned a unique PID.' },
+            'running': { title: 'Running (R)', desc: 'TASK_RUNNING: The process is either actively executing on a CPU or queued and ready to run. This state covers both actively running processes and those in the runnable (ready) queue waiting for CPU time.' },
+            'sleeping': { title: 'Sleeping (S/D/K/I)', desc: 'The process is waiting for a condition to be met. Interruptible sleep (S) responds to signals. Uninterruptible sleep (D) does not respond to signals and is typically waiting for I/O. Killable (K) is like D but accepts kill signals. Idle (I) is for kernel threads not counted in load average.' },
+            'stopped': { title: 'Stopped (T)', desc: 'TASK_STOPPED: The process is suspended, usually by receiving SIGTSTP (Ctrl+Z) or SIGSTOP. The process can be resumed by sending SIGCONT, typically via the fg or bg commands.' },
+            'zombie': { title: 'Zombie (Z)', desc: 'EXIT_ZOMBIE: The child process has exited and released all resources except its PID entry in the process table. It remains a zombie until the parent process reads its exit status. After reaping, the process enters EXIT_DEAD (X) and is fully released.' }
+        };
+        document.querySelectorAll('.process-box').forEach(function(box) {
+            function handler() {
+                var stage = box.getAttribute('data-stage');
+                var data = stageData[stage];
+                var detail = document.getElementById('lifecycle-detail');
+                if (data && detail) {
+                    detail.innerHTML = '<strong style="font-family:var(--font-display);color:var(--rh-red-dark);">' + data.title + '</strong><br>' + data.desc;
+                }
+                document.querySelectorAll('.process-box').forEach(function(b) { b.style.transform = ''; });
+                box.style.transform = 'scale(1.1)';
+            }
+            box.addEventListener('click', handler);
+            box.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handler(); } });
+        });
+
+        // Quiz
+        var answers = {
+            1: { answer: 'b', explanation: 'On RHEL systems, systemd is the first process (PID 1) started by the kernel at boot time. It is the ancestor of all other processes.' },
+            2: { answer: 'c', explanation: 'The D flag represents TASK_UNINTERRUPTIBLE sleep. Processes in this state do not respond to signals, including SIGKILL.' },
+            3: { answer: 'a', explanation: 'Ctrl+Z sends SIGTSTP (signal 20) to the foreground process, which suspends it. Ctrl+C sends SIGINT and Ctrl+\\ sends SIGQUIT.' },
+            4: { answer: 'd', explanation: 'The default signal sent by kill is SIGTERM (signal 15), which requests graceful termination and allows cleanup.' },
+            5: { answer: 'b', explanation: 'When load average equals the number of CPUs (4.0 on 4 CPUs), all CPU resources are in use but no requests are waiting in the queue.' }
+        };
+        var checkBtn = document.getElementById('check-answers');
+        var resetBtn = document.getElementById('reset-quiz');
+        var scoreEl = document.getElementById('quiz-score');
+        var questions = document.querySelectorAll('.quiz-question');
+
+        checkBtn.addEventListener('click', function() {
+            var score = 0;
+            questions.forEach(function(q) {
+                var num = q.getAttribute('data-question');
+                var sel = q.querySelector('input:checked');
+                var fb = document.getElementById('feedback-' + num);
+                q.querySelectorAll('.quiz-option').forEach(function(o) { o.classList.remove('correct', 'incorrect'); });
+                if (sel) {
+                    var lbl = sel.closest('.quiz-option');
+                    if (sel.value === answers[num].answer) {
+                        score++; lbl.classList.add('correct');
+                        fb.className = 'quiz-feedback show correct';
+                        fb.innerHTML = '&#9989; Correct! ' + answers[num].explanation;
+                    } else {
+                        lbl.classList.add('incorrect');
+                        fb.className = 'quiz-feedback show incorrect';
+                        fb.innerHTML = '&#10060; Incorrect. ' + answers[num].explanation;
+                    }
+                } else {
+                    fb.className = 'quiz-feedback show incorrect';
+                    fb.innerHTML = '&#9888; Please select an answer.';
+                }
+            });
+            scoreEl.textContent = 'Score: ' + score + '/5';
+            checkBtn.style.display = 'none'; resetBtn.style.display = 'inline-block';
+        });
+
+        resetBtn.addEventListener('click', function() {
+            questions.forEach(function(q) {
+                var num = q.getAttribute('data-question');
+                var fb = document.getElementById('feedback-' + num);
+                q.querySelectorAll('.quiz-option').forEach(function(o) { o.classList.remove('correct', 'incorrect'); });
+                q.querySelectorAll('input').forEach(function(i) { i.checked = false; });
+                fb.className = 'quiz-feedback'; fb.innerHTML = '';
+            });
+            scoreEl.textContent = 'Score: 0/5';
+            checkBtn.style.display = 'inline-block'; resetBtn.style.display = 'none';
+        });
+
+        // Completion button
+        var completeBtn = document.getElementById('mark-complete');
+        if (completeBtn) {
+            completeBtn.addEventListener('click', function() {
+                completeBtn.textContent = '\u2713 Chapter Completed!';
+                completeBtn.style.background = '#267326';
+                completeBtn.disabled = true;
+                sections.forEach(function(s) { visitedSections.add(s.id); });
+                updateProgress();
+                try { localStorage.setItem('ch15-complete', 'true'); } catch(e) {}
+                alert('Congratulations! You have completed Chapter 15: Monitoring and Managing Linux Processes.');
+            });
+            try {
+                if (localStorage.getItem('ch15-complete') === 'true') {
+                    completeBtn.textContent = '\u2713 Chapter Completed!';
+                    completeBtn.style.background = '#267326'; completeBtn.disabled = true;
+                }
+            } catch(e) {}
+        }
+    })();
+    </script>
+</body>
+</html>
