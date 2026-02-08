@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 17: Introduction to Linux Networking | RH124</title>
+    <style>
+        :root {
+            --rh-red: #CC0000; --rh-red-dark: #990000; --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A; --rh-gray-dark: #333333; --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC; --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC; --rh-blue-dark: #004C99; --rh-teal: #009999;
+            --rh-gold: #CC9900; --rh-green: #339933; --rh-green-dark: #267326;
+            --rh-purple: #663399; --rh-orange: #FF6600;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1); --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px;
+            --transition-fast: 0.2s ease; --transition-med: 0.3s ease;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        .main-header { background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 50%, var(--rh-red-dark) 100%); color: var(--rh-white); padding: 40px 24px 30px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 300; opacity: 0.9; }
+        .progress-container { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 10px; max-width: 900px; margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.5s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.8rem; color: var(--rh-gray); margin-top: 6px; }
+        .section-nav { background: var(--rh-white); padding: 16px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: 900px; margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 8px 14px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+        main { max-width: 900px; margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+        .code-block { background: var(--rh-gray-dark); color: #E0E0E0; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-prompt { color: #66BB6A; } .code-command { color: #FFFFFF; font-weight: bold; }
+        .code-output { color: #AAAAAA; } .code-comment { color: #888888; font-style: italic; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; position: relative; font-weight: 600; }
+        .tooltip-content { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 400; line-height: 1.5; width: max-content; max-width: 320px; box-shadow: var(--shadow-lg); z-index: 1000; font-family: var(--font-display); text-decoration: none; pointer-events: none; transition: opacity 0.15s ease; }
+        .tooltip-content::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: var(--rh-gray-dark); }
+        .tooltip-content.tooltip-flipped { bottom: auto; top: calc(100% + 10px); }
+        .tooltip-content.tooltip-flipped::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--rh-gray-dark); }
+        .tooltip-term:hover .tooltip-content, .tooltip-term:focus .tooltip-content { visibility: visible; opacity: 1; }
+        .note-box { border-radius: var(--radius-md); padding: 20px; margin: 20px 0; border-left: 4px solid var(--rh-blue); background: linear-gradient(135deg, #E8F4FD, #F0F8FF); }
+        .note-box.warning { border-left-color: var(--rh-orange); background: linear-gradient(135deg, #FFF3E0, #FFF8F0); }
+        .note-box.tip { border-left-color: var(--rh-green); background: linear-gradient(135deg, #E8F5E9, #F0FFF0); }
+        .note-box.danger { border-left-color: var(--rh-red); background: linear-gradient(135deg, #FFEBEE, #FFF0F0); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+        .note-icon { font-size: 1.2rem; } .note-box p { margin-bottom: 8px; } .note-box p:last-child { margin-bottom: 0; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+        .info-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .info-table td { padding: 12px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .info-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .info-table tr:hover { background: #E8E8E8; }
+        .expandable { margin: 16px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-toggle { width: 100%; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--rh-gray-lighter); border: none; cursor: pointer; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left; }
+        .expandable-toggle:hover { background: #E0E0E0; }
+        .expandable-toggle .toggle-icon { transition: transform var(--transition-fast); font-size: 1.2rem; }
+        .expandable-toggle[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+        .tabs { margin: 20px 0; } .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 12px 20px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--rh-gray); border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-content { display: none; padding: 20px 0; } .tab-content.active { display: block; }
+        .diagram-container { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 30px; margin: 20px 0; text-align: center; overflow-x: auto; }
+        .layer-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; max-width: 700px; margin: 0 auto; }
+        .layer-col-header { font-family: var(--font-display); font-weight: 700; font-size: 1rem; padding: 12px; text-align: center; background: var(--rh-gray-dark); color: var(--rh-white); border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .layer-box { padding: 14px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; text-align: center; border: 2px solid; min-height: 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .layer-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--rh-gray); padding: 0 12px; }
+        .layer-app { background: #E3F2FD; color: #1565C0; border-color: #1565C0; }
+        .layer-transport { background: #E8F5E9; color: #2E7D32; border-color: #2E7D32; }
+        .layer-internet { background: #FFF3E0; color: #E65100; border-color: #E65100; }
+        .layer-link { background: #F3E5F5; color: #6A1B9A; border-color: #6A1B9A; }
+        .layer-osi { font-size: 0.82rem; }
+        .proto-tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.72rem; font-family: var(--font-mono); font-weight: 400; background: rgba(255,255,255,0.6); margin: 2px; }
+        .naming-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 20px 0; }
+        .naming-card { padding: 20px; border-radius: var(--radius-md); font-family: var(--font-display); text-align: center; transition: all var(--transition-fast); border: 2px solid transparent; }
+        .naming-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .naming-card.ethernet { background: #E3F2FD; color: #1565C0; border-color: #1565C0; }
+        .naming-card.wlan { background: #E8F5E9; color: #2E7D32; border-color: #2E7D32; }
+        .naming-card.wwan { background: #FFF3E0; color: #E65100; border-color: #E65100; }
+        .naming-card-prefix { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+        .naming-card-type { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+        .naming-card-example { font-family: var(--font-mono); font-size: 0.82rem; opacity: 0.8; }
+        .subnet-calc { background: var(--rh-black); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; color: #E0E0E0; }
+        .subnet-calc-title { color: var(--rh-red-light); font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: 16px; }
+        .calc-input-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: flex-end; }
+        .calc-field label { display: block; font-family: var(--font-display); font-size: 0.82rem; color: #AAAAAA; margin-bottom: 4px; }
+        .calc-field input, .calc-field select { padding: 8px 12px; border: 1px solid #555; background: #2A2A2A; color: #E0E0E0; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9rem; width: 180px; }
+        .calc-field input:focus, .calc-field select:focus { border-color: var(--rh-red-light); outline: none; box-shadow: 0 0 0 2px rgba(255,51,51,0.3); }
+        .calc-btn { padding: 8px 20px; border: 1px solid var(--rh-red); background: var(--rh-red-dark); color: var(--rh-white); border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .calc-btn:hover { background: var(--rh-red); }
+        .calc-result { background: #1A1A1A; border: 1px solid #333; border-radius: var(--radius-sm); padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.8; min-height: 60px; white-space: pre-wrap; }
+        .simulator { background: var(--rh-black); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; color: #E0E0E0; }
+        .simulator-title { color: var(--rh-red-light); font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: 16px; }
+        .simulator-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .sim-btn { padding: 8px 16px; border: 1px solid #555; background: #2A2A2A; color: #E0E0E0; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer; transition: all var(--transition-fast); }
+        .sim-btn:hover { background: #444; border-color: var(--rh-red-light); color: var(--rh-white); }
+        .sim-btn.active-btn { background: var(--rh-red-dark); border-color: var(--rh-red); color: var(--rh-white); }
+        .sim-output { background: #1A1A1A; border: 1px solid #333; border-radius: var(--radius-sm); padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; min-height: 120px; white-space: pre-wrap; overflow-x: auto; }
+        .quiz-container { margin: 16px 0; }
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); } .quiz-question.incorrect { border-color: var(--rh-red); }
+        .quiz-question h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 12px; color: var(--rh-gray-dark); }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-display); font-size: 0.9rem; background: var(--rh-white); }
+        .quiz-option:hover { border-color: var(--rh-blue); background: #F0F8FF; }
+        .quiz-feedback { margin-top: 10px; padding: 10px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #E8F5E9; color: #2E7D32; } .quiz-feedback.incorrect { background: #FFEBEE; color: #C62828; }
+        .quiz-submit { display: inline-block; margin-top: 20px; padding: 12px 30px; background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .quiz-submit:hover { background: var(--rh-red-dark); }
+        .quiz-score { margin-top: 16px; padding: 16px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1.1rem; text-align: center; display: none; }
+        .quiz-score.show { display: block; }
+        .summary-box { background: linear-gradient(135deg, #FFF8E1, #FFFDE7); border: 2px solid var(--rh-gold); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .summary-box h3 { font-family: var(--font-display); color: var(--rh-gold); margin-bottom: 12px; }
+        .summary-list { margin-left: 20px; } .summary-list li { margin-bottom: 10px; line-height: 1.6; }
+        .key-points { background: linear-gradient(135deg, #E3F2FD, #F0F8FF); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .key-points h4 { font-family: var(--font-display); color: var(--rh-blue-dark); margin-bottom: 12px; }
+        .completion-section { text-align: center; padding: 30px; background: linear-gradient(135deg, var(--rh-gray-lighter), var(--rh-white)); border-radius: var(--radius-md); margin-top: 20px; }
+        .completion-btn { display: inline-block; padding: 14px 36px; background: var(--rh-green); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .completion-btn:hover { background: var(--rh-green-dark); }
+        .main-footer { text-align: center; padding: 30px 24px; color: var(--rh-gray); font-family: var(--font-display); font-size: 0.85rem; border-top: 3px solid var(--rh-red); background: var(--rh-white); margin-top: 40px; }
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; } .code-block { padding: 14px; font-size: 0.8rem; }
+            .nav-list { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; }
+            .naming-grid { grid-template-columns: 1fr; }
+            .layer-grid { grid-template-columns: 1fr; } .layer-arrow { transform: rotate(90deg); padding: 8px 0; }
+            .calc-input-row { flex-direction: column; } .calc-field input, .calc-field select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header class="main-header" role="banner"><div class="header-content">
+        <span class="course-tag">RH124 - Red Hat System Administration I</span>
+        <h1 class="chapter-title">Chapter 17: Introduction to Linux Networking</h1>
+        <p class="chapter-subtitle">Describe basic TCP/IP networking concepts and investigate network configuration on a server</p>
+    </div></header>
+    <div class="progress-container" role="complementary" aria-label="Reading progress">
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-track"><div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-text"><span id="progress-percent">0%</span> Complete</div>
+    </div>
+    <nav class="section-nav" aria-label="Chapter sections"><ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn active">Objectives</a></li>
+        <li><a href="#section-tcpip" class="nav-btn">TCP/IP</a></li>
+        <li><a href="#section-naming" class="nav-btn">Naming</a></li>
+        <li><a href="#section-ipv4" class="nav-btn">IPv4</a></li>
+        <li><a href="#section-subnets" class="nav-btn">Subnets</a></li>
+        <li><a href="#section-routing" class="nav-btn">Routing</a></li>
+        <li><a href="#section-ipv6" class="nav-btn">IPv6</a></li>
+        <li><a href="#section-dns" class="nav-btn">DNS</a></li>
+        <li><a href="#section-validating" class="nav-btn">Validating</a></li>
+        <li><a href="#section-troubleshoot" class="nav-btn">Troubleshoot</a></li>
+        <li><a href="#section-quiz" class="nav-btn">Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn">Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn">Summary</a></li>
+    </ul></nav>
+    <main id="main-content">
+    <!-- Section 1: Objectives -->
+    <section id="section-objectives" class="content-section" aria-labelledby="obj-h"><div class="section-header"><span class="section-number" aria-hidden="true">1</span><h2 id="obj-h">Learning Objectives</h2></div><div class="section-body">
+        <p>In this chapter, you will learn the fundamental concepts of networking in Red Hat Enterprise Linux. By the end, you should be able to:</p>
+        <ul>
+            <li>Describe the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt1">TCP/IP network model<span class="tooltip-content" role="tooltip" id="tt1">A four-layer set of communication protocols (Application, Transport, Internet, Link) describing how data is packetized, addressed, transmitted, routed, and received.</span></span> and its four layers</li>
+            <li>Understand how network interfaces are named on RHEL systems</li>
+            <li>Explain <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt2">IPv4<span class="tooltip-content" role="tooltip" id="tt2">Internet Protocol version 4. Uses 32-bit addresses shown as four dot-separated octets (e.g., 192.168.1.100).</span></span> addressing, subnetting, and routing concepts</li>
+            <li>Describe <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt3">IPv6<span class="tooltip-content" role="tooltip" id="tt3">Internet Protocol version 6. Uses 128-bit addresses shown as eight colon-separated groups of hexadecimal digits.</span></span> addressing and autoconfiguration methods</li>
+            <li>Identify network interfaces and IP addresses with the <code class="inline">ip</code> command</li>
+            <li>Test connectivity with <code class="inline">ping</code> and trace routes with <code class="inline">tracepath</code></li>
+            <li>Examine listening ports and active connections with <code class="inline">ss</code></li>
+        </ul>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>RHCSA Exam Relevance</span></div><p>Network configuration and troubleshooting are critical RHCSA skills. You must validate network settings, verify connectivity, and identify active services using command-line tools.</p></div>
+    </div></section>
+
+    <!-- Section 2: TCP/IP -->
+    <section id="section-tcpip" class="content-section" aria-labelledby="tcpip-h"><div class="section-header"><span class="section-number" aria-hidden="true">2</span><h2 id="tcpip-h">The TCP/IP Network Model</h2></div><div class="section-body">
+        <p>The TCP/IP network model is a four-layer set of communication protocols specified by RFC 1122. It describes how data is packetized, addressed, transmitted, routed, and received between computers over a network.</p>
+        <div class="tabs"><div class="tab-buttons" role="tablist" aria-label="TCP/IP layers">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-app" id="btn-app" onclick="switchTab(this,'tab-app')">Application</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-trans" id="btn-trans" onclick="switchTab(this,'tab-trans')">Transport</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-inet" id="btn-inet" onclick="switchTab(this,'tab-inet')">Internet</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-link" id="btn-link" onclick="switchTab(this,'tab-link')">Link</button>
+        </div>
+        <div class="tab-content active" id="tab-app" role="tabpanel" aria-labelledby="btn-app"><h4>Application Layer</h4><p>Each application has specifications for communication. Common protocols include: <strong>SSH</strong> (port 22), <strong>HTTPS</strong> (port 443), <strong>FTP</strong> (ports 20-21), <strong>SMTP</strong> (port 25), <strong>DNS</strong> (port 53), and <strong>DHCP</strong> (ports 67-68).</p></div>
+        <div class="tab-content" id="tab-trans" role="tabpanel" aria-labelledby="btn-trans"><h4>Transport Layer</h4><p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt4">TCP<span class="tooltip-content" role="tooltip" id="tt4">Transmission Control Protocol. Provides reliable, connection-oriented communication ensuring data delivery and correct order.</span></span> provides reliable, connection-oriented communication. <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt5">UDP<span class="tooltip-content" role="tooltip" id="tt5">User Datagram Protocol. A connectionless protocol offering faster but less reliable communication.</span></span> is connectionless and faster but less reliable. An IP address plus port forms a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt6">socket<span class="tooltip-content" role="tooltip" id="tt6">A network endpoint defined by the combination of an IP address and a port number (e.g., 192.168.1.10:80).</span></span>. The <code class="inline">/etc/services</code> file lists well-known port assignments.</p></div>
+        <div class="tab-content" id="tab-inet" role="tabpanel" aria-labelledby="btn-inet"><h4>Internet Layer</h4><p>Responsible for transmitting data packets from source to destination across interconnected networks. Key protocols include <strong>IPv4</strong> and <strong>IPv6</strong>. Each host has a unique IP address and a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt7">prefix<span class="tooltip-content" role="tooltip" id="tt7">The portion of an IP address identifying the network. Expressed in CIDR notation (/24) or as a netmask (255.255.255.0).</span></span> determining its network. Routers forward traffic between networks.</p></div>
+        <div class="tab-content" id="tab-link" role="tabpanel" aria-labelledby="btn-link"><h4>Link Layer</h4><p>Provides connection to physical media. Common types are wired <strong>Ethernet</strong> (802.3) and wireless <strong>Wi-Fi</strong> (802.11). Each device has a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt8">MAC address<span class="tooltip-content" role="tooltip" id="tt8">Media Access Control address. A unique hardware address assigned to a network interface (e.g., 52:54:00:00:fa:0a).</span></span> to identify it on the local segment.</p></div></div>
+        <h3>TCP/IP vs. OSI Model</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt9">OSI model<span class="tooltip-content" role="tooltip" id="tt9">Open Systems Interconnection model. A seven-layer reference model for network communication.</span></span> remains a popular reference. You may see references to "Layer 2" (Ethernet), "Layer 3" (IP), or "Layer 4" (TCP).</p>
+        <div class="diagram-container"><div class="layer-grid" role="img" aria-label="Comparison of TCP/IP and OSI models">
+            <div><div class="layer-col-header">TCP/IP Model</div>
+                <div class="layer-box layer-app">Application<div><span class="proto-tag">HTTP</span><span class="proto-tag">SSH</span><span class="proto-tag">DNS</span><span class="proto-tag">SMTP</span></div></div>
+                <div class="layer-box layer-transport">Transport<div><span class="proto-tag">TCP</span><span class="proto-tag">UDP</span></div></div>
+                <div class="layer-box layer-internet">Internet<div><span class="proto-tag">IPv4</span><span class="proto-tag">IPv6</span><span class="proto-tag">ICMP</span></div></div>
+                <div class="layer-box layer-link" style="border-radius:0 0 8px 8px;">Link<div><span class="proto-tag">Ethernet</span><span class="proto-tag">Wi-Fi</span><span class="proto-tag">ARP</span></div></div></div>
+            <div class="layer-arrow">&#8596;</div>
+            <div><div class="layer-col-header">OSI Model</div>
+                <div class="layer-box layer-app layer-osi">7. Application</div>
+                <div class="layer-box layer-app layer-osi" style="opacity:.85;">6. Presentation</div>
+                <div class="layer-box layer-app layer-osi" style="opacity:.7;">5. Session</div>
+                <div class="layer-box layer-transport layer-osi">4. Transport</div>
+                <div class="layer-box layer-internet layer-osi">3. Network</div>
+                <div class="layer-box layer-link layer-osi">2. Data Link</div>
+                <div class="layer-box layer-link layer-osi" style="border-radius:0 0 8px 8px;opacity:.8;">1. Physical</div></div>
+        </div></div>
+    </div></section>
+
+    <!-- Section 3: Naming -->
+    <section id="section-naming" class="content-section" aria-labelledby="naming-h"><div class="section-header"><span class="section-number" aria-hidden="true">3</span><h2 id="naming-h">Network Interface Naming</h2></div><div class="section-body">
+        <p>Each network device has a unique, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt10">persistent name<span class="tooltip-content" role="tooltip" id="tt10">Names that remain the same across reboots, based on firmware information, PCI bus topology, and device type.</span></span> that persists across reboots.</p>
+        <h3>Interface Type Prefixes</h3>
+        <div class="naming-grid">
+            <div class="naming-card ethernet" tabindex="0"><div class="naming-card-prefix">en</div><div class="naming-card-type">Ethernet</div><div class="naming-card-example">eno1, ens3, enp2s3</div></div>
+            <div class="naming-card wlan" tabindex="0"><div class="naming-card-prefix">wl</div><div class="naming-card-type">Wireless LAN</div><div class="naming-card-example">wlp4s0</div></div>
+            <div class="naming-card wwan" tabindex="0"><div class="naming-card-prefix">ww</div><div class="naming-card-type">Wireless WAN</div><div class="naming-card-example">wwan0</div></div>
+        </div>
+        <h3>Naming Suffixes</h3>
+        <table class="info-table" aria-label="Interface naming suffixes"><thead><tr><th>Suffix</th><th>Meaning</th><th>Example</th></tr></thead><tbody>
+            <tr><td><code class="inline">oN</code></td><td>Onboard device with index N</td><td><code class="inline">eno1</code></td></tr>
+            <tr><td><code class="inline">sN</code></td><td>PCI hotplug slot N</td><td><code class="inline">ens3</code></td></tr>
+            <tr><td><code class="inline">pMsN</code></td><td>PCI bus M, slot N</td><td><code class="inline">enp2s3</code></td></tr>
+            <tr><td><code class="inline">pMsNfK</code></td><td>Multifunction device, function K</td><td><code class="inline">enp0s1f0</code></td></tr>
+        </tbody></table>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128218;</span><span>Historical Context</span></div><p>Earlier RHEL versions used names like <code class="inline">eth0</code>, <code class="inline">eth1</code> based on detection order, which could change unpredictably. Persistent naming since RHEL 7 ensures reliability.</p></div>
+    </div></section>
+    <!-- Section 4: IPv4 -->
+    <section id="section-ipv4" class="content-section" aria-labelledby="ipv4-h"><div class="section-header"><span class="section-number" aria-hidden="true">4</span><h2 id="ipv4-h">IPv4 Addressing</h2></div><div class="section-body">
+        <p>An <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt11">IPv4 address<span class="tooltip-content" role="tooltip" id="tt11">A 32-bit number expressed as four 8-bit octets in decimal format (0-255), separated by dots. Divided into a network prefix and host identifier.</span></span> is a 32-bit number expressed as four octets (0&#8211;255) separated by dots. It has two parts:</p>
+        <ul><li><strong>Network prefix</strong> &#8212; Identifies the subnet; all hosts on the same subnet share this</li>
+            <li><strong>Host identifier</strong> &#8212; Identifies a specific host on the subnet</li></ul>
+        <h3>Network Masks</h3>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt12">netmask<span class="tooltip-content" role="tooltip" id="tt12">A binary mask indicating how many bits belong to the network prefix. Expressed in CIDR notation (/24) or dotted-decimal (255.255.255.0).</span></span> indicates how many bits belong to the network prefix:</p>
+        <ul><li><strong>CIDR notation</strong> &#8212; <code class="inline">/24</code></li><li><strong>Dotted-decimal</strong> &#8212; <code class="inline">255.255.255.0</code></li></ul>
+        <h3>Address Configuration</h3>
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Dynamic Configuration (DHCP)</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content"><p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt13">DHCP<span class="tooltip-content" role="tooltip" id="tt13">Dynamic Host Configuration Protocol. Automatically assigns IP addresses, subnet masks, gateways, and DNS servers to clients.</span></span> server assigns an IPv4 address, subnet mask, default gateway, and DNS servers. The lease must be periodically renewed.</p></div></div>
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Static Configuration</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content"><p>Static settings are read from local configuration files. The administrator manually specifies the IP address, netmask, gateway, and DNS servers.</p></div></div>
+    </div></section>
+
+    <!-- Section 5: Subnets -->
+    <section id="section-subnets" class="content-section" aria-labelledby="sub-h"><div class="section-header"><span class="section-number" aria-hidden="true">5</span><h2 id="sub-h">IPv4 Subnetting</h2></div><div class="section-body">
+        <p>The number of available host addresses depends on the network prefix size. Each subnet has three special addresses:</p>
+        <ul><li><strong>Network address</strong> &#8212; Lowest address (host bits all zeros)</li>
+            <li><strong>Broadcast address</strong> &#8212; Highest address (host bits all ones)</li>
+            <li><strong>Gateway address</strong> &#8212; Commonly the first usable host address</li></ul>
+        <h3>Example: 192.168.1.107/24</h3>
+        <table class="info-table" aria-label="Subnet calculation"><thead><tr><th>Component</th><th>Value</th></tr></thead><tbody>
+            <tr><td>Host address</td><td><code class="inline">192.168.1.107/24</code></td></tr>
+            <tr><td>Netmask</td><td><code class="inline">255.255.255.0</code></td></tr>
+            <tr><td>Network address</td><td><code class="inline">192.168.1.0</code></td></tr>
+            <tr><td>Host range</td><td><code class="inline">192.168.1.1</code> &#8211; <code class="inline">192.168.1.254</code></td></tr>
+            <tr><td>Broadcast</td><td><code class="inline">192.168.1.255</code></td></tr>
+            <tr><td>Usable hosts</td><td>254</td></tr>
+        </tbody></table>
+        <h3>Interactive Subnet Calculator</h3>
+        <div class="subnet-calc"><div class="subnet-calc-title">&#128187; IPv4 Subnet Calculator</div>
+            <div class="calc-input-row">
+                <div class="calc-field"><label for="calc-ip">IP Address</label><input type="text" id="calc-ip" value="192.168.1.107" aria-label="IP address"></div>
+                <div class="calc-field"><label for="calc-prefix">Prefix</label><select id="calc-prefix" aria-label="CIDR prefix"><option value="8">/8</option><option value="16">/16</option><option value="19">/19</option><option value="20">/20</option><option value="22">/22</option><option value="24" selected>/24</option><option value="25">/25</option><option value="26">/26</option><option value="27">/27</option><option value="28">/28</option><option value="30">/30</option></select></div>
+                <button class="calc-btn" onclick="calculateSubnet()" type="button">Calculate</button>
+            </div>
+            <div class="calc-result" id="calc-output" aria-live="polite"><span style="color:#888;">Click "Calculate" to see subnet information.</span></div></div>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div><p>Use <code class="inline">ipcalc 10.1.1.18/8</code> on RHEL to quickly calculate subnet details from the command line.</p></div>
+    </div></section>
+
+    <!-- Section 6: Routing -->
+    <section id="section-routing" class="content-section" aria-labelledby="route-h"><div class="section-header"><span class="section-number" aria-hidden="true">6</span><h2 id="route-h">IPv4 Routing</h2></div><div class="section-body">
+        <p>Each host uses a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt14">routing table<span class="tooltip-content" role="tooltip" id="tt14">A data structure listing destination networks, the interface to use, and the next-hop router IP for packet forwarding.</span></span> to determine which interface and router to use.</p>
+        <ul><li>Entries list <strong>destination</strong>, <strong>interface</strong>, and <strong>router IP</strong></li>
+            <li>If multiple entries match, the <strong>longer prefix</strong> (most specific) wins</li>
+            <li>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt15">default gateway<span class="tooltip-content" role="tooltip" id="tt15">The router used when no specific routing entry matches. Indicated by the 0.0.0.0/0 entry.</span></span> (<code class="inline">0.0.0.0/0</code>) catches all unmatched traffic</li></ul>
+        <h3>Example Routing Table</h3>
+        <table class="info-table" aria-label="Example routing table"><thead><tr><th>Destination</th><th>Interface</th><th>Router</th></tr></thead><tbody>
+            <tr><td><code class="inline">192.168.5.0/24</code></td><td><code class="inline">enp0s1f0</code></td><td>&#8212; (direct)</td></tr>
+            <tr><td><code class="inline">192.168.6.0/24</code></td><td><code class="inline">enp0s2f0</code></td><td>&#8212; (direct)</td></tr>
+            <tr><td><code class="inline">0.0.0.0/0</code> (default)</td><td><code class="inline">enp0s1f0</code></td><td><code class="inline">192.168.5.1</code></td></tr>
+        </tbody></table>
+        <div class="code-block"><code><span class="code-comment"># View IPv4 routing table</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">ip route</span>
+<span class="code-output">default via 192.0.2.254 dev ens3 proto static metric 1024
+192.0.2.0/24 dev ens3 proto kernel scope link src 192.0.2.2
+10.0.0.0/8 dev ens4 proto kernel scope link src 10.0.0.11</span></code></div>
+    </div></section>
+    <!-- Section 7: IPv6 -->
+    <section id="section-ipv6" class="content-section" aria-labelledby="ipv6-h"><div class="section-header"><span class="section-number" aria-hidden="true">7</span><h2 id="ipv6-h">IPv6 Networking</h2></div><div class="section-body">
+        <p>IPv6 uses 128-bit addresses shown as eight colon-separated groups of four hexadecimal digits. RHEL operates in <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt16">dual-stack mode<span class="tooltip-content" role="tooltip" id="tt16">Running IPv4 and IPv6 simultaneously on the same interface. Red Hat Enterprise Linux does this by default.</span></span> by default.</p>
+        <h3>IPv6 Address Shortening</h3>
+        <div class="code-block"><code><span class="code-comment"># Full form</span>
+<span class="code-output">2001:0db8:0000:0010:0000:0000:0000:0001</span>
+<span class="code-comment"># Omit leading zeros</span>
+<span class="code-output">2001:db8:0:10:0:0:0:1</span>
+<span class="code-comment"># Use :: for one consecutive zero run</span>
+<span class="code-output">2001:db8:0:10::1</span></code></div>
+        <ul><li>Suppress leading zeros (e.g., <code class="inline">0010</code> becomes <code class="inline">10</code>)</li>
+            <li>Use <code class="inline">::</code> for one consecutive run of all-zero groups (only once per address)</li>
+            <li>If two equal-length zero runs exist, shorten the <strong>leftmost</strong></li>
+            <li>Always use lowercase (<code class="inline">a</code>-<code class="inline">f</code>)</li></ul>
+        <div class="note-box warning"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;</span><span>Important</span></div><p>When including a port after an IPv6 address, use square brackets: <code class="inline">[2001:db8:0:10::1]:80</code></p></div>
+        <h3>Common IPv6 Addresses</h3>
+        <table class="info-table" aria-label="Common IPv6 addresses"><thead><tr><th>Address</th><th>Purpose</th><th>Description</th></tr></thead><tbody>
+            <tr><td><code class="inline">::1/128</code></td><td>Localhost</td><td>IPv6 loopback (like 127.0.0.1)</td></tr>
+            <tr><td><code class="inline">::/0</code></td><td>Default route</td><td>IPv6 default gateway</td></tr>
+            <tr><td><code class="inline">2000::/3</code></td><td>Global unicast</td><td>Public, routable addresses</td></tr>
+            <tr><td><code class="inline">fd00::/8</code></td><td>Unique local</td><td>Private space (like RFC 1918)</td></tr>
+            <tr><td><code class="inline">fe80::/10</code></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt17">Link-local<span class="tooltip-content" role="tooltip" id="tt17">Auto-configured addresses not routable beyond the local link. Every IPv6 interface has one.</span></span></td><td>Auto-configured, not routable</td></tr>
+            <tr><td><code class="inline">ff00::/8</code></td><td><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt18">Multicast<span class="tooltip-content" role="tooltip" id="tt18">Delivers packets to multiple hosts simultaneously. IPv6 has no broadcast; ff02::1 is the all-nodes link-local address.</span></span></td><td>One-to-many delivery</td></tr>
+        </tbody></table>
+        <h3>IPv6 Autoconfiguration</h3>
+        <div class="tabs"><div class="tab-buttons" role="tablist" aria-label="IPv6 config methods">
+            <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-slaac" id="btn-slaac" onclick="switchTab(this,'tab-slaac')">SLAAC</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-dhcp6" id="btn-dhcp6" onclick="switchTab(this,'tab-dhcp6')">DHCPv6</button>
+            <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-man6" id="btn-man6" onclick="switchTab(this,'tab-man6')">Manual</button></div>
+            <div class="tab-content active" id="tab-slaac" role="tabpanel" aria-labelledby="btn-slaac"><h4>Stateless Address Autoconfiguration (SLAAC)</h4><p>The host auto-configures a <code class="inline">fe80::/64</code> link-local address, sends a router solicitation to <code class="inline">ff02::2</code>, and receives a network prefix from the router. The <code class="inline">radvd</code> package provides SLAAC on RHEL.</p></div>
+            <div class="tab-content" id="tab-dhcp6" role="tabpanel" aria-labelledby="btn-dhcp6"><h4>DHCPv6</h4><p>Uses link-local addresses and multicast (not broadcast). Client sends to <code class="inline">ff02::1:2</code> on UDP port 547. Server replies on UDP port 546. The <code class="inline">kea</code> package in RHEL 10 provides DHCPv6.</p></div>
+            <div class="tab-content" id="tab-man6" role="tabpanel" aria-labelledby="btn-man6"><h4>Manual Configuration</h4><p>Select interface IDs and configure them manually. Some IDs are reserved (e.g., all-zeros subnet router anycast).</p></div></div>
+    </div></section>
+
+    <!-- Section 8: DNS -->
+    <section id="section-dns" class="content-section" aria-labelledby="dns-h"><div class="section-header"><span class="section-number" aria-hidden="true">8</span><h2 id="dns-h">Hostnames and Name Resolution</h2></div><div class="section-body">
+        <p>Linux maps <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt19">hostnames<span class="tooltip-content" role="tooltip" id="tt19">Human-readable labels for devices (e.g., server1.example.com). Mapped to IP addresses through DNS or /etc/hosts.</span></span> to IP addresses via two main methods:</p>
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Static: /etc/hosts</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content"><p>Static entries in <code class="inline">/etc/hosts</code>. Simple but requires manual updates on every system.</p>
+            <div class="code-block"><code><span class="code-output">127.0.0.1   localhost
+192.168.1.10  server1.example.com  server1
+192.168.1.20  server2.example.com  server2</span></code></div></div></div>
+        <div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Dynamic: DNS (Domain Name System)</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content"><p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt20">DNS<span class="tooltip-content" role="tooltip" id="tt20">Domain Name System. A distributed network of servers that dynamically maps hostnames to IP addresses.</span></span> is a distributed network of servers. Configure nameservers in <code class="inline">/etc/resolv.conf</code>:</p>
+            <div class="code-block"><code><span class="code-output">search example.com
+nameserver 192.168.1.1
+nameserver 8.8.8.8</span></code></div></div></div>
+    </div></section>
+
+    <!-- Section 9: Validating -->
+    <section id="section-validating" class="content-section" aria-labelledby="valid-h"><div class="section-header"><span class="section-number" aria-hidden="true">9</span><h2 id="valid-h">Validating Network Configuration</h2></div><div class="section-body">
+        <p>The <code class="inline">ip</code> command provides comprehensive details about network interfaces, addresses, and routes.</p>
+        <h3>Identifying Network Devices</h3>
+        <div class="code-block"><code><span class="code-prompt">[user@host ~]$</span> <span class="code-command">ip link show</span>
+<span class="code-output">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536 state UNKNOWN
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+2: ens3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP
+    link/ether 52:54:00:00:fa:0a brd ff:ff:ff:ff:ff:ff
+3: ens4: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 8942 state UP
+    link/ether 52:54:00:01:fa:1e brd ff:ff:ff:ff:ff:ff</span></code></div>
+        <h3>Displaying IP Addresses</h3>
+        <div class="code-block"><code><span class="code-prompt">[user@host ~]$</span> <span class="code-command">ip addr show ens3</span>
+<span class="code-output">2: ens3: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP
+    link/ether 52:54:00:00:fa:0a brd ff:ff:ff:ff:ff:ff
+    inet 172.25.250.10/24 brd 172.25.250.255 scope global ens3
+    inet6 2001:db8:0:1:5054:ff:fe00:b/64 scope global
+    inet6 fe80::5054:ff:fe00:fa0a/64 scope link</span></code></div>
+        <p>Key fields: <code class="inline">state UP</code> (active), <code class="inline">link/ether</code> (MAC), <code class="inline">inet</code> (IPv4), <code class="inline">inet6 scope global</code> (routable IPv6), <code class="inline">inet6 scope link</code> (link-local).</p>
+        <h3>Interactive Command Simulator</h3>
+        <div class="simulator"><div class="simulator-title">&#128187; Network Command Simulator</div>
+            <div class="simulator-controls">
+                <button class="sim-btn active-btn" onclick="runNetSim('link')" type="button">ip link show</button>
+                <button class="sim-btn" onclick="runNetSim('addr')" type="button">ip addr show</button>
+                <button class="sim-btn" onclick="runNetSim('route')" type="button">ip route</button>
+                <button class="sim-btn" onclick="runNetSim('route6')" type="button">ip -6 route</button>
+                <button class="sim-btn" onclick="runNetSim('stats')" type="button">ip -s link</button>
+                <button class="sim-btn" onclick="runNetSim('ss')" type="button">ss -tan</button></div>
+            <div class="sim-output" id="net-sim-output" role="log" aria-live="polite"></div></div>
+    </div></section>
+    <!-- Section 10: Troubleshooting -->
+    <section id="section-troubleshoot" class="content-section" aria-labelledby="trouble-h"><div class="section-header"><span class="section-number" aria-hidden="true">10</span><h2 id="trouble-h">Troubleshooting Network Issues</h2></div><div class="section-body">
+        <h3>Verifying Connectivity with ping</h3>
+        <div class="code-block"><code><span class="code-prompt">[user@host ~]$</span> <span class="code-command">ping -c3 192.0.2.254</span>
+<span class="code-output">PING 192.0.2.254 (192.0.2.254) 56(84) bytes of data.
+64 bytes from 192.0.2.254: icmp_seq=1 ttl=64 time=4.33 ms
+64 bytes from 192.0.2.254: icmp_seq=2 ttl=64 time=3.48 ms
+64 bytes from 192.0.2.254: icmp_seq=3 ttl=64 time=6.83 ms
+--- 192.0.2.254 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2003ms</span></code></div>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128218;</span><span>IPv6 Scope Identifiers</span></div><p>When pinging link-local addresses, specify the interface: <code class="inline">ping6 fe80::1%ens3</code></p></div>
+        <h3>Tracing Routes</h3>
+        <p>Use <code class="inline">tracepath</code>, <code class="inline">traceroute</code>, or <code class="inline">mtr</code> to trace the path through routers. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt21">MTU<span class="tooltip-content" role="tooltip" id="tt21">Maximum Transmission Unit. The largest packet size (in bytes) that can traverse a link without fragmentation. Ethernet typically uses 1500 bytes.</span></span> and round-trip times are shown for each hop.</p>
+        <div class="code-block"><code><span class="code-prompt">[user@host ~]$</span> <span class="code-command">tracepath classroom.example.com</span>
+<span class="code-output"> 1?: [LOCALHOST]                     pmtu 1500
+ 1:  gateway                          0.362ms
+ 1:  gateway                          0.206ms
+ 2:  classroom.example.com            0.650ms reached
+     Resume: pmtu 1500 hops 2 back 2</span></code></div>
+        <h3>Examining Ports and Services</h3>
+        <p>The <code class="inline">ss</code> command displays <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt22">socket statistics<span class="tooltip-content" role="tooltip" id="tt22">Information about listening and established connections. The ss command replaces the older netstat. Use -t (TCP), -u (UDP), -l (listening), -n (numeric).</span></span>:</p>
+        <table class="info-table" aria-label="ss command options"><thead><tr><th>Option</th><th>Description</th></tr></thead><tbody>
+            <tr><td><code class="inline">-n</code></td><td>Show numbers instead of names for ports and addresses</td></tr>
+            <tr><td><code class="inline">-t</code></td><td>Show TCP sockets</td></tr>
+            <tr><td><code class="inline">-u</code></td><td>Show UDP sockets</td></tr>
+            <tr><td><code class="inline">-l</code></td><td>Show only listening sockets</td></tr>
+            <tr><td><code class="inline">-a</code></td><td>Show all sockets (listening and established)</td></tr>
+            <tr><td><code class="inline">-p</code></td><td>Show the process using the socket</td></tr>
+        </tbody></table>
+        <div class="code-block"><code><span class="code-comment"># Show all TCP listening sockets with process info</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">ss -tlnp</span>
+<span class="code-output">State    Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process
+LISTEN   0       128     0.0.0.0:22          0.0.0.0:*          users:(("sshd",pid=1234))
+LISTEN   0       128     [::]:22             [::]:*             users:(("sshd",pid=1234))
+LISTEN   0       100     127.0.0.1:25        0.0.0.0:*          users:(("master",pid=2345))</span></code></div>
+    </div></section>
+
+    <!-- Section 11: Quiz -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-h"><div class="section-header"><span class="section-number" aria-hidden="true">11</span><h2 id="quiz-h">Knowledge Check</h2></div><div class="section-body">
+        <p>Test your understanding of networking concepts:</p>
+        <div class="quiz-container" id="quiz">
+            <div class="quiz-question" id="q1"><h4>1. Which TCP/IP layer is responsible for routing packets between networks?</h4>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 1"><label class="quiz-option"><input type="radio" name="q1" value="a"><span>Application</span></label><label class="quiz-option"><input type="radio" name="q1" value="b"><span>Transport</span></label><label class="quiz-option"><input type="radio" name="q1" value="c"><span>Internet</span></label><label class="quiz-option"><input type="radio" name="q1" value="d"><span>Link</span></label></div><div class="quiz-feedback" id="fb1"></div></div>
+            <div class="quiz-question" id="q2"><h4>2. What does the <code class="inline">en</code> prefix indicate in a network interface name?</h4>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 2"><label class="quiz-option"><input type="radio" name="q2" value="a"><span>Enabled interface</span></label><label class="quiz-option"><input type="radio" name="q2" value="b"><span>Ethernet interface</span></label><label class="quiz-option"><input type="radio" name="q2" value="c"><span>Encrypted interface</span></label><label class="quiz-option"><input type="radio" name="q2" value="d"><span>Enterprise interface</span></label></div><div class="quiz-feedback" id="fb2"></div></div>
+            <div class="quiz-question" id="q3"><h4>3. A /24 subnet provides how many usable host addresses?</h4>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 3"><label class="quiz-option"><input type="radio" name="q3" value="a"><span>255</span></label><label class="quiz-option"><input type="radio" name="q3" value="b"><span>254</span></label><label class="quiz-option"><input type="radio" name="q3" value="c"><span>256</span></label><label class="quiz-option"><input type="radio" name="q3" value="d"><span>253</span></label></div><div class="quiz-feedback" id="fb3"></div></div>
+            <div class="quiz-question" id="q4"><h4>4. What routing table entry handles traffic with no more specific match?</h4>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 4"><label class="quiz-option"><input type="radio" name="q4" value="a"><span>Shortest prefix entry</span></label><label class="quiz-option"><input type="radio" name="q4" value="b"><span>First entry in the table</span></label><label class="quiz-option"><input type="radio" name="q4" value="c"><span>Default gateway (0.0.0.0/0)</span></label><label class="quiz-option"><input type="radio" name="q4" value="d"><span>Loopback interface</span></label></div><div class="quiz-feedback" id="fb4"></div></div>
+            <div class="quiz-question" id="q5"><h4>5. Which command is recommended for viewing socket statistics on RHEL?</h4>
+                <div class="quiz-options" role="radiogroup" aria-label="Question 5"><label class="quiz-option"><input type="radio" name="q5" value="a"><span>netstat</span></label><label class="quiz-option"><input type="radio" name="q5" value="b"><span>ifconfig</span></label><label class="quiz-option"><input type="radio" name="q5" value="c"><span>ss</span></label><label class="quiz-option"><input type="radio" name="q5" value="d"><span>sockstat</span></label></div><div class="quiz-feedback" id="fb5"></div></div>
+            <button class="quiz-submit" onclick="gradeQuiz()" type="button">Check Answers</button>
+            <div class="quiz-score" id="quiz-score"></div>
+        </div>
+    </div></section>
+    <!-- Section 12: Lab -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-h"><div class="section-header"><span class="section-number" aria-hidden="true">12</span><h2 id="lab-h">Hands-On Lab: Validate Network Configuration</h2></div><div class="section-body">
+        <p>In this lab, you will practice gathering network information and verifying connectivity.</p>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128187;</span><span>Lab Setup</span></div><p>Log in to your <code class="inline">workstation</code> machine as the <code class="inline">student</code> user.</p></div>
+        <h3>Step 1: Identify Network Interfaces</h3>
+        <p>List all network interfaces and their states:</p>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ip link show</span></code></div>
+        <p>Identify which interfaces are <code class="inline">state UP</code> and note their MAC addresses.</p>
+        <h3>Step 2: View IP Addresses</h3>
+        <p>Display detailed address information:</p>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ip addr show</span></code></div>
+        <p>Note the IPv4 address, prefix length, and any IPv6 addresses for each interface.</p>
+        <h3>Step 3: Examine the Routing Table</h3>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ip route</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ip -6 route</span></code></div>
+        <p>Identify the default gateway and directly connected networks.</p>
+        <h3>Step 4: Test Connectivity</h3>
+        <div class="code-block"><code><span class="code-comment"># Ping the default gateway</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ping -c3 172.25.250.254</span>
+<span class="code-comment"># Trace the route to an external host</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tracepath classroom.example.com</span></code></div>
+        <h3>Step 5: Check Listening Services</h3>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ss -tlnp</span></code></div>
+        <p>Identify which services are listening and on which ports.</p>
+        <h3>Step 6: Verify Name Resolution</h3>
+        <div class="code-block"><code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /etc/resolv.conf</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">host classroom.example.com</span></code></div>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Lab Complete</span></div><p>You have identified network interfaces, viewed IP addresses and routes, tested connectivity, checked listening services, and verified name resolution.</p></div>
+    </div></section>
+
+    <!-- Section 13: Summary -->
+    <section id="section-summary" class="content-section" aria-labelledby="sum-h"><div class="section-header"><span class="section-number" aria-hidden="true">13</span><h2 id="sum-h">Chapter Summary</h2></div><div class="section-body">
+        <div class="summary-box"><h3>Key Takeaways</h3><ul class="summary-list">
+            <li><strong>The TCP/IP model</strong> has four layers: Application, Transport, Internet, and Link.</li>
+            <li><strong>Network interface names</strong> on RHEL are persistent across reboots. Ethernet uses <code class="inline">en</code>, WLAN uses <code class="inline">wl</code>, and WWAN uses <code class="inline">ww</code>.</li>
+            <li><strong>IPv4 addresses</strong> are 32-bit numbers divided into a network prefix and host identifier. Configurable via DHCP or manually.</li>
+            <li><strong>IPv6 addresses</strong> are 128-bit hexadecimal numbers supporting SLAAC, DHCPv6, and manual configuration. RHEL uses dual-stack by default.</li>
+            <li><strong>Routing tables</strong> determine how packets are forwarded. The default gateway (0.0.0.0/0) handles unmatched traffic.</li>
+            <li><strong>The ip command</strong> displays interfaces (<code class="inline">ip link</code>), addresses (<code class="inline">ip addr</code>), and routes (<code class="inline">ip route</code>).</li>
+            <li><strong>Connectivity testing</strong> uses <code class="inline">ping</code>/<code class="inline">ping6</code>, <code class="inline">tracepath</code>, and <code class="inline">mtr</code>.</li>
+            <li><strong>Socket statistics</strong> from <code class="inline">ss</code> show listening and established connections (replacing <code class="inline">netstat</code>).</li>
+        </ul></div>
+        <div class="key-points"><h4>What Comes Next?</h4><p>In Chapter 18, you will learn how to manage network configuration with <code class="inline">nmcli</code> and NetworkManager, including setting static and dynamic IP addresses, managing hostnames and DNS settings, and troubleshooting connectivity issues.</p></div>
+        <div class="completion-section"><h2>&#127881; Chapter 17 Complete!</h2><p>You have learned the fundamentals of networking in Red Hat Enterprise Linux.</p>
+            <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button></div>
+    </div></section>
+
+    </main>
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I &#8226; Chapter 17 &#8226; Version 10.0</p>
+        <p style="margin-top:10px;font-size:0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+    <script>
+    function switchTab(btn, tabId) {
+        var tabs = btn.closest('.tabs');
+        tabs.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+        tabs.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+        document.getElementById(tabId).classList.add('active');
+    }
+    function toggleExpand(btn) {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', !expanded);
+        btn.nextElementSibling.classList.toggle('show');
+    }
+    function updateProgress() {
+        var sections = document.querySelectorAll('.content-section');
+        var visible = 0;
+        sections.forEach(function(s) { if (s.getBoundingClientRect().top < window.innerHeight * 0.8) visible++; });
+        var pct = Math.round((visible / sections.length) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-percent').textContent = pct + '%';
+        document.getElementById('progress-track').setAttribute('aria-valuenow', pct);
+        var navBtns = document.querySelectorAll('.nav-btn');
+        navBtns.forEach(function(btn, i) { btn.classList.remove('active'); if (i < visible) btn.classList.add('visited'); });
+        if (visible > 0 && visible <= navBtns.length) navBtns[visible - 1].classList.add('active');
+    }
+    window.addEventListener('scroll', updateProgress);
+    window.addEventListener('load', updateProgress);
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        var tip = term.querySelector('.tooltip-content');
+        if (!tip) return;
+        function show() {
+            tip.classList.remove('tooltip-flipped');
+            tip.style.left = '50%'; tip.style.transform = 'translateX(-50%)';
+            tip.style.bottom = 'calc(100% + 10px)'; tip.style.top = 'auto'; tip.style.right = 'auto';
+            var r = tip.getBoundingClientRect();
+            if (r.top < 5) { tip.classList.add('tooltip-flipped'); tip.style.bottom = 'auto'; tip.style.top = 'calc(100% + 10px)'; }
+            r = tip.getBoundingClientRect();
+            if (r.left < 5) { tip.style.left = '0'; tip.style.transform = 'translateX(0)'; }
+            if (r.right > window.innerWidth - 5) { tip.style.left = 'auto'; tip.style.right = '0'; tip.style.transform = 'translateX(0)'; }
+        }
+        term.addEventListener('mouseenter', show);
+        term.addEventListener('focus', show);
+    });
+    function calculateSubnet() {
+        var ipStr = document.getElementById('calc-ip').value.trim();
+        var prefix = parseInt(document.getElementById('calc-prefix').value);
+        var parts = ipStr.split('.');
+        var out = document.getElementById('calc-output');
+        if (parts.length !== 4) { out.innerHTML = '<span style="color:#FF6666;">Invalid IP format. Use dotted-decimal (e.g., 192.168.1.0)</span>'; return; }
+        var octets = parts.map(function(p) { return parseInt(p, 10); });
+        for (var i = 0; i < 4; i++) { if (isNaN(octets[i]) || octets[i] < 0 || octets[i] > 255) { out.innerHTML = '<span style="color:#FF6666;">Each octet must be 0-255.</span>'; return; } }
+        var ip = (octets[0] << 24 | octets[1] << 16 | octets[2] << 8 | octets[3]) >>> 0;
+        var mask = prefix === 0 ? 0 : (0xFFFFFFFF << (32 - prefix)) >>> 0;
+        var net = (ip & mask) >>> 0;
+        var bcast = (net | (~mask >>> 0)) >>> 0;
+        var hosts = Math.pow(2, 32 - prefix) - 2;
+        function toIP(n) { return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.'); }
+        var r = '<span style="color:#66BB6A;">NETWORK  :</span> ' + toIP(net) + '/' + prefix + '\n';
+        r += '<span style="color:#66BB6A;">NETMASK  :</span> ' + toIP(mask) + '\n';
+        r += '<span style="color:#66BB6A;">FIRST    :</span> ' + toIP((net+1)>>>0) + '\n';
+        r += '<span style="color:#66BB6A;">LAST     :</span> ' + toIP((bcast-1)>>>0) + '\n';
+        r += '<span style="color:#66BB6A;">BROADCAST:</span> ' + toIP(bcast) + '\n';
+        r += '<span style="color:#66BB6A;">HOSTS    :</span> ' + (hosts > 0 ? hosts : 0);
+        out.innerHTML = r;
+    }
+    var simData = {};
+    simData.link = '[user@host ~]$ ip link show\n1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 state UNKNOWN\n    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00\n2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP\n    link/ether 52:54:00:00:fa:0a brd ff:ff:ff:ff:ff:ff\n    altname enp0s3\n3: ens4: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8942 state UP\n    link/ether 52:54:00:01:fa:1e brd ff:ff:ff:ff:ff:ff\n    altname enp0s4';
+    simData.addr = '[user@host ~]$ ip addr show\n1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 state UNKNOWN\n    inet 127.0.0.1/8 scope host lo\n    inet6 ::1/128 scope host\n2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP\n    link/ether 52:54:00:00:fa:0a brd ff:ff:ff:ff:ff:ff\n    inet 172.25.250.10/24 brd 172.25.250.255 scope global ens3\n    inet6 2001:db8:0:1:5054:ff:fe00:b/64 scope global\n    inet6 fe80::5054:ff:fe00:fa0a/64 scope link\n3: ens4: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 8942 state UP\n    link/ether 52:54:00:01:fa:1e brd ff:ff:ff:ff:ff:ff\n    inet 10.0.0.11/8 brd 10.255.255.255 scope global ens4';
+    simData.route = '[user@host ~]$ ip route\ndefault via 172.25.250.254 dev ens3 proto static metric 1024\n10.0.0.0/8 dev ens4 proto kernel scope link src 10.0.0.11\n172.25.250.0/24 dev ens3 proto kernel scope link src 172.25.250.10';
+    simData.route6 = '[user@host ~]$ ip -6 route\n::1 dev lo proto kernel metric 256\n2001:db8:0:1::/64 dev ens3 proto ra metric 100\nfe80::/64 dev ens3 proto kernel metric 1024\nfe80::/64 dev ens4 proto kernel metric 1024\ndefault via fe80::1 dev ens3 proto ra metric 1024';
+    simData.stats = '[user@host ~]$ ip -s link show ens3\n2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 state UP\n    link/ether 52:54:00:00:fa:0a brd ff:ff:ff:ff:ff:ff\n    RX:  bytes  packets errors dropped  missed\n      1284587    10241      0       0       0\n    TX:  bytes  packets errors dropped carrier\n       562430     6518      0       0       0';
+    simData.ss = '[user@host ~]$ ss -tan\nState    Recv-Q Send-Q  Local Address:Port   Peer Address:Port\nLISTEN   0      128     0.0.0.0:22           0.0.0.0:*\nLISTEN   0      100     127.0.0.1:25         0.0.0.0:*\nESTAB    0      0       172.25.250.10:22     172.25.250.254:45678\nLISTEN   0      128     [::]:22              [::]:*\nLISTEN   0      100     [::1]:25             [::]:*';
+    function runNetSim(cmd) {
+        document.querySelectorAll('.sim-btn').forEach(function(b) { b.classList.remove('active-btn'); });
+        event.target.classList.add('active-btn');
+        document.getElementById('net-sim-output').textContent = simData[cmd] || 'Unknown command';
+    }
+    // Initialize simulator
+    document.getElementById('net-sim-output').textContent = simData.link;
+    function gradeQuiz() {
+        var answers = {q1:'c', q2:'b', q3:'b', q4:'c', q5:'c'};
+        var explanations = {
+            q1: {correct: 'Correct! The Internet layer (IPv4/IPv6) handles routing packets between networks.', incorrect: 'Incorrect. The Internet layer handles routing. Application handles user protocols, Transport handles TCP/UDP, Link handles local delivery.'},
+            q2: {correct: 'Correct! The "en" prefix stands for Ethernet.', incorrect: 'Incorrect. "en" stands for Ethernet. "wl" is wireless LAN and "ww" is wireless WAN.'},
+            q3: {correct: 'Correct! A /24 has 256 addresses minus network and broadcast = 254 usable hosts.', incorrect: 'Incorrect. A /24 gives 2^8 = 256 addresses. Subtract 2 (network + broadcast) = 254 usable.'},
+            q4: {correct: 'Correct! The default gateway (0.0.0.0/0) matches any destination not covered by a more specific route.', incorrect: 'Incorrect. The default gateway entry (0.0.0.0/0) is the catch-all route for unmatched traffic.'},
+            q5: {correct: 'Correct! The ss command is the modern replacement for netstat on RHEL systems.', incorrect: 'Incorrect. The ss command replaces the deprecated netstat for socket statistics on modern RHEL.'}
+        };
+        var score = 0;
+        for (var q in answers) {
+            var sel = document.querySelector('input[name="' + q + '"]:checked');
+            var fb = document.getElementById('fb' + q.charAt(1));
+            var qDiv = document.getElementById(q);
+            qDiv.classList.remove('correct', 'incorrect');
+            if (sel && sel.value === answers[q]) {
+                score++;
+                fb.className = 'quiz-feedback show correct';
+                fb.textContent = explanations[q].correct;
+                qDiv.classList.add('correct');
+            } else {
+                fb.className = 'quiz-feedback show incorrect';
+                fb.textContent = sel ? explanations[q].incorrect : 'Please select an answer.';
+                if (sel) qDiv.classList.add('incorrect');
+            }
+        }
+        var scoreDiv = document.getElementById('quiz-score');
+        scoreDiv.className = 'quiz-score show';
+        scoreDiv.innerHTML = 'You scored <strong>' + score + '</strong> out of <strong>5</strong>' + (score >= 4 ? ' &#127881; Great job!' : score >= 3 ? ' &#128077; Good effort!' : ' &#128218; Review the material above.');
+    }
+    document.getElementById('mark-complete').addEventListener('click', function() {
+        this.textContent = 'Chapter Complete!';
+        this.style.background = '#267326';
+        this.disabled = true;
+        try { localStorage.setItem('ch17_complete', 'true'); } catch(e) {}
+    });
+    </script>
+</body>
+</html>
