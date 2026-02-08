@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16: Controlling Services and Daemons | RH124</title>
+    <style>
+        :root {
+            --rh-red: #CC0000; --rh-red-dark: #990000; --rh-red-light: #FF3333;
+            --rh-black: #1A1A1A; --rh-gray-dark: #333333; --rh-gray: #666666;
+            --rh-gray-light: #CCCCCC; --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC; --rh-blue-dark: #004C99; --rh-teal: #009999;
+            --rh-gold: #CC9900; --rh-green: #339933; --rh-green-dark: #267326;
+            --rh-purple: #663399; --rh-orange: #FF6600;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1); --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px;
+            --transition-fast: 0.2s ease; --transition-med: 0.3s ease;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(135deg, var(--rh-gray-lighter) 0%, var(--rh-white) 50%, var(--rh-gray-lighter) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        .main-header { background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 50%, var(--rh-red-dark) 100%); color: var(--rh-white); padding: 40px 24px 30px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 300; opacity: 0.9; }
+        .progress-container { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 10px; max-width: 900px; margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.5s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.8rem; color: var(--rh-gray); margin-top: 6px; }
+        .section-nav { background: var(--rh-white); padding: 16px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: 900px; margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 8px 14px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+        main { max-width: 900px; margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+        .code-block { background: var(--rh-gray-dark); color: #E0E0E0; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-prompt { color: #66BB6A; }
+        .code-command { color: #FFFFFF; font-weight: bold; }
+        .code-output { color: #AAAAAA; }
+        .code-comment { color: #888888; font-style: italic; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; position: relative; font-weight: 600; }
+        .tooltip-content { visibility: hidden; opacity: 0; position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 400; line-height: 1.5; width: max-content; max-width: 320px; box-shadow: var(--shadow-lg); z-index: 1000; font-family: var(--font-display); text-decoration: none; pointer-events: none; transition: opacity 0.15s ease; }
+        .tooltip-content::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 8px solid transparent; border-top-color: var(--rh-gray-dark); }
+        .tooltip-content.tooltip-flipped::after { top: auto; bottom: 100%; border-top-color: transparent; border-bottom-color: var(--rh-gray-dark); }
+        .tooltip-term:hover .tooltip-content, .tooltip-term:focus .tooltip-content { visibility: visible; opacity: 1; }
+        .note-box { border-radius: var(--radius-md); padding: 20px; margin: 20px 0; border-left: 4px solid var(--rh-blue); background: linear-gradient(135deg, #E8F4FD, #F0F8FF); }
+        .note-box.warning { border-left-color: var(--rh-orange); background: linear-gradient(135deg, #FFF3E0, #FFF8F0); }
+        .note-box.tip { border-left-color: var(--rh-green); background: linear-gradient(135deg, #E8F5E9, #F0FFF0); }
+        .note-box.danger { border-left-color: var(--rh-red); background: linear-gradient(135deg, #FFEBEE, #FFF0F0); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; }
+        .note-icon { font-size: 1.2rem; }
+        .note-box p { margin-bottom: 8px; }
+        .note-box p:last-child { margin-bottom: 0; }
+        .info-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+        .info-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .info-table td { padding: 12px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .info-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .info-table tr:hover { background: #E8E8E8; }
+        .expandable { margin: 16px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-toggle { width: 100%; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--rh-gray-lighter); border: none; cursor: pointer; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left; }
+        .expandable-toggle:hover { background: #E0E0E0; }
+        .expandable-toggle .toggle-icon { transition: transform var(--transition-fast); font-size: 1.2rem; }
+        .expandable-toggle[aria-expanded="true"] .toggle-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+        .tabs { margin: 20px 0; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 12px 20px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--rh-gray); border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-content { display: none; padding: 20px 0; }
+        .tab-content.active { display: block; }
+        .diagram-container { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 30px; margin: 20px 0; text-align: center; overflow-x: auto; }
+        .unit-type-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+        .unit-card { padding: 20px; border-radius: var(--radius-md); font-family: var(--font-display); text-align: center; transition: all var(--transition-fast); border: 2px solid transparent; cursor: pointer; }
+        .unit-card:hover, .unit-card:focus { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .unit-card.service { background: #E3F2FD; color: #1565C0; border-color: #1565C0; }
+        .unit-card.socket { background: #E8F5E9; color: #2E7D32; border-color: #2E7D32; }
+        .unit-card.path { background: #FFF3E0; color: #E65100; border-color: #E65100; }
+        .unit-card.target { background: #F3E5F5; color: #6A1B9A; border-color: #6A1B9A; }
+        .unit-card.timer { background: #FFEBEE; color: #C62828; border-color: #C62828; }
+        .unit-card.mount { background: #E0F2F1; color: #00695C; border-color: #00695C; }
+        .unit-card-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; }
+        .unit-card-ext { font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 8px; opacity: 0.8; }
+        .unit-card-desc { font-size: 0.85rem; line-height: 1.4; }
+        .service-flow { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+        .flow-box { padding: 12px 18px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; min-width: 90px; text-align: center; }
+        .flow-arrow { font-size: 1.4rem; color: var(--rh-gray); }
+        .flow-active { background: #E8F5E9; color: #2E7D32; border: 2px solid #2E7D32; }
+        .flow-inactive { background: var(--rh-gray-lighter); color: var(--rh-gray); border: 2px solid var(--rh-gray-light); }
+        .flow-failed { background: #FFEBEE; color: #C62828; border: 2px solid #C62828; }
+        .flow-enabled { background: #E3F2FD; color: #1565C0; border: 2px solid #1565C0; }
+        .flow-disabled { background: #FFF3E0; color: #E65100; border: 2px solid #E65100; }
+        .flow-masked { background: var(--rh-gray-dark); color: var(--rh-white); border: 2px solid var(--rh-black); }
+        .quiz-container { margin: 16px 0; }
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); }
+        .quiz-question.incorrect { border-color: var(--rh-red); }
+        .quiz-question h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 12px; color: var(--rh-gray-dark); }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); font-family: var(--font-display); font-size: 0.9rem; background: var(--rh-white); }
+        .quiz-option:hover { border-color: var(--rh-blue); background: #F0F8FF; }
+        .quiz-option.selected { border-color: var(--rh-blue); background: #E3F2FD; }
+        .quiz-option.correct-answer { border-color: var(--rh-green); background: #E8F5E9; }
+        .quiz-option.wrong-answer { border-color: var(--rh-red); background: #FFEBEE; }
+        .quiz-feedback { margin-top: 10px; padding: 10px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #E8F5E9; color: #2E7D32; }
+        .quiz-feedback.incorrect { background: #FFEBEE; color: #C62828; }
+        .quiz-submit { display: inline-block; margin-top: 20px; padding: 12px 30px; background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .quiz-submit:hover { background: var(--rh-red-dark); }
+        .quiz-score { margin-top: 16px; padding: 16px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1.1rem; text-align: center; display: none; }
+        .quiz-score.show { display: block; }
+        .summary-box { background: linear-gradient(135deg, #FFF8E1, #FFFDE7); border: 2px solid var(--rh-gold); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .summary-box h3 { font-family: var(--font-display); color: var(--rh-gold); margin-bottom: 12px; }
+        .summary-list { margin-left: 20px; }
+        .summary-list li { margin-bottom: 10px; line-height: 1.6; }
+        .key-points { background: linear-gradient(135deg, #E3F2FD, #F0F8FF); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .key-points h4 { font-family: var(--font-display); color: var(--rh-blue-dark); margin-bottom: 12px; }
+        .completion-section { text-align: center; padding: 30px; background: linear-gradient(135deg, var(--rh-gray-lighter), var(--rh-white)); border-radius: var(--radius-md); margin-top: 20px; }
+        .completion-section h2 { font-family: var(--font-display); margin-bottom: 12px; }
+        .completion-btn { display: inline-block; padding: 14px 36px; background: var(--rh-green); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .completion-btn:hover { background: var(--rh-green-dark); }
+        .simulator { background: var(--rh-black); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; color: #E0E0E0; }
+        .simulator-title { color: var(--rh-red-light); font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-bottom: 16px; }
+        .simulator-controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+        .sim-btn { padding: 8px 16px; border: 1px solid #555; background: #2A2A2A; color: #E0E0E0; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.82rem; cursor: pointer; transition: all var(--transition-fast); }
+        .sim-btn:hover { background: #444; border-color: var(--rh-red-light); color: var(--rh-white); }
+        .sim-btn.active-btn { background: var(--rh-red-dark); border-color: var(--rh-red); color: var(--rh-white); }
+        .sim-output { background: #1A1A1A; border: 1px solid #333; border-radius: var(--radius-sm); padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; min-height: 120px; white-space: pre-wrap; overflow-x: auto; }
+        .main-footer { text-align: center; padding: 30px 24px; color: var(--rh-gray); font-family: var(--font-display); font-size: 0.85rem; border-top: 3px solid var(--rh-red); background: var(--rh-white); margin-top: 40px; }
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .code-block { padding: 14px; font-size: 0.8rem; }
+            .nav-list { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; }
+            .unit-type-grid { grid-template-columns: 1fr 1fr; }
+            .service-flow { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <header class="main-header" role="banner"><div class="header-content">
+        <span class="course-tag">RH124 - Red Hat System Administration I</span>
+        <h1 class="chapter-title">Chapter 16: Controlling Services and Daemons</h1>
+        <p class="chapter-subtitle">Control and monitor system services and daemons managed by systemd</p>
+    </div></header>
+    <div class="progress-container" role="complementary" aria-label="Reading progress">
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-track">
+            <div class="progress-bar-fill" id="progress-fill"></div></div>
+        <div class="progress-text"><span id="progress-percent">0%</span> Complete</div>
+    </div>
+    <nav class="section-nav" aria-label="Chapter sections"><ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn active">Objectives</a></li>
+        <li><a href="#section-systemd" class="nav-btn">systemd</a></li>
+        <li><a href="#section-units" class="nav-btn">Units</a></li>
+        <li><a href="#section-listing" class="nav-btn">Listing</a></li>
+        <li><a href="#section-status" class="nav-btn">Status</a></li>
+        <li><a href="#section-controlling" class="nav-btn">Controlling</a></li>
+        <li><a href="#section-enabling" class="nav-btn">Enabling</a></li>
+        <li><a href="#section-masking" class="nav-btn">Masking</a></li>
+        <li><a href="#section-dependencies" class="nav-btn">Dependencies</a></li>
+        <li><a href="#section-quiz" class="nav-btn">Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn">Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn">Summary</a></li>
+    </ul></nav>
+    <main id="main-content">
+
+    <!-- Section 1: Objectives -->
+    <section id="section-objectives" class="content-section" aria-labelledby="obj-h"><div class="section-header"><span class="section-number" aria-hidden="true">1</span><h2 id="obj-h">Learning Objectives</h2></div><div class="section-body">
+        <p>In this chapter, you will learn how to control and monitor the system services and daemons that <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt1">systemd<span class="tooltip-content" role="tooltip" id="tt1">The system and service manager for Linux, running as PID 1. It manages the startup process, services, and system resources both at boot time and on a running system.</span></span> starts. By the end of this chapter, you should be able to:</p>
+        <ul>
+            <li>Understand the role of the <code class="inline">systemd</code> daemon and its key features</li>
+            <li>Identify the different types of <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt2">systemd units<span class="tooltip-content" role="tooltip" id="tt2">Objects that systemd manages, represented by configuration files called unit files. Types include service, socket, path, target, timer, and mount units.</span></span></li>
+            <li>List and inspect services using <code class="inline">systemctl list-units</code> and <code class="inline">systemctl list-unit-files</code></li>
+            <li>View detailed service status with <code class="inline">systemctl status</code></li>
+            <li>Start, stop, restart, and reload services using <code class="inline">systemctl</code></li>
+            <li>Enable and disable services for automatic startup at boot</li>
+            <li>Mask and unmask services to prevent them from starting</li>
+            <li>View service <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt3">dependencies<span class="tooltip-content" role="tooltip" id="tt3">Relationships between systemd units where one unit requires or depends on another. For example, a web server may depend on the network being available first.</span></span> and their relationships</li>
+        </ul>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>RHCSA Exam Relevance</span></div><p>Service management with <code class="inline">systemctl</code> is a critical skill for the RHCSA exam. You must be able to start, stop, enable, disable, and check the status of services efficiently from the command line.</p></div>
+    </div></section>
+
+    <!-- Section 2: The systemd Daemon -->
+    <section id="section-systemd" class="content-section" aria-labelledby="sys-h"><div class="section-header"><span class="section-number" aria-hidden="true">2</span><h2 id="sys-h">The systemd Daemon</h2></div><div class="section-body">
+        <h3>What Is systemd?</h3>
+        <p>The <code class="inline">systemd</code> daemon manages the startup process for Linux, which includes starting services and managing services in general. It activates system resources, server <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt4">daemons<span class="tooltip-content" role="tooltip" id="tt4">Background processes that either wait or run continuously to perform various tasks. By convention, daemon names end with the letter 'd', such as httpd, vsftpd, and chronyd.</span></span>, and other processes, both at boot time and on a running system.</p>
+        <p>In Red Hat Enterprise Linux, the first process that starts (PID 1) is the <code class="inline">systemd</code> daemon. It provides the following features:</p>
+        <ul>
+            <li><strong>Parallelization capabilities</strong> &#8212; starting multiple services simultaneously, which increases the boot speed of a system</li>
+            <li><strong>On-demand starting</strong> of daemons without requiring a separate service</li>
+            <li><strong>Automatic service dependency management</strong> &#8212; a network-dependent service does not try to start until the network is available</li>
+            <li><strong>Process tracking</strong> using Linux <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt5">control groups<span class="tooltip-content" role="tooltip" id="tt5">A Linux kernel feature (cgroups) that organizes processes into hierarchical groups. systemd uses cgroups to track and manage all processes started by a service, ensuring none escape supervision.</span></span> (cgroups)</li>
+        </ul>
+        <h3>Services vs. Daemons</h3>
+        <p><em>Daemons</em> are processes that either wait or run in the background to perform various tasks. By convention, daemon names end with <code class="inline">d</code>, such as <code class="inline">httpd</code>, <code class="inline">vsftpd</code>, <code class="inline">chronyd</code>, and so on. In the context of systemd, a <em>service</em> often refers to one or more daemons.</p>
+        <p>Generally, daemons start automatically at boot time and continue to run until the system shuts down or until you manually stop them. However, starting or stopping a service might instead change the state of the system once, without leaving a running daemon process afterward (a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt6">oneshot<span class="tooltip-content" role="tooltip" id="tt6">A service type in systemd that performs a single action and then exits, rather than leaving a persistent daemon process. An example is loading firewall rules at boot.</span></span> service type).</p>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128218;</span><span>Historical Context</span></div><p>Before <code class="inline">systemd</code>, Linux distributions used <code class="inline">SysVinit</code> (System V init) to manage services. The <code class="inline">systemd</code> system replaced SysVinit to provide faster boot times, better dependency handling, and more advanced service management features. RHEL has used <code class="inline">systemd</code> since RHEL 7.</p></div>
+    </div></section>
+
+    <!-- Section 3: Unit Types -->
+    <section id="section-units" class="content-section" aria-labelledby="unit-h"><div class="section-header"><span class="section-number" aria-hidden="true">3</span><h2 id="unit-h">Service Units Description</h2></div><div class="section-body">
+        <p>A systemd <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt7">unit<span class="tooltip-content" role="tooltip" id="tt7">An object that systemd knows how to manage. Units are represented by configuration files called unit files, which encapsulate information about services, sockets, and other relevant objects.</span></span> defines objects that the system knows how to manage. Units are represented by configuration files named <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt8">unit files<span class="tooltip-content" role="tooltip" id="tt8">Configuration files that define systemd units. They contain information about system services, listening sockets, and other objects. Located in /usr/lib/systemd/system/ and /etc/systemd/system/.</span></span>, which encapsulate information about system services, listening sockets, and other relevant objects for the <code class="inline">systemd</code> init system.</p>
+        <p>A unit has a name and a unit type. The name provides a unique identity to the unit. The unit type enables grouping units together with other similar unit types:</p>
+        <div class="unit-type-grid" role="list" aria-label="Systemd unit types">
+            <div class="unit-card service" role="listitem" tabindex="0">
+                <div class="unit-card-title">Service Units</div>
+                <div class="unit-card-ext">.service</div>
+                <div class="unit-card-desc">Represent system services. Used to start frequently used daemons such as web servers.</div>
+            </div>
+            <div class="unit-card socket" role="listitem" tabindex="0">
+                <div class="unit-card-title">Socket Units</div>
+                <div class="unit-card-ext">.socket</div>
+                <div class="unit-card-desc">Represent IPC sockets. Delay service start until a client connects. Enable on-demand activation.</div>
+            </div>
+            <div class="unit-card path" role="listitem" tabindex="0">
+                <div class="unit-card-title">Path Units</div>
+                <div class="unit-card-ext">.path</div>
+                <div class="unit-card-desc">Delay service activation until a specific file-system change occurs (e.g., spool directories).</div>
+            </div>
+            <div class="unit-card target" role="listitem" tabindex="0">
+                <div class="unit-card-title">Target Units</div>
+                <div class="unit-card-ext">.target</div>
+                <div class="unit-card-desc">Group other units together. Represent system states like multi-user.target or graphical.target.</div>
+            </div>
+            <div class="unit-card timer" role="listitem" tabindex="0">
+                <div class="unit-card-title">Timer Units</div>
+                <div class="unit-card-ext">.timer</div>
+                <div class="unit-card-desc">Schedule activation of other units based on timers. Alternative to cron jobs.</div>
+            </div>
+            <div class="unit-card mount" role="listitem" tabindex="0">
+                <div class="unit-card-title">Mount Units</div>
+                <div class="unit-card-ext">.mount</div>
+                <div class="unit-card-desc">Control mount points in the file system. Automatically generated from /etc/fstab.</div>
+            </div>
+        </div>
+        <p>To manage units, use the <code class="inline">systemctl</code> command. Display available unit types with <code class="inline">systemctl -t help</code>:</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl -t help</span>
+<span class="code-output">Available unit types:
+service
+mount
+swap
+socket
+target
+device
+automount
+timer
+path
+slice
+scope</span></code></div>
+    </div></section>
+
+    <!-- Section 4: Listing -->
+    <section id="section-listing" class="content-section" aria-labelledby="list-h"><div class="section-header"><span class="section-number" aria-hidden="true">4</span><h2 id="list-h">Listing Service Units</h2></div><div class="section-body">
+        <h3>Listing Active Service Units</h3>
+        <p>Use the <code class="inline">systemctl</code> command to explore the system's current state. The following command lists and paginates all currently loaded service units:</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl list-units --type=service</span>
+<span class="code-output">UNIT                     LOAD   ACTIVE SUB     DESCRIPTION
+accounts-daemon.service  loaded active running Accounts Service
+atd.service              loaded active running Deferred execution ...
+auditd.service           loaded active running Security Audit ...
+chronyd.service          loaded active running NTP client/server
+</span><span class="code-comment">...output omitted...</span></code></div>
+        <p>The <code class="inline">--type=service</code> option limits output to service units. The output has these columns:</p>
+        <div class="tabs">
+            <div class="tab-buttons" role="tablist" aria-label="Listing options">
+                <button class="tab-btn active" role="tab" id="btn-cols" aria-controls="tab-cols" aria-selected="true">Output Columns</button>
+                <button class="tab-btn" role="tab" id="btn-allunits" aria-controls="tab-allunits" aria-selected="false">Show All Units</button>
+                <button class="tab-btn" role="tab" id="btn-unitfiles" aria-controls="tab-unitfiles" aria-selected="false">Unit Files</button>
+            </div>
+            <div id="tab-cols" class="tab-content active" role="tabpanel" aria-labelledby="btn-cols">
+                <table class="info-table" aria-label="systemctl list-units output columns">
+                    <thead><tr><th>Column</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code class="inline">UNIT</code></td><td>The service unit name</td></tr>
+                        <tr><td><code class="inline">LOAD</code></td><td>Whether the systemd daemon correctly parsed the unit's configuration and loaded it into memory</td></tr>
+                        <tr><td><code class="inline">ACTIVE</code></td><td>The high-level activation state of the unit. Indicates whether the unit started successfully.</td></tr>
+                        <tr><td><code class="inline">SUB</code></td><td>The low-level activation state with more detail. Varies based on unit type, state, and how the unit is executed.</td></tr>
+                        <tr><td><code class="inline">DESCRIPTION</code></td><td>The short description of the unit</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="tab-allunits" class="tab-content" role="tabpanel" aria-labelledby="btn-allunits">
+                <p>By default, <code class="inline">list-units</code> shows only <code class="inline">active</code> units. Use <code class="inline">--all</code> to list all units regardless of state. Use <code class="inline">--state=</code> to filter by <code class="inline">LOAD</code>, <code class="inline">ACTIVE</code>, or <code class="inline">SUB</code> fields.</p>
+                <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl list-units --type=service --all</span>
+<span class="code-output">UNIT                      LOAD      ACTIVE   SUB     DESCRIPTION
+accounts-daemon.service   loaded    active   running Accounts Service
+alsa-restore.service      loaded    inactive dead    Save/Restore Sound ...
+&#9679; apt-daily.service        not-found inactive dead    apt-daily.service
+atd.service               loaded    active   running Deferred execution ...
+</span><span class="code-comment">...output omitted...</span></code></div>
+            </div>
+            <div id="tab-unitfiles" class="tab-content" role="tabpanel" aria-labelledby="btn-unitfiles">
+                <p>The <code class="inline">list-units</code> option displays only units loaded into memory. Use <code class="inline">list-unit-files</code> to see the state of all installed unit files:</p>
+                <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl list-unit-files --type=service</span>
+<span class="code-output">UNIT FILE                   STATE    VENDOR PRESET
+arp-ethers.service          disabled disabled
+atd.service                 enabled  enabled
+auditd.service              enabled  enabled
+auth-rpcgss-module.service  static   -
+</span><span class="code-comment">...output omitted...</span></code></div>
+                <p>Common <code class="inline">STATE</code> values: <code class="inline">enabled</code>, <code class="inline">disabled</code>, <code class="inline">static</code>, and <code class="inline">masked</code>.</p>
+            </div>
+        </div>
+        <p>The <code class="inline">systemctl</code> command without arguments lists units that are both loaded and active:</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl</span>
+<span class="code-output">UNIT                                LOAD   ACTIVE SUB       DESCRIPTION
+-.mount                             loaded active mounted   Root Mount
+boot.mount                          loaded active mounted   /boot
+atd.service                         loaded active running   Job spooling tools
+chronyd.service                     loaded active running   NTP client/server
+crond.service                       loaded active running   Command Scheduler
+</span><span class="code-comment">...output omitted...</span></code></div>
+    </div></section>
+
+    <!-- Section 5: Viewing Service States -->
+    <section id="section-status" class="content-section" aria-labelledby="stat-h"><div class="section-header"><span class="section-number" aria-hidden="true">5</span><h2 id="stat-h">Viewing Service States</h2></div><div class="section-body">
+        <h3>Using systemctl status</h3>
+        <p>View a unit's status with the <code class="inline">systemctl status <em>name.type</em></code> command. If the unit type is omitted, the command expects a service unit with that name.</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl status sshd.service</span>
+<span class="code-output">&#9679; sshd.service - OpenSSH server daemon
+     Loaded: loaded (/usr/lib/systemd/system/sshd.service; enabled; preset: enabled)
+     Active: active (running) since Thu 2025-05-22 14:47:33 UTC; 2h 48min ago
+   Main PID: 2212 (sshd)
+      Tasks: 1 (limit: 35724)
+     Memory: 3.2M (peak: 6.4M)
+        CPU: 8.984s
+     CGroup: /system.slice/sshd.service
+             &#9492;2212 "sshd: /usr/sbin/sshd -D [listener]"</span></code></div>
+        <h3>Status Output Fields</h3>
+        <table class="info-table" aria-label="Service unit information fields">
+            <thead><tr><th>Field</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Loaded</strong></td><td>Whether the service unit is loaded into memory</td></tr>
+                <tr><td><strong>Active</strong></td><td>Whether the service unit is running, and if so, for how long</td></tr>
+                <tr><td><strong>Docs</strong></td><td>Where to find more information about the service</td></tr>
+                <tr><td><strong>Main PID</strong></td><td>The main process ID of the service, including the command name</td></tr>
+                <tr><td><strong>Status</strong></td><td>More information about the service</td></tr>
+                <tr><td><strong>CGroup</strong></td><td>More information about related control groups</td></tr>
+            </tbody>
+        </table>
+        <h3>Service State Keywords</h3>
+        <table class="info-table" aria-label="Service state keywords">
+            <thead><tr><th>Keyword</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code class="inline">loaded</code></td><td>The unit configuration file is processed</td></tr>
+                <tr><td><code class="inline">active (running)</code></td><td>The service is running with continuing processes</td></tr>
+                <tr><td><code class="inline">active (exited)</code></td><td>The service successfully completed a one-time configuration</td></tr>
+                <tr><td><code class="inline">active (waiting)</code></td><td>The service is running but is waiting for an event</td></tr>
+                <tr><td><code class="inline">inactive</code></td><td>The service is not running</td></tr>
+                <tr><td><code class="inline">enabled</code></td><td>The service starts at boot time</td></tr>
+                <tr><td><code class="inline">disabled</code></td><td>The service is not set to start at boot time</td></tr>
+                <tr><td><code class="inline">static</code></td><td>The service cannot be enabled, but an enabled unit might start it automatically</td></tr>
+            </tbody>
+        </table>
+        <h3>Verifying Service Status</h3>
+        <div class="code-block"><code><span class="code-comment"># Check if a service is currently running</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl is-active sshd.service</span>
+<span class="code-output">active</span>
+
+<span class="code-comment"># Check if a service is enabled to start at boot</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl is-enabled sshd.service</span>
+<span class="code-output">enabled</span>
+
+<span class="code-comment"># Check if a service has failed</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl is-failed sshd.service</span>
+<span class="code-output">active</span>
+
+<span class="code-comment"># List all failed units</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl --failed --type=service</span></code></div>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div><p>The <code class="inline">is-failed</code> command returns <code class="inline">active</code> if the service is correctly running, or <code class="inline">failed</code> if an error occurred during startup. If the unit was stopped, it returns <code class="inline">unknown</code> or <code class="inline">inactive</code>.</p></div>
+    </div></section>
+
+    <!-- Section 6: Controlling -->
+    <section id="section-controlling" class="content-section" aria-labelledby="ctrl-h"><div class="section-header"><span class="section-number" aria-hidden="true">6</span><h2 id="ctrl-h">Controlling System Services</h2></div><div class="section-body">
+        <h3>Starting, Stopping, and Restarting Services</h3>
+        <p>Use the <code class="inline">systemctl</code> command with the <code class="inline">start</code>, <code class="inline">stop</code>, <code class="inline">restart</code>, and <code class="inline">reload</code> options to control services on a running system. These commands require root privileges (use <code class="inline">sudo</code>).</p>
+        <div class="code-block"><code><span class="code-comment"># Start a service</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl start sshd.service</span>
+
+<span class="code-comment"># Stop a service</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl stop sshd.service</span>
+
+<span class="code-comment"># Restart a service (stops then starts)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl restart sshd.service</span>
+
+<span class="code-comment"># Reload configuration without stopping the service</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reload sshd.service</span>
+
+<span class="code-comment"># Reload if supported, otherwise restart</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reload-or-restart sshd.service</span></code></div>
+
+        <!-- Interactive Simulator -->
+        <div class="simulator" role="region" aria-label="Interactive systemctl simulator">
+            <div class="simulator-title">&#9881; Interactive systemctl Simulator</div>
+            <p style="color: #AAA; font-family: var(--font-display); font-size: 0.85rem; margin-bottom: 12px;">Click buttons to simulate <code class="inline" style="background:#2A2A2A;color:#E0E0E0;">systemctl</code> commands on the <strong style="color:#66BB6A;">chronyd</strong> service:</p>
+            <div class="simulator-controls">
+                <button class="sim-btn" onclick="simCommand('status')" aria-label="Run systemctl status">status</button>
+                <button class="sim-btn" onclick="simCommand('stop')" aria-label="Run systemctl stop">stop</button>
+                <button class="sim-btn" onclick="simCommand('start')" aria-label="Run systemctl start">start</button>
+                <button class="sim-btn" onclick="simCommand('restart')" aria-label="Run systemctl restart">restart</button>
+                <button class="sim-btn" onclick="simCommand('reload')" aria-label="Run systemctl reload">reload</button>
+                <button class="sim-btn" onclick="simCommand('is-active')" aria-label="Run systemctl is-active">is-active</button>
+                <button class="sim-btn" onclick="simCommand('enable')" aria-label="Run systemctl enable">enable</button>
+                <button class="sim-btn" onclick="simCommand('disable')" aria-label="Run systemctl disable">disable</button>
+            </div>
+            <div class="sim-output" id="sim-output" aria-live="polite"><span style="color:#888;">Click a command button above to begin...</span></div>
+        </div>
+
+        <h3>Summary of systemctl Commands</h3>
+        <table class="info-table" aria-label="Useful service management commands">
+            <thead><tr><th>Command</th><th>Task</th></tr></thead>
+            <tbody>
+                <tr><td><code class="inline">systemctl status <em>UNIT</em></code></td><td>View detailed information about a unit's state</td></tr>
+                <tr><td><code class="inline">systemctl stop <em>UNIT</em></code></td><td>Stop a service on a running system</td></tr>
+                <tr><td><code class="inline">systemctl start <em>UNIT</em></code></td><td>Start a service on a running system</td></tr>
+                <tr><td><code class="inline">systemctl restart <em>UNIT</em></code></td><td>Restart a service on a running system</td></tr>
+                <tr><td><code class="inline">systemctl reload <em>UNIT</em></code></td><td>Reload the configuration file of a running service</td></tr>
+                <tr><td><code class="inline">systemctl mask <em>UNIT</em></code></td><td>Disable a service from being started, both manually and at boot</td></tr>
+                <tr><td><code class="inline">systemctl unmask <em>UNIT</em></code></td><td>Make available a masked service</td></tr>
+                <tr><td><code class="inline">systemctl enable <em>UNIT</em></code></td><td>Configure a service to start at boot. Use <code class="inline">--now</code> to also start it.</td></tr>
+                <tr><td><code class="inline">systemctl disable <em>UNIT</em></code></td><td>Disable a service from starting at boot. Use <code class="inline">--now</code> to also stop it.</td></tr>
+            </tbody>
+        </table>
+    </div></section>
+
+    <!-- Section 7: Enabling -->
+    <section id="section-enabling" class="content-section" aria-labelledby="enb-h"><div class="section-header"><span class="section-number" aria-hidden="true">7</span><h2 id="enb-h">Enabling Services to Start or Stop at Boot</h2></div><div class="section-body">
+        <p>Starting a service on a running system does not guarantee that the service automatically starts when the system reboots. Similarly, stopping a service does not prevent it from starting again when the system reboots.</p>
+        <p>Creating links in the <code class="inline">systemd</code> configuration directories enables the service to start at boot. Use the <code class="inline">systemctl</code> command with <code class="inline">enable</code> or <code class="inline">disable</code>:</p>
+        <div class="code-block"><code><span class="code-comment"># Enable a service to start at boot</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl enable sshd.service</span>
+<span class="code-output">Created symlink '/etc/systemd/system/multi-user.target.wants/sshd.service' &#8594; '/usr/lib/systemd/system/sshd.service'.</span>
+
+<span class="code-comment"># Enable AND start the service immediately</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl enable --now sshd.service</span>
+
+<span class="code-comment"># Disable a service from starting at boot</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl disable sshd.service</span>
+<span class="code-output">Removed '/etc/systemd/system/multi-user.target.wants/sshd.service'.</span>
+
+<span class="code-comment"># Disable AND stop the service immediately</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl disable --now sshd.service</span></code></div>
+        <p>The <code class="inline">enable</code> command creates a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt9">symbolic link<span class="tooltip-content" role="tooltip" id="tt9">A file that points to another file. When enabling a service, systemd creates a symlink from /etc/systemd/system/TARGETNAME.target.wants/ to the unit file in /usr/lib/systemd/system/.</span></span> from the service unit file to the <code class="inline">/etc/systemd/system/<em>TARGETNAME</em>.target.wants</code> directory. Enabling a service does <em>not</em> start it in the current session.</p>
+        <h3>Understanding Service States</h3>
+        <div class="diagram-container" role="img" aria-label="Service state flow diagram">
+            <p style="font-family: var(--font-display); font-weight: 600; margin-bottom: 16px;">Service State Relationships</p>
+            <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+                <div style="text-align: center;">
+                    <p style="font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; margin-bottom: 8px;">Boot Behavior</p>
+                    <div class="service-flow">
+                        <div class="flow-box flow-enabled">enabled</div>
+                        <div class="flow-arrow">&#8596;</div>
+                        <div class="flow-box flow-disabled">disabled</div>
+                        <div class="flow-arrow">&#8596;</div>
+                        <div class="flow-box flow-masked">masked</div>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <p style="font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; margin-bottom: 8px;">Runtime State</p>
+                    <div class="service-flow">
+                        <div class="flow-box flow-inactive">inactive</div>
+                        <div class="flow-arrow">&#8594;</div>
+                        <div class="flow-box flow-active">active (running)</div>
+                        <div class="flow-arrow">&#8594;</div>
+                        <div class="flow-box flow-failed">failed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="note-box warning"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;</span><span>Important Distinction</span></div><p><strong>enable/disable</strong> controls whether a service starts at <em>boot</em>. <strong>start/stop</strong> controls whether a service is running <em>right now</em>. These are independent: a service can be enabled but currently stopped, or disabled but currently running.</p></div>
+    </div></section>
+
+    <!-- Section 8: Masking -->
+    <section id="section-masking" class="content-section" aria-labelledby="mask-h"><div class="section-header"><span class="section-number" aria-hidden="true">8</span><h2 id="mask-h">Masking and Unmasking Services</h2></div><div class="section-body">
+        <p>At times, installed services might conflict with each other. For example, many ways exist to manage mail servers (the <code class="inline">postfix</code> and <code class="inline">sendmail</code> services). <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt10">Masking<span class="tooltip-content" role="tooltip" id="tt10">Prevents a service from being started either manually or automatically. Creates a symbolic link to /dev/null, which blocks the service entirely.</span></span> a service prevents an administrator from accidentally starting a conflicting service.</p>
+        <p>Masking creates a link in the configuration directories to the <code class="inline">/dev/null</code> file. To mask a service:</p>
+        <div class="code-block"><code><span class="code-comment"># Mask a service to prevent it from starting</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl mask sendmail.service</span>
+<span class="code-output">Created symlink '/etc/systemd/system/sendmail.service' &#8594; '/dev/null'.</span>
+
+<span class="code-comment"># Attempting to start a masked service fails</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl start sendmail.service</span>
+<span class="code-output">Failed to start sendmail.service: Unit sendmail.service is masked.</span>
+
+<span class="code-comment"># Unmask the service</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl unmask sendmail</span>
+<span class="code-output">Removed '/etc/systemd/system/sendmail.service'.</span></code></div>
+        <div class="note-box danger"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;</span><span>Important</span></div><p>You can manually start a <strong>disabled</strong> service, but it does not start automatically at boot. A <strong>masked</strong> service does not start manually <em>or</em> automatically. You must unmask it first.</p></div>
+    </div></section>
+
+    <!-- Section 9: Dependencies -->
+    <section id="section-dependencies" class="content-section" aria-labelledby="dep-h"><div class="section-header"><span class="section-number" aria-hidden="true">9</span><h2 id="dep-h">Service Dependencies</h2></div><div class="section-body">
+        <p>Services may depend on other services, targets, or units. Use <code class="inline">systemctl list-dependencies</code> to view the dependency tree:</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl list-dependencies sshd.service</span>
+<span class="code-output">sshd.service
+&#9675; &#9500;&#9472;ssh-host-keys-migration.service
+&#9679; &#9500;&#9472;system.slice
+&#9679; &#9500;&#9472;sshd-keygen.target
+&#9679; &#9492;&#9472;sysinit.target
+</span><span class="code-comment">...output omitted...</span></code></div>
+        <p>To list <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt11">reverse dependencies<span class="tooltip-content" role="tooltip" id="tt11">Units that depend on the specified unit. Found with the --reverse option. Helps identify what may break if you stop or disable a service.</span></span> (units that depend on the specified unit), use <code class="inline">--reverse</code>:</p>
+        <div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl list-dependencies --reverse NetworkManager.service</span>
+<span class="code-output">NetworkManager.service
+&#9679; &#9500;&#9472;NetworkManager-wait-online.service
+&#9679; &#9492;&#9472;multi-user.target
+&#9679;     &#9492;&#9472;graphical.target</span></code></div>
+        <div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div><p>Use <code class="inline">systemctl list-dependencies --reverse</code> to understand the impact of stopping a service. If many units depend on it, stopping it might disrupt critical system functionality.</p></div>
+    </div></section>
+
+    <!-- Section 10: Quiz -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-h"><div class="section-header"><span class="section-number" aria-hidden="true">10</span><h2 id="quiz-h">Knowledge Check</h2></div><div class="section-body">
+        <p>Test your understanding of controlling services and daemons:</p>
+        <div class="quiz-container" id="quiz">
+            <div class="quiz-question" id="q1">
+                <h4>1. Which command starts a service AND enables it to start at boot?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option"><input type="radio" name="q1" value="a"> <span>systemctl start --enable sshd</span></label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="b"> <span>systemctl enable --now sshd</span></label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="c"> <span>systemctl boot sshd</span></label>
+                    <label class="quiz-option"><input type="radio" name="q1" value="d"> <span>systemctl activate sshd</span></label>
+                </div><div class="quiz-feedback" id="fb1"></div>
+            </div>
+            <div class="quiz-question" id="q2">
+                <h4>2. What does "masking" a service do?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option"><input type="radio" name="q2" value="a"> <span>Stops the service temporarily</span></label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="b"> <span>Hides the service from systemctl status output</span></label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="c"> <span>Prevents the service from starting both manually and at boot</span></label>
+                    <label class="quiz-option"><input type="radio" name="q2" value="d"> <span>Removes the service from the system</span></label>
+                </div><div class="quiz-feedback" id="fb2"></div>
+            </div>
+            <div class="quiz-question" id="q3">
+                <h4>3. Which command verifies whether a service is enabled to start at boot?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option"><input type="radio" name="q3" value="a"> <span>systemctl is-active</span></label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="b"> <span>systemctl is-enabled</span></label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="c"> <span>systemctl is-booting</span></label>
+                    <label class="quiz-option"><input type="radio" name="q3" value="d"> <span>systemctl check-boot</span></label>
+                </div><div class="quiz-feedback" id="fb3"></div>
+            </div>
+            <div class="quiz-question" id="q4">
+                <h4>4. What is the first process that starts on a RHEL system (PID 1)?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option"><input type="radio" name="q4" value="a"> <span>init</span></label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="b"> <span>bash</span></label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="c"> <span>systemd</span></label>
+                    <label class="quiz-option"><input type="radio" name="q4" value="d"> <span>kernel</span></label>
+                </div><div class="quiz-feedback" id="fb4"></div>
+            </div>
+            <div class="quiz-question" id="q5">
+                <h4>5. Which unit type uses a .socket extension and enables on-demand service activation?</h4>
+                <div class="quiz-options">
+                    <label class="quiz-option"><input type="radio" name="q5" value="a"> <span>Service unit</span></label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="b"> <span>Path unit</span></label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="c"> <span>Socket unit</span></label>
+                    <label class="quiz-option"><input type="radio" name="q5" value="d"> <span>Target unit</span></label>
+                </div><div class="quiz-feedback" id="fb5"></div>
+            </div>
+            <button class="quiz-submit" onclick="gradeQuiz()" id="quiz-grade-btn">Check Answers</button>
+            <div class="quiz-score" id="quiz-score"></div>
+        </div>
+    </div></section>
+
+    <!-- Section 11: Lab -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-h"><div class="section-header"><span class="section-number" aria-hidden="true">11</span><h2 id="lab-h">Hands-On Lab: Control Services and Daemons</h2></div><div class="section-body">
+        <p>In this lab, you will practice controlling services and daemons using <code class="inline">systemctl</code>.</p>
+        <div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128187;</span><span>Lab Setup</span></div><p>Log in to your <code class="inline">workstation</code> machine as the <code class="inline">student</code> user. Use <code class="inline">sudo</code> for commands requiring root privileges.</p></div>
+
+        <div class="expandable">
+            <button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)">
+                <span>Task 1: List and Inspect Services</span><span class="toggle-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content">
+                <div class="code-block"><code><span class="code-comment"># List all active service units</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl list-units --type=service</span>
+
+<span class="code-comment"># View detailed status of the chronyd service</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl status chronyd.service</span>
+
+<span class="code-comment"># Check if chronyd is active and enabled</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-active chronyd</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-enabled chronyd</span>
+
+<span class="code-comment"># List all installed service unit files</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl list-unit-files --type=service</span>
+
+<span class="code-comment"># List failed services</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl --failed --type=service</span></code></div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)">
+                <span>Task 2: Start, Stop, and Restart Services</span><span class="toggle-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content">
+                <div class="code-block"><code><span class="code-comment"># Stop the chronyd service</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo systemctl stop chronyd.service</span>
+
+<span class="code-comment"># Verify it is stopped</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-active chronyd</span>
+<span class="code-output">inactive</span>
+
+<span class="code-comment"># Start the chronyd service again</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo systemctl start chronyd.service</span>
+
+<span class="code-comment"># Restart the service and verify</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo systemctl restart chronyd.service</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl status chronyd</span></code></div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)">
+                <span>Task 3: Enable and Disable Services</span><span class="toggle-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content">
+                <div class="code-block"><code><span class="code-comment"># Disable chronyd from starting at boot</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo systemctl disable chronyd.service</span>
+
+<span class="code-comment"># Verify it is disabled</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-enabled chronyd</span>
+<span class="code-output">disabled</span>
+
+<span class="code-comment"># Re-enable and start it in one command</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo systemctl enable --now chronyd.service</span>
+
+<span class="code-comment"># Confirm both enabled and running</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-enabled chronyd</span>
+<span class="code-output">enabled</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-active chronyd</span>
+<span class="code-output">active</span></code></div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)">
+                <span>Task 4: Explore Dependencies</span><span class="toggle-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content">
+                <div class="code-block"><code><span class="code-comment"># View dependencies of the sshd service</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl list-dependencies sshd.service</span>
+
+<span class="code-comment"># View reverse dependencies of NetworkManager</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl list-dependencies --reverse NetworkManager.service</span>
+
+<span class="code-comment"># View the default target</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">graphical.target</span></code></div>
+            </div>
+        </div>
+
+        <div class="note-box tip" style="margin-top: 20px;"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Lab Complete</span></div><p>You have successfully listed services, viewed service status, started and stopped services, enabled and disabled services at boot, and explored service dependencies.</p></div>
+    </div></section>
+
+    <!-- Section 12: Summary -->
+    <section id="section-summary" class="content-section" aria-labelledby="sum-h"><div class="section-header"><span class="section-number" aria-hidden="true">12</span><h2 id="sum-h">Chapter Summary</h2></div><div class="section-body">
+        <div class="summary-box"><h3>Key Takeaways</h3>
+            <ul class="summary-list">
+                <li><strong>systemd is the system and service manager</strong> for RHEL, running as PID 1. It manages service startup, dependencies, and process tracking using control groups.</li>
+                <li><strong>systemd manages different unit types</strong> including service (.service), socket (.socket), path (.path), target (.target), timer (.timer), and mount (.mount) units.</li>
+                <li><strong>systemctl list-units</strong> shows loaded and active units. Use <code class="inline">--type=service</code> to filter by type and <code class="inline">--all</code> to include inactive units. Use <code class="inline">list-unit-files</code> to see all installed units.</li>
+                <li><strong>systemctl status</strong> provides detailed information about a service including its loaded state, active state, PID, memory usage, and recent log entries.</li>
+                <li><strong>start, stop, restart, and reload</strong> control services on a running system. Use <code class="inline">reload-or-restart</code> for safe configuration reloading.</li>
+                <li><strong>enable and disable</strong> control whether services start at boot by creating or removing symbolic links. Use the <code class="inline">--now</code> option to also start/stop the service immediately.</li>
+                <li><strong>Masking a service</strong> creates a link to <code class="inline">/dev/null</code>, preventing it from being started manually or automatically. A disabled service can still be started manually, but a masked service cannot.</li>
+                <li><strong>list-dependencies</strong> shows what a service depends on, while <code class="inline">--reverse</code> shows what depends on that service.</li>
+            </ul>
+        </div>
+        <div class="key-points"><h4>What's Next?</h4>
+            <p>In Chapter 17, you will learn about introduction to Linux networking, including:</p>
+            <ul>
+                <li>Understanding network concepts and TCP/IP fundamentals</li>
+                <li>Identifying network interfaces and IP addresses</li>
+                <li>Testing network connectivity with ping and other tools</li>
+                <li>Examining network configuration on a RHEL system</li>
+            </ul>
+        </div>
+        <div class="completion-section">
+            <h2>&#127881; Chapter 16 Complete!</h2>
+            <p>You've learned how to control and manage services and daemons in Red Hat Enterprise Linux.</p>
+            <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+        </div>
+    </div></section>
+
+    </main>
+    <footer class="main-footer" role="contentinfo">
+        <p>RH124: Red Hat System Administration I &#8226; Chapter 16 &#8226; Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+    </footer>
+025-05-22 10:30:00 UTC; 2h ago\n';
+                        result += '   Main PID: 1234 (chronyd)\n';
+                        result += '      Tasks: 1 (limit: 35724)\n';
+                        result += '     Memory: 2.1M\n';
+                        result += '     CGroup: /system.slice/chronyd.service\n';
+                        result += '             └─1234 /usr/sbin/chronyd -F 2';
+                    } else {
+                        result += '<span style="color:#888;">○</span> chronyd.service - NTP client/server\n';
+                        result += '     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; ' + (simState.enabled ? 'enabled' : 'disabled') + '; preset: enabled)\n';
+                        result += '     Active: <span style="color:#C62828;">inactive (dead)</span>';
+                    }
+                    break;
+                case 'start':
+                    if (simState.active) { result += '<span style="color:#888;">Service is already running.</span>'; }
+                    else { simState.active = true; result += '<span style="color:#66BB6A;">Service started successfully.</span>'; }
+                    break;
+                case 'stop':
+                    if (!simState.active) { result += '<span style="color:#888;">Service is already stopped.</span>'; }
+                    else { simState.active = false; result += '<span style="color:#FFA726;">Service stopped.</span>'; }
+                    break;
+                case 'restart':
+                    simState.active = true;
+                    result += '<span style="color:#66BB6A;">Service restarted successfully.</span>';
+                    break;
+                case 'reload':
+                    if (!simState.active) { result += '<span style="color:#C62828;">Failed to reload: Unit chronyd.service is not active.</span>'; }
+                    else { result += '<span style="color:#66BB6A;">Configuration reloaded.</span>'; }
+                    break;
+                case 'is-active':
+                    result += simState.active ? '<span style="color:#66BB6A;">active</span>' : '<span style="color:#C62828;">inactive</span>';
+                    break;
+                case 'enable':
+                    if (simState.enabled) { result += '<span style="color:#888;">Service is already enabled.</span>'; }
+                    else { simState.enabled = true; result += "Created symlink '/etc/systemd/system/multi-user.target.wants/chronyd.service'\n  → '/usr/lib/systemd/system/chronyd.service'."; }
+                    break;
+                case 'disable':
+                    if (!simState.enabled) { result += '<span style="color:#888;">Service is already disabled.</span>'; }
+                    else { simState.enabled = false; result += "Removed '/etc/systemd/system/multi-user.target.wants/chronyd.service'."; }
+                    break;
+            }
+            output.innerHTML = result;
+        };
+
+        // ==================== COMPLETION ====================
+        document.getElementById('mark-complete').addEventListener('click', function() {
+            this.textContent = '✓ Chapter Completed!';
+            this.style.background = '#267326';
+            this.disabled = true;
+            try { localStorage.setItem('ch16_complete', 'true'); } catch(e) {}
+        });
+
+        // ==================== TOOLTIP POSITIONING ====================
+        document.querySelectorAll('.tooltip-term').forEach(function(term) {
+            term.addEventListener('mouseenter', positionTooltip);
+            term.addEventListener('focus', positionTooltip);
+        });
+
+        function positionTooltip() {
+            var tip = this.querySelector('.tooltip-content');
+            if (!tip) return;
+
+            // Reset to default centered-above position
+            tip.style.left = '50%';
+            tip.style.right = 'auto';
+            tip.style.transform = 'translateX(-50%)';
+            tip.style.bottom = 'calc(100% + 10px)';
+            tip.style.top = 'auto';
+            tip.classList.remove('tooltip-flipped');
+
+            // Force layout so we can measure accurately
+            var origVis = tip.style.visibility;
+            var origOp = tip.style.opacity;
+            tip.style.visibility = 'visible';
+            tip.style.opacity = '0';
+
+            var tipRect = tip.getBoundingClientRect();
+            var termRect = this.getBoundingClientRect();
+            var vw = window.innerWidth || document.documentElement.clientWidth;
+            var vh = window.innerHeight || document.documentElement.clientHeight;
+            var margin = 12;
+
+            // Flip below if not enough room above
+            if (tipRect.top < margin) {
+                tip.style.bottom = 'auto';
+                tip.style.top = 'calc(100% + 10px)';
+                tip.classList.add('tooltip-flipped');
+                // Re-measure after flip
+                tipRect = tip.getBoundingClientRect();
+            }
+
+            // Prevent right edge bleed
+            if (tipRect.right > vw - margin) {
+                var shiftLeft = tipRect.right - vw + margin;
+                tip.style.left = 'calc(50% - ' + shiftLeft + 'px)';
+                // Move arrow to stay centered on term
+                var arrow = tip.querySelector('::after');
+                tipRect = tip.getBoundingClientRect();
+            }
+
+            // Prevent left edge bleed
+            tipRect = tip.getBoundingClientRect();
+            if (tipRect.left < margin) {
+                var shiftRight = margin - tipRect.left;
+                // Parse current left value and adjust
+                tip.style.left = 'calc(50% + ' + shiftRight + 'px)';
+                tipRect = tip.getBoundingClientRect();
+            }
+
+            // Final safety clamp: if still bleeding, use fixed positioning from left edge
+            tipRect = tip.getBoundingClientRect();
+            if (tipRect.left < margin || tipRect.right > vw - margin) {
+                tip.style.left = margin + 'px';
+                tip.style.transform = 'none';
+                tip.style.maxWidth = (vw - margin * 2) + 'px';
+            }
+
+            // Restore — CSS :hover/:focus will show it properly now
+            tip.style.visibility = origVis;
+            tip.style.opacity = origOp;
+        }
+    })();
+    </script>
+</body>
+</html>
