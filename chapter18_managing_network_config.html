@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 18: Managing Network Configuration | RH124</title>
+<style>
+:root{--rh-red:#CC0000;--rh-red-dark:#990000;--rh-red-light:#FF3333;--rh-black:#1A1A1A;--rh-gray-dark:#333333;--rh-gray:#666666;--rh-gray-light:#CCCCCC;--rh-gray-lighter:#F0F0F0;--rh-white:#FFFFFF;--rh-blue:#0066CC;--rh-blue-dark:#004C99;--rh-teal:#009999;--rh-gold:#CC9900;--rh-green:#339933;--rh-green-dark:#267326;--rh-purple:#663399;--rh-orange:#FF6600;--font-display:'Segoe UI','Helvetica Neue',Arial,sans-serif;--font-body:Georgia,'Times New Roman',serif;--font-mono:'Consolas','Courier New',monospace;--shadow-sm:0 2px 4px rgba(0,0,0,0.1);--shadow-md:0 4px 12px rgba(0,0,0,0.15);--shadow-lg:0 8px 24px rgba(0,0,0,0.2);--radius-sm:4px;--radius-md:8px;--radius-lg:16px;--transition-fast:0.2s ease;--transition-med:0.3s ease}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:16px}body{font-family:var(--font-body);background:linear-gradient(135deg,var(--rh-gray-lighter) 0%,var(--rh-white) 50%,var(--rh-gray-lighter) 100%);color:var(--rh-black);line-height:1.7;min-height:100vh}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}*:focus{outline:3px solid var(--rh-blue);outline-offset:2px}*:focus:not(:focus-visible){outline:none}*:focus-visible{outline:3px solid var(--rh-blue);outline-offset:2px}
+.skip-link{position:absolute;top:-100px;left:50%;transform:translateX(-50%);background:var(--rh-red);color:var(--rh-white);padding:12px 24px;text-decoration:none;font-family:var(--font-display);font-weight:600;border-radius:var(--radius-md);z-index:10000;transition:top var(--transition-fast)}.skip-link:focus{top:10px}
+@media(prefers-contrast:high){:root{--rh-gray-light:#888888}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+.main-header{background:linear-gradient(135deg,var(--rh-red-dark) 0%,var(--rh-red) 50%,var(--rh-red-dark) 100%);color:var(--rh-white);padding:40px 24px 30px;text-align:center;position:relative;overflow:hidden}.main-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,transparent,transparent 35px,rgba(255,255,255,0.03) 35px,rgba(255,255,255,0.03) 70px)}.header-content{position:relative;z-index:1;max-width:900px;margin:0 auto}.course-tag{display:inline-block;background:rgba(255,255,255,0.2);padding:6px 18px;border-radius:20px;font-family:var(--font-display);font-size:0.85rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}.chapter-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;margin-bottom:8px}.chapter-subtitle{font-family:var(--font-display);font-size:clamp(1rem,2vw,1.3rem);font-weight:300;opacity:0.9}
+.progress-container{background:var(--rh-white);padding:12px 24px;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--rh-gray-lighter)}.progress-bar-track{background:var(--rh-gray-lighter);border-radius:10px;height:10px;max-width:900px;margin:0 auto;overflow:hidden}.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--rh-red),var(--rh-red-light));border-radius:10px;width:0%;transition:width 0.5s ease}.progress-text{text-align:center;font-family:var(--font-display);font-size:0.8rem;color:var(--rh-gray);margin-top:6px}
+.section-nav{background:var(--rh-white);padding:16px 24px;box-shadow:var(--shadow-sm);border-bottom:1px solid var(--rh-gray-lighter);overflow-x:auto}.nav-list{display:flex;gap:6px;max-width:900px;margin:0 auto;list-style:none;flex-wrap:wrap;justify-content:center}.nav-btn{display:inline-block;padding:8px 14px;font-family:var(--font-display);font-size:0.8rem;font-weight:500;color:var(--rh-gray);text-decoration:none;border-radius:var(--radius-sm);transition:all var(--transition-fast);border:1px solid transparent;white-space:nowrap}.nav-btn:hover{background:var(--rh-gray-lighter);color:var(--rh-black)}.nav-btn.active{background:var(--rh-red);color:var(--rh-white);border-color:var(--rh-red)}.nav-btn.visited{color:var(--rh-red-dark);border-color:var(--rh-gray-light)}
+main{max-width:900px;margin:0 auto;padding:24px}.content-section{background:var(--rh-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:30px;overflow:hidden}.section-header{background:linear-gradient(135deg,var(--rh-gray-dark),var(--rh-black));color:var(--rh-white);padding:20px 30px;display:flex;align-items:center;gap:16px}.section-number{background:var(--rh-red);color:var(--rh-white);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.1rem;flex-shrink:0}.section-header h2{font-family:var(--font-display);font-size:1.3rem;font-weight:600}.section-body{padding:30px}.section-body p{margin-bottom:16px}.section-body h3{font-family:var(--font-display);font-size:1.15rem;color:var(--rh-red-dark);margin:24px 0 12px}.section-body h4{font-family:var(--font-display);font-size:1rem;color:var(--rh-gray-dark);margin:20px 0 10px}.section-body ul,.section-body ol{margin:12px 0 16px 24px}.section-body li{margin-bottom:8px}
+.code-block{background:var(--rh-gray-dark);color:#E0E0E0;padding:20px;border-radius:var(--radius-md);font-family:var(--font-mono);font-size:0.88rem;line-height:1.6;overflow-x:auto;margin:16px 0;border-left:4px solid var(--rh-red);white-space:pre}.code-prompt{color:#66BB6A}.code-command{color:#FFFFFF;font-weight:bold}.code-output{color:#AAAAAA}.code-comment{color:#888888;font-style:italic}code.inline{background:var(--rh-gray-lighter);color:var(--rh-red-dark);padding:2px 8px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.9em}
+.tooltip-term{color:var(--rh-blue);text-decoration:underline dotted var(--rh-blue);text-underline-offset:3px;cursor:help;position:relative;font-weight:600}.tooltip-content{visibility:hidden;opacity:0;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--rh-gray-dark);color:var(--rh-white);padding:12px 16px;border-radius:var(--radius-md);font-size:0.85rem;font-weight:400;line-height:1.5;width:max-content;max-width:320px;box-shadow:var(--shadow-lg);z-index:1000;font-family:var(--font-display);text-decoration:none;pointer-events:none;transition:opacity 0.15s ease}.tooltip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:var(--rh-gray-dark)}.tooltip-content.tooltip-flipped{bottom:auto;top:calc(100% + 10px)}.tooltip-content.tooltip-flipped::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--rh-gray-dark)}.tooltip-term:hover .tooltip-content,.tooltip-term:focus .tooltip-content{visibility:visible;opacity:1}
+.note-box{border-radius:var(--radius-md);padding:20px;margin:20px 0;border-left:4px solid var(--rh-blue);background:linear-gradient(135deg,#E8F4FD,#F0F8FF)}.note-box.warning{border-left-color:var(--rh-orange);background:linear-gradient(135deg,#FFF3E0,#FFF8F0)}.note-box.tip{border-left-color:var(--rh-green);background:linear-gradient(135deg,#E8F5E9,#F0FFF0)}.note-box.danger{border-left-color:var(--rh-red);background:linear-gradient(135deg,#FFEBEE,#FFF0F0)}.note-box-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--font-display);font-weight:700;font-size:0.95rem}.note-icon{font-size:1.2rem}.note-box p{margin-bottom:8px}.note-box p:last-child{margin-bottom:0}
+.info-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.92rem}.info-table th{background:var(--rh-gray-dark);color:var(--rh-white);padding:12px 16px;text-align:left;font-family:var(--font-display);font-weight:600}.info-table td{padding:12px 16px;border-bottom:1px solid var(--rh-gray-lighter);vertical-align:top}.info-table tr:nth-child(even){background:var(--rh-gray-lighter)}.info-table tr:hover{background:#E8E8E8}
+.expandable{margin:16px 0;border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);overflow:hidden}.expandable-toggle{width:100%;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;background:var(--rh-gray-lighter);border:none;cursor:pointer;font-family:var(--font-display);font-size:0.95rem;font-weight:600;color:var(--rh-gray-dark);transition:background var(--transition-fast);text-align:left}.expandable-toggle:hover{background:#E0E0E0}.expandable-toggle .toggle-icon{transition:transform var(--transition-fast);font-size:1.2rem}.expandable-toggle[aria-expanded="true"] .toggle-icon{transform:rotate(180deg)}.expandable-content{display:none;padding:20px;border-top:1px solid var(--rh-gray-light)}.expandable-content.show{display:block}
+.tabs{margin:20px 0}.tab-buttons{display:flex;gap:4px;border-bottom:2px solid var(--rh-gray-lighter);flex-wrap:wrap}.tab-btn{padding:12px 20px;font-family:var(--font-display);font-size:0.9rem;font-weight:600;border:none;background:transparent;cursor:pointer;color:var(--rh-gray);border-bottom:3px solid transparent;transition:all var(--transition-fast);margin-bottom:-2px}.tab-btn:hover{color:var(--rh-red);background:var(--rh-gray-lighter)}.tab-btn.active{color:var(--rh-red);border-bottom-color:var(--rh-red)}.tab-content{display:none;padding:20px 0}.tab-content.active{display:block}
+.simulator{background:var(--rh-black);border-radius:var(--radius-md);padding:20px;margin:20px 0}.simulator-title{color:var(--rh-red-light);font-family:var(--font-display);font-weight:700;font-size:1rem;margin-bottom:16px}.simulator-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.sim-btn{padding:8px 16px;border:1px solid #555;background:#2A2A2A;color:#E0E0E0;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;cursor:pointer;transition:all var(--transition-fast)}.sim-btn:hover{background:#3A3A3A;border-color:var(--rh-red-light)}.sim-btn.active-btn{background:var(--rh-red-dark);border-color:var(--rh-red);color:var(--rh-white)}.sim-output{background:#1E1E1E;color:#E0E0E0;padding:16px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;line-height:1.6;overflow-x:auto;white-space:pre;min-height:120px;border:1px solid #333}.sim-input-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}.sim-input{flex:1;padding:8px 12px;border:1px solid #555;background:#2A2A2A;color:#E0E0E0;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.85rem}.sim-input:focus{border-color:var(--rh-red-light);outline:none;box-shadow:0 0 0 2px rgba(255,51,51,0.3)}.sim-run-btn{padding:8px 20px;border:1px solid var(--rh-red);background:var(--rh-red-dark);color:var(--rh-white);border-radius:var(--radius-sm);font-family:var(--font-display);font-size:0.85rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast)}.sim-run-btn:hover{background:var(--rh-red)}
+.nm-diagram{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;max-width:700px;margin:24px auto}.nm-box{padding:16px 20px;border-radius:var(--radius-md);font-family:var(--font-display);text-align:center;font-size:0.9rem;font-weight:600;border:2px solid}.nm-box.device{background:#E3F2FD;color:#1565C0;border-color:#1565C0}.nm-box.connection{background:#E8F5E9;color:#2E7D32;border-color:#2E7D32}.nm-box.service{background:#FFF3E0;color:#E65100;border-color:#E65100}.nm-arrow{font-size:2rem;color:var(--rh-gray);text-align:center}@media(max-width:600px){.nm-diagram{grid-template-columns:1fr}.nm-arrow{transform:rotate(90deg)}}
+.config-file{background:var(--rh-gray-lighter);border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);overflow:hidden;margin:16px 0}.config-file-header{background:var(--rh-gray-dark);color:var(--rh-white);padding:10px 16px;font-family:var(--font-mono);font-size:0.85rem}.config-file-body{padding:16px;font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre}.config-section{color:var(--rh-blue);font-weight:700}.config-key{color:var(--rh-gray-dark)}.config-value{color:var(--rh-green-dark)}.config-comment{color:var(--rh-gray);font-style:italic}
+.quiz-container{background:var(--rh-gray-lighter);border-radius:var(--radius-md);padding:24px;margin:20px 0}.quiz-question{margin-bottom:24px;padding:16px;background:var(--rh-white);border-radius:var(--radius-md);border-left:4px solid var(--rh-blue)}.quiz-question h4{font-family:var(--font-display);font-size:0.95rem;color:var(--rh-black);margin-bottom:12px}.quiz-options{display:flex;flex-direction:column;gap:8px}.quiz-options label{display:flex;align-items:center;gap:10px;padding:10px 14px;border:2px solid var(--rh-gray-lighter);border-radius:var(--radius-sm);cursor:pointer;font-family:var(--font-display);font-size:0.9rem;transition:all var(--transition-fast)}.quiz-options label:hover{background:var(--rh-gray-lighter);border-color:var(--rh-gray-light)}.quiz-options input[type="radio"]{accent-color:var(--rh-red);width:18px;height:18px}.quiz-feedback{margin-top:10px;padding:10px 14px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:0.88rem;display:none}.quiz-feedback.correct{display:block;background:#E8F5E9;color:#2E7D32;border-left:3px solid var(--rh-green)}.quiz-feedback.incorrect{display:block;background:#FFEBEE;color:#C62828;border-left:3px solid var(--rh-red)}.quiz-submit{padding:12px 32px;background:var(--rh-red);color:var(--rh-white);border:none;border-radius:var(--radius-md);font-family:var(--font-display);font-size:1rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast)}.quiz-submit:hover{background:var(--rh-red-dark)}.quiz-score{margin-top:16px;font-family:var(--font-display);font-size:1.1rem;font-weight:700;text-align:center}
+.summary-box{background:var(--rh-gray-lighter);border-radius:var(--radius-md);padding:24px;margin:20px 0}.summary-box h3{font-family:var(--font-display);color:var(--rh-red-dark);margin-bottom:16px}.summary-list li{margin-bottom:10px}.key-points{background:linear-gradient(135deg,#E8F4FD,#F0F8FF);border-radius:var(--radius-md);padding:24px;margin:20px 0;border:1px solid #B3D9F2}.key-points h4{font-family:var(--font-display);color:var(--rh-blue-dark);margin-bottom:12px}
+.completion-section{text-align:center;padding:40px 20px;background:linear-gradient(135deg,#E8F5E9,#F0FFF0);border-radius:var(--radius-md);margin:20px 0}.completion-section h2{font-family:var(--font-display);font-size:1.5rem;color:var(--rh-green-dark);margin-bottom:12px}.completion-btn{padding:14px 36px;background:var(--rh-green);color:var(--rh-white);border:none;border-radius:var(--radius-md);font-family:var(--font-display);font-size:1rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast);margin-top:12px}.completion-btn:hover{background:var(--rh-green-dark)}.completion-btn.completed{background:var(--rh-gray);cursor:default}
+.main-footer{text-align:center;padding:30px;color:var(--rh-gray);font-family:var(--font-display);font-size:0.85rem}
+@media(max-width:768px){.section-body{padding:20px}.code-block{padding:14px;font-size:0.82rem}.simulator{padding:14px}.info-table{font-size:0.82rem}.info-table th,.info-table td{padding:8px 10px}}
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<header class="main-header" role="banner"><div class="header-content"><span class="course-tag">RH124 &#8226; RHEL 10</span><h1 class="chapter-title">Chapter 18: Managing Network Configuration</h1><p class="chapter-subtitle">Configure networking with nmcli, edit configuration files, and manage hostnames</p></div></header>
+<div class="progress-container" role="complementary" aria-label="Reading progress"><div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div><div class="progress-text" id="progress-text">0% Complete</div></div>
+<nav class="section-nav" aria-label="Chapter sections"><ul class="nav-list" role="list"><li><a href="#section-objectives" class="nav-btn">Objectives</a></li><li><a href="#section-nm" class="nav-btn">NetworkManager</a></li><li><a href="#section-nmcli" class="nav-btn">nmcli</a></li><li><a href="#section-connections" class="nav-btn">Connections</a></li><li><a href="#section-guided1" class="nav-btn">Exercise 1</a></li><li><a href="#section-configfiles" class="nav-btn">Config Files</a></li><li><a href="#section-guided2" class="nav-btn">Exercise 2</a></li><li><a href="#section-hostnames" class="nav-btn">Hostnames</a></li><li><a href="#section-dns" class="nav-btn">DNS</a></li><li><a href="#section-guided3" class="nav-btn">Exercise 3</a></li><li><a href="#section-quiz" class="nav-btn">Quiz</a></li><li><a href="#section-lab" class="nav-btn">Lab</a></li><li><a href="#section-summary" class="nav-btn">Summary</a></li></ul></nav>
+
+<main id="main-content">
+
+<!-- Section 1: Objectives -->
+<section id="section-objectives" class="content-section" aria-labelledby="obj-h"><div class="section-header"><span class="section-number" aria-hidden="true">1</span><h2 id="obj-h">Learning Objectives</h2></div><div class="section-body">
+<p>After completing this chapter, you will be able to:</p>
+<ul><li>Manage network settings and devices from the command line using the <code class="inline">nmcli</code> command.</li><li>Edit network configuration files and apply changes to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nm">NetworkManager<span class="tooltip-content" role="tooltip" id="tt-nm">The primary networking service in RHEL that manages network devices and connections. It provides a D-Bus API and command-line tools for network configuration.</span></span>.</li><li>Configure system hostnames and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-dns0">DNS<span class="tooltip-content" role="tooltip" id="tt-dns0">Domain Name System. A distributed network of servers that dynamically maps hostnames to IP addresses, allowing users to reach systems by name instead of numeric address.</span></span> name resolution.</li><li>Test and verify network connectivity and name resolution.</li></ul>
+<div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128218;</span><span>Prerequisite Knowledge</span></div><p>This chapter builds on Chapter 17 where you learned about TCP/IP fundamentals, IPv4/IPv6 addressing, and network interface naming. Ensure you are comfortable with the <code class="inline">ip</code> command and understand CIDR notation before proceeding.</p></div>
+</div></section>
+
+<!-- Section 2: NetworkManager -->
+<section id="section-nm" class="content-section" aria-labelledby="nm-h"><div class="section-header"><span class="section-number" aria-hidden="true">2</span><h2 id="nm-h">Understanding NetworkManager</h2></div><div class="section-body">
+<p>In RHEL systems, you use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nmsvc">NetworkManager service<span class="tooltip-content" role="tooltip" id="tt-nmsvc">A daemon that monitors and manages network settings. It provides network and VPN connection status in the GNOME system menu and exposes a D-Bus API.</span></span> to monitor and manage network settings. The NetworkManager service provides the network and VPN connection status shown in the system menu of the GNOME graphical environment.</p>
+<h3>Devices and Connections</h3>
+<p>NetworkManager manages two key concepts:</p>
+<ul><li>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-dev">device<span class="tooltip-content" role="tooltip" id="tt-dev">Any physical or virtual network interface that handles network traffic (e.g., ens3, wlan0). NetworkManager detects devices automatically.</span></span> is any physical or virtual network interface that handles network traffic.</li><li>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-conn">connection<span class="tooltip-content" role="tooltip" id="tt-conn">Also known as a network profile. Contains configuration settings (IP address, gateway, DNS) for a single network device. Stored as .nmconnection files.</span></span> (also called a <em>network profile</em>) has related configuration settings for a single network device. Each connection must have a unique name or ID.</li></ul>
+<p>Connection configuration files are stored in the <code class="inline">/etc/NetworkManager/system-connections/</code> directory.</p>
+<h3>Architecture Overview</h3>
+<div class="nm-diagram" role="img" aria-label="nmcli communicates with NetworkManager daemon"><div class="nm-box service">&#9881;&#65039; nmcli<br><small>Command-line tool</small></div><div class="nm-arrow" aria-hidden="true">&#8594;</div><div class="nm-box service">&#128268; NetworkManager<br><small>D-Bus Daemon</small></div></div>
+<div class="nm-diagram" role="img" aria-label="NetworkManager manages devices and connection profiles"><div class="nm-box device">&#128424; Devices<br><small>ens3, ens4, wlan0</small></div><div class="nm-arrow" aria-hidden="true">&#8596;</div><div class="nm-box connection">&#128196; Connection Profiles<br><small>.nmconnection files</small></div></div>
+<div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Multiple Connections Per Device</span></div><p>A single device can have multiple connection profiles, but only one connection can be active per device at a time. This is useful for switching between different network configurations (e.g., office and home).</p></div>
+</div></section>
+
+<!-- Section 3: nmcli -->
+<section id="section-nmcli" class="content-section" aria-labelledby="nmcli-h"><div class="section-header"><span class="section-number" aria-hidden="true">3</span><h2 id="nmcli-h">Configuring Networking with nmcli</h2></div><div class="section-body">
+<p>Use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nmcli">nmcli<span class="tooltip-content" role="tooltip" id="tt-nmcli">NetworkManager Command Line Interface. A utility to create, display, edit, delete, activate, and deactivate network connections and to control device status. Accepts abbreviated options.</span></span> utility to create and edit connection files from the command line. The <code class="inline">nmcli</code> command accepts abbreviations: <code class="inline">nmcli device disconnect</code> can be <code class="inline">nmcli dev dis</code>, and <code class="inline">nmcli connection modify</code> can be <code class="inline">nmcli con mod</code>.</p>
+<h3>Viewing Network Information</h3>
+<div class="tabs"><div class="tab-buttons" role="tablist" aria-label="nmcli viewing commands"><button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-devstatus" id="btn-devstatus" onclick="switchTab(this,'tab-devstatus')">Device Status</button><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-conshow" id="btn-conshow" onclick="switchTab(this,'tab-conshow')">Connection Show</button><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-condetail" id="btn-condetail" onclick="switchTab(this,'tab-condetail')">Connection Details</button><button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-devshow" id="btn-devshow" onclick="switchTab(this,'tab-devshow')">Device Show</button></div>
+<div class="tab-content active" id="tab-devstatus" role="tabpanel" aria-labelledby="btn-devstatus"><h4>nmcli device status</h4><p>Displays the status of all network devices:</p><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli dev status</span>
+<span class="code-output">DEVICE  TYPE      STATE                  CONNECTION</span>
+<span class="code-output">ens3    ethernet  connected              ethernet-ens3</span>
+<span class="code-output">lo      loopback  connected (externally) lo</span></div><p>The loopback interface is marked <em>external</em>, meaning NetworkManager does not manage that device.</p></div>
+<div class="tab-content" id="tab-conshow" role="tabpanel" aria-labelledby="btn-conshow"><h4>nmcli connection show</h4><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con show</span>
+<span class="code-output">NAME           UUID                                  TYPE      DEVICE</span>
+<span class="code-output">ethernet-ens3  fab1e257-61a6-3526-abf9-8c50c83a28c7  ethernet  ens3</span>
+<span class="code-output">lo             0ef452de-b94d-431f-86f8-f08e85fad57f  loopback  lo</span></div><p>Use <code class="inline">--active</code> to show only active connections.</p></div>
+<div class="tab-content" id="tab-condetail" role="tabpanel" aria-labelledby="btn-condetail"><h4>Connection Details</h4><p>Lowercase settings (e.g., <code class="inline">ipv4.method</code>) are configuration; uppercase (e.g., <code class="inline">IP4.ADDRESS</code>) are runtime values.</p><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con show ethernet-ens3</span>
+<span class="code-output">connection.id:              ethernet-ens3</span>
+<span class="code-output">connection.autoconnect:     yes</span>
+<span class="code-output">ipv4.method:                auto</span>
+<span class="code-output">IP4.ADDRESS[1]:             172.25.250.10/24</span>
+<span class="code-output">IP4.GATEWAY:                172.25.250.254</span>
+<span class="code-output">IP4.DNS[1]:                 172.25.250.254</span></div></div>
+<div class="tab-content" id="tab-devshow" role="tabpanel" aria-labelledby="btn-devshow"><h4>nmcli device show</h4><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli dev show ens3</span>
+<span class="code-output">GENERAL.DEVICE:     ens3</span>
+<span class="code-output">GENERAL.TYPE:       ethernet</span>
+<span class="code-output">GENERAL.HWADDR:     52:54:00:00:FA:0A</span>
+<span class="code-output">GENERAL.STATE:      100 (connected)</span>
+<span class="code-output">IP4.ADDRESS[1]:     172.25.250.10/24</span>
+<span class="code-output">IP4.GATEWAY:        172.25.250.254</span>
+<span class="code-output">IP6.ADDRESS[1]:     fe80::5054:ff:fe00:fa0a/64</span></div></div></div>
+<h3>Key nmcli Operations</h3>
+<table class="info-table" aria-label="nmcli command reference"><thead><tr><th>Task</th><th>Command</th></tr></thead><tbody><tr><td>Show device status</td><td><code class="inline">nmcli dev status</code></td></tr><tr><td>Show all connections</td><td><code class="inline">nmcli con show</code></td></tr><tr><td>Add a connection</td><td><code class="inline">nmcli con add con-name <em>name</em> type ethernet ifname <em>dev</em></code></td></tr><tr><td>Modify a connection</td><td><code class="inline">nmcli con mod <em>name</em> <em>setting value</em></code></td></tr><tr><td>Delete a connection</td><td><code class="inline">nmcli con del <em>name</em></code></td></tr><tr><td>Activate a connection</td><td><code class="inline">nmcli con up <em>name</em></code></td></tr><tr><td>Disconnect a device</td><td><code class="inline">nmcli dev dis <em>device</em></code></td></tr><tr><td>Reload config files</td><td><code class="inline">nmcli con reload</code></td></tr></tbody></table>
+<div class="note-box warning"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Important: Disconnect vs. Down</span></div><p>Use <code class="inline">nmcli device disconnect</code> to stop traffic on a network interface and deactivate the connection. <code class="inline">nmcli con down</code> deactivates a connection, but if autoconnect is enabled the device may immediately reactivate another connection.</p></div>
+</div></section>
+
+<!-- Section 4: Adding Connections -->
+<section id="section-connections" class="content-section" aria-labelledby="conn-h"><div class="section-header"><span class="section-number" aria-hidden="true">4</span><h2 id="conn-h">Adding and Modifying Connections</h2></div><div class="section-body">
+<h3>Adding a New Connection</h3>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>DHCP Connection (Dynamic IP)</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con add con-name ens4-dhcp type ethernet ifname ens4</span>
+<span class="code-output">Connection 'ens4-dhcp' (1234abcd-...) successfully added.</span></div><p>By default, new connections use <code class="inline">ipv4.method auto</code> (DHCP).</p></div></div>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Static IPv4 Connection</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con add con-name ens4-static type ethernet ifname ens4 \
+  ipv4.addresses 192.168.1.100/24 \
+  ipv4.gateway 192.168.1.1 \
+  ipv4.dns 8.8.8.8 \
+  ipv4.method manual</span>
+<span class="code-output">Connection 'ens4-static' successfully added.</span></div><p>For static configuration, you must set <code class="inline">ipv4.method manual</code>.</p></div></div>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Static IPv6 Connection</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con add con-name ens4-ipv6 type ethernet ifname ens4 \
+  ipv6.addresses 2001:db8:0:1::100/64 \
+  ipv6.gateway 2001:db8:0:1::1 \
+  ipv6.method manual</span></div></div></div>
+<h3>Modifying a Connection</h3>
+<p>Use <code class="inline">nmcli connection modify</code> to change properties. Changes are saved but <strong>not applied</strong> until reactivated.</p>
+<div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con mod ethernet-ens3 ipv4.addresses 172.25.250.20/24</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con mod ethernet-ens3 ipv4.gateway 172.25.250.254</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con mod ethernet-ens3 ipv4.dns 172.25.250.254</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con mod ethernet-ens3 ipv4.method manual</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con up ethernet-ens3</span>
+<span class="code-output">Connection successfully activated...</span></div>
+<h3>Common Settings</h3>
+<table class="info-table" aria-label="Connection settings"><thead><tr><th>Setting</th><th>Description</th><th>Example</th></tr></thead><tbody><tr><td><code class="inline">ipv4.method</code></td><td>IPv4 config method</td><td><code class="inline">auto</code> or <code class="inline">manual</code></td></tr><tr><td><code class="inline">ipv4.addresses</code></td><td>Static IPv4 address</td><td><code class="inline">192.168.1.100/24</code></td></tr><tr><td><code class="inline">ipv4.gateway</code></td><td>Default gateway</td><td><code class="inline">192.168.1.1</code></td></tr><tr><td><code class="inline">ipv4.dns</code></td><td>DNS server(s)</td><td><code class="inline">8.8.8.8</code></td></tr><tr><td><code class="inline">connection.autoconnect</code></td><td>Auto-activate at boot</td><td><code class="inline">yes</code> or <code class="inline">no</code></td></tr></tbody></table>
+<div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Appending Values with +/-</span></div><p>Use <code class="inline">+ipv4.dns</code> to add a DNS server without replacing existing ones: <code class="inline">nmcli con mod eth0 +ipv4.dns 8.8.4.4</code></p></div>
+</div></section>
+<!-- Section 5: Guided Exercise 1 - Simulator -->
+<section id="section-guided1" class="content-section" aria-labelledby="g1-h"><div class="section-header"><span class="section-number" aria-hidden="true">5</span><h2 id="g1-h">Guided Exercise: Configure Networking from the Command Line</h2></div><div class="section-body">
+<p>Use the interactive simulator below to practice <code class="inline">nmcli</code> commands. Click the buttons or type commands in the input field.</p>
+<div class="simulator"><div class="simulator-title">&#128187; nmcli Command Simulator</div>
+<div class="simulator-controls"><button class="sim-btn active-btn" onclick="runSim('devstatus')" type="button">dev status</button><button class="sim-btn" onclick="runSim('conshow')" type="button">con show</button><button class="sim-btn" onclick="runSim('conadd')" type="button">con add</button><button class="sim-btn" onclick="runSim('conmod')" type="button">con mod</button><button class="sim-btn" onclick="runSim('conup')" type="button">con up</button><button class="sim-btn" onclick="runSim('verify')" type="button">verify</button><button class="sim-btn" onclick="runSim('devdis')" type="button">dev disconnect</button><button class="sim-btn" onclick="runSim('condel')" type="button">con delete</button></div>
+<div class="sim-input-row"><label for="sim-cmd" class="sr-only">Enter nmcli command</label><input type="text" id="sim-cmd" class="sim-input" placeholder="Type: nmcli con show, nmcli dev status, hostnamectl, etc." aria-label="Command input"><button class="sim-run-btn" onclick="processSim()" type="button">Run</button></div>
+<div class="sim-output" id="sim-output" role="log" aria-live="polite" aria-label="Command output"></div></div>
+<div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Exercise Steps</span></div><p>1. View device status and current connections<br>2. Add a new static connection <code class="inline">custom-profile</code> for <code class="inline">ens3</code><br>3. Modify with IP, gateway, and DNS<br>4. Activate with <code class="inline">con up</code><br>5. Verify settings applied correctly<br>6. Clean up by disconnecting and deleting</p></div>
+</div></section>
+
+<!-- Section 6: Config Files -->
+<section id="section-configfiles" class="content-section" aria-labelledby="cf-h"><div class="section-header"><span class="section-number" aria-hidden="true">6</span><h2 id="cf-h">Editing Network Configuration Files</h2></div><div class="section-body">
+<p>Connection profiles use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-keyfile">keyfile syntax<span class="tooltip-content" role="tooltip" id="tt-keyfile">An INI-style configuration format used by NetworkManager. Uses sections in brackets (e.g., [connection], [ipv4]) with key=value pairs. Replaces the deprecated ifcfg format in RHEL 10.</span></span> stored in <code class="inline">/etc/NetworkManager/system-connections/</code> with the <code class="inline">.nmconnection</code> extension.</p>
+<h3>Example Configuration File</h3>
+<div class="config-file"><div class="config-file-header">&#128196; /etc/NetworkManager/system-connections/ethernet-ens3.nmconnection</div><div class="config-file-body"><span class="config-section">[connection]</span>
+<span class="config-key">id=</span><span class="config-value">ethernet-ens3</span>
+<span class="config-key">type=</span><span class="config-value">ethernet</span>
+<span class="config-key">autoconnect=</span><span class="config-value">true</span>
+<span class="config-key">interface-name=</span><span class="config-value">ens3</span>
+
+<span class="config-section">[ipv4]</span>
+<span class="config-key">method=</span><span class="config-value">manual</span>
+<span class="config-key">addresses=</span><span class="config-value">172.25.250.10/24</span>
+<span class="config-key">gateway=</span><span class="config-value">172.25.250.254</span>
+<span class="config-key">dns=</span><span class="config-value">172.25.250.254;</span>
+
+<span class="config-section">[ipv6]</span>
+<span class="config-key">method=</span><span class="config-value">auto</span></div></div>
+<h3>Applying Manual Edits</h3>
+<p>After editing files manually, run <code class="inline">nmcli con reload</code> then <code class="inline">nmcli con up</code>.</p>
+<div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">vim /etc/NetworkManager/system-connections/ethernet-ens3.nmconnection</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con reload</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli con up ethernet-ens3</span>
+<span class="code-output">Connection successfully activated...</span></div>
+<div class="note-box danger"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>File Permissions Matter</span></div><p>Files must have <code class="inline">0600</code> permissions (root-only readable). NetworkManager refuses to read files with incorrect permissions.</p></div>
+</div></section>
+
+<!-- Section 7: Guided Exercise 2 -->
+<section id="section-guided2" class="content-section" aria-labelledby="g2-h"><div class="section-header"><span class="section-number" aria-hidden="true">7</span><h2 id="g2-h">Guided Exercise: Edit Network Configuration Files</h2></div><div class="section-body">
+<h3>Step 1: Create Connection</h3>
+<div class="code-block"><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con add con-name custom-profile type ethernet ifname ens3 \
+  ipv4.addresses 172.25.250.20/24 ipv4.gateway 172.25.250.254 \
+  ipv4.dns 172.25.250.254 ipv4.method manual</span>
+<span class="code-output">Connection 'custom-profile' successfully added.</span></div>
+<h3>Step 2: Examine the File</h3>
+<div class="code-block"><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">cat /etc/NetworkManager/system-connections/custom-profile.nmconnection</span>
+<span class="code-output">[connection]
+id=custom-profile
+type=ethernet
+interface-name=ens3
+
+[ipv4]
+method=manual
+addresses=172.25.250.20/24
+gateway=172.25.250.254
+dns=172.25.250.254;</span></div>
+<h3>Step 3: Edit to Add Second DNS</h3>
+<p>Change the dns line to: <code class="inline">dns=172.25.250.254;8.8.8.8;</code></p>
+<h3>Step 4: Reload and Activate</h3>
+<div class="code-block"><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con reload</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con up custom-profile</span></div>
+<h3>Step 5: Verify</h3>
+<div class="code-block"><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli -f ipv4.dns con show custom-profile</span>
+<span class="code-output">ipv4.dns:  172.25.250.254,8.8.8.8</span></div>
+</div></section>
+
+<!-- Section 8: Hostnames -->
+<section id="section-hostnames" class="content-section" aria-labelledby="host-h"><div class="section-header"><span class="section-number" aria-hidden="true">8</span><h2 id="host-h">Configuring Hostnames</h2></div><div class="section-body">
+<p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fqdn">fully qualified domain name (FQDN)<span class="tooltip-content" role="tooltip" id="tt-fqdn">A complete domain name specifying the exact location of a host in DNS (e.g., host.example.com). Consists of short hostname plus domain name.</span></span> is the full name of a host including its domain. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-hctl">hostnamectl<span class="tooltip-content" role="tooltip" id="tt-hctl">A systemd utility that persistently manages the system hostname. It modifies /etc/hostname and updates the running hostname simultaneously.</span></span> command is the recommended way to persistently set the hostname.</p>
+<div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">hostnamectl</span>
+<span class="code-output"> Static hostname: host.lab.example.com
+       Icon name: computer-vm
+         Chassis: vm
+   Operating System: Red Hat Enterprise Linux 10.0 (Coughlan)
+          Kernel: Linux 6.12.0-55.el10.x86_64</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">hostnamectl hostname servera.lab.example.com</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">hostname</span>
+<span class="code-output">servera.lab.example.com</span></div>
+<div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128218;</span><span>Hostname Types</span></div><p><strong>Static</strong> (stored in <code class="inline">/etc/hostname</code>, persists across reboots), <strong>transient</strong> (dynamically assigned by DHCP), and <strong>pretty</strong> (free-form UTF-8 description for display).</p></div>
+<h3>Setting Hostname via nmcli</h3>
+<div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">nmcli general hostname servera.lab.example.com</span></div>
+</div></section>
+
+<!-- Section 9: Name Resolution -->
+<section id="section-dns" class="content-section" aria-labelledby="dns-h"><div class="section-header"><span class="section-number" aria-hidden="true">9</span><h2 id="dns-h">Configuring Name Resolution</h2></div><div class="section-body">
+<p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-stub">stub resolver<span class="tooltip-content" role="tooltip" id="tt-stub">A lightweight DNS client on the local machine that forwards queries to a recursive DNS name server. Resolution order is configured in /etc/nsswitch.conf.</span></span> receives DNS queries from applications and forwards them to a recursive name server. The order is configured in <code class="inline">/etc/nsswitch.conf</code>: <code class="inline">/etc/hosts</code> is checked first, then DNS.</p>
+<h3>Static: /etc/hosts</h3>
+<div class="config-file"><div class="config-file-header">&#128196; /etc/hosts</div><div class="config-file-body"><span class="config-value">127.0.0.1</span>   <span class="config-key">localhost localhost.localdomain</span>
+<span class="config-value">::1</span>         <span class="config-key">localhost localhost.localdomain</span>
+<span class="config-value">172.25.254.254</span>  <span class="config-key">classroom.example.com classroom</span></div></div>
+<h3>Dynamic: /etc/resolv.conf</h3>
+<ul><li><code class="inline">search</code> &#8212; Domain names to append for short hostnames</li><li><code class="inline">nameserver</code> &#8212; DNS server IP (up to three for redundancy)</li></ul>
+<div class="config-file"><div class="config-file-header">&#128196; /etc/resolv.conf</div><div class="config-file-body"><span class="config-comment"># Generated by NetworkManager</span>
+<span class="config-key">search</span> <span class="config-value">example.com</span>
+<span class="config-key">nameserver</span> <span class="config-value">172.25.250.100</span></div></div>
+<div class="note-box warning"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Do Not Edit resolv.conf Directly</span></div><p>NetworkManager regenerates this file. Set DNS with <code class="inline">nmcli con mod</code> instead.</p></div>
+<h3>Testing DNS</h3>
+<div class="code-block"><span class="code-prompt">[root@host ~]#</span> <span class="code-command">host servera.lab.example.com</span>
+<span class="code-output">servera.lab.example.com has address 172.25.250.10</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">getent hosts classroom.example.com</span>
+<span class="code-output">172.25.254.254  classroom.example.com</span></div>
+</div></section>
+
+<!-- Section 10: Guided Exercise 3 -->
+<section id="section-guided3" class="content-section" aria-labelledby="g3-h"><div class="section-header"><span class="section-number" aria-hidden="true">10</span><h2 id="g3-h">Guided Exercise: Configure Hostnames and Name Resolution</h2></div><div class="section-body">
+<div class="code-block"><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">hostnamectl hostname serverb.lab.example.com</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con mod custom-profile ipv4.dns 172.25.250.254</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con mod custom-profile +ipv4.dns 8.8.8.8</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">nmcli con up custom-profile</span>
+<span class="code-output">Connection successfully activated...</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">cat /etc/resolv.conf</span>
+<span class="code-output">search lab.example.com
+nameserver 172.25.250.254
+nameserver 8.8.8.8</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">host classroom.example.com</span>
+<span class="code-output">classroom.example.com has address 172.25.254.254</span></div>
+<div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Exercise Complete</span></div><p>You configured the hostname, set DNS servers with <code class="inline">nmcli</code>, and verified name resolution.</p></div>
+</div></section>
+
+<!-- Section 11: Quiz -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-h"><div class="section-header"><span class="section-number" aria-hidden="true">11</span><h2 id="quiz-h">Knowledge Check</h2></div><div class="section-body"><div class="quiz-container">
+<div class="quiz-question"><h4>1. Where are NetworkManager connection profiles stored in RHEL 10?</h4><div class="quiz-options" role="radiogroup" aria-label="Question 1"><label><input type="radio" name="q1" value="a"><span>/etc/sysconfig/network-scripts/</span></label><label><input type="radio" name="q1" value="b"><span>/etc/NetworkManager/system-connections/</span></label><label><input type="radio" name="q1" value="c"><span>/etc/network/interfaces/</span></label><label><input type="radio" name="q1" value="d"><span>/var/lib/NetworkManager/</span></label></div><div class="quiz-feedback" id="fb1"></div></div>
+<div class="quiz-question"><h4>2. After manually editing a .nmconnection file, what must you do?</h4><div class="quiz-options" role="radiogroup" aria-label="Question 2"><label><input type="radio" name="q2" value="a"><span>systemctl restart NetworkManager</span></label><label><input type="radio" name="q2" value="b"><span>nmcli con up only</span></label><label><input type="radio" name="q2" value="c"><span>nmcli con reload, then nmcli con up</span></label><label><input type="radio" name="q2" value="d"><span>reboot the system</span></label></div><div class="quiz-feedback" id="fb2"></div></div>
+<div class="quiz-question"><h4>3. Which command persistently sets the system hostname?</h4><div class="quiz-options" role="radiogroup" aria-label="Question 3"><label><input type="radio" name="q3" value="a"><span>hostnamectl hostname server.example.com</span></label><label><input type="radio" name="q3" value="b"><span>hostname server.example.com</span></label><label><input type="radio" name="q3" value="c"><span>echo server &gt; /etc/resolv.conf</span></label><label><input type="radio" name="q3" value="d"><span>sysctl hostname=server</span></label></div><div class="quiz-feedback" id="fb3"></div></div>
+<div class="quiz-question"><h4>4. How do you reliably stop a device from auto-reactivating?</h4><div class="quiz-options" role="radiogroup" aria-label="Question 4"><label><input type="radio" name="q4" value="a"><span>nmcli con down</span></label><label><input type="radio" name="q4" value="b"><span>ip link set down</span></label><label><input type="radio" name="q4" value="c"><span>nmcli con delete</span></label><label><input type="radio" name="q4" value="d"><span>nmcli dev disconnect</span></label></div><div class="quiz-feedback" id="fb4"></div></div>
+<div class="quiz-question"><h4>5. What file format do RHEL 10 connection profiles use?</h4><div class="quiz-options" role="radiogroup" aria-label="Question 5"><label><input type="radio" name="q5" value="a"><span>ifcfg format</span></label><label><input type="radio" name="q5" value="b"><span>keyfile format (.nmconnection)</span></label><label><input type="radio" name="q5" value="c"><span>YAML (.yaml)</span></label><label><input type="radio" name="q5" value="d"><span>JSON (.json)</span></label></div><div class="quiz-feedback" id="fb5"></div></div>
+<button class="quiz-submit" onclick="gradeQuiz()" type="button">Check Answers</button><div class="quiz-score" id="quiz-score"></div>
+</div></div></section>
+
+<!-- Section 12: Lab -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-h"><div class="section-header"><span class="section-number" aria-hidden="true">12</span><h2 id="lab-h">Hands-On Lab: Manage Network Configuration</h2></div><div class="section-body">
+<div class="note-box"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128187;</span><span>Lab Setup</span></div><p>Log in to <code class="inline">serverb</code> as <code class="inline">student</code>. Use <code class="inline">sudo</code> for privileged operations.</p></div>
+<h3>Task 1: Set the Hostname</h3><p>Set hostname to <code class="inline">serverb.lab.example.com</code>.</p>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Show Solution</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo hostnamectl hostname serverb.lab.example.com</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">hostnamectl</span>
+<span class="code-output"> Static hostname: serverb.lab.example.com</span></div></div></div>
+<h3>Task 2: Create Static Connection</h3><p>Create <code class="inline">lab-net</code> on <code class="inline">ens3</code>: IP <code class="inline">172.25.250.20/24</code>, gateway <code class="inline">172.25.250.254</code>, DNS <code class="inline">172.25.250.254</code>.</p>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Show Solution</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo nmcli con add con-name lab-net type ethernet ifname ens3 \
+  ipv4.addresses 172.25.250.20/24 ipv4.gateway 172.25.250.254 \
+  ipv4.dns 172.25.250.254 ipv4.method manual</span></div></div></div>
+<h3>Task 3: Activate and Verify</h3>
+<div class="expandable"><button class="expandable-toggle" aria-expanded="false" onclick="toggleExpand(this)"><span>Show Solution</span><span class="toggle-icon" aria-hidden="true">&#9660;</span></button><div class="expandable-content"><div class="code-block"><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo nmcli con mod lab-net connection.autoconnect yes</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo nmcli con up lab-net</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ip addr show ens3</span>
+<span class="code-output">    inet 172.25.250.20/24 brd 172.25.250.255 scope global ens3</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ip route</span>
+<span class="code-output">default via 172.25.250.254 dev ens3</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">cat /etc/resolv.conf</span>
+<span class="code-output">nameserver 172.25.250.254</span></div></div></div>
+<div class="note-box tip"><div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9989;</span><span>Lab Complete</span></div><p>You configured hostname, static IP, gateway, DNS, and autoconnect settings.</p></div>
+</div></section>
+
+<!-- Section 13: Summary -->
+<section id="section-summary" class="content-section" aria-labelledby="sum-h"><div class="section-header"><span class="section-number" aria-hidden="true">13</span><h2 id="sum-h">Chapter Summary</h2></div><div class="section-body">
+<div class="summary-box"><h3>Key Takeaways</h3><ul class="summary-list">
+<li><strong>NetworkManager</strong> manages network <em>devices</em> and <em>connections</em>. Files stored in <code class="inline">/etc/NetworkManager/system-connections/</code>.</li>
+<li><strong>nmcli</strong> is the CLI tool. <code class="inline">nmcli dev status</code> for devices, <code class="inline">nmcli con show</code> for connections. Abbreviations accepted.</li>
+<li><strong>Creating connections:</strong> <code class="inline">nmcli con add</code> with <code class="inline">ipv4.method manual</code> for static, <code class="inline">auto</code> for DHCP.</li>
+<li><strong>Modifying:</strong> <code class="inline">nmcli con mod</code> saves changes; <code class="inline">nmcli con up</code> applies them. Use <code class="inline">+/-</code> prefixes.</li>
+<li><strong>Config files</strong> use keyfile format (<code class="inline">.nmconnection</code>). After manual edits: <code class="inline">nmcli con reload</code> then <code class="inline">nmcli con up</code>.</li>
+<li><strong>nmcli device disconnect</strong> reliably deactivates; <code class="inline">con down</code> may allow auto-reactivation.</li>
+<li><strong>hostnamectl</strong> persistently sets the hostname via <code class="inline">/etc/hostname</code>.</li>
+<li><strong>Name resolution:</strong> <code class="inline">/etc/nsswitch.conf</code> controls order; <code class="inline">/etc/hosts</code> first, then DNS. Never edit <code class="inline">resolv.conf</code> directly.</li>
+</ul></div>
+<div class="key-points"><h4>What Comes Next?</h4><p>In Chapter 19, you will learn how to configure and secure SSH, including key-based authentication and securing remote access.</p></div>
+<div class="completion-section"><h2>&#127881; Chapter 18 Complete!</h2><p>You have learned how to manage network configuration in Red Hat Enterprise Linux.</p><button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button></div>
+</div></section>
+
+</main>
+<footer class="main-footer" role="contentinfo"><p>RH124: Red Hat System Administration I &#8226; Chapter 18 &#8226; Version 10.0</p><p style="margin-top:10px;font-size:0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p></footer>
+
+<script>
+function positionTooltips(){document.querySelectorAll('.tooltip-term').forEach(function(t){var tip=t.querySelector('.tooltip-content');if(!tip)return;tip.classList.remove('tooltip-flipped');tip.style.left='50%';tip.style.transform='translateX(-50%)';var r=tip.getBoundingClientRect();var tr=t.getBoundingClientRect();if(tr.top<160)tip.classList.add('tooltip-flipped');if(r.left<8){tip.style.left='calc(50% + '+(8-r.left)+'px)'}else if(r.right>window.innerWidth-8){tip.style.left='calc(50% - '+(r.right-window.innerWidth+8)+'px)'}})}
+document.addEventListener('DOMContentLoaded',positionTooltips);window.addEventListener('resize',positionTooltips);window.addEventListener('scroll',positionTooltips);
+function toggleExpand(btn){var ex=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!ex);btn.nextElementSibling.classList.toggle('show')}
+function switchTab(btn,tid){var tabs=btn.closest('.tabs');tabs.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');b.setAttribute('aria-selected','false')});tabs.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});btn.classList.add('active');btn.setAttribute('aria-selected','true');document.getElementById(tid).classList.add('active')}
+function updateProgress(){var secs=document.querySelectorAll('.content-section');var sp=window.scrollY+window.innerHeight*0.5;var v=0;secs.forEach(function(s){if(s.getBoundingClientRect().top+window.scrollY<sp)v++});var p=Math.min(100,Math.round(v/secs.length*100));document.getElementById('progress-fill').style.width=p+'%';document.getElementById('progress-fill').setAttribute('aria-valuenow',p);document.getElementById('progress-text').textContent=p+'% Complete';var nb=document.querySelectorAll('.nav-btn');nb.forEach(function(n,i){n.classList.remove('active','visited');if(i<v&&i<secs.length)n.classList.add('visited')});var ci=Math.max(0,v-1);if(nb[ci]){nb[ci].classList.add('active');nb[ci].classList.remove('visited')}}
+window.addEventListener('scroll',updateProgress);document.addEventListener('DOMContentLoaded',updateProgress);
+
+var simData={};
+simData.devstatus='[root@serverb ~]# nmcli dev status\nDEVICE  TYPE      STATE                  CONNECTION\nens3    ethernet  connected              System-ens3\nens4    ethernet  disconnected           --\nlo      loopback  connected (externally) lo';
+simData.conshow='[root@serverb ~]# nmcli con show\nNAME        UUID                                  TYPE      DEVICE\nSystem-ens3 fab1e257-61a6-3526-abf9-8c50c83a28c7  ethernet  ens3\nlo          0ef452de-b94d-431f-86f8-f08e85fad57f  loopback  lo';
+simData.conadd="[root@serverb ~]# nmcli con add con-name custom-profile \\\n  type ethernet ifname ens3 \\\n  ipv4.addresses 172.25.250.20/24 \\\n  ipv4.gateway 172.25.250.254 \\\n  ipv4.dns 172.25.250.254 \\\n  ipv4.method manual\nConnection 'custom-profile' (7aff9d3d-aeb9-4ac9-ba51-cac24f660687) successfully added.";
+simData.conmod='[root@serverb ~]# nmcli con mod custom-profile +ipv4.dns 8.8.8.8\n[root@serverb ~]# nmcli con mod custom-profile connection.autoconnect yes\n\n(Settings saved to /etc/NetworkManager/system-connections/custom-profile.nmconnection)';
+simData.conup='[root@serverb ~]# nmcli con up custom-profile\nConnection successfully activated (D-Bus active path: /org/freedesktop/NetworkManager/ActiveConnection/3)';
+simData.verify='[root@serverb ~]# nmcli -f ipv4 con show custom-profile\nipv4.method:       manual\nipv4.dns:          172.25.250.254,8.8.8.8\nipv4.addresses:    172.25.250.20/24\nipv4.gateway:      172.25.250.254\nIP4.ADDRESS[1]:    172.25.250.20/24\nIP4.GATEWAY:       172.25.250.254\nIP4.DNS[1]:        172.25.250.254\nIP4.DNS[2]:        8.8.8.8';
+simData.devdis="[root@serverb ~]# nmcli dev dis ens3\nDevice 'ens3' successfully disconnected.";
+simData.condel="[root@serverb ~]# nmcli con del custom-profile\nConnection 'custom-profile' (7aff9d3d-...) successfully deleted.";
+
+function runSim(cmd){document.querySelectorAll('.sim-btn').forEach(function(b){b.classList.remove('active-btn')});if(event&&event.target)event.target.classList.add('active-btn');document.getElementById('sim-output').textContent=simData[cmd]||'Unknown command.'}
+
+function processSim(){var i=document.getElementById('sim-cmd').value.trim().toLowerCase();var o='Command not recognized. Try: nmcli dev status, nmcli con show, hostnamectl, host <name>';
+if(i.match(/dev.*stat/))o=simData.devstatus;
+else if(i.match(/con.*show/)&&!i.match(/custom|ens/))o=simData.conshow;
+else if(i.match(/con.*show.*(custom|ens)/))o=simData.verify;
+else if(i.match(/con.*add/))o=simData.conadd;
+else if(i.match(/con.*mod/))o=simData.conmod;
+else if(i.match(/con.*up/))o=simData.conup;
+else if(i.match(/con.*down/))o="[root@serverb ~]# nmcli con down custom-profile\nConnection deactivated.\nNote: autoconnect may reactivate another connection.";
+else if(i.match(/dev.*dis/))o=simData.devdis;
+else if(i.match(/con.*del/))o=simData.condel;
+else if(i.match(/con.*reload/))o='[root@serverb ~]# nmcli con reload\n(Configuration files reloaded)';
+else if(i.match(/hostnamectl/))o='[root@serverb ~]# hostnamectl\n Static hostname: serverb.lab.example.com\n       Icon name: computer-vm\n         Chassis: vm\n   Operating System: Red Hat Enterprise Linux 10.0 (Coughlan)\n          Kernel: Linux 6.12.0-55.el10.x86_64';
+else if(i.match(/^hostname/))o='serverb.lab.example.com';
+else if(i.match(/host\s/))o='[root@serverb ~]# host servera.lab.example.com\nservera.lab.example.com has address 172.25.250.10';
+else if(i.match(/ip\s+a/))o='[root@serverb ~]# ip addr show ens3\n2: ens3: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500\n    inet 172.25.250.20/24 brd 172.25.250.255 scope global ens3\n    inet6 fe80::5054:ff:fe00:fa0a/64 scope link';
+else if(i.match(/ip\s+r/))o='[root@serverb ~]# ip route\ndefault via 172.25.250.254 dev ens3 proto static metric 100\n172.25.250.0/24 dev ens3 proto kernel scope link src 172.25.250.20';
+else if(i.match(/cat.*resolv/))o='[root@serverb ~]# cat /etc/resolv.conf\nsearch lab.example.com\nnameserver 172.25.250.254\nnameserver 8.8.8.8';
+else if(i.match(/getent/))o='[root@serverb ~]# getent hosts classroom.example.com\n172.25.254.254  classroom.example.com';
+document.getElementById('sim-output').textContent=o;document.getElementById('sim-cmd').value=''}
+document.getElementById('sim-cmd').addEventListener('keydown',function(e){if(e.key==='Enter')processSim()});
+document.getElementById('sim-output').textContent=simData.devstatus;
+
+function gradeQuiz(){var ans={q1:'b',q2:'c',q3:'a',q4:'d',q5:'b'};var exp={q1:{c:'Correct! RHEL 10 stores profiles in /etc/NetworkManager/system-connections/ using keyfile format.',i:'Incorrect. RHEL 10 uses /etc/NetworkManager/system-connections/.'},q2:{c:'Correct! You must reload with nmcli con reload, then activate with nmcli con up.',i:'Incorrect. Both steps needed: nmcli con reload then nmcli con up.'},q3:{c:'Correct! hostnamectl hostname persistently modifies /etc/hostname.',i:'Incorrect. The hostname command is temporary. Use hostnamectl.'},q4:{c:'Correct! nmcli dev disconnect reliably stops the device.',i:'Incorrect. nmcli con down may allow auto-reactivation. Use nmcli dev disconnect.'},q5:{c:'Correct! RHEL 10 uses keyfile format (.nmconnection).',i:'Incorrect. RHEL 10 uses keyfile format (.nmconnection files).'}};var s=0,t=5;for(var q in ans){var sel=document.querySelector('input[name="'+q+'"]:checked');var fb=document.getElementById('fb'+q.charAt(1));fb.className='quiz-feedback';if(sel){if(sel.value===ans[q]){s++;fb.textContent=exp[q].c;fb.classList.add('correct')}else{fb.textContent=exp[q].i;fb.classList.add('incorrect')}}else{fb.textContent='Please select an answer.';fb.classList.add('incorrect')}}var sc=document.getElementById('quiz-score');sc.textContent='Score: '+s+' / '+t+' ('+Math.round(s/t*100)+'%)';sc.style.color=s>=4?'var(--rh-green-dark)':s>=3?'var(--rh-gold)':'var(--rh-red)'}
+
+document.getElementById('mark-complete').addEventListener('click',function(){this.textContent='\u2713 Chapter Completed!';this.classList.add('completed');try{localStorage.setItem('rh124-ch18-complete','true')}catch(e){}});
+try{if(localStorage.getItem('rh124-ch18-complete')==='true'){var b=document.getElementById('mark-complete');b.textContent='\u2713 Chapter Completed!';b.classList.add('completed')}}catch(e){}
+</script>
+</body>
+</html>
