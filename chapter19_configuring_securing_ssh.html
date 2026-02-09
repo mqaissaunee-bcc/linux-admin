@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chapter 19: Configuring and Securing SSH | RH124</title>
+<style>
+:root{--rh-red:#CC0000;--rh-red-dark:#990000;--rh-red-light:#FF3333;--rh-black:#1A1A1A;--rh-gray-dark:#333333;--rh-gray:#666666;--rh-gray-light:#CCCCCC;--rh-gray-lighter:#F0F0F0;--rh-white:#FFFFFF;--rh-blue:#0066CC;--rh-blue-dark:#004C99;--rh-teal:#009999;--rh-gold:#CC9900;--rh-green:#339933;--rh-green-dark:#267326;--rh-purple:#663399;--rh-orange:#FF6600;--font-display:'Segoe UI','Helvetica Neue',Arial,sans-serif;--font-body:Georgia,'Times New Roman',serif;--font-mono:'Consolas','Courier New',monospace;--shadow-sm:0 2px 4px rgba(0,0,0,0.1);--shadow-md:0 4px 12px rgba(0,0,0,0.15);--shadow-lg:0 8px 24px rgba(0,0,0,0.2);--radius-sm:4px;--radius-md:8px;--radius-lg:16px;--transition-fast:0.2s ease;--transition-med:0.3s ease}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth;font-size:16px}body{font-family:var(--font-body);background:linear-gradient(135deg,var(--rh-gray-lighter) 0%,var(--rh-white) 50%,var(--rh-gray-lighter) 100%);color:var(--rh-black);line-height:1.7;min-height:100vh}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}*:focus{outline:3px solid var(--rh-blue);outline-offset:2px}*:focus:not(:focus-visible){outline:none}*:focus-visible{outline:3px solid var(--rh-blue);outline-offset:2px}
+.skip-link{position:absolute;top:-100px;left:50%;transform:translateX(-50%);background:var(--rh-red);color:var(--rh-white);padding:12px 24px;text-decoration:none;font-family:var(--font-display);font-weight:600;border-radius:var(--radius-md);z-index:10000;transition:top var(--transition-fast)}.skip-link:focus{top:10px}
+@media(prefers-contrast:high){:root{--rh-gray-light:#888888}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+.main-header{background:linear-gradient(135deg,var(--rh-red-dark) 0%,var(--rh-red) 50%,var(--rh-red-dark) 100%);color:var(--rh-white);padding:40px 24px 30px;text-align:center;position:relative;overflow:hidden}.main-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(45deg,transparent,transparent 35px,rgba(255,255,255,0.03) 35px,rgba(255,255,255,0.03) 70px)}.header-content{position:relative;z-index:1;max-width:900px;margin:0 auto}.course-tag{display:inline-block;background:rgba(255,255,255,0.2);padding:6px 18px;border-radius:20px;font-family:var(--font-display);font-size:0.85rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}.chapter-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;margin-bottom:8px}.chapter-subtitle{font-family:var(--font-display);font-size:clamp(1rem,2vw,1.3rem);font-weight:300;opacity:0.9}
+.progress-container{background:var(--rh-white);padding:12px 24px;box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:100;border-bottom:2px solid var(--rh-gray-lighter)}.progress-bar-track{background:var(--rh-gray-lighter);border-radius:10px;height:10px;max-width:900px;margin:0 auto;overflow:hidden}.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--rh-red),var(--rh-red-light));border-radius:10px;width:0%;transition:width 0.5s ease}.progress-text{text-align:center;font-family:var(--font-display);font-size:0.8rem;color:var(--rh-gray);margin-top:6px}
+.section-nav{background:var(--rh-white);padding:16px 24px;box-shadow:var(--shadow-sm);border-bottom:1px solid var(--rh-gray-lighter);overflow-x:auto}.nav-list{display:flex;gap:6px;max-width:900px;margin:0 auto;list-style:none;flex-wrap:wrap;justify-content:center}.nav-btn{display:inline-block;padding:8px 14px;font-family:var(--font-display);font-size:0.8rem;font-weight:500;color:var(--rh-gray);text-decoration:none;border-radius:var(--radius-sm);transition:all var(--transition-fast);border:1px solid transparent;white-space:nowrap}.nav-btn:hover{background:var(--rh-gray-lighter);color:var(--rh-black)}.nav-btn.active{background:var(--rh-red);color:var(--rh-white);border-color:var(--rh-red)}.nav-btn.visited{color:var(--rh-red-dark);border-color:var(--rh-gray-light)}
+main{max-width:900px;margin:0 auto;padding:24px}.content-section{background:var(--rh-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);margin-bottom:30px;overflow:hidden}.section-header{background:linear-gradient(135deg,var(--rh-gray-dark),var(--rh-black));color:var(--rh-white);padding:20px 30px;display:flex;align-items:center;gap:16px}.section-number{background:var(--rh-red);color:var(--rh-white);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:1.1rem;flex-shrink:0}.section-header h2{font-family:var(--font-display);font-size:1.3rem;font-weight:600}.section-body{padding:30px}.section-body p{margin-bottom:16px}.section-body h3{font-family:var(--font-display);font-size:1.15rem;color:var(--rh-red-dark);margin:24px 0 12px}.section-body h4{font-family:var(--font-display);font-size:1rem;color:var(--rh-gray-dark);margin:20px 0 10px}.section-body ul,.section-body ol{margin:12px 0 16px 24px}.section-body li{margin-bottom:8px}
+.code-block{background:var(--rh-gray-dark);color:#E0E0E0;padding:20px;border-radius:var(--radius-md);font-family:var(--font-mono);font-size:0.88rem;line-height:1.6;overflow-x:auto;margin:16px 0;border-left:4px solid var(--rh-red);white-space:pre}.code-prompt{color:#66BB6A}.code-command{color:#FFFFFF;font-weight:bold}.code-output{color:#AAAAAA}.code-comment{color:#888888;font-style:italic}code.inline{background:var(--rh-gray-lighter);color:var(--rh-red-dark);padding:2px 8px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.9em}
+.tooltip-term{color:var(--rh-blue);text-decoration:underline dotted var(--rh-blue);text-underline-offset:3px;cursor:help;position:relative;font-weight:600}.tooltip-content{visibility:hidden;opacity:0;position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);background:var(--rh-gray-dark);color:var(--rh-white);padding:12px 16px;border-radius:var(--radius-md);font-size:0.85rem;font-weight:400;line-height:1.5;width:max-content;max-width:320px;box-shadow:var(--shadow-lg);z-index:1000;font-family:var(--font-display);text-decoration:none;pointer-events:none;transition:opacity 0.15s ease}.tooltip-content::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:8px solid transparent;border-top-color:var(--rh-gray-dark)}.tooltip-content.tooltip-flipped{bottom:auto;top:calc(100% + 10px)}.tooltip-content.tooltip-flipped::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:var(--rh-gray-dark)}.tooltip-term:hover .tooltip-content,.tooltip-term:focus .tooltip-content{visibility:visible;opacity:1}
+.note-box{border-radius:var(--radius-md);padding:20px;margin:20px 0;border-left:4px solid var(--rh-blue);background:linear-gradient(135deg,#E8F4FD,#F0F8FF)}.note-box.warning{border-left-color:var(--rh-orange);background:linear-gradient(135deg,#FFF3E0,#FFF8F0)}.note-box.tip{border-left-color:var(--rh-green);background:linear-gradient(135deg,#E8F5E9,#F0FFF0)}.note-box.danger{border-left-color:var(--rh-red);background:linear-gradient(135deg,#FFEBEE,#FFF0F0)}.note-box-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-family:var(--font-display);font-weight:700;font-size:0.95rem}.note-icon{font-size:1.2rem}.note-box p{margin-bottom:8px}.note-box p:last-child{margin-bottom:0}
+.info-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:0.92rem}.info-table th{background:var(--rh-gray-dark);color:var(--rh-white);padding:12px 16px;text-align:left;font-family:var(--font-display);font-weight:600}.info-table td{padding:12px 16px;border-bottom:1px solid var(--rh-gray-lighter);vertical-align:top}.info-table tr:nth-child(even){background:var(--rh-gray-lighter)}.info-table tr:hover{background:#E8E8E8}
+.expandable{margin:16px 0;border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);overflow:hidden}.expandable-toggle{width:100%;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;background:var(--rh-gray-lighter);border:none;cursor:pointer;font-family:var(--font-display);font-size:0.95rem;font-weight:600;color:var(--rh-gray-dark);transition:background var(--transition-fast);text-align:left}.expandable-toggle:hover{background:#E0E0E0}.expandable-toggle .toggle-icon{transition:transform var(--transition-fast);font-size:1.2rem}.expandable-toggle[aria-expanded="true"] .toggle-icon{transform:rotate(180deg)}.expandable-content{display:none;padding:20px;border-top:1px solid var(--rh-gray-light)}.expandable-content.show{display:block}
+.tabs{margin:20px 0}.tab-buttons{display:flex;gap:4px;border-bottom:2px solid var(--rh-gray-lighter);flex-wrap:wrap}.tab-btn{padding:12px 20px;font-family:var(--font-display);font-size:0.9rem;font-weight:600;border:none;background:transparent;cursor:pointer;color:var(--rh-gray);border-bottom:3px solid transparent;transition:all var(--transition-fast);margin-bottom:-2px}.tab-btn:hover{color:var(--rh-red);background:var(--rh-gray-lighter)}.tab-btn.active{color:var(--rh-red);border-bottom-color:var(--rh-red)}.tab-content{display:none;padding:20px 0}.tab-content.active{display:block}
+.simulator{background:var(--rh-black);border-radius:var(--radius-md);padding:20px;margin:20px 0}.simulator-title{color:var(--rh-red-light);font-family:var(--font-display);font-weight:700;font-size:1rem;margin-bottom:16px}.simulator-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.sim-btn{padding:8px 16px;border:1px solid #555;background:#2A2A2A;color:#E0E0E0;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;cursor:pointer;transition:all var(--transition-fast)}.sim-btn:hover{background:#3A3A3A;border-color:var(--rh-red-light)}.sim-btn.active-btn{background:var(--rh-red-dark);border-color:var(--rh-red);color:var(--rh-white)}.sim-output{background:#1E1E1E;color:#E0E0E0;padding:16px;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.82rem;line-height:1.6;overflow-x:auto;white-space:pre;min-height:120px;border:1px solid #333}.sim-input-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}.sim-input{flex:1;padding:8px 12px;border:1px solid #555;background:#2A2A2A;color:#E0E0E0;border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:0.85rem}.sim-input:focus{border-color:var(--rh-red-light);outline:none;box-shadow:0 0 0 2px rgba(255,51,51,0.3)}.sim-run-btn{padding:8px 20px;border:1px solid var(--rh-red);background:var(--rh-red-dark);color:var(--rh-white);border-radius:var(--radius-sm);font-family:var(--font-display);font-size:0.85rem;font-weight:600;cursor:pointer;transition:background var(--transition-fast)}.sim-run-btn:hover{background:var(--rh-red)}
+.key-points{background:linear-gradient(135deg,#F5F5F5,#FAFAFA);border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);padding:24px;margin:24px 0}.key-points h4{font-family:var(--font-display);color:var(--rh-red-dark);margin-bottom:12px;font-size:1.05rem}.key-points ul{margin:12px 0 0 24px}.key-points li{margin-bottom:8px}
+.quiz-container{border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);padding:24px;margin:16px 0}.quiz-question{margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--rh-gray-lighter)}.quiz-question:last-of-type{border-bottom:none}.quiz-question h4{font-family:var(--font-display);color:var(--rh-gray-dark);margin-bottom:12px}.quiz-options{display:flex;flex-direction:column;gap:8px}.quiz-option{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--rh-gray-light);border-radius:var(--radius-sm);cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-display);font-size:0.92rem}.quiz-option:hover{border-color:var(--rh-blue);background:#F0F8FF}.quiz-option input{margin:0}.quiz-feedback{margin-top:8px;padding:8px 14px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:0.88rem;display:none}.quiz-feedback.correct{display:block;background:#E8F5E9;color:var(--rh-green-dark);border:1px solid var(--rh-green)}.quiz-feedback.incorrect{display:block;background:#FFEBEE;color:var(--rh-red-dark);border:1px solid var(--rh-red)}.quiz-btn{padding:12px 32px;border:none;background:var(--rh-red);color:var(--rh-white);border-radius:var(--radius-md);font-family:var(--font-display);font-weight:600;font-size:1rem;cursor:pointer;transition:background var(--transition-fast);margin-top:16px}.quiz-btn:hover{background:var(--rh-red-dark)}#quiz-score{margin-top:16px;font-family:var(--font-display);font-weight:700;font-size:1.1rem}
+.summary-box{background:linear-gradient(135deg,#FFF8E1,#FFFDE7);border:1px solid var(--rh-gold);border-radius:var(--radius-md);padding:24px}.summary-box h3{font-family:var(--font-display);color:var(--rh-gray-dark);margin-bottom:16px}.summary-list{list-style:none;padding:0;margin:0}.summary-list li{padding:10px 0;border-bottom:1px solid rgba(204,153,0,0.2);position:relative;padding-left:24px}.summary-list li:last-child{border-bottom:none}.summary-list li::before{content:'\2713';position:absolute;left:0;color:var(--rh-green);font-weight:700}
+.completion-section{text-align:center;padding:40px 20px;background:linear-gradient(135deg,var(--rh-gray-lighter),var(--rh-white));border-radius:var(--radius-md);margin-top:30px}.completion-section h2{font-family:var(--font-display);font-size:1.5rem;color:var(--rh-gray-dark);margin-bottom:12px}.completion-btn{padding:14px 36px;border:none;background:var(--rh-red);color:var(--rh-white);border-radius:var(--radius-md);font-family:var(--font-display);font-weight:600;font-size:1rem;cursor:pointer;transition:all var(--transition-fast);margin-top:16px}.completion-btn:hover{background:var(--rh-red-dark);transform:translateY(-2px);box-shadow:var(--shadow-md)}.completion-btn.completed{background:var(--rh-green);cursor:default;transform:none;box-shadow:none}
+.ssh-diagram{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;max-width:700px;margin:24px auto}.ssh-box{padding:16px 20px;border-radius:var(--radius-md);font-family:var(--font-display);text-align:center;font-size:0.9rem;font-weight:600;border:2px solid}.ssh-box.client{background:#E3F2FD;color:#1565C0;border-color:#1565C0}.ssh-box.server{background:#E8F5E9;color:#2E7D32;border-color:#2E7D32}.ssh-box.key{background:#FFF3E0;color:#E65100;border-color:#E65100}.ssh-arrow{font-size:2rem;color:var(--rh-gray);text-align:center}@media(max-width:600px){.ssh-diagram{grid-template-columns:1fr}.ssh-arrow{transform:rotate(90deg)}}
+.config-file{background:var(--rh-gray-lighter);border:1px solid var(--rh-gray-light);border-radius:var(--radius-md);overflow:hidden;margin:16px 0}.config-file-header{background:var(--rh-gray-dark);color:var(--rh-white);padding:10px 16px;font-family:var(--font-mono);font-size:0.85rem}.config-file-body{padding:16px;font-family:var(--font-mono);font-size:0.85rem;line-height:1.7;white-space:pre;overflow-x:auto}.config-key{color:var(--rh-gray-dark);font-weight:700}.config-value{color:var(--rh-green-dark)}.config-comment{color:var(--rh-gray);font-style:italic}
+.lab-step{background:var(--rh-gray-lighter);border-radius:var(--radius-md);padding:20px;margin:16px 0;border-left:4px solid var(--rh-teal)}.lab-step p{margin-bottom:10px}.step-number{background:var(--rh-teal);color:var(--rh-white);padding:3px 10px;border-radius:var(--radius-sm);font-family:var(--font-display);font-weight:600;font-size:0.85rem;margin-right:8px}
+.main-footer{background:var(--rh-gray-dark);color:var(--rh-gray-light);padding:24px;text-align:center;font-family:var(--font-display);font-size:0.85rem;margin-top:40px}
+@media(max-width:768px){.section-body{padding:20px}.code-block{padding:14px;font-size:0.8rem}.info-table{font-size:0.82rem}.info-table th,.info-table td{padding:8px 10px}}
+</style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to Main Content</a>
+
+<header class="main-header" role="banner">
+<div class="header-content">
+<div class="course-tag">RH124 &#8226; RHEL 10</div>
+<h1 class="chapter-title">Chapter 19: Configuring and Securing SSH</h1>
+<p class="chapter-subtitle">Protect SSH communication by managing host keys and implementing key-based authentication</p>
+</div>
+</header>
+
+<div class="progress-container" role="complementary" aria-label="Reading progress">
+<div class="progress-bar-track"><div class="progress-bar-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
+<div class="progress-text" id="progress-text">0% Complete</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+<ul class="nav-list" role="list">
+<li><a href="#section-objectives" class="nav-btn active">Objectives</a></li>
+<li><a href="#section-hostkeys" class="nav-btn">Host Keys</a></li>
+<li><a href="#section-stricthost" class="nav-btn">Strict Checking</a></li>
+<li><a href="#section-fingerprints" class="nav-btn">Fingerprints</a></li>
+<li><a href="#section-regen" class="nav-btn">Regenerating</a></li>
+<li><a href="#section-knownhosts" class="nav-btn">Known Hosts</a></li>
+<li><a href="#section-keybased" class="nav-btn">Key-based Auth</a></li>
+<li><a href="#section-sshagent" class="nav-btn">ssh-agent</a></li>
+<li><a href="#section-configuring" class="nav-btn">SSH Config</a></li>
+<li><a href="#section-hardening" class="nav-btn">Hardening</a></li>
+<li><a href="#section-simulator" class="nav-btn">Simulator</a></li>
+<li><a href="#section-lab" class="nav-btn">Lab</a></li>
+<li><a href="#section-quiz" class="nav-btn">Quiz</a></li>
+<li><a href="#section-summary" class="nav-btn">Summary</a></li>
+</ul>
+</nav>
+
+<main id="main-content">
+
+<!-- Section 1: Learning Objectives -->
+<section id="section-objectives" class="content-section" aria-labelledby="obj-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">1</span><h2 id="obj-h">Learning Objectives</h2></div>
+<div class="section-body">
+<p>In this chapter, you will learn how to protect SSH communication by managing host keys and implementing key-based authentication for users.</p>
+<div class="key-points">
+<h4>After Completing This Chapter, You Will Be Able To:</h4>
+<ul>
+<li>Prevent impersonation attacks by configuring the SSH service of client systems to use trusted <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-hostkey">host keys<span class="tooltip-content" role="tooltip" id="tt-hostkey">Cryptographic keys used by SSH servers to prove their identity to clients. Each server has a unique pair of public and private host keys.</span></span></li>
+<li>Configure user accounts to use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kba">key-based authentication<span class="tooltip-content" role="tooltip" id="tt-kba">An authentication method using cryptographic key pairs (public and private) instead of passwords. More secure and convenient for automated access.</span></span> for passwordless SSH login</li>
+<li>Manage the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-knownhosts">known_hosts<span class="tooltip-content" role="tooltip" id="tt-knownhosts">A file (~/.ssh/known_hosts) that stores the public keys of SSH servers previously connected to, used to verify server identity on future connections.</span></span> files on client systems</li>
+<li>Harden the SSH server by disabling root login and password authentication</li>
+<li>Use <code class="inline">ssh-agent</code> for convenient passphrase management</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- Section 2: The Role of SSH Host Keys -->
+<section id="section-hostkeys" class="content-section" aria-labelledby="hostkey-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">2</span><h2 id="hostkey-h">Managing SSH Host Keys</h2></div>
+<div class="section-body">
+<p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ssh">SSH (Secure Shell)<span class="tooltip-content" role="tooltip" id="tt-ssh">A cryptographic network protocol for secure remote login, command execution, and file transfer. Encrypts all traffic to prevent eavesdropping and hijacking.</span></span> creates a secure communication channel primarily through <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pke">public-key encryption<span class="tooltip-content" role="tooltip" id="tt-pke">A cryptographic system using two mathematically related keys: a public key (shared freely) and a private key (kept secret). Data encrypted with one key can only be decrypted with the other.</span></span>. When an SSH client connects to a server, the server sends a copy of its public key. The client uses this <strong>host key</strong> to authenticate the server's identity.</p>
+
+<div class="ssh-diagram" role="img" aria-label="SSH host key verification flow">
+<div class="ssh-box client">
+<div>&#128187;</div>
+<strong>SSH Client</strong>
+<div style="font-size:0.8rem;margin-top:4px">~/.ssh/known_hosts</div>
+</div>
+<div class="ssh-arrow" aria-hidden="true">&#8596;</div>
+<div class="ssh-box server">
+<div>&#128421;</div>
+<strong>SSH Server</strong>
+<div style="font-size:0.8rem;margin-top:4px">/etc/ssh/ssh_host_*</div>
+</div>
+</div>
+
+<p>When you run the <code class="inline">ssh</code> command, your client checks for a record of the server's public key in its local known hosts file. This file can be centrally managed in <code class="inline">/etc/ssh/ssh_known_hosts</code> or stored in your home directory at <code class="inline">~/.ssh/known_hosts</code>.</p>
+
+<p>If your client already has a copy of the server's public key, the <code class="inline">ssh</code> command compares the received key with the stored one. If they <strong>do not match</strong>, the client assumes a potential security risk, such as an <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mitm">interceptor attack<span class="tooltip-content" role="tooltip" id="tt-mitm">Also called a man-in-the-middle (MITM) attack. An attacker secretly intercepts and potentially alters communications between two parties who believe they are communicating directly.</span></span>, and <strong>refuses to connect</strong>.</p>
+
+<div class="note-box warning">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div>
+<p>If a host key changes, it might indicate someone is trying to impersonate that host. In SSH, host keys protect against interceptor attacks. These keys are unique per server and must be changed periodically and whenever a compromise is suspected.</p>
+</div>
+</div>
+</section>
+
+<!-- Section 3: Strict Host Key Checking -->
+<section id="section-stricthost" class="content-section" aria-labelledby="strict-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">3</span><h2 id="strict-h">Strict Host Key Checking</h2></div>
+<div class="section-body">
+<p>By default, the SSH client requires manual confirmation before accepting a new host key. On first connection:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh hostb</span>
+<span class="code-output">The authenticity of host 'hostb (192.168.250.11)' can't be established.
+ED25519 key fingerprint is SHA256:Qit7NeebQCgP20txXSaVXbw1irGmUVM...
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])?</span> <span class="code-command">no</span>
+<span class="code-output">Host key verification failed.</span></code></div>
+
+<p>You can adjust this behavior by setting the <code class="inline">StrictHostKeyChecking</code> option in a configuration file or from the command line.</p>
+
+<h3>Configuration Files</h3>
+<ul>
+<li><code class="inline">/etc/ssh/ssh_config</code> &#8212; system-wide SSH client settings</li>
+<li><code class="inline">~/.ssh/config</code> &#8212; user-specific SSH client settings (overrides system-wide)</li>
+</ul>
+
+<h3>StrictHostKeyChecking Options</h3>
+<table class="info-table" aria-label="StrictHostKeyChecking parameter options">
+<thead><tr><th>Setting</th><th>Behavior</th><th>Security</th></tr></thead>
+<tbody>
+<tr><td><code class="inline">yes</code></td><td>Never auto-adds host keys. Refuses if key is unknown or changed. Keys must be added manually.</td><td>Highest &#128274;</td></tr>
+<tr><td><code class="inline">accept-new</code></td><td>Auto-accepts keys from <em>new</em> hosts. Refuses if a <em>known</em> host's key changes.</td><td>High &#128274;</td></tr>
+<tr><td><code class="inline">no</code></td><td>Auto-accepts all keys, new or changed. Warns but never blocks.</td><td>Low &#9888;&#65039;</td></tr>
+<tr><td><code class="inline">ask</code> (default)</td><td>Prompts the user for unknown keys. Refuses if a known key changed.</td><td>Moderate &#128274;</td></tr>
+</tbody>
+</table>
+
+<h3>Command-Line Override</h3>
+<p>Command-line options always take precedence over configuration files:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh -o StrictHostKeyChecking=accept-new hostb</span>
+<span class="code-output">Warning: Permanently added 'hostb' (ED25519) to the list of known hosts.
+user@hostb's password:</span> <span class="code-command">password</span>
+<span class="code-prompt">user@hostb:~$</span></code></div>
+
+<div class="note-box tip">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div>
+<p>Use <code class="inline">accept-new</code> only when you are certain of the host's authenticity. In production, prefer <code class="inline">yes</code> or the default <code class="inline">ask</code> for strongest security.</p>
+</div>
+</div>
+</section>
+
+<!-- Section 4: Verifying SSH Host Key Fingerprints -->
+<section id="section-fingerprints" class="content-section" aria-labelledby="fp-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">4</span><h2 id="fp-h">Verifying SSH Host Key Fingerprints</h2></div>
+<div class="section-body">
+<p>SSH public keys are long, complex, Base64-encoded strings. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fp">fingerprint<span class="tooltip-content" role="tooltip" id="tt-fp">A short cryptographic hash of an SSH public key that is easier for humans to visually compare and verify. Typically displayed as a SHA256 hash.</span></span> is a short cryptographic hash that makes verification practical.</p>
+
+<p>To verify a server's identity, check the fingerprint through an <strong>out-of-band</strong> method (phone call, in-person, secure email) before accepting the key.</p>
+
+<h3>Displaying Server Fingerprints</h3>
+<div class="code-block"><code><span class="code-prompt">[root@hostb ~]#</span> <span class="code-command">ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub</span>
+<span class="code-output">256 SHA256:Qit7NeebQCgP20txXSaVXbw1irGmUVM... root@hostb (ED25519)</span></code></div>
+
+<div class="note-box">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128221;</span><span>Note</span></div>
+<p>You might need to adjust the path if the server uses a different algorithm: <code class="inline">ssh_host_rsa_key.pub</code> for RSA or <code class="inline">ssh_host_ecdsa_key.pub</code> for ECDSA.</p>
+</div>
+</div>
+</section>
+
+<!-- Section 5: Regenerating SSH Host Keys -->
+<section id="section-regen" class="content-section" aria-labelledby="regen-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">5</span><h2 id="regen-h">Regenerating SSH Host Keys</h2></div>
+<div class="section-body">
+<p>You might need to regenerate SSH host keys if a key is compromised or when creating new server images that need unique identifiers.</p>
+
+<p>In RHEL 10, the SSH server uses three key pairs by default: <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ed25519">ED25519<span class="tooltip-content" role="tooltip" id="tt-ed25519">A modern, fast, and secure public-key algorithm using elliptic curves. Produces shorter keys than RSA while providing equivalent or better security. The default in RHEL 10.</span></span>, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ecdsa">ECDSA<span class="tooltip-content" role="tooltip" id="tt-ecdsa">Elliptic Curve Digital Signature Algorithm. Uses elliptic curve mathematics for efficient and secure digital signatures.</span></span>, and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsa">RSA<span class="tooltip-content" role="tooltip" id="tt-rsa">Rivest-Shamir-Adleman. A widely used public-key algorithm using large prime numbers. Still functional but ED25519 is now preferred in RHEL 10.</span></span>.</p>
+
+<div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">ls -l /etc/ssh/ssh_host_*</span>
+<span class="code-output">-rw-------. 1 root root  480 Jun 13 16:56 /etc/ssh/ssh_host_ecdsa_key
+-rw-r--r--. 1 root root  162 Jun 13 16:56 /etc/ssh/ssh_host_ecdsa_key.pub
+-rw-------. 1 root root  387 Jun 13 16:56 /etc/ssh/ssh_host_ed25519_key
+-rw-r--r--. 1 root root   82 Jun 13 16:56 /etc/ssh/ssh_host_ed25519_key.pub
+-rw-------. 1 root root 2578 Jun 13 16:56 /etc/ssh/ssh_host_rsa_key
+-rw-r--r--. 1 root root  554 Jun 13 16:56 /etc/ssh/ssh_host_rsa_key.pub</span></code></div>
+
+<h3>Regeneration Procedure</h3>
+<p>Delete existing keys and restart <code class="inline">sshd</code>. The service automatically regenerates all three pairs:</p>
+<div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">rm -f /etc/ssh/ssh_host_*</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl restart sshd.service</span></code></div>
+
+<div class="note-box">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128221;</span><span>Cloud-init Note</span></div>
+<p>On systems using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cloudinit">Cloud-init<span class="tooltip-content" role="tooltip" id="tt-cloudinit">A package that handles initialization of cloud instances, including SSH key generation, networking, and other settings during first boot.</span></span>, SSH host key generation is managed automatically. Manually generated keys might be overwritten during subsequent provisioning.</p>
+</div>
+
+<h3>After Regeneration: Client Warnings</h3>
+<p>Clients that previously connected still have the old key stored and will see a warning:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh user@hostb</span>
+<span class="code-output" style="color:#FF6666">@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@    WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!     @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+Someone could be eavesdropping on you right now (man-in-the-middle attack)!
+...output omitted...</span></code></div>
+</div>
+</section>
+
+<!-- Section 6: Managing Known Host Files -->
+<section id="section-knownhosts" class="content-section" aria-labelledby="kh-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">6</span><h2 id="kh-h">Managing Known Host Files</h2></div>
+<div class="section-body">
+<p>SSH clients store known remote systems and their host keys in one of two locations:</p>
+
+<div class="tabs">
+<div class="tab-buttons" role="tablist">
+<button class="tab-btn active" role="tab" aria-selected="true" id="tab-btn-system" aria-controls="tab-system" onclick="switchTab(this,'tab-system')">System-Wide</button>
+<button class="tab-btn" role="tab" aria-selected="false" id="tab-btn-user" aria-controls="tab-user" onclick="switchTab(this,'tab-user')">Per-User</button>
+<button class="tab-btn" role="tab" aria-selected="false" id="tab-btn-remove" aria-controls="tab-remove" onclick="switchTab(this,'tab-remove')">Removing Keys</button>
+<button class="tab-btn" role="tab" aria-selected="false" id="tab-btn-scan" aria-controls="tab-scan" onclick="switchTab(this,'tab-scan')">ssh-keyscan</button>
+</div>
+
+<div id="tab-system" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-system">
+<h4>/etc/ssh/ssh_known_hosts</h4>
+<p>This system-wide file is <strong>not present by default</strong>. A system administrator creates it and adds trusted host keys. It benefits all users on the system. Pre-populating this file helps users avoid trusting unknown host keys, especially useful in large environments.</p>
+</div>
+
+<div id="tab-user" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-user">
+<h4>~/.ssh/known_hosts</h4>
+<p>This user-specific file is in each user's home directory. If the SSH client does not find a key in the system-wide file, it checks here. By default, SSH automatically adds a server's host key the first time a user connects and accepts it.</p>
+</div>
+
+<div id="tab-remove" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-remove">
+<h4>Removing Outdated Keys</h4>
+<p>Use <code class="inline">ssh-keygen -R</code> to remove outdated entries:</p>
+<div class="code-block"><code><span class="code-comment"># Remove from user file</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-keygen -R hostb</span>
+<span class="code-output"># Host hostb found: line 1
+/home/user/.ssh/known_hosts updated.
+Original contents retained as /home/user/.ssh/known_hosts.old</span>
+
+<span class="code-comment"># Remove from system-wide file</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">ssh-keygen -R hostb -f /etc/ssh/ssh_known_hosts</span></code></div>
+</div>
+
+<div id="tab-scan" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-scan">
+<h4>Populating Known Host Files with ssh-keyscan</h4>
+<p>The <code class="inline">ssh-keyscan</code> command collects public host keys from remote servers:</p>
+<div class="code-block"><code><span class="code-comment"># Add all key types from a host</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-keyscan hostb >> ~/.ssh/known_hosts</span>
+
+<span class="code-comment"># Verify stored fingerprints</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-keygen -lf ~/.ssh/known_hosts</span>
+
+<span class="code-comment"># Collect specific key type for system-wide file</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">ssh-keyscan -q -t ed25519 hostb >> /etc/ssh/ssh_known_hosts</span>
+
+<span class="code-comment"># Scan an entire network segment</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">ssh-keyscan -q -t rsa 172.25.250.0/24 >> /etc/ssh/ssh_known_hosts</span></code></div>
+<div class="note-box warning">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Caution</span></div>
+<p>When using <code class="inline">ssh-keyscan</code>, you trust the key presented at that moment. On an untrusted network, verify the fingerprint through an alternative method before adding it.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- Section 7: Configuring SSH Key-based Authentication -->
+<section id="section-keybased" class="content-section" aria-labelledby="kba-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">7</span><h2 id="kba-h">Configuring SSH Key-based Authentication</h2></div>
+<div class="section-body">
+<p>Passwords can be learned or stolen, but securely stored private keys are much harder to compromise. Key-based authentication uses <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pki">public key infrastructure (PKI)<span class="tooltip-content" role="tooltip" id="tt-pki">A framework for managing digital keys. In SSH, you generate a key pair where the private key proves identity and the public key verifies it on remote servers.</span></span>: a private key (kept secret) and a public key (copied to remote servers).</p>
+
+<div class="ssh-diagram" role="img" aria-label="SSH key pair relationship">
+<div class="ssh-box key">
+<div>&#128273;</div>
+<strong>Private Key</strong>
+<div style="font-size:0.8rem;margin-top:4px">~/.ssh/id_ed25519</div>
+<div style="font-size:0.75rem;color:#999">Keep secret! (600)</div>
+</div>
+<div class="ssh-arrow" aria-hidden="true">&#8644;</div>
+<div class="ssh-box" style="background:#E8F5E9;color:#2E7D32;border-color:#2E7D32;border:2px solid #2E7D32;padding:16px 20px;border-radius:var(--radius-md);font-family:var(--font-display);text-align:center;font-size:0.9rem;font-weight:600">
+<div>&#128272;</div>
+<strong>Public Key</strong>
+<div style="font-size:0.8rem;margin-top:4px">~/.ssh/id_ed25519.pub</div>
+<div style="font-size:0.75rem;color:#999">Shared freely (644)</div>
+</div>
+</div>
+
+<h3>Step 1: Generate SSH Keys</h3>
+<p>RHEL 10 defaults to Ed25519. Use <code class="inline">ssh-keygen</code> to create a key pair:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-keygen</span>
+<span class="code-output">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/user/.ssh/id_ed25519):</span> <span class="code-command">Enter</span>
+<span class="code-output">Created directory '/home/user/.ssh'.
+Enter passphrase (empty for no passphrase):</span> <span class="code-command">Enter</span>
+<span class="code-output">Enter same passphrase again:</span> <span class="code-command">Enter</span>
+<span class="code-output">Your identification has been saved in /home/user/.ssh/id_ed25519
+Your public key has been saved in /home/user/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:+w3LTa7BdiZwVO1AUAP9GjlwRdzwqk+JKcrhosmftuM user@host</span></code></div>
+
+<h3>Step 2: Protect with a Passphrase (Recommended)</h3>
+<p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pp">passphrase<span class="tooltip-content" role="tooltip" id="tt-pp">An encryption password applied to your private key. It decrypts the key locally and is never transmitted over the network, unlike account passwords.</span></span> encrypts your private key. Unlike a password, it is never transmitted over the network.</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-keygen -f .ssh/key-with-pass</span>
+<span class="code-output">Generating public/private ed25519 key pair.
+Enter passphrase for ".ssh/key-with-pass" (empty for no passphrase):</span> <span class="code-command">my-secret</span>
+<span class="code-output">Enter same passphrase again:</span> <span class="code-command">my-secret</span>
+<span class="code-output">Your identification has been saved in .ssh/key-with-pass
+Your public key has been saved in .ssh/key-with-pass.pub</span></code></div>
+
+<div class="note-box danger">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div>
+<p>Running <code class="inline">ssh-keygen</code> with the name of an existing key pair <strong>overwrites</strong> it permanently. Always create backups to prevent loss of access to remote servers.</p>
+</div>
+
+<h3>Step 3: Share the Public Key</h3>
+<p>Use <code class="inline">ssh-copy-id</code> to copy your public key to the remote server's <code class="inline">~/.ssh/authorized_keys</code> file:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-copy-id -i .ssh/key-with-pass.pub user@remotehost</span>
+<span class="code-output">/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: ".ssh/key-with-pass.pub"
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed
+user@remotehost's password:</span> <span class="code-command">user-password</span>
+<span class="code-output">Number of key(s) added: 1
+Now try logging into the machine, with: "ssh 'user@remotehost'"</span></code></div>
+
+<h3>Step 4: Test Key-based Login</h3>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh -i .ssh/key-with-pass user@remotehost</span>
+<span class="code-output">Enter passphrase for key '.ssh/key-with-pass':</span> <span class="code-command">my-secret</span>
+<span class="code-prompt">user@remotehost:~$</span></code></div>
+</div>
+</section>
+
+<!-- Section 8: ssh-agent Key Manager -->
+<section id="section-sshagent" class="content-section" aria-labelledby="agent-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">8</span><h2 id="agent-h">Noninteractive Authentication with ssh-agent</h2></div>
+<div class="section-body">
+<p>If your private key has a passphrase, you must enter it each time. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-agent">ssh-agent<span class="tooltip-content" role="tooltip" id="tt-agent">A background program that caches decrypted private keys in memory. Once a key is added, ssh-agent provides the passphrase automatically for subsequent connections.</span></span> key manager caches passphrases in memory, providing them automatically for subsequent connections.</p>
+
+<h3>Starting ssh-agent</h3>
+<p>GNOME starts <code class="inline">ssh-agent</code> automatically. For text sessions, start it manually:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">eval $(ssh-agent)</span>
+<span class="code-output">Agent pid 1850</span></code></div>
+
+<h3>Adding Keys to the Agent</h3>
+<div class="code-block"><code><span class="code-comment"># Add the default key</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-add</span>
+<span class="code-output">Identity added: /home/user/.ssh/id_ed25519 (user@host)</span>
+
+<span class="code-comment"># Add a specific key</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-add .ssh/key-with-pass</span>
+<span class="code-output">Enter passphrase for .ssh/key-with-pass:</span> <span class="code-command">my-secret</span>
+<span class="code-output">Identity added: .ssh/key-with-pass (user@host)</span>
+
+<span class="code-comment"># List loaded keys</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">ssh-add -l</span>
+<span class="code-output">256 SHA256:+w3LTa7...mftuM user@host (ED25519)
+256 SHA256:sb6vK...jN3YQ user@host (ED25519)</span></code></div>
+
+<p>SSH connections using cached keys no longer prompt for the passphrase:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh -i .ssh/key-with-pass user@remotehost</span>
+<span class="code-output">Last login: Thu Jun 19 21:50:35 2025 host.example.com</span>
+<span class="code-prompt">user@remotehost:~$</span></code></div>
+
+<div class="note-box tip">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Tip</span></div>
+<p>When you log out, all cached passphrases are cleared from memory for security.</p>
+</div>
+</div>
+</section>
+
+<!-- Section 9: Configuring SSH Client and Server -->
+<section id="section-configuring" class="content-section" aria-labelledby="config-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">9</span><h2 id="config-h">Configuring SSH Client and Server</h2></div>
+<div class="section-body">
+
+<h3>SSH Client Configuration (~/.ssh/config)</h3>
+<p>Pre-configure SSH connections with specific users, keys, and ports for different hosts:</p>
+<div class="config-file">
+<div class="config-file-header">~/.ssh/config</div>
+<div class="config-file-body"><span class="config-key">host</span> <span class="config-value">remotehosta</span>
+    <span class="config-key">HostName</span> <span class="config-value">remotehosta.example.com</span>
+    <span class="config-key">User</span> <span class="config-value">usera</span>
+    <span class="config-key">IdentityFile</span> <span class="config-value">~/.ssh/id_ed25519_remotehosta</span>
+
+<span class="config-key">host</span> <span class="config-value">remotehostb</span>
+    <span class="config-key">HostName</span> <span class="config-value">remotehostb.example.com</span>
+    <span class="config-key">User</span> <span class="config-value">userb</span>
+    <span class="config-key">IdentityFile</span> <span class="config-value">~/.ssh/id_ed25519_remotehostb</span></div>
+</div>
+<p>With this configuration, simply run <code class="inline">ssh remotehosta</code> instead of typing all parameters.</p>
+
+<h3>SSH Connection Troubleshooting</h3>
+<p>Use <code class="inline">-v</code>, <code class="inline">-vv</code>, or <code class="inline">-vvv</code> for increasing debug output:</p>
+<div class="code-block"><code><span class="code-prompt">user@host:~$</span> <span class="code-command">ssh -v user@remotehost</span>
+<span class="code-output">OpenSSH_9.9p1, OpenSSL 3.2.2 4 Jun 2024
+debug1: Reading configuration data /etc/ssh/ssh_config
+debug1: Connecting to remotehost [192.168.1.10] port 22.
+debug1: Connection established.
+debug1: Authenticating to remotehost:22 as 'user'
+debug1: Next authentication method: publickey
+debug1: Offering public key: /home/user/.ssh/id_ed25519 ED25519
+debug1: Server accepts key: /home/user/.ssh/id_ed25519 ED25519
+debug1: Authentication succeeded (publickey).</span></code></div>
+
+<div class="note-box tip">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#128161;</span><span>Debugging Tip</span></div>
+<p>If key-based auth fails, the server falls back to password auth (if allowed). Use <code class="inline">ssh -v</code> to see exactly which keys are tried and why they succeed or fail.</p>
+</div>
+</div>
+</section>
+
+<!-- Section 10: Hardening the SSH Server -->
+<section id="section-hardening" class="content-section" aria-labelledby="hard-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">10</span><h2 id="hard-h">Hardening the SSH Server</h2></div>
+<div class="section-body">
+<p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sshd">sshd daemon<span class="tooltip-content" role="tooltip" id="tt-sshd">The OpenSSH server process that listens for incoming SSH connections. Configured via /etc/ssh/sshd_config and managed with systemctl as sshd.service.</span></span> provides the OpenSSH service. Configure it by editing <code class="inline">/etc/ssh/sshd_config</code>.</p>
+
+<h3>Prohibiting Root Login</h3>
+<p>Allowing direct root login is risky because:</p>
+<ul>
+<li>The <code class="inline">root</code> username exists on every Linux system&#8212;attackers only need to guess the password</li>
+<li>Root has unrestricted privileges, so compromise leads to maximum damage</li>
+<li>It is difficult to audit which person made changes when everyone logs in as root</li>
+</ul>
+
+<h4>PermitRootLogin Options</h4>
+<table class="info-table" aria-label="PermitRootLogin configuration options">
+<thead><tr><th>Value</th><th>Behavior</th></tr></thead>
+<tbody>
+<tr><td><code class="inline">yes</code></td><td>Root can log in with any method (most permissive)</td></tr>
+<tr><td><code class="inline">prohibit-password</code></td><td>Root can use key-based auth only; password blocked (<strong>RHEL 9+ default</strong>)</td></tr>
+<tr><td><code class="inline">without-password</code></td><td>Alias for <code class="inline">prohibit-password</code></td></tr>
+<tr><td><code class="inline">no</code></td><td>Root login completely disabled (most restrictive)</td></tr>
+</tbody>
+</table>
+
+<div class="config-file">
+<div class="config-file-header">/etc/ssh/sshd_config</div>
+<div class="config-file-body"><span class="config-comment"># Prevent root login via password (RHEL 10 default)</span>
+<span class="config-key">PermitRootLogin</span> <span class="config-value">prohibit-password</span>
+
+<span class="config-comment"># Or completely disable root login:</span>
+<span class="config-comment"># PermitRootLogin no</span></div>
+</div>
+
+<h3>Prohibiting Password-based Authentication</h3>
+<p>Allowing only key-based authentication provides:</p>
+<ul>
+<li>Immunity to password-guessing and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-brute">brute-force attacks<span class="tooltip-content" role="tooltip" id="tt-brute">An attack that systematically tries all possible passwords until the correct one is found. Key-based authentication is immune to this type of attack.</span></span></li>
+<li>Two-factor protection with passphrase-protected keys (need both the passphrase <em>and</em> the key)</li>
+<li>Improved convenience when combined with <code class="inline">ssh-agent</code></li>
+</ul>
+
+<div class="config-file">
+<div class="config-file-header">/etc/ssh/sshd_config</div>
+<div class="config-file-body"><span class="config-comment"># Disable password-based authentication</span>
+<span class="config-key">PasswordAuthentication</span> <span class="config-value">no</span></div>
+</div>
+
+<div class="note-box danger">
+<div class="note-box-header"><span class="note-icon" aria-hidden="true">&#9888;&#65039;</span><span>Important</span></div>
+<p>Before disabling password authentication, <strong>ensure all users have their public keys installed</strong> in <code class="inline">~/.ssh/authorized_keys</code>. Otherwise, they will be locked out.</p>
+</div>
+
+<h3>Applying Configuration Changes</h3>
+<div class="code-block"><code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reload sshd</span>
+<span class="code-comment"># or</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl restart sshd</span></code></div>
+</div>
+</section>
+
+<!-- Section 11: Interactive SSH Command Simulator -->
+<section id="section-simulator" class="content-section" aria-labelledby="sim-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">11</span><h2 id="sim-h">Interactive SSH Command Simulator</h2></div>
+<div class="section-body">
+<p>Practice common SSH commands in this interactive simulator. Click a command button or type your own.</p>
+
+<div class="simulator">
+<div class="simulator-title">&#128187; SSH Command Simulator</div>
+<div class="simulator-controls">
+<button class="sim-btn" onclick="simRun('keygen')" type="button">ssh-keygen</button>
+<button class="sim-btn" onclick="simRun('copyid')" type="button">ssh-copy-id</button>
+<button class="sim-btn" onclick="simRun('connect')" type="button">ssh connect</button>
+<button class="sim-btn" onclick="simRun('agent')" type="button">ssh-agent</button>
+<button class="sim-btn" onclick="simRun('add')" type="button">ssh-add</button>
+<button class="sim-btn" onclick="simRun('keyscan')" type="button">ssh-keyscan</button>
+<button class="sim-btn" onclick="simRun('removekey')" type="button">Remove key</button>
+<button class="sim-btn" onclick="simRun('fingerprint')" type="button">Fingerprint</button>
+<button class="sim-btn" onclick="simRun('verbose')" type="button">Verbose login</button>
+<button class="sim-btn" onclick="simRun('configfile')" type="button">SSH config</button>
+</div>
+<div class="sim-input-row">
+<label for="sim-cmd" class="sr-only">Type a command</label>
+<input type="text" id="sim-cmd" class="sim-input" placeholder="Type a command (e.g., ssh-keygen -t rsa)" aria-label="SSH command input">
+<button class="sim-run-btn" onclick="simCustom()" type="button">Run</button>
+</div>
+<div class="sim-output" id="sim-out" aria-live="polite" role="log"><span style="color:#888">## Click a command button above or type your own command.
+## This simulator demonstrates common SSH operations.</span>
+<span style="color:#66BB6A">user@host:~$</span> _</div>
+</div>
+</div>
+</section>
+
+<!-- Section 12: Hands-On Lab -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">12</span><h2 id="lab-h">Lab: Configure and Secure SSH</h2></div>
+<div class="section-body">
+<p>In this lab, you will generate SSH keys, configure key-based authentication, and harden the SSH server.</p>
+
+<div class="lab-step">
+<p><span class="step-number">Step 1</span> <strong>Log in and switch to the target user</strong></p>
+<div class="code-block"><code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">ssh student@servera</span>
+<span class="code-prompt">[student@servera ~]$</span> <span class="code-command">su - production1</span>
+<span class="code-output">Password:</span> <span class="code-command">redhat</span>
+<span class="code-prompt">[production1@servera ~]$</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 2</span> <strong>Generate SSH keys (no passphrase for this lab)</strong></p>
+<div class="code-block"><code><span class="code-prompt">[production1@servera ~]$</span> <span class="code-command">ssh-keygen</span>
+<span class="code-output">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/production1/.ssh/id_ed25519):</span> <span class="code-command">Enter</span>
+<span class="code-output">Enter passphrase (empty for no passphrase):</span> <span class="code-command">Enter</span>
+<span class="code-output">Enter same passphrase again:</span> <span class="code-command">Enter</span>
+<span class="code-output">Your identification has been saved in /home/production1/.ssh/id_ed25519
+Your public key has been saved in /home/production1/.ssh/id_ed25519.pub</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 3</span> <strong>Copy the public key to the remote server</strong></p>
+<div class="code-block"><code><span class="code-prompt">[production1@servera ~]$</span> <span class="code-command">ssh-copy-id production1@serverb</span>
+<span class="code-output">The authenticity of host 'serverb (172.25.250.11)' can't be established.
+ED25519 key fingerprint is SHA256:aBlukK...
+Are you sure you want to continue connecting (yes/no)?</span> <span class="code-command">yes</span>
+<span class="code-output">production1@serverb's password:</span> <span class="code-command">redhat</span>
+<span class="code-output">Number of key(s) added: 1</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 4</span> <strong>Verify passwordless SSH login</strong></p>
+<div class="code-block"><code><span class="code-prompt">[production1@servera ~]$</span> <span class="code-command">ssh production1@serverb</span>
+<span class="code-prompt">[production1@serverb ~]$</span> <span class="code-comment"># Success! No password prompted.</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 5</span> <strong>Disable root login on serverb</strong></p>
+<div class="code-block"><code><span class="code-prompt">[production1@serverb ~]$</span> <span class="code-command">su -</span>
+<span class="code-output">Password:</span> <span class="code-command">redhat</span>
+
+<span class="code-comment"># Edit /etc/ssh/sshd_config and set:</span>
+<span class="code-output">PermitRootLogin prohibit-password</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl restart sshd.service</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 6</span> <strong>Disable password authentication on serverb</strong></p>
+<div class="code-block"><code><span class="code-comment"># Edit /etc/ssh/sshd_config and set:</span>
+<span class="code-output">PasswordAuthentication no</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl restart sshd</span></code></div>
+</div>
+
+<div class="lab-step">
+<p><span class="step-number">Step 7</span> <strong>Verify password login is rejected</strong></p>
+<div class="code-block"><code><span class="code-comment"># production2 has no SSH keys configured:</span>
+<span class="code-prompt">[production1@servera ~]$</span> <span class="code-command">ssh production2@serverb</span>
+<span class="code-output" style="color:#FF6666">production2@serverb: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).</span>
+
+<span class="code-comment"># production1 CAN still log in with keys:</span>
+<span class="code-prompt">[production1@servera ~]$</span> <span class="code-command">ssh production1@serverb</span>
+<span class="code-prompt">[production1@serverb ~]$</span> <span class="code-comment"># Success!</span></code></div>
+</div>
+
+<div class="key-points">
+<h4>Lab Completion Checklist</h4>
+<ul>
+<li>&#10004; Generated SSH key pair using <code class="inline">ssh-keygen</code></li>
+<li>&#10004; Distributed public key using <code class="inline">ssh-copy-id</code></li>
+<li>&#10004; Verified passwordless SSH login</li>
+<li>&#10004; Configured <code class="inline">PermitRootLogin prohibit-password</code></li>
+<li>&#10004; Configured <code class="inline">PasswordAuthentication no</code></li>
+<li>&#10004; Verified that password-based login is rejected</li>
+</ul>
+</div>
+</div>
+</section>
+
+<!-- Section 13: Knowledge Check Quiz -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">13</span><h2 id="quiz-h">Knowledge Check</h2></div>
+<div class="section-body">
+<p>Test your understanding of configuring and securing SSH:</p>
+<div class="quiz-container" id="quiz">
+
+<div class="quiz-question" id="q1">
+<h4>1. Where does a user's SSH client store known host keys by default?</h4>
+<div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="q1" value="a"> /etc/ssh/sshd_config</label>
+<label class="quiz-option"><input type="radio" name="q1" value="b"> ~/.ssh/known_hosts</label>
+<label class="quiz-option"><input type="radio" name="q1" value="c"> ~/.ssh/authorized_keys</label>
+<label class="quiz-option"><input type="radio" name="q1" value="d"> /etc/ssh/ssh_host_ed25519_key</label>
+</div>
+<div class="quiz-feedback" id="fb1"></div>
+</div>
+
+<div class="quiz-question" id="q2">
+<h4>2. Which command generates an SSH key pair?</h4>
+<div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="q2" value="a"> ssh-copy-id</label>
+<label class="quiz-option"><input type="radio" name="q2" value="b"> ssh-add</label>
+<label class="quiz-option"><input type="radio" name="q2" value="c"> ssh-keygen</label>
+<label class="quiz-option"><input type="radio" name="q2" value="d"> ssh-keyscan</label>
+</div>
+<div class="quiz-feedback" id="fb2"></div>
+</div>
+
+<div class="quiz-question" id="q3">
+<h4>3. What is the default SSH key algorithm in RHEL 10?</h4>
+<div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="q3" value="a"> RSA</label>
+<label class="quiz-option"><input type="radio" name="q3" value="b"> DSA</label>
+<label class="quiz-option"><input type="radio" name="q3" value="c"> ECDSA</label>
+<label class="quiz-option"><input type="radio" name="q3" value="d"> Ed25519</label>
+</div>
+<div class="quiz-feedback" id="fb3"></div>
+</div>
+
+<div class="quiz-question" id="q4">
+<h4>4. Which sshd_config setting prevents root from logging in with a password but allows key-based login?</h4>
+<div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="q4" value="a"> PermitRootLogin no</label>
+<label class="quiz-option"><input type="radio" name="q4" value="b"> PermitRootLogin prohibit-password</label>
+<label class="quiz-option"><input type="radio" name="q4" value="c"> PermitRootLogin yes</label>
+<label class="quiz-option"><input type="radio" name="q4" value="d"> PasswordAuthentication no</label>
+</div>
+<div class="quiz-feedback" id="fb4"></div>
+</div>
+
+<div class="quiz-question" id="q5">
+<h4>5. Which command removes an outdated host key from known_hosts?</h4>
+<div class="quiz-options">
+<label class="quiz-option"><input type="radio" name="q5" value="a"> ssh-keyscan -R hostname</label>
+<label class="quiz-option"><input type="radio" name="q5" value="b"> ssh-keygen -R hostname</label>
+<label class="quiz-option"><input type="radio" name="q5" value="c"> ssh-add -R hostname</label>
+<label class="quiz-option"><input type="radio" name="q5" value="d"> ssh-copy-id -R hostname</label>
+</div>
+<div class="quiz-feedback" id="fb5"></div>
+</div>
+
+<button class="quiz-btn" id="check-answers" type="button" onclick="checkQuiz()">Check Answers</button>
+<button class="quiz-btn" id="reset-quiz" type="button" style="display:none;margin-left:10px;" onclick="resetQuiz()">Try Again</button>
+<div id="quiz-score" aria-live="polite"></div>
+</div>
+</div>
+</section>
+
+<!-- Section 14: Chapter Summary -->
+<section id="section-summary" class="content-section" aria-labelledby="sum-h">
+<div class="section-header"><span class="section-number" aria-hidden="true">14</span><h2 id="sum-h">Chapter Summary</h2></div>
+<div class="section-body">
+<div class="summary-box">
+<h3>Key Takeaways</h3>
+<ul class="summary-list">
+<li><strong>SSH host keys</strong> verify server identities. Clients store confirmed hosts in <code class="inline">known_hosts</code> files, both system-wide and per-user.</li>
+<li><strong>StrictHostKeyChecking</strong> controls how SSH handles unknown or changed host keys, from <code class="inline">yes</code> (most secure) to <code class="inline">no</code> (least secure).</li>
+<li><strong>ssh-keygen</strong> generates key pairs and manages fingerprints. Use <code class="inline">ssh-keygen -R</code> to remove outdated host keys.</li>
+<li><strong>ssh-keyscan</strong> collects host public keys from remote servers, useful for scripting and automation.</li>
+<li><strong>Key-based authentication</strong> uses a private key (permissions 600) and a public key (shared via <code class="inline">ssh-copy-id</code>). Ed25519 is the default in RHEL 10.</li>
+<li><strong>ssh-agent</strong> caches decrypted private keys in memory, providing passphrases automatically for subsequent connections.</li>
+<li><strong>SSH server hardening</strong> includes <code class="inline">PermitRootLogin prohibit-password</code> (RHEL 10 default) and <code class="inline">PasswordAuthentication no</code>.</li>
+<li>Always <strong>reload or restart sshd</strong> after modifying <code class="inline">/etc/ssh/sshd_config</code>.</li>
+</ul>
+</div>
+
+<div class="key-points">
+<h4>What Comes Next?</h4>
+<p>In Chapter 20, you will learn how to analyze and store logs, including configuring the systemd journal and rsyslog for centralized logging and troubleshooting.</p>
+</div>
+
+<div class="completion-section">
+<h2>&#127881; Chapter 19 Complete!</h2>
+<p>You have learned how to configure and secure SSH in Red Hat Enterprise Linux.</p>
+<button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
+</div>
+</div>
+</section>
+
+</main>
+
+<footer class="main-footer" role="contentinfo">
+<p>RH124: Red Hat System Administration I &#8226; Chapter 19 &#8226; Version 10.0</p>
+<p style="margin-top:10px;font-size:0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+</footer>
+
+
+<script>
+/* Tooltip edge detection */
+function positionTooltips(){document.querySelectorAll('.tooltip-term').forEach(function(t){var tip=t.querySelector('.tooltip-content');if(!tip)return;tip.classList.remove('tooltip-flipped');tip.style.left='50%';tip.style.transform='translateX(-50%)';var r=tip.getBoundingClientRect();var tr=t.getBoundingClientRect();if(tr.top<160)tip.classList.add('tooltip-flipped');if(r.left<8){tip.style.left='calc(50% + '+(8-r.left)+'px)'}else if(r.right>window.innerWidth-8){tip.style.left='calc(50% - '+(r.right-window.innerWidth+8)+'px)'}})}
+document.addEventListener('DOMContentLoaded',positionTooltips);window.addEventListener('resize',positionTooltips);window.addEventListener('scroll',positionTooltips);
+
+function toggleExpand(btn){var ex=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',!ex);btn.nextElementSibling.classList.toggle('show')}
+
+function switchTab(btn,tid){var tabs=btn.closest('.tabs');tabs.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');b.setAttribute('aria-selected','false')});tabs.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('active')});btn.classList.add('active');btn.setAttribute('aria-selected','true');document.getElementById(tid).classList.add('active')}
+
+function updateProgress(){var wh=window.innerHeight;var dh=document.documentElement.scrollHeight-wh;var s=window.scrollY;var pct=dh>0?Math.min(Math.round((s/dh)*100),100):0;document.getElementById('progress-fill').style.width=pct+'%';document.getElementById('progress-fill').setAttribute('aria-valuenow',pct);document.getElementById('progress-text').textContent=pct+'% Complete'}
+window.addEventListener('scroll',updateProgress);
+
+window.addEventListener('scroll',function(){var secs=document.querySelectorAll('.content-section');var navBtns=document.querySelectorAll('.nav-btn');var current='';secs.forEach(function(s){if(window.scrollY>=s.offsetTop-200)current=s.getAttribute('id')});navBtns.forEach(function(b){b.classList.remove('active');if(b.getAttribute('href')==='#'+current)b.classList.add('active')})});
+
+/* SSH Simulator */
+function simOutput(lines){return lines.join('\n')}
+var P='<span style="color:#66BB6A">';var PE='</span>';var C='<span style="color:#FFF;font-weight:bold">';var CE='</span>';var G='<span style="color:#339933">';var GE='</span>';var R='<span style="color:#FF6666">';var RE='</span>';var H='<span style="color:#888">';var HE='</span>';
+var simData={
+keygen:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh-keygen'+CE,'Generating public/private ed25519 key pair.','Enter file in which to save the key (/home/user/.ssh/id_ed25519): [Enter]',"Created directory '/home/user/.ssh'.",'Enter passphrase (empty for no passphrase): [Enter]','Enter same passphrase again: [Enter]','Your identification has been saved in /home/user/.ssh/id_ed25519','Your public key has been saved in /home/user/.ssh/id_ed25519.pub','The key fingerprint is:','SHA256:+w3LTa7BdiZwVO1AUAP9GjlwRdzwqk+JKcrhosmftuM user@host','',P+'user@host:~$'+PE+' _'])},
+copyid:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh-copy-id user@remotehost'+CE,'/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: ".ssh/id_ed25519.pub"',"The authenticity of host 'remotehost (192.168.1.10)' can't be established.",'ED25519 key fingerprint is SHA256:Qit7NeebQCgP20tx...','Are you sure you want to continue connecting (yes/no)? yes','/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed',"user@remotehost's password: ********",'',G+'Number of key(s) added: 1'+GE,"Now try logging into the machine, with: \"ssh 'user@remotehost'\"",'',P+'user@host:~$'+PE+' _'])},
+connect:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh user@remotehost'+CE,'Last login: Thu Jun 19 21:50:35 2025 from 192.168.1.5','',P+'user@remotehost:~$'+PE+' '+H+'# Connected via key-based auth!'+HE,'',P+'user@remotehost:~$'+PE+' _'])},
+agent:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'eval $(ssh-agent)'+CE,'Agent pid 1850','',P+'user@host:~$'+PE+' '+H+'# ssh-agent is now running. Use ssh-add to load keys.'+HE,'',P+'user@host:~$'+PE+' _'])},
+add:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh-add'+CE,'Identity added: /home/user/.ssh/id_ed25519 (user@host)','',P+'user@host:~$'+PE+' '+C+'ssh-add .ssh/key-with-pass'+CE,'Enter passphrase for .ssh/key-with-pass: my-secret','Identity added: .ssh/key-with-pass (user@host)','',P+'user@host:~$'+PE+' '+C+'ssh-add -l'+CE,'256 SHA256:+w3LTa7...mftuM user@host (ED25519)','256 SHA256:sb6vK...jN3YQ user@host (ED25519)','',P+'user@host:~$'+PE+' _'])},
+keyscan:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh-keyscan hostb >> ~/.ssh/known_hosts'+CE,'# hostb:22 SSH-2.0-OpenSSH_9.9','# hostb:22 SSH-2.0-OpenSSH_9.9','# hostb:22 SSH-2.0-OpenSSH_9.9','',P+'user@host:~$'+PE+' '+C+'ssh-keygen -lf ~/.ssh/known_hosts'+CE,'3072 SHA256:1PpHYtWyi... hostb (RSA)','256 SHA256:rMXtr4eS4... hostb (ECDSA)','256 SHA256:89iCuslLi... hostb (ED25519)','',P+'user@host:~$'+PE+' _'])},
+removekey:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh-keygen -R hostb'+CE,'# Host hostb found: line 1','# Host hostb found: line 2','# Host hostb found: line 3','/home/user/.ssh/known_hosts updated.','Original contents retained as /home/user/.ssh/known_hosts.old','',P+'user@host:~$'+PE+' _'])},
+fingerprint:function(){return simOutput([P+'[root@hostb ~]#'+PE+' '+C+'ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub'+CE,'256 SHA256:Qit7NeebQCgP20txXSaVXbw1irGmUVM... root@hostb (ED25519)','',P+'[root@hostb ~]#'+PE+' '+C+'ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub'+CE,'3072 SHA256:1PpHYtWyiygoQh548NRXxRn6GCMVHS... root@hostb (RSA)','',P+'[root@hostb ~]#'+PE+' _'])},
+verbose:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'ssh -v user@remotehost'+CE,'OpenSSH_9.9p1, OpenSSL 3.2.2 4 Jun 2024','debug1: Reading configuration data /etc/ssh/ssh_config','debug1: Connecting to remotehost [192.168.1.10] port 22.','debug1: Connection established.','debug1: Authenticating to remotehost:22 as \'user\'','debug1: Next authentication method: publickey','debug1: Offering public key: /home/user/.ssh/id_ed25519 ED25519',G+'debug1: Server accepts key: /home/user/.ssh/id_ed25519 ED25519'+GE,G+'debug1: Authentication succeeded (publickey).'+GE,'',P+'user@remotehost:~$'+PE+' _'])},
+configfile:function(){return simOutput([P+'user@host:~$'+PE+' '+C+'cat ~/.ssh/config'+CE,'host remotehosta','    HostName remotehosta.example.com','    User usera','    IdentityFile ~/.ssh/id_ed25519_remotehosta','','host remotehostb','    HostName remotehostb.example.com','    User userb','    IdentityFile ~/.ssh/id_ed25519_remotehostb','',H+'# Now you can simply run:'+HE,P+'user@host:~$'+PE+' '+C+'ssh remotehosta'+CE,H+'# instead of: ssh -i ~/.ssh/id_ed25519_remotehosta usera@remotehosta.example.com'+HE,'',P+'user@host:~$'+PE+' _'])}
+};
+
+function simRun(cmd){var o=document.getElementById('sim-out');if(simData[cmd])o.innerHTML=simData[cmd]();document.querySelectorAll('.sim-btn').forEach(function(b){b.classList.remove('active-btn')});if(event&&event.target)event.target.classList.add('active-btn')}
+
+function simCustom(){var cmd=document.getElementById('sim-cmd').value.trim().toLowerCase();var o=document.getElementById('sim-out');if(!cmd){o.innerHTML=H+'# Please enter a command.'+HE+'\n'+P+'user@host:~$'+PE+' _';return}
+if(cmd.indexOf('ssh-keygen -r')>=0||cmd.indexOf('ssh-keygen -R')>=0){simRun('removekey');return}
+if(cmd.indexOf('ssh-keygen -l')>=0){simRun('fingerprint');return}
+if(cmd.indexOf('ssh-keygen')>=0){simRun('keygen');return}
+if(cmd.indexOf('ssh-copy-id')>=0){simRun('copyid');return}
+if(cmd.indexOf('ssh-agent')>=0){simRun('agent');return}
+if(cmd.indexOf('ssh-add')>=0){simRun('add');return}
+if(cmd.indexOf('ssh-keyscan')>=0){simRun('keyscan');return}
+if(cmd.indexOf('ssh -v')>=0){simRun('verbose');return}
+if(cmd.indexOf('ssh ')>=0||cmd==='ssh'){simRun('connect');return}
+if(cmd.indexOf('cat')>=0&&cmd.indexOf('config')>=0){simRun('configfile');return}
+var safe=cmd.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+o.innerHTML=P+'user@host:~$'+PE+' '+safe+'\n'+R+'Simulator: Command not recognized. Try ssh-keygen, ssh-copy-id, ssh-add, ssh-agent, ssh-keyscan, or ssh.'+RE+'\n\n'+P+'user@host:~$'+PE+' _'}
+document.getElementById('sim-cmd').addEventListener('keypress',function(e){if(e.key==='Enter')simCustom()});
+
+/* Quiz */
+var answers={q1:'b',q2:'c',q3:'d',q4:'b',q5:'b'};
+var explanations={q1:{c:'Correct! ~/.ssh/known_hosts stores host keys for the current user.',i:'Incorrect. The user\'s known host keys are stored in ~/.ssh/known_hosts.'},q2:{c:'Correct! ssh-keygen generates SSH key pairs.',i:'Incorrect. ssh-keygen is the command that generates SSH key pairs.'},q3:{c:'Correct! RHEL 10 uses Ed25519 by default for SSH key generation.',i:'Incorrect. RHEL 10 uses Ed25519 by default, not RSA, DSA, or ECDSA.'},q4:{c:'Correct! prohibit-password blocks password auth for root but allows key-based.',i:'Incorrect. PermitRootLogin prohibit-password blocks passwords but allows keys.'},q5:{c:'Correct! ssh-keygen -R hostname removes outdated host key entries.',i:'Incorrect. Use ssh-keygen -R hostname to remove outdated host keys.'}};
+
+function checkQuiz(){var s=0,t=5;for(var q in answers){var sel=document.querySelector('input[name="'+q+'"]:checked');var fb=document.getElementById('fb'+q.charAt(1));fb.className='quiz-feedback';if(sel){if(sel.value===answers[q]){s++;fb.textContent=explanations[q].c;fb.classList.add('correct')}else{fb.textContent=explanations[q].i;fb.classList.add('incorrect')}}else{fb.textContent='Please select an answer.';fb.classList.add('incorrect')}}
+var sc=document.getElementById('quiz-score');sc.textContent='Score: '+s+' / '+t+' ('+Math.round(s/t*100)+'%)';sc.style.color=s>=4?'var(--rh-green-dark)':s>=3?'var(--rh-gold)':'var(--rh-red)';document.getElementById('reset-quiz').style.display='inline-block'}
+
+function resetQuiz(){document.querySelectorAll('#quiz input[type="radio"]').forEach(function(r){r.checked=false});document.querySelectorAll('.quiz-feedback').forEach(function(f){f.className='quiz-feedback'});document.getElementById('quiz-score').textContent='';document.getElementById('reset-quiz').style.display='none'}
+
+document.getElementById('mark-complete').addEventListener('click',function(){this.textContent='\u2713 Chapter Completed!';this.classList.add('completed');try{localStorage.setItem('rh124-ch19-complete','true')}catch(e){}});
+try{if(localStorage.getItem('rh124-ch19-complete')==='true'){var b=document.getElementById('mark-complete');b.textContent='\u2713 Chapter Completed!';b.classList.add('completed')}}catch(e){}
+</script>
+</body>
+</html>
