@@ -1929,6 +1929,58 @@
                         </span>
                     </div>
                 </a>
+
+                <!-- Chapter 19 Card -->
+                <a href="chapter19_configuring_securing_ssh.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch19-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Chapter 19</span>
+                        <h3 class="card-title" id="card-ch19-title">Configuring and Securing SSH</h3>
+                        <p class="card-subtitle">Secure remote access and key-based authentication</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Protect 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-ssh">SSH</button>
+                                <span class="tooltip-content" id="tooltip-ssh" role="tooltip">SSH (Secure Shell) provides encrypted remote login and command execution. It replaces insecure protocols like telnet and rsh, protecting credentials and data in transit.</span>
+                            </span>
+                            communication by managing 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-hostkeys">host keys</button>
+                                <span class="tooltip-content" id="tooltip-hostkeys" role="tooltip">Host keys verify server identity and prevent man-in-the-middle attacks. When you first connect, the server's public key is stored in ~/.ssh/known_hosts for future verification.</span>
+                            </span>
+                            and implementing 
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-keyauth">key-based authentication</button>
+                                <span class="tooltip-content" id="tooltip-keyauth" role="tooltip">Key-based authentication uses public/private key pairs instead of passwords. Generate keys with ssh-keygen and copy public keys to servers with ssh-copy-id for passwordless login.</span>
+                            </span>.
+                        </p>
+                        <ul class="card-topics">
+                            <li>SSH client and server configuration</li>
+                            <li>Managing SSH host keys</li>
+                            <li>Setting up key-based authentication</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -2143,6 +2195,16 @@
                 <div class="path-item" role="listitem">
                     <div class="path-marker" aria-hidden="true">21</div>
                     <div class="path-content">
+                        <h3 class="path-title">Configure and Secure SSH</h3>
+                        <p class="path-description">
+                            Chapter 19 teaches secure remote access—configuring SSH clients and servers, managing host keys, and implementing key-based authentication.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">22</div>
+                    <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
                             Keep the course schedule handy to track lab assignments, exam dates, and your progress through the semester.
@@ -2228,6 +2290,7 @@
                 <a href="chapter16_controlling_services.html" target="_blank" rel="noopener noreferrer">Chapter 16</a>
                 <a href="chapter17_intro_to_networking.html" target="_blank" rel="noopener noreferrer">Chapter 17</a>
                 <a href="chapter18_managing_network_config.html" target="_blank" rel="noopener noreferrer">Chapter 18</a>
+                <a href="chapter19_configuring_securing_ssh.html" target="_blank" rel="noopener noreferrer">Chapter 19</a>
             </nav>
         </div>
     </footer>
