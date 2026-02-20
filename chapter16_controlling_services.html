@@ -717,7 +717,130 @@ crond.service                       loaded active running   Command Scheduler
         <p>RH124: Red Hat System Administration I &#8226; Chapter 16 &#8226; Version 10.0</p>
         <p style="margin-top: 10px; font-size: 0.8rem;">&#169; Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
-025-05-22 10:30:00 UTC; 2h ago\n';
+    <script>
+    (function() {
+        'use strict';
+
+        // ==================== PROGRESS TRACKING ====================
+        var sections = document.querySelectorAll('.content-section');
+        var navButtons = document.querySelectorAll('.nav-btn');
+        var progressFill = document.getElementById('progress-fill');
+        var progressPercent = document.getElementById('progress-percent');
+        var visitedSections = new Set();
+
+        function updateProgress() {
+            var percentage = Math.round((visitedSections.size / sections.length) * 100);
+            progressFill.style.width = percentage + '%';
+            document.getElementById('progress-track').setAttribute('aria-valuenow', percentage);
+            progressPercent.textContent = percentage + '%';
+        }
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    var sectionId = entry.target.id;
+                    visitedSections.add(sectionId);
+                    updateProgress();
+                    navButtons.forEach(function(btn) {
+                        btn.classList.remove('active');
+                        if (btn.getAttribute('href') === '#' + sectionId) btn.classList.add('active');
+                        if (visitedSections.has(btn.getAttribute('href').substring(1))) btn.classList.add('visited');
+                    });
+                }
+            });
+        }, { threshold: 0.3 });
+        sections.forEach(function(s) { observer.observe(s); });
+
+        navButtons.forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // ==================== TABS ====================
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var tabGroup = this.closest('.tabs');
+                tabGroup.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+                tabGroup.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                this.classList.add('active');
+                this.setAttribute('aria-selected', 'true');
+                var targetId = this.getAttribute('aria-controls');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // ==================== EXPANDABLE ====================
+        window.toggleExpand = function(btn) {
+            var expanded = btn.getAttribute('aria-expanded') === 'true';
+            btn.setAttribute('aria-expanded', !expanded);
+            btn.nextElementSibling.classList.toggle('show');
+        };
+
+        // ==================== QUIZ ====================
+        var answers = { q1: 'b', q2: 'c', q3: 'b', q4: 'c', q5: 'c' };
+        var explanations = {
+            q1: { correct: 'Correct! systemctl enable --now starts the service and enables it for boot.', incorrect: 'Incorrect. Use "systemctl enable --now" to both enable and start a service.' },
+            q2: { correct: 'Correct! Masking links the unit to /dev/null, preventing all starts.', incorrect: 'Incorrect. Masking prevents a service from starting both manually and at boot by linking to /dev/null.' },
+            q3: { correct: 'Correct! systemctl is-enabled checks the boot-time startup setting.', incorrect: 'Incorrect. Use "systemctl is-enabled" to check if a service starts at boot.' },
+            q4: { correct: 'Correct! systemd is the first process (PID 1) on RHEL systems.', incorrect: 'Incorrect. systemd runs as PID 1 on RHEL systems, replacing the older SysVinit.' },
+            q5: { correct: 'Correct! Socket units (.socket) enable on-demand service activation.', incorrect: 'Incorrect. Socket units (.socket) represent IPC sockets and enable on-demand activation.' }
+        };
+
+        window.gradeQuiz = function() {
+            var score = 0;
+            var keys = Object.keys(answers);
+            for (var i = 0; i < keys.length; i++) {
+                var qId = keys[i];
+                var correctAns = answers[qId];
+                var selected = document.querySelector('input[name="' + qId + '"]:checked');
+                var qEl = document.getElementById(qId);
+                var fbEl = document.getElementById('fb' + qId.substring(1));
+                qEl.querySelectorAll('.quiz-option').forEach(function(o) { o.classList.remove('correct-answer', 'wrong-answer', 'selected'); });
+
+                if (selected) {
+                    selected.closest('.quiz-option').classList.add('selected');
+                    if (selected.value === correctAns) {
+                        score++;
+                        qEl.classList.add('correct'); qEl.classList.remove('incorrect');
+                        selected.closest('.quiz-option').classList.add('correct-answer');
+                        fbEl.className = 'quiz-feedback show correct';
+                        fbEl.textContent = explanations[qId].correct;
+                    } else {
+                        qEl.classList.add('incorrect'); qEl.classList.remove('correct');
+                        selected.closest('.quiz-option').classList.add('wrong-answer');
+                        qEl.querySelectorAll('.quiz-option').forEach(function(o) {
+                            if (o.querySelector('input').value === correctAns) o.classList.add('correct-answer');
+                        });
+                        fbEl.className = 'quiz-feedback show incorrect';
+                        fbEl.textContent = explanations[qId].incorrect;
+                    }
+                } else {
+                    fbEl.className = 'quiz-feedback show incorrect';
+                    fbEl.textContent = 'Please select an answer.';
+                }
+            }
+            var scoreEl = document.getElementById('quiz-score');
+            scoreEl.className = 'quiz-score show';
+            var msg = score >= 4 ? ' &#127881; Excellent!' : score >= 3 ? ' &#128077; Good job!' : ' &#128218; Review the material and try again.';
+            scoreEl.innerHTML = 'You scored <strong>' + score + ' out of 5</strong>' + msg;
+        };
+
+        // ==================== SIMULATOR ====================
+        var simState = { active: true, enabled: true };
+
+        window.simCommand = function(cmd) {
+            var output = document.getElementById('sim-output');
+            var result = '<span style="color:#66BB6A;">[root@workstation ~]#</span> <span style="color:#fff;font-weight:bold;">systemctl ' + cmd + ' chronyd.service</span>\n';
+
+            switch(cmd) {
+                case 'status':
+                    if (simState.active) {
+                        result += '<span style="color:#66BB6A;">&#9679;</span> chronyd.service - NTP client/server\n';
+                        result += '     Loaded: loaded (/usr/lib/systemd/system/chronyd.service; ' + (simState.enabled ? 'enabled' : 'disabled') + '; preset: enabled)\n';
+                        result += '     Active: <span style="color:#66BB6A;">active (running)</span> since Sat 2025-05-22 10:30:00 UTC; 2h ago\n';
                         result += '   Main PID: 1234 (chronyd)\n';
                         result += '      Tasks: 1 (limit: 35724)\n';
                         result += '     Memory: 2.1M\n';
