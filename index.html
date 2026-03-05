@@ -295,21 +295,42 @@
             margin: 0 auto;
         }
 
+        .course-badges {
+            display: inline-flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-md);
+            border-radius: 50px;
+            overflow: hidden;
+        }
+
         .course-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: var(--rh-red);
             color: var(--rh-white);
-            padding: 10px 24px;
-            border-radius: 50px;
+            padding: 10px 22px;
             font-family: var(--font-display);
             font-weight: 700;
             font-size: 0.9rem;
             letter-spacing: 1.5px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
             text-transform: uppercase;
+        }
+
+        .course-badge-rh124 {
+            background: var(--rh-red);
+        }
+
+        .course-badge-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.35);
+            flex-shrink: 0;
+        }
+
+        .course-badge-rh134 {
+            background: var(--rh-blue-dark);
         }
 
         .course-badge svg {
@@ -993,11 +1014,20 @@
     <!-- Hero Header -->
     <header class="hero-header" role="banner">
         <div class="hero-content">
-            <div class="course-badge">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                </svg>
-                <span>RH124</span>
+            <div class="course-badges" role="text" aria-label="Course codes: RH124 and RH134">
+                <div class="course-badge course-badge-rh124">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>RH124</span>
+                </div>
+                <div class="course-badge-divider" aria-hidden="true"></div>
+                <div class="course-badge course-badge-rh134">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span>RH134</span>
+                </div>
             </div>
             <h1>Red Hat System Administration I and II</h1>
             <p class="hero-subtitle">
