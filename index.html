@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RH124/RH134: Red Hat System Administration I and II | Course Portal</title>
-    <meta name="description" content="Course portal for RH124 Red Hat System Administration I - Access course schedule, introduction, and chapter materials.">
+    <meta name="description" content="Course portal for RH124 Red Hat System Administration I and RH134 Red Hat System Administration II - Access course schedule, introduction, and chapter materials for both courses.">
     <style>
         /* ==================== CSS VARIABLES - Web Safe Colors ==================== */
         :root {
@@ -493,6 +493,75 @@
             fill: var(--rh-white);
         }
 
+        /* ==================== COURSE SECTION DIVIDERS ==================== */
+        .course-section-divider {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0 8px;
+        }
+
+        .course-section-divider .divider-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .course-section-divider .divider-badge svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .course-section-divider .divider-line {
+            flex: 1;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .course-section-divider .divider-desc {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            color: var(--rh-gray);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* RH124 divider - Red theme */
+        .divider-rh124 .divider-badge {
+            background: var(--rh-red);
+            color: var(--rh-white);
+        }
+        .divider-rh124 .divider-line {
+            background: linear-gradient(90deg, var(--rh-red) 0%, var(--rh-gray-light) 100%);
+        }
+
+        /* RH134 divider - Blue theme */
+        .divider-rh134 .divider-badge {
+            background: var(--rh-blue-dark);
+            color: var(--rh-white);
+        }
+        .divider-rh134 .divider-line {
+            background: linear-gradient(90deg, var(--rh-blue-dark) 0%, var(--rh-gray-light) 100%);
+        }
+
+        /* RH134 chapter card variant - blue accent */
+        .card-chapter-rh134 .card-header::before {
+            background: linear-gradient(90deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%);
+        }
+        .card-chapter-rh134 .card-icon {
+            background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%);
+        }
+
         .card-number {
             position: absolute;
             top: 20px;
@@ -726,6 +795,44 @@
             font-size: 0.95rem;
             color: var(--rh-gray-dark);
             line-height: 1.6;
+        }
+
+        /* Learning path section break (RH124 -> RH134 transition) */
+        .path-section-break {
+            position: relative;
+            padding: 24px 0 16px;
+        }
+
+        .path-section-break .path-break-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 18px;
+            border-radius: var(--radius-lg);
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .path-section-break.rh134-break .path-break-label {
+            background: var(--rh-blue-dark);
+            color: var(--rh-white);
+        }
+
+        .path-section-break.rh134-break .path-marker {
+            border-color: var(--rh-blue-dark);
+            color: var(--rh-blue-dark);
+            background: var(--rh-white);
+        }
+
+        .path-item.rh134-step .path-marker {
+            border-color: var(--rh-blue-dark) !important;
+            color: var(--rh-blue-dark) !important;
+        }
+
+        .path-item.rh134-step .path-content {
+            border-left: 4px solid var(--rh-blue-dark);
         }
 
         /* ==================== FOOTER ==================== */
@@ -1031,6 +1138,18 @@
                     </div>
                 </a>
 
+                <!-- RH124 Section Divider -->
+                <div class="course-section-divider divider-rh124" role="separator" aria-label="RH124 Red Hat System Administration I chapters">
+                    <div class="divider-badge">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
+                        </svg>
+                        RH124
+                    </div>
+                    <div class="divider-line" aria-hidden="true"></div>
+                    <span class="divider-desc">Red Hat System Administration I &mdash; Chapters 1&ndash;19</span>
+                </div>
+
                 <!-- Chapter 1 Card -->
                 <a href="chapter1_intro_to_rhel.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch1-title">
                     <div class="card-header">
@@ -1310,11 +1429,11 @@
                             </span>, 
                             <span class="tooltip-container">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-mv">mv</button>
-                                <span class="tooltip-content" id="tooltip-mv" role="tooltip">The mv command moves or renames files and directories. Unlike cp, it doesn't create a copy—it relocates the original file to a new location or name.</span>
+                                <span class="tooltip-content" id="tooltip-mv" role="tooltip">The mv command moves or renames files and directories. Unlike cp, it doesn't create a copyâ€”it relocates the original file to a new location or name.</span>
                             </span>, and 
                             <span class="tooltip-container tooltip-right">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rm">rm</button>
-                                <span class="tooltip-content" id="tooltip-rm" role="tooltip">The rm command removes files and directories. Use with caution—deleted files cannot be easily recovered. The -r flag removes directories recursively.</span>
+                                <span class="tooltip-content" id="tooltip-rm" role="tooltip">The rm command removes files and directories. Use with cautionâ€”deleted files cannot be easily recovered. The -r flag removes directories recursively.</span>
                             </span>
                             to manage your Linux filesystem.
                         </p>
@@ -1364,7 +1483,7 @@
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-nano">Nano</button>
                                 <span class="tooltip-content" id="tooltip-nano" role="tooltip">Nano is a simple, user-friendly text editor with on-screen command hints. It's ideal for beginners and quick edits, using familiar keyboard shortcuts like Ctrl+O to save.</span>
                             </span>
-                            —essential skills for any Linux administrator.
+                            â€”essential skills for any Linux administrator.
                         </p>
                         <ul class="card-topics">
                             <li>Vim modes and basic commands</li>
@@ -1981,6 +2100,130 @@
                         </span>
                     </div>
                 </a>
+
+                <!-- RH134 Section Divider -->
+                <div class="course-section-divider divider-rh134" role="separator" aria-label="RH134 Red Hat System Administration II chapters">
+                    <div class="divider-badge">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
+                        </svg>
+                        RH134
+                    </div>
+                    <div class="divider-line" aria-hidden="true"></div>
+                    <span class="divider-desc">Red Hat System Administration II &mdash; Advanced Topics</span>
+                </div>
+
+                <!-- RH134 Chapter 1 Card -->
+                <a href="rh134_chapter1_shell_scripting.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch1-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 1</span>
+                        <h3 class="card-title" id="card-rh134-ch1-title">Improving Command Line Productivity</h3>
+                        <p class="card-subtitle">Shell scripting, loops, and automation techniques</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Boost your productivity by writing 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-shellscript">shell scripts</button>
+                                <span class="tooltip-content" id="tooltip-shellscript" role="tooltip">A shell script is a text file containing a sequence of shell commands. Scripts automate repetitive tasks, and can include variables, conditionals, loops, and functions to create powerful automation tools.</span>
+                            </span>
+                            that automate repetitive tasks. Learn to use 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-loops">loops</button>
+                                <span class="tooltip-content" id="tooltip-loops" role="tooltip">Loops (for, while, until) allow you to repeat commands for each item in a list or until a condition is met. They are fundamental building blocks for automating tasks across multiple files, users, or systems.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-conditionals">conditionals</button>
+                                <span class="tooltip-content" id="tooltip-conditionals" role="tooltip">Conditionals (if/then/else, case) let scripts make decisions based on exit codes, string comparisons, or file tests. They control the flow of execution and allow scripts to handle varying conditions gracefully.</span>
+                            </span>, and 
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-regex">regular expressions</button>
+                                <span class="tooltip-content" id="tooltip-regex" role="tooltip">Regular expressions (regex) are patterns used to match and manipulate text. Tools like grep, sed, and awk use regex to search, filter, and transform text streams, making complex text processing possible in a single command.</span>
+                            </span>
+                            to process text and make decisions in your scripts.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Writing and executing shell scripts</li>
+                            <li>Using loops and conditional logic</li>
+                            <li>Regular expressions with grep and sed</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 2 Card -->
+                <a href="rh134_chapter2_regex.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch2-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 2</span>
+                        <h3 class="card-title" id="card-rh134-ch2-title">Using Regular Expressions</h3>
+                        <p class="card-subtitle">Pattern matching with grep, sed, and awk</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Master 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-regex2">regular expressions</button>
+                                <span class="tooltip-content" id="tooltip-regex2" role="tooltip">Regular expressions (regex) are patterns that describe sets of strings. They use special characters like anchors (^ $), quantifiers (* + ?), and character classes ([a-z]) to match text with precision in tools like grep, sed, and awk.</span>
+                            </span>
+                            to search, filter, and transform text. Use 
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-grep2">grep</button>
+                                <span class="tooltip-content" id="tooltip-grep2" role="tooltip">grep (Global Regular Expression Print) searches files or input for lines matching a pattern. Use grep -E for extended regex, grep -i for case-insensitive, grep -v to invert matches, and grep -r to search directories recursively.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-sed2">sed</button>
+                                <span class="tooltip-content" id="tooltip-sed2" role="tooltip">sed (Stream EDitor) performs text transformations on an input stream. The substitution command s/pattern/replacement/ is most common. Add the -i flag to edit files in place and g to replace all occurrences on a line.</span>
+                            </span>, and 
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-awk2">awk</button>
+                                <span class="tooltip-content" id="tooltip-awk2" role="tooltip">awk is a powerful text-processing tool that processes files line by line. It splits each line into fields ($1, $2, etc.) and runs pattern-action pairs, making it ideal for extracting columns, computing sums, and reformatting structured data.</span>
+                            </span>
+                            in pipelines to analyze logs and configuration files.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Basic and extended regex patterns</li>
+                            <li>grep, egrep, sed, and awk</li>
+                            <li>Log file analysis and troubleshooting</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
             </div>
         </section>
 
@@ -2017,7 +2260,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Master the Command Line</h3>
                         <p class="path-description">
-                            Chapter 2 teaches the fundamental skills you'll use throughout your career—terminal navigation, shell commands, and efficient workflows.
+                            Chapter 2 teaches the fundamental skills you'll use throughout your careerâ€”terminal navigation, shell commands, and efficient workflows.
                         </p>
                     </div>
                 </div>
@@ -2067,7 +2310,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Files Like a Pro</h3>
                         <p class="path-description">
-                            Chapter 7 builds on filesystem knowledge with hands-on file operations—copying, moving, linking, and safely deleting files from the command line.
+                            Chapter 7 builds on filesystem knowledge with hands-on file operationsâ€”copying, moving, linking, and safely deleting files from the command line.
                         </p>
                     </div>
                 </div>
@@ -2077,7 +2320,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Edit Text Files</h3>
                         <p class="path-description">
-                            Chapter 8 teaches you to use Vim and Nano text editors—essential tools for editing configuration files and scripts on any Linux system.
+                            Chapter 8 teaches you to use Vim and Nano text editorsâ€”essential tools for editing configuration files and scripts on any Linux system.
                         </p>
                     </div>
                 </div>
@@ -2087,7 +2330,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Practice with Simulators</h3>
                         <p class="path-description">
-                            Reinforce your text editing skills with the Chapter 8 Practice Lab—interactive Vim and Nano simulators that let you practice safely in your browser.
+                            Reinforce your text editing skills with the Chapter 8 Practice Labâ€”interactive Vim and Nano simulators that let you practice safely in your browser.
                         </p>
                     </div>
                 </div>
@@ -2097,7 +2340,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Master I/O Redirection</h3>
                         <p class="path-description">
-                            Chapter 9 teaches you to redirect command output, chain commands with pipes, and work with standard streams—fundamental skills for shell scripting.
+                            Chapter 9 teaches you to redirect command output, chain commands with pipes, and work with standard streamsâ€”fundamental skills for shell scripting.
                         </p>
                     </div>
                 </div>
@@ -2107,7 +2350,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Users and Groups</h3>
                         <p class="path-description">
-                            Chapter 10 covers user and group administration—creating accounts, managing permissions, and implementing security policies for multi-user systems.
+                            Chapter 10 covers user and group administrationâ€”creating accounts, managing permissions, and implementing security policies for multi-user systems.
                         </p>
                     </div>
                 </div>
@@ -2117,7 +2360,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Control File Access</h3>
                         <p class="path-description">
-                            Chapter 11 teaches Linux file permissions—understanding read, write, and execute access, using chmod and chown, and setting default permissions with umask.
+                            Chapter 11 teaches Linux file permissionsâ€”understanding read, write, and execute access, using chmod and chown, and setting default permissions with umask.
                         </p>
                     </div>
                 </div>
@@ -2127,7 +2370,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Install and Update Software</h3>
                         <p class="path-description">
-                            Chapter 12 covers RPM package management—installing, updating, and removing software using DNF, and managing software repositories on RHEL systems.
+                            Chapter 12 covers RPM package managementâ€”installing, updating, and removing software using DNF, and managing software repositories on RHEL systems.
                         </p>
                     </div>
                 </div>
@@ -2137,7 +2380,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Explore Flatpak Applications</h3>
                         <p class="path-description">
-                            Chapter 13 introduces Flatpak—a modern approach to application deployment using sandboxed containers for enhanced security and cross-distribution compatibility.
+                            Chapter 13 introduces Flatpakâ€”a modern approach to application deployment using sandboxed containers for enhanced security and cross-distribution compatibility.
                         </p>
                     </div>
                 </div>
@@ -2157,7 +2400,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Monitor and Manage Processes</h3>
                         <p class="path-description">
-                            Chapter 15 covers process management—viewing running processes, understanding system resource usage, and controlling processes with signals and priorities.
+                            Chapter 15 covers process managementâ€”viewing running processes, understanding system resource usage, and controlling processes with signals and priorities.
                         </p>
                     </div>
                 </div>
@@ -2167,7 +2410,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Control Services and Daemons</h3>
                         <p class="path-description">
-                            Chapter 16 teaches systemd service management—starting, stopping, enabling, and configuring system services using systemctl commands.
+                            Chapter 16 teaches systemd service managementâ€”starting, stopping, enabling, and configuring system services using systemctl commands.
                         </p>
                     </div>
                 </div>
@@ -2177,7 +2420,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Explore Linux Networking</h3>
                         <p class="path-description">
-                            Chapter 17 introduces networking fundamentals—TCP/IP concepts, configuring network interfaces with nmcli and ip commands, and troubleshooting connectivity.
+                            Chapter 17 introduces networking fundamentalsâ€”TCP/IP concepts, configuring network interfaces with nmcli and ip commands, and troubleshooting connectivity.
                         </p>
                     </div>
                 </div>
@@ -2187,7 +2430,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Network Configuration</h3>
                         <p class="path-description">
-                            Chapter 18 covers advanced networking—managing connections with nmcli, editing configuration files, and configuring hostnames and DNS resolution.
+                            Chapter 18 covers advanced networkingâ€”managing connections with nmcli, editing configuration files, and configuring hostnames and DNS resolution.
                         </p>
                     </div>
                 </div>
@@ -2197,19 +2440,49 @@
                     <div class="path-content">
                         <h3 class="path-title">Configure and Secure SSH</h3>
                         <p class="path-description">
-                            Chapter 19 teaches secure remote access—configuring SSH clients and servers, managing host keys, and implementing key-based authentication.
+                            Chapter 19 teaches secure remote access&mdash;configuring SSH clients and servers, managing host keys, and implementing key-based authentication.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RH134 Section Break in Learning Path -->
+                <div class="path-section-break rh134-break" role="listitem" aria-label="Beginning of RH134 content">
+                    <div class="path-marker" style="border-color:var(--rh-blue-dark);color:var(--rh-blue-dark);" aria-hidden="true">&#9654;</div>
+                    <div class="path-content" style="background:var(--rh-blue-dark);padding:14px 20px;">
+                        <p style="color:#FFFFFF;font-family:var(--font-display);font-weight:700;font-size:1rem;margin:0;">RH134 &mdash; Red Hat System Administration II</p>
+                        <p style="color:#AACCFF;font-size:0.85rem;margin-top:4px;font-family:var(--font-display);margin-bottom:0;">Advanced system administration topics begin here</p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">22</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Automate Tasks with Shell Scripting</h3>
+                        <p class="path-description">
+                            RH134 Chapter 1 builds on your command-line skills&mdash;writing shell scripts with variables, conditionals, loops, and functions to automate repetitive system administration tasks.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">23</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Master Regular Expressions</h3>
+                        <p class="path-description">
+                            RH134 Chapter 2 teaches regular expressions for practical text processing&mdash;using grep, sed, and awk to search, filter, and transform log files and configuration files.
                         </p>
                     </div>
                 </div>
 
                 <div class="path-item" role="listitem">
-                    <div class="path-marker" aria-hidden="true">22</div>
+                    <div class="path-marker" aria-hidden="true">24</div>
                     <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
-                            Keep the course schedule handy to track lab assignments, exam dates, and your progress through the semester.
+                            Keep the course schedule handy to track lab assignments, exam dates, and your progress through the full 15-week semester covering both RH124 and RH134.
                         </p>
                     </div>
+                </div>
                 </div>
             </div>
         </section>
@@ -2291,6 +2564,8 @@
                 <a href="chapter17_intro_to_networking.html" target="_blank" rel="noopener noreferrer">Chapter 17</a>
                 <a href="chapter18_managing_network_config.html" target="_blank" rel="noopener noreferrer">Chapter 18</a>
                 <a href="chapter19_configuring_securing_ssh.html" target="_blank" rel="noopener noreferrer">Chapter 19</a>
+                <a href="rh134_chapter1_shell_scripting.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 1</a>
+                <a href="rh134_chapter2_regex.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 2</a>
             </nav>
         </div>
     </footer>
