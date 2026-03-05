@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 1: Shell Scripting and the Command Line | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            color: var(--rh-white);
+            padding: 40px 24px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .main-header::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 700; margin-bottom: 8px;
+        }
+        .chapter-subtitle {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            font-weight: 300; opacity: 0.9; margin-bottom: 16px;
+        }
+        .header-meta {
+            display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+            font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85;
+        }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-white); padding: 10px 24px;
+            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100;
+            border-bottom: 2px solid var(--rh-gray-lighter);
+        }
+        .progress-bar-track {
+            background: var(--rh-gray-lighter); border-radius: 10px; height: 8px;
+            max-width: var(--content-width); margin: 0 auto; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light));
+            border-radius: 10px; width: 0%; transition: width 0.4s ease;
+        }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav {
+            background: var(--rh-white); padding: 12px 24px;
+            box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter);
+            overflow-x: auto;
+        }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn {
+            display: inline-block; padding: 6px 12px;
+            font-family: var(--font-display); font-size: 0.78rem; font-weight: 500;
+            color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm);
+            transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap;
+        }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section {
+            background: var(--rh-white); border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden;
+        }
+        .section-header {
+            background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black));
+            color: var(--rh-white); padding: 20px 30px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .section-number {
+            background: var(--rh-red); color: var(--rh-white);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block {
+            background: #1E1E1E; color: #D4D4D4;
+            padding: 20px; border-radius: var(--radius-md);
+            font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7;
+            overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red);
+        }
+        .code-title {
+            background: var(--rh-red-dark); color: var(--rh-white);
+            padding: 6px 16px; margin: -20px -20px 16px -20px;
+            font-family: var(--font-display); font-size: 0.8rem; font-weight: 600;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-keyword { color: #C586C0; }
+        .code-string { color: #CE9178; }
+        .code-variable { color: #4FC1FF; }
+        code.inline {
+            background: var(--rh-gray-lighter); color: var(--rh-red-dark);
+            padding: 2px 8px; border-radius: var(--radius-sm);
+            font-family: var(--font-mono); font-size: 0.9em;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        /* Terms are styled inline; the actual tooltip bubble is a single
+           global #tooltip-bubble element positioned with JS using fixed coords,
+           so it can never be clipped by overflow:hidden ancestors.            */
+        .tooltip-term {
+            color: var(--rh-blue);
+            text-decoration: underline dotted var(--rh-blue);
+            text-underline-offset: 3px;
+            cursor: help;
+            font-weight: 600;
+        }
+        /* Hide the inline tooltip-content from layout/screen — text is read
+           by JS and shown in the global bubble instead */
+        .tooltip-content {
+            display: none !important;
+        }
+        /* ---- Global tooltip bubble (injected by JS into <body>) ---- */
+        #tooltip-bubble {
+            position: fixed;
+            z-index: 99999;
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            padding: 11px 15px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            font-weight: 400;
+            line-height: 1.5;
+            max-width: 300px;
+            width: max-content;
+            box-shadow: var(--shadow-lg);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        #tooltip-bubble.visible { opacity: 1; }
+        /* Arrow pseudo-element — direction set via data-dir attribute */
+        #tooltip-bubble::after {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+        }
+        #tooltip-bubble[data-dir="above"]::after {
+            top: 100%; left: var(--arrow-x, 50%);
+            transform: translateX(-50%);
+            border-top-color: var(--rh-gray-dark);
+        }
+        #tooltip-bubble[data-dir="below"]::after {
+            bottom: 100%; left: var(--arrow-x, 50%);
+            transform: translateX(-50%);
+            border-bottom-color: var(--rh-gray-dark);
+        }
+        #tooltip-bubble[data-dir="left"]::after {
+            left: 100%; top: var(--arrow-y, 50%);
+            transform: translateY(-50%);
+            border-left-color: var(--rh-gray-dark);
+        }
+        #tooltip-bubble[data-dir="right"]::after {
+            right: 100%; top: var(--arrow-y, 50%);
+            transform: translateY(-50%);
+            border-right-color: var(--rh-gray-dark);
+        }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box {
+            border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0;
+            border-left: 5px solid;
+        }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.info { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box-header {
+            display: flex; align-items: center; gap: 8px;
+            font-family: var(--font-display); font-weight: 700; font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning .note-box-header { color: #8B6914; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.info .note-box-header { color: var(--rh-blue-dark); }
+        .note-box p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .data-table tr:hover { background: #E8E8E8; }
+        .data-table code { font-family: var(--font-mono); background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 0.88rem; }
+
+        /* ==================== TABS ==================== */
+        .tabs { margin: 20px 0; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn {
+            padding: 10px 18px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+            border: none; background: transparent; cursor: pointer; color: var(--rh-gray);
+            border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px;
+        }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE ==================== */
+        .expandable { margin: 12px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-header {
+            width: 100%; padding: 14px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            background: var(--rh-gray-lighter); border: none; cursor: pointer;
+            font-family: var(--font-display); font-size: 0.95rem; font-weight: 600;
+            color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left;
+        }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expand-icon { transition: transform var(--transition-fast); font-size: 1.1rem; }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question {
+            background: var(--rh-gray-lighter); border-radius: var(--radius-md);
+            padding: 20px; margin-bottom: 16px; border: 2px solid transparent;
+            transition: border-color var(--transition-fast);
+        }
+        .quiz-question.correct { border-color: var(--rh-green); }
+        .quiz-question.incorrect { border-color: var(--rh-red); }
+        .quiz-question h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 12px; color: var(--rh-gray-dark); }
+        .quiz-options { display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option {
+            display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+            border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm);
+            cursor: pointer; transition: all var(--transition-fast);
+            font-family: var(--font-display); font-size: 0.9rem; background: var(--rh-white);
+        }
+        .quiz-option:hover { border-color: var(--rh-blue); background: #F0F8FF; }
+        .quiz-option.correct-answer { border-color: var(--rh-green); background: #E8F5E9; }
+        .quiz-option.wrong-answer { border-color: var(--rh-red); background: #FFEBEE; }
+        .quiz-option input { margin-top: 3px; flex-shrink: 0; }
+        .quiz-feedback {
+            margin-top: 10px; padding: 10px; border-radius: var(--radius-sm);
+            font-family: var(--font-display); font-size: 0.9rem; display: none;
+        }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #E8F5E9; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background: #FFEBEE; color: #C62828; }
+        .quiz-btn {
+            padding: 12px 28px; background: var(--rh-red); color: var(--rh-white);
+            border: none; border-radius: var(--radius-md); font-family: var(--font-display);
+            font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 16px;
+            transition: background var(--transition-fast);
+        }
+        .quiz-btn:hover { background: var(--rh-red-dark); }
+        .quiz-btn.reset { background: var(--rh-gray); margin-left: 12px; }
+        .quiz-btn.reset:hover { background: var(--rh-gray-dark); }
+        .quiz-score {
+            display: none; margin-top: 16px; padding: 16px; text-align: center;
+            background: var(--rh-gray-lighter); border-radius: var(--radius-md);
+            font-family: var(--font-display); font-size: 1.1rem; font-weight: 600;
+        }
+        .quiz-score.show { display: block; }
+
+        /* ==================== LAB ==================== */
+        .lab-header {
+            background: linear-gradient(135deg, var(--rh-teal-dark), var(--rh-teal));
+            color: var(--rh-white); padding: 20px 24px; border-radius: var(--radius-md);
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+        }
+        .lab-icon { font-size: 1.8rem; }
+        .lab-title { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; }
+        .lab-scenario {
+            background: #F0FFF0; border: 2px solid var(--rh-green);
+            border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px;
+        }
+        .lab-scenario h4 { font-family: var(--font-display); color: var(--rh-green-dark); margin-bottom: 8px; }
+        .checklist { list-style: none; margin: 0 0 0 0; }
+        .checklist li { padding: 6px 0; font-family: var(--font-display); display: flex; align-items: flex-start; gap: 10px; }
+        .checklist li::before { content: '&#10003;'; color: var(--rh-green); font-weight: 900; flex-shrink: 0; }
+
+        /* ==================== INTERACTIVE SIMULATOR ==================== */
+        .simulator {
+            background: #0D1117; border-radius: var(--radius-md);
+            padding: 0; margin: 20px 0; overflow: hidden;
+            border: 2px solid #30363D; font-family: var(--font-mono);
+        }
+        .sim-titlebar {
+            background: #21262D; padding: 10px 16px;
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid #30363D;
+        }
+        .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .sim-dot.red { background: #FF5F57; }
+        .sim-dot.yellow { background: #FFBD2E; }
+        .sim-dot.green { background: #28C840; }
+        .sim-title { color: #8B949E; font-family: var(--font-display); font-size: 0.82rem; margin-left: 8px; }
+        .sim-output {
+            padding: 16px 20px; color: #C9D1D9; font-size: 0.85rem;
+            line-height: 1.7; min-height: 120px; max-height: 280px; overflow-y: auto;
+        }
+        .sim-prompt-line { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+        .sim-prompt-text { color: #4EC9B0; white-space: nowrap; }
+        .sim-input {
+            background: transparent; border: none; color: #C9D1D9;
+            font-family: var(--font-mono); font-size: 0.85rem; flex: 1;
+            outline: none; caret-color: #C9D1D9;
+        }
+        .sim-buttons { display: flex; gap: 8px; padding: 12px 20px; background: #161B22; border-top: 1px solid #30363D; flex-wrap: wrap; }
+        .sim-btn {
+            padding: 6px 14px; background: #21262D; color: #C9D1D9; border: 1px solid #30363D;
+            border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.8rem;
+            cursor: pointer; transition: all var(--transition-fast);
+        }
+        .sim-btn:hover { background: #388BFD; color: #FFFFFF; border-color: #388BFD; }
+        .sim-output .out-prompt { color: #4EC9B0; }
+        .sim-output .out-cmd { color: #FFFFFF; font-weight: 600; }
+        .sim-output .out-result { color: #9CDCFE; }
+        .sim-output .out-error { color: #F44747; }
+        .sim-output .out-comment { color: #6A9955; font-style: italic; }
+
+        /* ==================== SCRIPT FLOW DIAGRAM ==================== */
+        .flow-diagram {
+            background: var(--rh-gray-lighter); border-radius: var(--radius-md);
+            padding: 24px; margin: 20px 0; overflow-x: auto;
+        }
+        .flow-row { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+        .flow-box {
+            padding: 10px 16px; border-radius: var(--radius-sm);
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            text-align: center; min-width: 120px;
+        }
+        .flow-start { background: #E8F5E9; color: #1B5E20; border: 2px solid #388E3C; }
+        .flow-process { background: #E3F2FD; color: #0D47A1; border: 2px solid #1976D2; }
+        .flow-decision { background: #FFF8E1; color: #E65100; border: 2px solid #F57C00; border-radius: 8px; }
+        .flow-end { background: #FCE4EC; color: #880E4F; border: 2px solid #C2185B; }
+        .flow-arrow { color: var(--rh-gray); font-size: 1.4rem; }
+        .flow-label { font-family: var(--font-display); font-size: 0.78rem; color: var(--rh-gray); font-style: italic; }
+
+        /* ==================== CONCEPT CARDS ==================== */
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 20px 0; }
+        .concept-card {
+            padding: 20px; border-radius: var(--radius-md); border: 2px solid;
+            transition: all var(--transition-fast); cursor: default;
+        }
+        .concept-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .concept-card h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .concept-card p { font-size: 0.88rem; font-family: var(--font-display); line-height: 1.5; margin: 0; }
+        .cc-blue { background: #E3F2FD; color: #0D47A1; border-color: #1976D2; }
+        .cc-green { background: #E8F5E9; color: #1B5E20; border-color: #388E3C; }
+        .cc-orange { background: #FFF3E0; color: #BF360C; border-color: #E64A19; }
+        .cc-purple { background: #F3E5F5; color: #4A148C; border-color: #7B1FA2; }
+        .cc-teal { background: #E0F2F1; color: #004D40; border-color: #00796B; }
+        .cc-red { background: #FFEBEE; color: #B71C1C; border-color: #C62828; }
+
+        /* ==================== COMMAND REFERENCE TABLE ==================== */
+        .cmd-ref { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin: 20px 0; }
+        .cmd-ref h4 { font-family: var(--font-display); color: var(--rh-gray-dark); margin-bottom: 16px; font-size: 1.1rem; }
+
+        /* ==================== KEY-VALUE BOX ==================== */
+        .kv-box { background: linear-gradient(135deg, #FFF8E1, #FFFDE7); border: 2px solid var(--rh-gold); border-radius: var(--radius-md); padding: 20px; margin: 20px 0; }
+        .kv-box h4 { font-family: var(--font-display); color: #7B5800; margin-bottom: 12px; }
+        .kv-box p { margin-bottom: 0; }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 30px 0; }
+        .nav-chapter-btn {
+            padding: 12px 24px; border-radius: var(--radius-md);
+            font-family: var(--font-display); font-size: 0.9rem; font-weight: 600;
+            text-decoration: none; transition: all var(--transition-fast); border: 2px solid;
+        }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-chapter-btn.next:hover { background: var(--rh-red-dark); border-color: var(--rh-red-dark); }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: var(--rh-black); color: #AAAAAA;
+            padding: 30px 24px; text-align: center;
+            font-family: var(--font-display); font-size: 0.85rem; line-height: 1.8;
+        }
+        footer a { color: var(--rh-gray-light); text-decoration: none; }
+        footer a:hover { color: var(--rh-white); }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .section-header { padding: 16px 20px; }
+            .concept-grid { grid-template-columns: 1fr; }
+            .flow-row { flex-direction: column; }
+            .flow-arrow { transform: rotate(90deg); }
+            .tab-buttons { gap: 2px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.82rem; }
+            .header-meta { gap: 12px; }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav, .sim-buttons { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); margin-bottom: 16px; }
+            .expandable-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Skip link -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Header -->
+<header role="banner" class="main-header">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">🎩</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Red Hat System Administration II</div>
+        <h1 class="chapter-title">Chapter 1: Shell Scripting and the Command Line</h1>
+        <p class="chapter-subtitle">Automate system administration tasks using Bash shell scripts</p>
+        <div class="header-meta">
+            <span>&#128197; Week 8</span>
+            <span>&#9201; 2&ndash;3 Hours</span>
+            <span>&#127891; RH134 Chapter 1</span>
+        </div>
+    </div>
+</header>
+
+<!-- Progress Bar -->
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             aria-label="Reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete &mdash; 0 of 9 sections visited</div>
+</div>
+
+<!-- Section Navigation -->
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives" class="nav-btn" aria-label="Learning objectives">1. Objectives</a></li>
+        <li><a href="#section-scripting-intro" class="nav-btn" aria-label="Introduction to shell scripting">2. Scripting Intro</a></li>
+        <li><a href="#section-variables" class="nav-btn" aria-label="Variables and arguments">3. Variables</a></li>
+        <li><a href="#section-conditionals" class="nav-btn" aria-label="Conditional logic">4. Conditionals</a></li>
+        <li><a href="#section-loops" class="nav-btn" aria-label="Loops and iteration">5. Loops</a></li>
+        <li><a href="#section-functions" class="nav-btn" aria-label="Shell functions">6. Functions</a></li>
+        <li><a href="#section-guided-exercise" class="nav-btn" aria-label="Guided exercise">7. Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" aria-label="Knowledge check quiz">8. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" aria-label="Hands-on lab">9. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" aria-label="Chapter summary">10. Summary</a></li>
+    </ul>
+</nav>
+
+<!-- Main Content -->
+<main id="main-content">
+
+    <!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+    <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">1</span>
+            <h2 id="objectives-heading">Learning Objectives</h2>
+        </div>
+        <div class="section-body">
+            <p>After completing this chapter, you will be able to:</p>
+            <ul>
+                <li>Write and execute basic Bash shell scripts using proper structure and the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shebang">shebang<span class="tooltip-content" id="tt-shebang" role="tooltip">The first line of a script that specifies the interpreter to use. For Bash scripts, it is #!/bin/bash, telling the kernel to execute the file using the Bash shell.</span></span> line</li>
+                <li>Use shell variables, positional parameters, and special variables to create flexible scripts</li>
+                <li>Apply <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-conditional">conditional statements<span class="tooltip-content" id="tt-conditional" role="tooltip">Programming constructs (if/elif/else, case) that execute different code blocks based on whether conditions evaluate to true or false.</span></span> using <code class="inline">if/elif/else</code> and <code class="inline">case</code> to control script flow</li>
+                <li>Implement loops (<code class="inline">for</code>, <code class="inline">while</code>, <code class="inline">until</code>) to iterate over data and automate repetitive tasks</li>
+                <li>Create reusable <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-function">shell functions<span class="tooltip-content" id="tt-function" role="tooltip">Named blocks of reusable code within a shell script. Functions help organize scripts, reduce repetition, and improve maintainability.</span></span> to organize and modularize script logic</li>
+                <li>Handle script errors and exit codes to build reliable automation</li>
+                <li>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-regex">regular expressions<span class="tooltip-content" id="tt-regex" role="tooltip">Patterns used to match and manipulate text strings. Used extensively with tools like grep, sed, and awk in shell scripts.</span></span> and string manipulation within scripts</li>
+            </ul>
+
+            <div class="concept-grid">
+                <div class="concept-card cc-blue">
+                    <h4><span aria-hidden="true">&#128221;</span> Script Structure</h4>
+                    <p>Learn how to properly structure a Bash script with the shebang, comments, variables, and executable permissions.</p>
+                </div>
+                <div class="concept-card cc-green">
+                    <h4><span aria-hidden="true">&#9991;</span> Decision Making</h4>
+                    <p>Use if/elif/else and case statements to make your scripts smart and responsive to conditions.</p>
+                </div>
+                <div class="concept-card cc-orange">
+                    <h4><span aria-hidden="true">&#128260;</span> Iteration</h4>
+                    <p>Automate repetitive work with for, while, and until loops to process lists, files, and data.</p>
+                </div>
+                <div class="concept-card cc-purple">
+                    <h4><span aria-hidden="true">&#128296;</span> Functions</h4>
+                    <p>Write modular, reusable code blocks that accept arguments and return values for clean scripts.</p>
+                </div>
+            </div>
+
+            <div class="note-box info">
+                <div class="note-box-header"><span aria-hidden="true">&#8505;&#65039;</span><span>Why Shell Scripting Matters</span></div>
+                <p>Shell scripting is one of the core skills tested on the Red Hat Certified System Administrator (RHCSA) exam. More importantly, it transforms you from someone who types commands one at a time into someone who automates entire workflows. Every task you do more than twice is a candidate for a script.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 2: SCRIPTING INTRO ==================== -->
+    <section id="section-scripting-intro" class="content-section" aria-labelledby="scripting-intro-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">2</span>
+            <h2 id="scripting-intro-heading">Introduction to Shell Scripting</h2>
+        </div>
+        <div class="section-body">
+            <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellscript">shell script<span class="tooltip-content" id="tt-shellscript" role="tooltip">A text file containing a sequence of shell commands. When executed, the shell reads and runs each command in order, enabling automation of complex tasks.</span></span> is simply a text file containing a sequence of commands that the shell can execute. Instead of typing each command individually, you write them into a file once and run the file whenever you need that sequence. This is the foundation of Linux automation.</p>
+
+            <h3>Why Use Shell Scripts?</h3>
+            <p>The power of shell scripting lies in its ability to combine three capabilities:</p>
+            <ul>
+                <li><strong>Sequencing:</strong> Run many commands in a defined order</li>
+                <li><strong>Decision making:</strong> React differently to different conditions</li>
+                <li><strong>Repetition:</strong> Perform the same operation on many targets</li>
+            </ul>
+
+            <h3>Anatomy of a Bash Script</h3>
+            <p>Every well-formed Bash script follows a consistent structure. Let's examine each component:</p>
+
+            <div class="code-block" role="region" aria-label="Basic Bash script structure">
+                <div class="code-title">Basic Script Structure</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Script name: backup_logs.sh</span>
+<span class="code-comment"># Description: Archives log files older than 7 days</span>
+<span class="code-comment"># Author: student</span>
+<span class="code-comment"># Date: 2026-03-05</span>
+
+<span class="code-comment"># Variable declarations</span>
+<span class="code-variable">LOG_DIR</span>=<span class="code-string">"/var/log"</span>
+<span class="code-variable">ARCHIVE_DIR</span>=<span class="code-string">"/backup/logs"</span>
+<span class="code-variable">DAYS</span>=<span class="code-string">7</span>
+
+<span class="code-comment"># Main script body</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Starting log backup..."</span>
+mkdir -p <span class="code-variable">$ARCHIVE_DIR</span>
+find <span class="code-variable">$LOG_DIR</span> -name <span class="code-string">"*.log"</span> -mtime +<span class="code-variable">$DAYS</span> -exec mv {} <span class="code-variable">$ARCHIVE_DIR</span> \;
+<span class="code-keyword">echo</span> <span class="code-string">"Backup complete."</span></code>
+            </div>
+
+            <div class="tabs" aria-label="Script component details">
+                <div class="tab-buttons" role="tablist">
+                    <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-shebang" id="tbtn-shebang">The Shebang</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-comments" id="tbtn-comments">Comments</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-permissions" id="tbtn-permissions">Permissions</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-running" id="tbtn-running">Running Scripts</button>
+                </div>
+                <div id="tab-shebang" class="tab-panel active" role="tabpanel" aria-labelledby="tbtn-shebang">
+                    <h4>The Shebang Line (<code class="inline">#!/bin/bash</code>)</h4>
+                    <p>The very first line of a script must be the <strong>shebang</strong> (also called hashbang). It tells the kernel which interpreter to use to run the script. The <code class="inline">#!</code> characters are followed immediately by the absolute path to the interpreter.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment">#!/bin/bash          # Use the Bash shell (most common)</span>
+<span class="code-comment">#!/usr/bin/env bash   # More portable: finds bash in PATH</span>
+<span class="code-comment">#!/bin/sh            # POSIX sh (more portable, fewer features)</span>
+<span class="code-comment">#!/usr/bin/python3   # Even non-shell interpreters work!</span></code>
+                    </div>
+                    <div class="note-box tip">
+                        <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Best Practice</span></div>
+                        <p>For Red Hat system administration scripts, use <code class="inline">#!/bin/bash</code>. This guarantees you have all Bash features available. Using <code class="inline">#!/usr/bin/env bash</code> is slightly more portable across systems.</p>
+                    </div>
+                </div>
+                <div id="tab-comments" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-comments">
+                    <h4>Comments in Shell Scripts</h4>
+                    <p>Lines beginning with <code class="inline">#</code> (except the shebang) are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-comment">comments<span class="tooltip-content" id="tt-comment" role="tooltip">Text in a script ignored by the interpreter. Comments explain what the code does and are essential for maintainability.</span></span>. Comments are ignored by the shell but are essential for humans. Always include a header comment block and inline comments for complex logic.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># ============================================================</span>
+<span class="code-comment"># Script: monitor_disk.sh</span>
+<span class="code-comment"># Purpose: Alert when disk usage exceeds threshold</span>
+<span class="code-comment"># Usage:   ./monitor_disk.sh [threshold_percent]</span>
+<span class="code-comment"># Example: ./monitor_disk.sh 85</span>
+<span class="code-comment"># ============================================================</span>
+
+THRESHOLD=<span class="code-string">${1:-90}</span>  <span class="code-comment"># Use $1 or default to 90%</span></code>
+                    </div>
+                </div>
+                <div id="tab-permissions" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-permissions">
+                    <h4>Making Scripts Executable</h4>
+                    <p>A script file must have <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-execperm">execute permission<span class="tooltip-content" id="tt-execperm" role="tooltip">A file permission bit that allows a file to be run as a program. Set with chmod +x filename or chmod 755 filename.</span></span> to run directly. Use <code class="inline">chmod</code> to add this permission.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Create the script</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">vim backup_logs.sh</span>
+
+<span class="code-comment"># Make it executable (owner can read, write, execute; others read+execute)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod 755 backup_logs.sh</span>
+
+<span class="code-comment"># Or use symbolic notation</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod u+x backup_logs.sh</span>
+
+<span class="code-comment"># Verify the permission bit was added (note the 'x' flags)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l backup_logs.sh</span>
+<span class="code-output">-rwxr-xr-x. 1 student student 342 Mar  5 10:15 backup_logs.sh</span></code>
+                    </div>
+                </div>
+                <div id="tab-running" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-running">
+                    <h4>Running Shell Scripts</h4>
+                    <p>There are multiple ways to execute a Bash script, each with different behavior:</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Method 1: Direct execution (requires execute bit + shebang)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">./backup_logs.sh</span>
+
+<span class="code-comment"># Method 2: Specify the interpreter explicitly</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bash backup_logs.sh</span>
+
+<span class="code-comment"># Method 3: Source (runs in current shell, inherits variables)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">source backup_logs.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">. backup_logs.sh</span>   <span class="code-comment"># Shorthand for source</span>
+
+<span class="code-comment"># Debug mode: prints each command before executing it</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bash -x backup_logs.sh</span>
+<span class="code-output">+ LOG_DIR=/var/log</span>
+<span class="code-output">+ ARCHIVE_DIR=/backup/logs</span>
+<span class="code-output">+ DAYS=7</span>
+<span class="code-output">+ echo 'Starting log backup...'</span></code>
+                    </div>
+                    <div class="note-box important">
+                        <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important: Path Requirements</span></div>
+                        <p>You must use <code class="inline">./script.sh</code> (explicit path) to run a script in the current directory. Simply typing <code class="inline">script.sh</code> fails unless the current directory is in your PATH, which is a security risk on production systems.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Exit Codes and Error Handling</h3>
+            <p>Every command and script exits with a numeric <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-exitcode">exit code<span class="tooltip-content" id="tt-exitcode" role="tooltip">An integer returned by a command or script upon completion. Exit code 0 means success; any non-zero value indicates failure. Accessible via the special variable $?.</span></span> (also called a return status). This is fundamental to reliable scripting.</p>
+
+            <div class="code-block" role="region" aria-label="Exit codes example">
+                <div class="code-title">Working with Exit Codes</div>
+                <code><span class="code-comment"># $? holds the exit code of the last command</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /etc/passwd</span>
+<span class="code-output">/etc/passwd</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo $?</span>
+<span class="code-output">0</span>                   <span class="code-comment"># 0 = success</span>
+
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls /no/such/file</span>
+<span class="code-error">ls: cannot access '/no/such/file': No such file or directory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo $?</span>
+<span class="code-output">2</span>                   <span class="code-comment"># non-zero = failure</span>
+
+<span class="code-comment"># In scripts, set explicit exit codes</span>
+<span class="code-keyword">if</span> ! mkdir -p /backup/logs; <span class="code-keyword">then</span>
+    echo <span class="code-string">"ERROR: Cannot create backup directory"</span> &gt;&amp;2
+    exit 1
+<span class="code-keyword">fi</span></code>
+            </div>
+
+            <table class="data-table" aria-label="Common exit codes">
+                <thead><tr><th>Exit Code</th><th>Meaning</th><th>Common Cause</th></tr></thead>
+                <tbody>
+                    <tr><td><code>0</code></td><td>Success</td><td>Command completed without errors</td></tr>
+                    <tr><td><code>1</code></td><td>General error</td><td>Catchall for miscellaneous errors</td></tr>
+                    <tr><td><code>2</code></td><td>Misuse of shell builtins</td><td>Missing or invalid argument</td></tr>
+                    <tr><td><code>126</code></td><td>Permission denied</td><td>Script found but not executable</td></tr>
+                    <tr><td><code>127</code></td><td>Command not found</td><td>Command or script doesn't exist in PATH</td></tr>
+                    <tr><td><code>128+n</code></td><td>Signal termination</td><td>Process killed by signal n (e.g., 130 = Ctrl+C)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 3: VARIABLES ==================== -->
+    <section id="section-variables" class="content-section" aria-labelledby="variables-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">3</span>
+            <h2 id="variables-heading">Variables, Parameters, and Quoting</h2>
+        </div>
+        <div class="section-body">
+            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-variable">Variables<span class="tooltip-content" id="tt-variable" role="tooltip">Named storage locations in memory that hold values used by your script. Variables make scripts flexible and reusable by separating data from logic.</span></span> are named containers that store values your script can use and modify. Mastering variables &mdash; including their scope, quoting, and special types &mdash; is essential to writing effective scripts.</p>
+
+            <h3>Declaring and Using Variables</h3>
+            <p>In Bash, variable names are case-sensitive and conventionally written in uppercase for constants and lowercase for local variables. There is no space around the <code class="inline">=</code> sign.</p>
+
+            <div class="code-block" role="region" aria-label="Variable examples">
+                <div class="code-title">Variable Basics</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Variable assignment: NO spaces around =</span>
+<span class="code-variable">NAME</span>=<span class="code-string">"Red Hat Enterprise Linux"</span>
+<span class="code-variable">VERSION</span>=<span class="code-string">10</span>
+<span class="code-variable">admin_user</span>=<span class="code-string">"student"</span>
+
+<span class="code-comment"># Reference with $ prefix</span>
+<span class="code-keyword">echo</span> <span class="code-string">"System: $NAME version $VERSION"</span>
+<span class="code-output">System: Red Hat Enterprise Linux version 10</span>
+
+<span class="code-comment"># Braces isolate the variable name</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Logfile: ${NAME}_system.log"</span>
+<span class="code-output">Logfile: Red Hat Enterprise Linux_system.log</span>
+
+<span class="code-comment"># Command substitution: store command output in a variable</span>
+<span class="code-variable">HOSTNAME</span>=<span class="code-string">$(hostname -s)</span>
+<span class="code-variable">TODAY</span>=<span class="code-string">$(date +%Y-%m-%d)</span>
+<span class="code-variable">DISK_USAGE</span>=<span class="code-string">$(df -h / | tail -1 | awk '{print $5}')</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Disk usage on $HOSTNAME today ($TODAY): $DISK_USAGE"</span></code>
+            </div>
+
+            <h3>Quoting Rules</h3>
+            <p>Understanding quoting is critical &mdash; it determines how the shell interprets special characters.</p>
+
+            <table class="data-table" aria-label="Quoting rules">
+                <thead><tr><th>Quote Type</th><th>Syntax</th><th>Variable Expansion</th><th>Use Case</th></tr></thead>
+                <tbody>
+                    <tr><td>Double quotes</td><td><code>"..."</code></td><td>Yes</td><td>Strings containing spaces, allow variable expansion</td></tr>
+                    <tr><td>Single quotes</td><td><code>'...'</code></td><td>No</td><td>Literal strings, no interpretation whatsoever</td></tr>
+                    <tr><td>Backticks</td><td><code>`...`</code></td><td>Yes</td><td>Command substitution (legacy; use <code>$()</code> instead)</td></tr>
+                    <tr><td>No quotes</td><td></td><td>Yes</td><td>Simple values without spaces (avoid when in doubt)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="code-block" role="region" aria-label="Quoting examples">
+                <div class="code-title">Quoting Behavior</div>
+                <code><span class="code-variable">GREETING</span>=<span class="code-string">"Hello"</span>
+<span class="code-variable">NAME</span>=<span class="code-string">"World"</span>
+
+<span class="code-comment"># Double quotes: variables expand</span>
+<span class="code-keyword">echo</span> <span class="code-string">"$GREETING, $NAME!"</span>
+<span class="code-output">Hello, World!</span>
+
+<span class="code-comment"># Single quotes: NOTHING expands - literal dollar sign</span>
+<span class="code-keyword">echo</span> <span class="code-string">'$GREETING, $NAME!'</span>
+<span class="code-output">$GREETING, $NAME!</span>
+
+<span class="code-comment"># Always quote variables that may contain spaces</span>
+<span class="code-variable">FILENAME</span>=<span class="code-string">"my report 2026.txt"</span>
+ls -l <span class="code-string">"$FILENAME"</span>    <span class="code-comment"># Correct: treated as one argument</span>
+ls -l <span class="code-variable">$FILENAME</span>      <span class="code-comment"># Wrong: splits into 3 arguments!</span></code>
+            </div>
+
+            <h3>Positional Parameters and Special Variables</h3>
+            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-posparams">Positional parameters<span class="tooltip-content" id="tt-posparams" role="tooltip">Variables automatically set by the shell when a script is called with arguments. $1 holds the first argument, $2 the second, and so on up to $9 (use ${10} for more).</span></span> allow scripts to accept input from the command line, making them flexible and reusable.</p>
+
+            <div class="code-block" role="region" aria-label="Special variables example">
+                <div class="code-title">Special Variables Reference</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Script called as: ./myscript.sh alpha beta gamma</span>
+
+<span class="code-keyword">echo</span> <span class="code-string">"Script name:     $0"</span>    <span class="code-comment"># ./myscript.sh</span>
+<span class="code-keyword">echo</span> <span class="code-string">"First argument:  $1"</span>    <span class="code-comment"># alpha</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Second argument: $2"</span>    <span class="code-comment"># beta</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Third argument:  $3"</span>    <span class="code-comment"># gamma</span>
+<span class="code-keyword">echo</span> <span class="code-string">"All arguments:   $@"</span>    <span class="code-comment"># alpha beta gamma</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Argument count:  $#"</span>    <span class="code-comment"># 3</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Current PID:     $$"</span>    <span class="code-comment"># e.g., 12345</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Last exit code:  $?"</span>    <span class="code-comment"># 0 (if last command succeeded)</span></code>
+            </div>
+
+            <h3>Variable Expansion and Default Values</h3>
+            <p>Bash provides powerful <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-paramexpand">parameter expansion<span class="tooltip-content" id="tt-paramexpand" role="tooltip">Advanced variable manipulation syntax using ${} that can provide defaults, test for empty values, extract substrings, and perform substitutions.</span></span> syntax for common operations on variables:</p>
+
+            <div class="code-block" role="region" aria-label="Parameter expansion examples">
+                <div class="code-title">Parameter Expansion Patterns</div>
+                <code><span class="code-comment"># Default value: use "default" if VAR is unset or empty</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${VAR:-default}"</span>
+
+<span class="code-comment"># Assign default: set VAR to "default" if it's unset</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${VAR:=default}"</span>
+
+<span class="code-comment"># Error if unset: display error message and exit</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${VAR:?'VAR must be set'}"</span>
+
+<span class="code-comment"># String length</span>
+<span class="code-variable">NAME</span>=<span class="code-string">"RHEL"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Length: ${#NAME}"</span>        <span class="code-comment"># 4</span>
+
+<span class="code-comment"># Uppercase/lowercase conversion</span>
+<span class="code-variable">input</span>=<span class="code-string">"hello world"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${input^^}"</span>              <span class="code-comment"># HELLO WORLD</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${input^}"</span>               <span class="code-comment"># Hello world</span>
+
+<span class="code-comment"># Substring extraction: ${var:offset:length}</span>
+<span class="code-variable">STRING</span>=<span class="code-string">"Red Hat Enterprise Linux"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${STRING:0:7}"</span>           <span class="code-comment"># Red Hat</span>
+
+<span class="code-comment"># Pattern removal: strip prefix/suffix</span>
+<span class="code-variable">FILENAME</span>=<span class="code-string">"report_2026.tar.gz"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${FILENAME%.tar.gz}"</span>     <span class="code-comment"># report_2026 (remove suffix)</span>
+<span class="code-keyword">echo</span> <span class="code-string">"${FILENAME##*_}"</span>         <span class="code-comment"># 2026.tar.gz (remove longest prefix)</span></code>
+            </div>
+
+            <h3>Arithmetic in Scripts</h3>
+            <p>Bash supports integer arithmetic using the <code class="inline">$(( ))</code> syntax:</p>
+
+            <div class="code-block" role="region" aria-label="Arithmetic examples">
+                <div class="code-title">Integer Arithmetic</div>
+                <code><span class="code-comment"># Basic arithmetic with $(( ))</span>
+<span class="code-variable">a</span>=10; <span class="code-variable">b</span>=3
+<span class="code-keyword">echo</span> <span class="code-string">"Sum:     $((a + b))"</span>      <span class="code-comment"># 13</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Product: $((a * b))"</span>      <span class="code-comment"># 30</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Quotient:$((a / b))"</span>      <span class="code-comment"># 3  (integer division)</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Remainder:$((a % b))"</span>     <span class="code-comment"># 1</span>
+
+<span class="code-comment"># Increment and decrement</span>
+<span class="code-variable">count</span>=0
+<span class="code-variable">count</span>=<span class="code-string">$((count + 1))</span>         <span class="code-comment"># Increment</span>
+(( count++ ))                  <span class="code-comment"># C-style increment</span>
+
+<span class="code-comment"># The let command is another option</span>
+<span class="code-keyword">let</span> <span class="code-string">"result = a * b + 2"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Result: $result"</span>           <span class="code-comment"># 32</span></code>
+            </div>
+
+            <!-- Interactive Simulator -->
+            <h3>Interactive: Variable Explorer</h3>
+            <p>Use this simulator to practice working with shell variables. Click a sample command button or type your own:</p>
+            <div class="simulator" role="region" aria-label="Shell variable simulator">
+                <div class="sim-titlebar">
+                    <div class="sim-dot red" aria-hidden="true"></div>
+                    <div class="sim-dot yellow" aria-hidden="true"></div>
+                    <div class="sim-dot green" aria-hidden="true"></div>
+                    <span class="sim-title">Variable Practice Terminal &mdash; student@workstation:~</span>
+                </div>
+                <div class="sim-output" id="sim-output" aria-live="polite" aria-label="Terminal output">
+                    <span class="out-comment"># Welcome! Variables are stored in the session. Click a button or type below.</span><br>
+                </div>
+                <div class="sim-prompt-line" style="padding: 0 20px 12px; background: #0D1117;">
+                    <span class="sim-prompt-text" aria-hidden="true">[student@workstation ~]$</span>
+                    <input type="text" class="sim-input" id="sim-input" placeholder="Type a command..." aria-label="Shell command input" autocomplete="off" spellcheck="false">
+                </div>
+                <div class="sim-buttons" role="group" aria-label="Sample commands">
+                    <button class="sim-btn" onclick="simRun('NAME=&quot;Alice&quot;')">Set NAME</button>
+                    <button class="sim-btn" onclick="simRun('echo &quot;Hello $NAME&quot;')">Echo NAME</button>
+                    <button class="sim-btn" onclick="simRun('echo ${NAME:-Unknown}')">Default value</button>
+                    <button class="sim-btn" onclick="simRun('echo ${#NAME}')">String length</button>
+                    <button class="sim-btn" onclick="simRun('COUNT=5; echo $((COUNT * 2))')">Arithmetic</button>
+                    <button class="sim-btn" onclick="simRun('TODAY=$(date +%Y-%m-%d); echo $TODAY')">Date variable</button>
+                    <button class="sim-btn" onclick="simRun('echo $0 $$ $?')">Special vars</button>
+                    <button class="sim-btn" onclick="simClear()">Clear</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 4: CONDITIONALS ==================== -->
+    <section id="section-conditionals" class="content-section" aria-labelledby="conditionals-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">4</span>
+            <h2 id="conditionals-heading">Conditional Logic: if, elif, else, and case</h2>
+        </div>
+        <div class="section-body">
+            <p>Conditional statements allow your scripts to make decisions. They test a condition and execute different code depending on whether the condition is true or false. In Bash, conditions are evaluated using the <code class="inline">test</code> command or its shorthand <code class="inline">[ ]</code> and the more powerful <code class="inline">[[ ]]</code>.</p>
+
+            <h3>The if/elif/else Statement</h3>
+            <div class="code-block" role="region" aria-label="if statement syntax">
+                <div class="code-title">if / elif / else Syntax</div>
+                <code><span class="code-keyword">if</span> condition1 ; <span class="code-keyword">then</span>
+    <span class="code-comment"># commands run if condition1 is TRUE</span>
+<span class="code-keyword">elif</span> condition2 ; <span class="code-keyword">then</span>
+    <span class="code-comment"># commands run if condition2 is TRUE</span>
+<span class="code-keyword">else</span>
+    <span class="code-comment"># commands run if ALL conditions are FALSE</span>
+<span class="code-keyword">fi</span>                      <span class="code-comment"># "if" spelled backwards closes the block</span></code>
+            </div>
+
+            <h3>Test Conditions</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-testcmd">test command<span class="tooltip-content" id="tt-testcmd" role="tooltip">A shell builtin that evaluates conditions and returns exit code 0 (true) or 1 (false). Can be written as [ ] or [[ ]] brackets.</span></span> evaluates expressions and returns exit code 0 for true or 1 for false:</p>
+
+            <div class="tabs" aria-label="Test condition categories">
+                <div class="tab-buttons" role="tablist">
+                    <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-file-tests" id="tbtn-file-tests">File Tests</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-string-tests" id="tbtn-string-tests">String Tests</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-numeric-tests" id="tbtn-numeric-tests">Numeric Tests</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-compound-tests" id="tbtn-compound-tests">Compound Tests</button>
+                </div>
+                <div id="tab-file-tests" class="tab-panel active" role="tabpanel" aria-labelledby="tbtn-file-tests">
+                    <table class="data-table" aria-label="File test operators">
+                        <thead><tr><th>Operator</th><th>True When</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>-e file</code></td><td>File or directory exists</td><td><code>[ -e /etc/passwd ]</code></td></tr>
+                            <tr><td><code>-f file</code></td><td>Is a regular file</td><td><code>[ -f /etc/hostname ]</code></td></tr>
+                            <tr><td><code>-d path</code></td><td>Is a directory</td><td><code>[ -d /var/log ]</code></td></tr>
+                            <tr><td><code>-r file</code></td><td>File is readable</td><td><code>[ -r /etc/shadow ]</code></td></tr>
+                            <tr><td><code>-w file</code></td><td>File is writable</td><td><code>[ -w /tmp/test ]</code></td></tr>
+                            <tr><td><code>-x file</code></td><td>File is executable</td><td><code>[ -x /usr/bin/bash ]</code></td></tr>
+                            <tr><td><code>-s file</code></td><td>File size &gt; 0</td><td><code>[ -s /var/log/messages ]</code></td></tr>
+                            <tr><td><code>-L file</code></td><td>Is a symbolic link</td><td><code>[ -L /etc/localtime ]</code></td></tr>
+                            <tr><td><code>f1 -nt f2</code></td><td>f1 is newer than f2</td><td><code>[ new.txt -nt old.txt ]</code></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="tab-string-tests" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-string-tests">
+                    <table class="data-table" aria-label="String test operators">
+                        <thead><tr><th>Operator</th><th>True When</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>-z string</code></td><td>String is empty (zero length)</td><td><code>[ -z "$VAR" ]</code></td></tr>
+                            <tr><td><code>-n string</code></td><td>String is NOT empty</td><td><code>[ -n "$NAME" ]</code></td></tr>
+                            <tr><td><code>s1 = s2</code></td><td>Strings are equal</td><td><code>[ "$OS" = "Linux" ]</code></td></tr>
+                            <tr><td><code>s1 != s2</code></td><td>Strings are NOT equal</td><td><code>[ "$USER" != "root" ]</code></td></tr>
+                            <tr><td><code>s1 &lt; s2</code></td><td>s1 sorts before s2</td><td><code>[[ "$a" &lt; "$b" ]]</code></td></tr>
+                            <tr><td><code>s1 =~ regex</code></td><td>String matches regex</td><td><code>[[ "$IP" =~ ^[0-9] ]]</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="note-box tip">
+                        <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Double Brackets [[ ]]</span></div>
+                        <p>Use <code class="inline">[[ ]]</code> (double brackets) instead of <code class="inline">[ ]</code> when using pattern matching (<code class="inline">=~</code>) or logical operators. Double brackets are a Bash extension that prevent word splitting and provide more natural behavior.</p>
+                    </div>
+                </div>
+                <div id="tab-numeric-tests" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-numeric-tests">
+                    <table class="data-table" aria-label="Numeric test operators">
+                        <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>-eq</code></td><td>Equal to</td><td><code>[ "$count" -eq 0 ]</code></td></tr>
+                            <tr><td><code>-ne</code></td><td>Not equal to</td><td><code>[ "$retval" -ne 0 ]</code></td></tr>
+                            <tr><td><code>-lt</code></td><td>Less than</td><td><code>[ "$age" -lt 18 ]</code></td></tr>
+                            <tr><td><code>-le</code></td><td>Less than or equal</td><td><code>[ "$score" -le 100 ]</code></td></tr>
+                            <tr><td><code>-gt</code></td><td>Greater than</td><td><code>[ "$disk" -gt 90 ]</code></td></tr>
+                            <tr><td><code>-ge</code></td><td>Greater than or equal</td><td><code>[ "$files" -ge 1 ]</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="note-box info">
+                        <div class="note-box-header"><span aria-hidden="true">&#8505;&#65039;</span><span>Note: Use Words, Not Symbols</span></div>
+                        <p>For numeric comparisons inside <code class="inline">[ ]</code>, use alphabetic operators like <code class="inline">-eq</code>, <code class="inline">-lt</code> rather than <code class="inline">==</code> or <code class="inline">&lt;</code>. This avoids interpretation as string operations or redirections.</p>
+                    </div>
+                </div>
+                <div id="tab-compound-tests" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-compound-tests">
+                    <h4>Combining Conditions</h4>
+                    <table class="data-table" aria-label="Compound test operators">
+                        <thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead>
+                        <tbody>
+                            <tr><td><code>! expr</code></td><td>NOT &mdash; negates the result</td><td><code>[ ! -f /tmp/lock ]</code></td></tr>
+                            <tr><td><code>-a</code> / <code>&amp;&amp;</code></td><td>AND &mdash; both must be true</td><td><code>[[ -f "$f" &amp;&amp; -r "$f" ]]</code></td></tr>
+                            <tr><td><code>-o</code> / <code>||</code></td><td>OR &mdash; either must be true</td><td><code>[[ -z "$1" || "$1" = "-h" ]]</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Check if file exists AND is non-empty AND readable</span>
+<span class="code-keyword">if</span> [[ -f <span class="code-string">"$LOGFILE"</span> &amp;&amp; -s <span class="code-string">"$LOGFILE"</span> &amp;&amp; -r <span class="code-string">"$LOGFILE"</span> ]]; <span class="code-keyword">then</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Processing $LOGFILE..."</span>
+<span class="code-keyword">fi</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Practical if/elif/else Example</h3>
+            <div class="code-block" role="region" aria-label="Complete if elif else example">
+                <div class="code-title">Disk Space Alert Script</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Check disk usage and alert based on threshold</span>
+
+<span class="code-variable">USAGE</span>=<span class="code-string">$(df -h / | tail -1 | awk '{gsub(/%/,""); print $5}')</span>
+
+<span class="code-keyword">if</span> [[ <span class="code-variable">$USAGE</span> -ge 90 ]]; <span class="code-keyword">then</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"CRITICAL: Disk usage is ${USAGE}% - immediate action required!"</span>
+    logger <span class="code-string">"DISK CRITICAL: / at ${USAGE}%"</span>
+    exit 2
+<span class="code-keyword">elif</span> [[ <span class="code-variable">$USAGE</span> -ge 75 ]]; <span class="code-keyword">then</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"WARNING: Disk usage is ${USAGE}% - consider cleanup"</span>
+    exit 1
+<span class="code-keyword">else</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"OK: Disk usage is ${USAGE}% - within normal range"</span>
+    exit 0
+<span class="code-keyword">fi</span></code>
+            </div>
+
+            <h3>The case Statement</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-case">case statement<span class="tooltip-content" id="tt-case" role="tooltip">A multi-branch conditional that matches a value against a series of patterns. More readable than long if/elif chains when testing one variable against many values.</span></span> is ideal when you need to test a single variable against multiple patterns. It is cleaner than a long chain of <code class="inline">elif</code> statements.</p>
+
+            <div class="code-block" role="region" aria-label="case statement example">
+                <div class="code-title">case Statement Syntax and Example</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Service management wrapper</span>
+
+<span class="code-variable">SERVICE</span>=<span class="code-string">"httpd"</span>
+<span class="code-variable">ACTION</span>=<span class="code-string">$1</span>
+
+<span class="code-keyword">case</span> <span class="code-variable">$ACTION</span> <span class="code-keyword">in</span>
+    start)
+        systemctl start <span class="code-variable">$SERVICE</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"$SERVICE started"</span>
+        ;;
+    stop)
+        systemctl stop <span class="code-variable">$SERVICE</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"$SERVICE stopped"</span>
+        ;;
+    restart|reload)           <span class="code-comment"># OR pattern with |</span>
+        systemctl restart <span class="code-variable">$SERVICE</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"$SERVICE restarted"</span>
+        ;;
+    status)
+        systemctl status <span class="code-variable">$SERVICE</span>
+        ;;
+    *)                        <span class="code-comment"># Default/catch-all pattern</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"Usage: $0 {start|stop|restart|reload|status}"</span>
+        exit 1
+        ;;
+<span class="code-keyword">esac</span>                          <span class="code-comment"># "case" spelled backwards closes the block</span></code>
+            </div>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Pattern Matching in case</span></div>
+                <p>Case patterns support glob-style wildcards: <code class="inline">*</code> (any string), <code class="inline">?</code> (single character), <code class="inline">[abc]</code> (character class). Use <code class="inline">|</code> to match multiple patterns in one branch. Always include a <code class="inline">*)</code> default branch for unexpected input.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 5: LOOPS ==================== -->
+    <section id="section-loops" class="content-section" aria-labelledby="loops-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">5</span>
+            <h2 id="loops-heading">Loops: for, while, and until</h2>
+        </div>
+        <div class="section-body">
+            <p>Loops are one of the most powerful constructs in scripting. They allow you to repeat an action many times &mdash; across a list of servers, files, users, or any collection of data. Without loops, you would need to write the same commands manually for each item.</p>
+
+            <h3>The for Loop</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-for">for loop<span class="tooltip-content" id="tt-for" role="tooltip">Iterates over a fixed list of items (or a range), executing the loop body once for each item. The current item is assigned to the loop variable on each iteration.</span></span> iterates over a list, executing commands for each item. This is the most commonly used loop in system administration scripts.</p>
+
+            <div class="code-block" role="region" aria-label="for loop examples">
+                <div class="code-title">for Loop Patterns</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+
+<span class="code-comment"># Pattern 1: Explicit list</span>
+<span class="code-keyword">for</span> <span class="code-variable">HOST</span> <span class="code-keyword">in</span> web1 web2 web3 db1 db2; <span class="code-keyword">do</span>
+    ping -c 1 <span class="code-variable">$HOST</span> &gt;/dev/null &amp;&amp; echo <span class="code-string">"$HOST: UP"</span> || echo <span class="code-string">"$HOST: DOWN"</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Pattern 2: Brace expansion for ranges</span>
+<span class="code-keyword">for</span> <span class="code-variable">i</span> <span class="code-keyword">in</span> {1..5}; <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Processing item $i"</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Pattern 3: C-style numeric loop</span>
+<span class="code-keyword">for</span> (( i=1; i&lt;=10; i++ )); <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Count: $i"</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Pattern 4: Iterate over files using glob</span>
+<span class="code-keyword">for</span> <span class="code-variable">LOGFILE</span> <span class="code-keyword">in</span> /var/log/*.log; <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Compressing: $LOGFILE"</span>
+    gzip <span class="code-string">"$LOGFILE"</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Pattern 5: Iterate over command output</span>
+<span class="code-keyword">for</span> <span class="code-variable">USER</span> <span class="code-keyword">in</span> $(awk -F: '$3 &gt;= 1000 {print $1}' /etc/passwd); <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Regular user: $USER"</span>
+<span class="code-keyword">done</span></code>
+            </div>
+
+            <h3>The while Loop</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-while">while loop<span class="tooltip-content" id="tt-while" role="tooltip">Repeatedly executes a block of commands as long as a condition remains true. Used when you don't know in advance how many iterations are needed.</span></span> continues executing as long as its condition is true. It's ideal for polling, counting, and reading input.</p>
+
+            <div class="code-block" role="region" aria-label="while loop examples">
+                <div class="code-title">while Loop Examples</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+
+<span class="code-comment"># Count down from 5</span>
+<span class="code-variable">count</span>=5
+<span class="code-keyword">while</span> [[ <span class="code-variable">$count</span> -gt 0 ]]; <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"T-minus $count seconds..."</span>
+    (( count-- ))
+    sleep 1
+<span class="code-keyword">done</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Liftoff!"</span>
+
+<span class="code-comment"># Read a file line by line (most common pattern)</span>
+<span class="code-keyword">while</span> IFS= <span class="code-keyword">read</span> -r line; <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Processing: $line"</span>
+<span class="code-keyword">done</span> &lt; /etc/passwd
+
+<span class="code-comment"># Wait for a service to start (poll loop)</span>
+<span class="code-variable">TIMEOUT</span>=30
+<span class="code-variable">elapsed</span>=0
+<span class="code-keyword">while</span> ! systemctl is-active --quiet httpd; <span class="code-keyword">do</span>
+    <span class="code-keyword">if</span> [[ <span class="code-variable">$elapsed</span> -ge <span class="code-variable">$TIMEOUT</span> ]]; <span class="code-keyword">then</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"ERROR: httpd failed to start within ${TIMEOUT}s"</span>
+        exit 1
+    <span class="code-keyword">fi</span>
+    sleep 2; (( elapsed += 2 ))
+<span class="code-keyword">done</span>
+<span class="code-keyword">echo</span> <span class="code-string">"httpd is running"</span></code>
+            </div>
+
+            <div class="note-box important">
+                <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Infinite Loop Warning</span></div>
+                <p>If the condition of a <code class="inline">while</code> loop never becomes false, the loop runs forever. Always ensure your loop has a clear exit condition, and consider adding a timeout counter as a safeguard. Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to interrupt a runaway script.</p>
+            </div>
+
+            <h3>The until Loop</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-until">until loop<span class="tooltip-content" id="tt-until" role="tooltip">The logical opposite of while: it executes commands until a condition becomes true (i.e., while the condition is false). Useful for "keep trying until it succeeds" patterns.</span></span> is the logical inverse of <code class="inline">while</code> &mdash; it loops until a condition becomes true:</p>
+
+            <div class="code-block" role="region" aria-label="until loop example">
+                <div class="code-title">until Loop</div>
+                <code><span class="code-comment"># Wait until a file exists before processing it</span>
+<span class="code-variable">DATAFILE</span>=<span class="code-string">"/tmp/import_data.csv"</span>
+<span class="code-keyword">until</span> [[ -f <span class="code-variable">$DATAFILE</span> ]]; <span class="code-keyword">do</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Waiting for $DATAFILE to appear..."</span>
+    sleep 5
+<span class="code-keyword">done</span>
+<span class="code-keyword">echo</span> <span class="code-string">"File found! Processing $DATAFILE"</span>
+./process_data.sh <span class="code-string">"$DATAFILE"</span></code>
+            </div>
+
+            <h3>Loop Control: break and continue</h3>
+            <p>Two keywords give you fine-grained control within loops:</p>
+            <ul>
+                <li><code class="inline">break</code> &mdash; exits the loop immediately</li>
+                <li><code class="inline">continue</code> &mdash; skips the rest of the current iteration and moves to the next</li>
+            </ul>
+
+            <div class="code-block" role="region" aria-label="break and continue example">
+                <div class="code-title">break and continue</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Search servers until first failure found, skip maintenance hosts</span>
+
+<span class="code-variable">MAINTENANCE_HOST</span>=<span class="code-string">"web3"</span>
+
+<span class="code-keyword">for</span> <span class="code-variable">HOST</span> <span class="code-keyword">in</span> web1 web2 web3 web4 web5; <span class="code-keyword">do</span>
+    <span class="code-comment"># Skip maintenance host</span>
+    <span class="code-keyword">if</span> [[ <span class="code-string">"$HOST"</span> = <span class="code-string">"$MAINTENANCE_HOST"</span> ]]; <span class="code-keyword">then</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"Skipping $HOST (maintenance)"</span>
+        <span class="code-keyword">continue</span>
+    <span class="code-keyword">fi</span>
+
+    <span class="code-comment"># Check if host responds</span>
+    <span class="code-keyword">if</span> ! ping -c 1 <span class="code-variable">$HOST</span> &gt;/dev/null 2&gt;&amp;1; <span class="code-keyword">then</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"CRITICAL: $HOST is unreachable! Stopping scan."</span>
+        <span class="code-keyword">break</span>               <span class="code-comment"># Exit loop immediately</span>
+    <span class="code-keyword">fi</span>
+
+    <span class="code-keyword">echo</span> <span class="code-string">"$HOST: OK"</span>
+<span class="code-keyword">done</span></code>
+            </div>
+
+            <!-- Loops Flow Diagram -->
+            <h3>Loop Decision Flow</h3>
+            <div class="flow-diagram" role="img" aria-label="Loop decision flow diagram">
+                <h4 style="text-align:center; font-family: var(--font-display); margin-bottom: 16px;">How while and for Loops Execute</h4>
+                <div class="flow-row">
+                    <div class="flow-box flow-start">Script starts loop</div>
+                    <div class="flow-arrow" aria-hidden="true">&#8594;</div>
+                    <div class="flow-box flow-decision">Condition true?</div>
+                </div>
+                <div class="flow-row">
+                    <div class="flow-label">YES &darr;</div>
+                    <div style="width:120px"></div>
+                    <div class="flow-label">NO &rarr;</div>
+                    <div class="flow-box flow-end" style="margin-left:8px">Exit loop</div>
+                </div>
+                <div class="flow-row">
+                    <div class="flow-box flow-process">Execute loop body</div>
+                </div>
+                <div class="flow-row">
+                    <div class="flow-arrow" style="transform:rotate(180deg)" aria-hidden="true">&#8593;</div>
+                    <div class="flow-label">(loop back)</div>
+                </div>
+                <p style="text-align:center; font-family: var(--font-display); font-size:0.85rem; color: var(--rh-gray); margin-top: 8px;">
+                    <code class="inline">break</code> exits the loop early &bull; <code class="inline">continue</code> skips to the next iteration
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 6: FUNCTIONS ==================== -->
+    <section id="section-functions" class="content-section" aria-labelledby="functions-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">6</span>
+            <h2 id="functions-heading">Shell Functions</h2>
+        </div>
+        <div class="section-body">
+            <p>As scripts grow in complexity, functions become essential. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellfunc">shell function<span class="tooltip-content" id="tt-shellfunc" role="tooltip">A named block of commands within a script that can be called by name, optionally accepting arguments. Functions improve code organization, reusability, and readability.</span></span> is a named block of code that you can call by name from anywhere in a script. Functions eliminate repetition, improve readability, and make testing easier.</p>
+
+            <h3>Defining and Calling Functions</h3>
+            <div class="code-block" role="region" aria-label="Function definition syntax">
+                <div class="code-title">Function Syntax (Both Forms Are Valid)</div>
+                <code><span class="code-comment"># Style 1: function keyword (Bash-specific)</span>
+<span class="code-keyword">function</span> greet {
+    <span class="code-keyword">echo</span> <span class="code-string">"Hello, $1!"</span>
+}
+
+<span class="code-comment"># Style 2: POSIX-compatible (preferred for portability)</span>
+greet() {
+    <span class="code-keyword">echo</span> <span class="code-string">"Hello, $1!"</span>
+}
+
+<span class="code-comment"># Call the function</span>
+greet <span class="code-string">"Alice"</span>
+<span class="code-output">Hello, Alice!</span>
+
+greet <span class="code-string">"World"</span>
+<span class="code-output">Hello, World!</span></code>
+            </div>
+
+            <h3>Function Arguments and Return Values</h3>
+            <p>Functions receive arguments the same way scripts do &mdash; via positional parameters. They can return a status code with <code class="inline">return</code>, or output data via <code class="inline">echo</code> and command substitution.</p>
+
+            <div class="code-block" role="region" aria-label="Function with arguments and return value">
+                <div class="code-title">Functions with Arguments and Return Values</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+
+<span class="code-comment"># Function that validates an IP address format</span>
+validate_ip() {
+    <span class="code-keyword">local</span> <span class="code-variable">ip</span>=<span class="code-string">"$1"</span>
+    <span class="code-keyword">local</span> <span class="code-variable">pattern</span>=<span class="code-string">'^([0-9]{1,3}\.){3}[0-9]{1,3}$'</span>
+
+    <span class="code-keyword">if</span> [[ <span class="code-string">"$ip"</span> =~ <span class="code-variable">$pattern</span> ]]; <span class="code-keyword">then</span>
+        <span class="code-keyword">return</span> 0   <span class="code-comment"># 0 = success = valid</span>
+    <span class="code-keyword">else</span>
+        <span class="code-keyword">return</span> 1   <span class="code-comment"># 1 = failure = invalid</span>
+    <span class="code-keyword">fi</span>
+}
+
+<span class="code-comment"># Function that returns a computed value via echo</span>
+get_disk_usage() {
+    <span class="code-keyword">local</span> <span class="code-variable">mount_point</span>=<span class="code-string">"${1:-/}"</span>
+    df -h <span class="code-string">"$mount_point"</span> | tail -1 | awk <span class="code-string">'{print $5}'</span>
+}
+
+<span class="code-comment"># Test the functions</span>
+<span class="code-keyword">if</span> validate_ip <span class="code-string">"192.168.1.100"</span>; <span class="code-keyword">then</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Valid IP address"</span>
+<span class="code-keyword">fi</span>
+
+<span class="code-variable">USAGE</span>=<span class="code-string">$(get_disk_usage "/")</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Root disk usage: $USAGE"</span>
+<span class="code-output">Root disk usage: 45%</span></code>
+            </div>
+
+            <h3>Local Variables and Variable Scope</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-local">local keyword<span class="tooltip-content" id="tt-local" role="tooltip">Declares a variable that exists only within the function where it is defined. Local variables prevent functions from accidentally modifying global script variables.</span></span> creates variables that only exist inside the function. Without <code class="inline">local</code>, variables are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-global">global<span class="tooltip-content" id="tt-global" role="tooltip">Variables visible throughout the entire script and any functions it calls. Changes to global variables inside functions affect the whole script.</span></span> by default and could interfere with the rest of the script.</p>
+
+            <div class="code-block" role="region" aria-label="Local vs global variable example">
+                <div class="code-title">Variable Scope: Local vs Global</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+
+<span class="code-variable">NAME</span>=<span class="code-string">"Global Alice"</span>        <span class="code-comment"># Global variable</span>
+
+test_scope() {
+    <span class="code-keyword">local</span> <span class="code-variable">NAME</span>=<span class="code-string">"Local Bob"</span>   <span class="code-comment"># Local — doesn't affect global</span>
+    <span class="code-variable">UNSCOPED</span>=<span class="code-string">"I leaked!"</span>      <span class="code-comment"># No local — affects global scope!</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"Inside function: $NAME"</span>
+}
+
+<span class="code-keyword">echo</span> <span class="code-string">"Before: $NAME"</span>          <span class="code-comment"># Global Alice</span>
+test_scope
+<span class="code-keyword">echo</span> <span class="code-string">"After:  $NAME"</span>           <span class="code-comment"># Global Alice (unchanged)</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Leaked: $UNSCOPED"</span>       <span class="code-comment"># I leaked! (now visible globally)</span></code>
+            </div>
+
+            <h3>A Complete Script Using Functions</h3>
+            <div class="code-block" role="region" aria-label="Complete script using functions">
+                <div class="code-title">Production-Style Script with Functions</div>
+                <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Script: user_report.sh - Generate a report of system users</span>
+<span class="code-comment"># Usage: ./user_report.sh [min_uid]</span>
+
+<span class="code-comment"># === Configuration ===</span>
+<span class="code-variable">MIN_UID</span>=<span class="code-string">${1:-1000}</span>          <span class="code-comment"># Default: regular users (UID >= 1000)</span>
+<span class="code-variable">REPORT_FILE</span>=<span class="code-string">"/tmp/user_report_$(date +%Y%m%d).txt"</span>
+
+<span class="code-comment"># === Functions ===</span>
+log() {
+    <span class="code-keyword">echo</span> <span class="code-string">"[$(date '+%H:%M:%S')] $*"</span>
+}
+
+print_header() {
+    <span class="code-keyword">local</span> <span class="code-variable">title</span>=<span class="code-string">"$1"</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"=============================="</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"  $title"</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"=============================="</span>
+}
+
+get_users() {
+    <span class="code-keyword">local</span> <span class="code-variable">min_uid</span>=<span class="code-string">"$1"</span>
+    awk -F: -v min=<span class="code-string">"$min_uid"</span> <span class="code-string">'$3 >= min {print $1, $3, $6}'</span> /etc/passwd
+}
+
+<span class="code-comment"># === Main ===</span>
+log <span class="code-string">"Starting user report (min UID: $MIN_UID)"</span>
+{
+    print_header <span class="code-string">"User Report - $(date)"</span>
+    get_users <span class="code-string">"$MIN_UID"</span>
+} &gt; <span class="code-string">"$REPORT_FILE"</span>
+log <span class="code-string">"Report written to $REPORT_FILE"</span></code>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 7: GUIDED EXERCISE ==================== -->
+    <section id="section-guided-exercise" class="content-section" aria-labelledby="guided-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">7</span>
+            <h2 id="guided-heading">Guided Exercise: Building a System Health Script</h2>
+        </div>
+        <div class="section-body">
+            <p>In this guided exercise, you will build a complete system health monitoring script step by step. Each step introduces a new concept and builds on the previous one.</p>
+
+            <div class="note-box info">
+                <div class="note-box-header"><span aria-hidden="true">&#8505;&#65039;</span><span>Environment</span></div>
+                <p>Run these commands on <strong>workstation.lab.example.com</strong> as the <code class="inline">student</code> user. The script you build will check system health metrics and generate a report.</p>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="guide-step1">
+                    <span>Step 1: Create the Script Skeleton</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="guide-step1" class="expandable-content">
+                    <p>Create the basic script structure with proper shebang, header, and make it executable.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Create the script file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">mkdir -p ~/scripts</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">vim ~/scripts/health_check.sh</span>
+
+<span class="code-comment"># Enter this content:</span>
+<span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># health_check.sh - System health monitoring script</span>
+<span class="code-comment"># Usage: ./health_check.sh</span>
+
+<span class="code-variable">REPORT_DATE</span>=<span class="code-string">$(date '+%Y-%m-%d %H:%M:%S')</span>
+<span class="code-variable">HOSTNAME</span>=<span class="code-string">$(hostname -s)</span>
+
+<span class="code-keyword">echo</span> <span class="code-string">"=== System Health Report ==="</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Host: $HOSTNAME"</span>
+<span class="code-keyword">echo</span> <span class="code-string">"Date: $REPORT_DATE"</span>
+<span class="code-keyword">echo</span> <span class="code-string">""</span>
+
+<span class="code-comment"># Make executable and test</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod 755 ~/scripts/health_check.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">~/scripts/health_check.sh</span>
+<span class="code-output">=== System Health Report ===</span>
+<span class="code-output">Host: workstation</span>
+<span class="code-output">Date: 2026-03-05 10:15:32</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="guide-step2">
+                    <span>Step 2: Add a Disk Space Check Function</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="guide-step2" class="expandable-content">
+                    <p>Add a function that checks disk usage and alerts based on thresholds using conditionals.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Add this function to health_check.sh:</span>
+
+check_disk() {
+    <span class="code-keyword">local</span> <span class="code-variable">mount</span>=<span class="code-string">"${1:-/}"</span>
+    <span class="code-keyword">local</span> <span class="code-variable">usage</span>
+    <span class="code-variable">usage</span>=<span class="code-string">$(df "$mount" | tail -1 | awk '{gsub(/%/,""); print $5}')</span>
+
+    printf <span class="code-string">"Disk %-10s: %3d%%  "</span> <span class="code-string">"$mount"</span> <span class="code-string">"$usage"</span>
+
+    <span class="code-keyword">if</span> [[ <span class="code-variable">$usage</span> -ge 90 ]]; <span class="code-keyword">then</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"[CRITICAL]"</span>
+    <span class="code-keyword">elif</span> [[ <span class="code-variable">$usage</span> -ge 75 ]]; <span class="code-keyword">then</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"[WARNING]"</span>
+    <span class="code-keyword">else</span>
+        <span class="code-keyword">echo</span> <span class="code-string">"[OK]"</span>
+    <span class="code-keyword">fi</span>
+}
+
+<span class="code-comment"># Call the function for each important filesystem</span>
+<span class="code-keyword">echo</span> <span class="code-string">"--- Disk Usage ---"</span>
+<span class="code-keyword">for</span> <span class="code-variable">MOUNT</span> <span class="code-keyword">in</span> / /var /home /tmp; <span class="code-keyword">do</span>
+    <span class="code-keyword">if</span> mountpoint -q <span class="code-string">"$MOUNT"</span> 2&gt;/dev/null; <span class="code-keyword">then</span>
+        check_disk <span class="code-string">"$MOUNT"</span>
+    <span class="code-keyword">fi</span>
+<span class="code-keyword">done</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="guide-step3">
+                    <span>Step 3: Add a Running Services Check</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="guide-step3" class="expandable-content">
+                    <p>Add a loop that checks whether key services are running.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Add services check to health_check.sh</span>
+
+<span class="code-keyword">echo</span> <span class="code-string">""</span>
+<span class="code-keyword">echo</span> <span class="code-string">"--- Critical Services ---"</span>
+
+<span class="code-variable">SERVICES</span>=(<span class="code-string">"sshd"</span> <span class="code-string">"rsyslog"</span> <span class="code-string">"crond"</span> <span class="code-string">"NetworkManager"</span>)
+
+<span class="code-keyword">for</span> <span class="code-variable">SVC</span> <span class="code-keyword">in</span> <span class="code-string">"${SERVICES[@]}"</span>; <span class="code-keyword">do</span>
+    <span class="code-keyword">if</span> systemctl is-active --quiet <span class="code-string">"$SVC"</span>; <span class="code-keyword">then</span>
+        printf <span class="code-string">"  %-20s [RUNNING]\n"</span> <span class="code-string">"$SVC"</span>
+    <span class="code-keyword">else</span>
+        printf <span class="code-string">"  %-20s [STOPPED]\n"</span> <span class="code-string">"$SVC"</span>
+    <span class="code-keyword">fi</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Test it</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">~/scripts/health_check.sh</span>
+<span class="code-output">=== System Health Report ===</span>
+<span class="code-output">Host: workstation</span>
+<span class="code-output">Date: 2026-03-05 10:15:32</span>
+<span class="code-output"></span>
+<span class="code-output">--- Disk Usage ---</span>
+<span class="code-output">Disk /         :  42%  [OK]</span>
+<span class="code-output">Disk /var      :  18%  [OK]</span>
+<span class="code-output"></span>
+<span class="code-output">--- Critical Services ---</span>
+<span class="code-output">  sshd                 [RUNNING]</span>
+<span class="code-output">  rsyslog              [RUNNING]</span>
+<span class="code-output">  crond                [RUNNING]</span>
+<span class="code-output">  NetworkManager       [RUNNING]</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="guide-step4">
+                    <span>Step 4: Add Input Validation and Error Handling</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="guide-step4" class="expandable-content">
+                    <p>Enhance the script with argument parsing, usage help, and robust error handling.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment">#!/bin/bash</span>
+<span class="code-comment"># Enhanced version with error handling and -h flag</span>
+
+usage() {
+    <span class="code-keyword">echo</span> <span class="code-string">"Usage: $0 [-h] [-o outputfile]"</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"  -h  Show this help message"</span>
+    <span class="code-keyword">echo</span> <span class="code-string">"  -o  Write report to file (default: stdout)"</span>
+    exit 0
+}
+
+die() {
+    <span class="code-keyword">echo</span> <span class="code-string">"ERROR: $*"</span> &gt;&amp;2   <span class="code-comment"># Send to stderr</span>
+    exit 1
+}
+
+<span class="code-comment"># Parse options with getopts</span>
+<span class="code-variable">OUTPUT_FILE</span>=<span class="code-string">""</span>
+<span class="code-keyword">while</span> getopts <span class="code-string">"ho:"</span> <span class="code-variable">opt</span>; <span class="code-keyword">do</span>
+    <span class="code-keyword">case</span> <span class="code-variable">$opt</span> <span class="code-keyword">in</span>
+        h) usage ;;
+        o) <span class="code-variable">OUTPUT_FILE</span>=<span class="code-string">"$OPTARG"</span> ;;
+        \?) die <span class="code-string">"Invalid option: -$OPTARG"</span> ;;
+    <span class="code-keyword">esac</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Must run as root for full info</span>
+<span class="code-keyword">if</span> [[ <span class="code-variable">$EUID</span> -ne 0 ]]; <span class="code-keyword">then</span>
+    die <span class="code-string">"This script requires root privileges. Run with sudo."</span>
+<span class="code-keyword">fi</span></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 8: QUIZ ==================== -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">8</span>
+            <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+        </div>
+        <div class="section-body">
+            <p>Test your understanding of shell scripting concepts. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+            <div class="quiz-container" id="quiz-container">
+
+                <!-- Question 1 -->
+                <div class="quiz-question" data-question="1" data-correct="b">
+                    <h4>1. Which line must appear as the very first line of a Bash script to specify the interpreter?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q1" value="a"> <span># This is a bash script</span></label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="b"> <span>#!/bin/bash</span></label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="c"> <span>bash: start</span></label>
+                        <label class="quiz-option"><input type="radio" name="q1" value="d"> <span>#!/usr/bin/sh</span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-1"></div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="quiz-question" data-question="2" data-correct="c">
+                    <h4>2. A script is run as: <code>./myscript.sh alpha beta gamma</code>. What is the value of <code>$#</code>?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q2" value="a"> <span>0</span></label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="b"> <span>1</span></label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="c"> <span>3</span></label>
+                        <label class="quiz-option"><input type="radio" name="q2" value="d"> <span>4</span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-2"></div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="quiz-question" data-question="3" data-correct="a">
+                    <h4>3. Which test operator checks whether a file is a regular file (not a directory or device)?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q3" value="a"> <span><code>-f</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="b"> <span><code>-d</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="c"> <span><code>-e</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q3" value="d"> <span><code>-r</code></span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-3"></div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="quiz-question" data-question="4" data-correct="d">
+                    <h4>4. What does the <code>local</code> keyword do inside a shell function?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q4" value="a"> <span>Exports the variable to child processes</span></label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="b"> <span>Makes the variable read-only</span></label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="c"> <span>Stores the variable in a local file</span></label>
+                        <label class="quiz-option"><input type="radio" name="q4" value="d"> <span>Restricts the variable's scope to that function only</span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-4"></div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="quiz-question" data-question="5" data-correct="b">
+                    <h4>5. Which loop construct would you use to read a file line by line in a script?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q5" value="a"> <span><code>for line in $(cat file.txt)</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="b"> <span><code>while IFS= read -r line; do ... done &lt; file.txt</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="c"> <span><code>until read -r line &lt; file.txt</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q5" value="d"> <span><code>case $(cat file.txt)</code></span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-5"></div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="quiz-question" data-question="6" data-correct="c">
+                    <h4>6. What does exit code <code>0</code> conventionally mean in a Bash script?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q6" value="a"> <span>The script was interrupted</span></label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="b"> <span>The script produced no output</span></label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="c"> <span>Success &mdash; the command or script completed without error</span></label>
+                        <label class="quiz-option"><input type="radio" name="q6" value="d"> <span>The script exited prematurely</span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-6"></div>
+                </div>
+
+                <!-- Question 7 -->
+                <div class="quiz-question" data-question="7" data-correct="a">
+                    <h4>7. What is the output of: <code>NAME="RHEL"; echo "${NAME,,}"</code>?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q7" value="a"> <span><code>rhel</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="b"> <span><code>RHEL</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="c"> <span><code>Rhel</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q7" value="d"> <span>An error &mdash; invalid syntax</span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-7"></div>
+                </div>
+
+                <!-- Question 8 -->
+                <div class="quiz-question" data-question="8" data-correct="d">
+                    <h4>8. In a <code>for</code> loop, which keyword immediately jumps to the next iteration without executing the remaining commands in the loop body?</h4>
+                    <div class="quiz-options">
+                        <label class="quiz-option"><input type="radio" name="q8" value="a"> <span><code>break</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="b"> <span><code>exit</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="c"> <span><code>return</code></span></label>
+                        <label class="quiz-option"><input type="radio" name="q8" value="d"> <span><code>continue</code></span></label>
+                    </div>
+                    <div class="quiz-feedback" id="feedback-8"></div>
+                </div>
+
+                <button class="quiz-btn" id="check-quiz" type="button">Check Answers</button>
+                <button class="quiz-btn reset" id="reset-quiz" type="button" style="display:none">Reset Quiz</button>
+                <div class="quiz-score" id="quiz-score"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 9: LAB ==================== -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">9</span>
+            <h2 id="lab-heading">Hands-On Lab: Shell Scripting and the Command Line</h2>
+        </div>
+        <div class="section-body">
+            <div class="lab-header">
+                <span class="lab-icon" aria-hidden="true">&#128300;</span>
+                <span class="lab-title">Lab: Shell Scripting and the Command Line</span>
+            </div>
+
+            <div class="lab-scenario">
+                <h4>&#127919; Scenario</h4>
+                <p>You are a system administrator at a company running RHEL 10. Your manager has asked you to create automation scripts that will run weekly to:</p>
+                <ol>
+                    <li>Check disk space and warn when filesystems exceed thresholds</li>
+                    <li>Verify that critical services are running and report their status</li>
+                    <li>Generate a summary report and log it for audit purposes</li>
+                </ol>
+                <p><strong>Environment:</strong> Log in to <code class="inline">workstation.lab.example.com</code> as <code class="inline">student</code> with password <code class="inline">student</code>.</p>
+            </div>
+
+            <div class="note-box warning">
+                <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Warning: Destructive Commands</span></div>
+                <p>Some commands in this lab modify system files or directories. Double-check your paths before executing commands like <code class="inline">rm</code> or <code class="inline">chmod</code>. If unsure, review the expected output before pressing Enter.</p>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1">
+                    <span>Task 1: Set Up Your Script Directory and Skeleton</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="lab-task1" class="expandable-content">
+                    <p><strong>Objective:</strong> Create a working directory for your scripts and write a basic script skeleton with proper shebang, comments, and executable permissions.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Step 1: Create script directory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">mkdir -p ~/scripts && cd ~/scripts</span>
+
+<span class="code-comment"># Step 2: Create the main script</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">cat &gt; syscheck.sh &lt;&lt;'EOF'</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output"># syscheck.sh - Weekly system health check</span>
+<span class="code-output"># Author: student</span>
+<span class="code-output"># Date:   2026-03-05</span>
+<span class="code-output">LOGDIR="/var/log/syscheck"</span>
+<span class="code-output">LOGFILE="$LOGDIR/report_$(date +%Y%m%d).log"</span>
+<span class="code-output">echo "System check started: $(date)"</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Step 3: Make it executable</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">chmod 755 syscheck.sh</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">ls -l syscheck.sh</span>
+<span class="code-output">-rwxr-xr-x. 1 student student 178 Mar  5 10:00 syscheck.sh</span>
+
+<span class="code-comment"># Step 4: Run it to verify</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">./syscheck.sh</span>
+<span class="code-output">System check started: Thu Mar  5 10:00:12 EST 2026</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2">
+                    <span>Task 2: Add Disk Space Monitoring with Conditionals</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="lab-task2" class="expandable-content">
+                    <p><strong>Objective:</strong> Add a function that checks disk usage using <code class="inline">if/elif/else</code> conditionals and returns appropriate status messages.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Add the check_disk function to syscheck.sh</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">vim syscheck.sh</span>
+
+<span class="code-comment"># Add after the variable declarations:</span>
+check_disk() {
+    <span class="code-keyword">local</span> MOUNT=<span class="code-string">"${1:-/}"</span>
+    <span class="code-keyword">local</span> USAGE
+    USAGE=<span class="code-string">$(df "$MOUNT" | awk 'NR==2 {gsub(/%/,""); print $5}')</span>
+
+    printf <span class="code-string">"  %-15s %3d%%  "</span> <span class="code-string">"$MOUNT"</span> <span class="code-string">"$USAGE"</span>
+
+    <span class="code-keyword">if</span> [[ <span class="code-string">"$USAGE"</span> -ge 90 ]]; <span class="code-keyword">then</span>
+        echo <span class="code-string">"CRITICAL - filesystem nearly full!"</span>
+        return 2
+    <span class="code-keyword">elif</span> [[ <span class="code-string">"$USAGE"</span> -ge 75 ]]; <span class="code-keyword">then</span>
+        echo <span class="code-string">"WARNING - consider cleanup"</span>
+        return 1
+    <span class="code-keyword">else</span>
+        echo <span class="code-string">"OK"</span>
+        return 0
+    <span class="code-keyword">fi</span>
+}
+
+echo <span class="code-string">"=== Disk Space Check ==="</span>
+<span class="code-keyword">for</span> FS <span class="code-keyword">in</span> / /var /home /boot; <span class="code-keyword">do</span>
+    mountpoint -q <span class="code-string">"$FS"</span> 2&gt;/dev/null &amp;&amp; check_disk <span class="code-string">"$FS"</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Run to see output</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">./syscheck.sh</span>
+<span class="code-output">System check started: Thu Mar  5 10:00:12 EST 2026</span>
+<span class="code-output">=== Disk Space Check ===</span>
+<span class="code-output">  /               42%  OK</span>
+<span class="code-output">  /var            18%  OK</span>
+<span class="code-output">  /boot           35%  OK</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3">
+                    <span>Task 3: Loop Through Services and Check Status</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="lab-task3" class="expandable-content">
+                    <p><strong>Objective:</strong> Use a <code class="inline">for</code> loop to check the status of multiple system services.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Add service check section to syscheck.sh</span>
+
+<span class="code-comment"># Declare array of services to check</span>
+CRITICAL_SERVICES=(<span class="code-string">"sshd"</span> <span class="code-string">"rsyslog"</span> <span class="code-string">"crond"</span> <span class="code-string">"NetworkManager"</span>)
+
+check_services() {
+    echo <span class="code-string">"=== Service Status ==="</span>
+    <span class="code-keyword">local</span> failed=0
+    <span class="code-keyword">for</span> SVC <span class="code-keyword">in</span> <span class="code-string">"${CRITICAL_SERVICES[@]}"</span>; <span class="code-keyword">do</span>
+        <span class="code-keyword">if</span> systemctl is-active --quiet <span class="code-string">"$SVC"</span>; <span class="code-keyword">then</span>
+            printf <span class="code-string">"  %-25s [RUNNING]\n"</span> <span class="code-string">"$SVC"</span>
+        <span class="code-keyword">else</span>
+            printf <span class="code-string">"  %-25s [STOPPED - ACTION REQUIRED]\n"</span> <span class="code-string">"$SVC"</span>
+            (( failed++ ))
+        <span class="code-keyword">fi</span>
+    <span class="code-keyword">done</span>
+    echo <span class="code-string">"  Failed services: $failed"</span>
+    return <span class="code-string">"$failed"</span>
+}
+
+check_services
+<span class="code-variable">SVC_STATUS</span>=<span class="code-string">$?</span>
+
+<span class="code-keyword">if</span> [[ <span class="code-variable">$SVC_STATUS</span> -gt 0 ]]; <span class="code-keyword">then</span>
+    echo <span class="code-string">"ALERT: $SVC_STATUS service(s) require attention!"</span> &gt;&amp;2
+<span class="code-keyword">fi</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4">
+                    <span>Task 4: Add Argument Parsing and Log Output</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="lab-task4" class="expandable-content">
+                    <p><strong>Objective:</strong> Use <code class="inline">getopts</code> to add a <code class="inline">-v</code> (verbose) and <code class="inline">-o</code> (output file) option, and save the report to a log file.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Add near the top of syscheck.sh, before functions</span>
+
+VERBOSE=0
+OUTPUT_FILE=<span class="code-string">""</span>
+
+usage() {
+    cat &lt;&lt;EOF
+Usage: $0 [-v] [-o logfile]
+  -v   Verbose output
+  -o   Save report to file
+  -h   Show this help
+EOF
+    exit 0
+}
+
+<span class="code-keyword">while</span> getopts <span class="code-string">"vo:h"</span> opt; <span class="code-keyword">do</span>
+    <span class="code-keyword">case</span> <span class="code-string">"$opt"</span> <span class="code-keyword">in</span>
+        v) VERBOSE=1 ;;
+        o) OUTPUT_FILE=<span class="code-string">"$OPTARG"</span> ;;
+        h) usage ;;
+        \?) echo <span class="code-string">"Unknown option: -$OPTARG"</span> &gt;&amp;2; exit 1 ;;
+    <span class="code-keyword">esac</span>
+<span class="code-keyword">done</span>
+
+<span class="code-comment"># Test verbose flag</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">./syscheck.sh -v -o /tmp/report.txt</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">cat /tmp/report.txt</span>
+<span class="code-output">System check started: Thu Mar  5 10:00:12 EST 2026</span>
+<span class="code-output">=== Disk Space Check ===</span>
+<span class="code-output">  /               42%  OK</span>
+<span class="code-output">=== Service Status ===</span>
+<span class="code-output">  sshd                      [RUNNING]</span>
+<span class="code-output">  rsyslog                   [RUNNING]</span>
+<span class="code-output">  crond                     [RUNNING]</span>
+<span class="code-output">  NetworkManager            [RUNNING]</span>
+<span class="code-output">  Failed services: 0</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5">
+                    <span>Task 5: Debug Your Script</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div id="lab-task5" class="expandable-content">
+                    <p><strong>Objective:</strong> Use Bash debugging features to trace script execution and find issues.</p>
+                    <div class="code-block">
+                        <code><span class="code-comment"># Debug mode: trace every command as it runs</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">bash -x ./syscheck.sh 2>&amp;1 | head -20</span>
+<span class="code-output">+ LOGDIR=/var/log/syscheck</span>
+<span class="code-output">+ LOGFILE=/var/log/syscheck/report_20260305.log</span>
+<span class="code-output">+ echo 'System check started: Thu Mar  5 10:00:12 EST 2026'</span>
+<span class="code-output">+ check_disk /</span>
+<span class="code-output">++ df /</span>
+<span class="code-output">++ awk 'NR==2 {gsub(/%/,""); print $5}'</span>
+<span class="code-output">+ local USAGE=42</span>
+
+<span class="code-comment"># Enable debugging inside the script for a section only</span>
+set -x     <span class="code-comment"># Turn ON tracing</span>
+check_disk <span class="code-string">"/"</span>
+set +x     <span class="code-comment"># Turn OFF tracing</span>
+
+<span class="code-comment"># Check for syntax errors without running</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">bash -n ./syscheck.sh &amp;&amp; echo "Syntax OK"</span>
+<span class="code-output">Syntax OK</span>
+
+<span class="code-comment"># Use shellcheck if available (excellent static analyzer)</span>
+<span class="code-prompt">[student@workstation scripts]$</span> <span class="code-command">shellcheck syscheck.sh</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab Checklist -->
+            <div class="kv-box" style="margin-top: 24px;">
+                <h4>&#10003; Lab Completion Checklist</h4>
+                <ul class="checklist">
+                    <li>Script skeleton created in <code class="inline">~/scripts/syscheck.sh</code> with shebang and comments</li>
+                    <li>Script has execute permission (<code class="inline">chmod 755</code>)</li>
+                    <li>Disk check function works with <code class="inline">if/elif/else</code> conditionals</li>
+                    <li>Service check loop iterates over an array using <code class="inline">for</code></li>
+                    <li>Arguments parsed with <code class="inline">getopts</code> including <code class="inline">-v</code> and <code class="inline">-o</code></li>
+                    <li>Script tested with <code class="inline">bash -x</code> debug mode</li>
+                    <li>Report saved to file with the <code class="inline">-o</code> flag</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SECTION 10: SUMMARY ==================== -->
+    <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">10</span>
+            <h2 id="summary-heading">Chapter Summary</h2>
+        </div>
+        <div class="section-body">
+            <div class="kv-box">
+                <h4>&#128218; Key Concepts Covered</h4>
+                <ul>
+                    <li><strong>Script structure:</strong> The shebang line, header comments, variable declarations, and the main body form the anatomy of every well-written script.</li>
+                    <li><strong>Exit codes:</strong> Every command returns 0 for success or non-zero for failure; scripts should propagate these meaningfully.</li>
+                    <li><strong>Variables:</strong> Must use proper quoting to handle spaces; parameter expansion provides powerful manipulation like <code class="inline">${VAR:-default}</code> and <code class="inline">${VAR^^}</code>.</li>
+                    <li><strong>Conditionals:</strong> <code class="inline">if/elif/else</code> and <code class="inline">case</code> use <code class="inline">[ ]</code> or <code class="inline">[[ ]]</code> test conditions; file, string, and numeric tests all have different operators.</li>
+                    <li><strong>Loops:</strong> <code class="inline">for</code> iterates over lists; <code class="inline">while</code> loops while a condition is true; <code class="inline">until</code> loops until a condition becomes true; <code class="inline">break</code> and <code class="inline">continue</code> control flow.</li>
+                    <li><strong>Functions:</strong> Declared with <code class="inline">name() {}</code> syntax; use <code class="inline">local</code> for scoped variables; return values via exit codes or stdout.</li>
+                </ul>
+            </div>
+
+            <h3>Command and Syntax Quick Reference</h3>
+            <table class="data-table" aria-label="Shell scripting command reference">
+                <thead><tr><th>Concept</th><th>Syntax / Command</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>Shebang</td><td><code>#!/bin/bash</code></td><td>First line specifying interpreter</td></tr>
+                    <tr><td>Make executable</td><td><code>chmod 755 script.sh</code></td><td>Add execute permission</td></tr>
+                    <tr><td>Run script</td><td><code>./script.sh</code></td><td>Execute with explicit path</td></tr>
+                    <tr><td>Debug mode</td><td><code>bash -x script.sh</code></td><td>Trace every command</td></tr>
+                    <tr><td>Syntax check</td><td><code>bash -n script.sh</code></td><td>Check without running</td></tr>
+                    <tr><td>Variable assign</td><td><code>VAR="value"</code></td><td>No spaces around =</td></tr>
+                    <tr><td>Command subst.</td><td><code>VAR=$(command)</code></td><td>Store command output</td></tr>
+                    <tr><td>Arithmetic</td><td><code>$((expr))</code></td><td>Integer arithmetic</td></tr>
+                    <tr><td>Argument count</td><td><code>$#</code></td><td>Number of positional args</td></tr>
+                    <tr><td>All arguments</td><td><code>"$@"</code></td><td>All args, individually quoted</td></tr>
+                    <tr><td>Exit code</td><td><code>$?</code></td><td>Last command return status</td></tr>
+                    <tr><td>String default</td><td><code>${VAR:-default}</code></td><td>Use default if VAR is empty</td></tr>
+                    <tr><td>if condition</td><td><code>if [[ test ]]; then ... fi</code></td><td>Conditional execution</td></tr>
+                    <tr><td>case pattern</td><td><code>case $VAR in pat) ;; esac</code></td><td>Multi-branch selection</td></tr>
+                    <tr><td>for list</td><td><code>for x in list; do ... done</code></td><td>Iterate over items</td></tr>
+                    <tr><td>while loop</td><td><code>while [[ cond ]]; do ... done</code></td><td>Loop while true</td></tr>
+                    <tr><td>Read file</td><td><code>while IFS= read -r line</code></td><td>Read file line by line</td></tr>
+                    <tr><td>Function def.</td><td><code>fname() { ... }</code></td><td>Define reusable function</td></tr>
+                    <tr><td>Local variable</td><td><code>local VAR="value"</code></td><td>Function-scoped variable</td></tr>
+                    <tr><td>Parse options</td><td><code>getopts "abc:" opt</code></td><td>Process command-line flags</td></tr>
+                </tbody>
+            </table>
+
+            <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+                <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+                <a href="rh134_chapter2_regular_expressions.html" class="nav-chapter-btn next">Chapter 2: Regular Expressions &#8594;</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer role="contentinfo">
+    <p><strong>Red Hat System Administration II (RH134)</strong> &mdash; RHEL 10</p>
+    <p>Chapter 1: Shell Scripting and the Command Line</p>
+    <p style="margin-top: 8px; font-size: 0.8rem;">
+        Red Hat, Red Hat Enterprise Linux, and RHEL are trademarks or registered trademarks of Red Hat, Inc.<br>
+        This educational material is intended for classroom use. &copy; 2026 Course Materials.
+    </p>
+</footer>
+
+<script>
+/* ==================== PROGRESS BAR ==================== */
+const sections = document.querySelectorAll('.content-section');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const visitedSections = new Set();
+
+const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            visitedSections.add(entry.target.id);
+            const pct = Math.round((visitedSections.size / sections.length) * 100);
+            progressFill.style.width = pct + '%';
+            progressFill.setAttribute('aria-valuenow', pct);
+            progressText.textContent = `${pct}% complete \u2014 ${visitedSections.size} of ${sections.length} sections visited`;
+        }
+    });
+}, { threshold: 0.2 });
+
+sections.forEach(s => sectionObserver.observe(s));
+
+/* ==================== ACTIVE NAV HIGHLIGHTING ==================== */
+const navBtns = document.querySelectorAll('.nav-btn');
+
+const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            navBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.getAttribute('href') === '#' + entry.target.id) {
+                    btn.classList.add('active');
+                    btn.classList.add('visited');
+                }
+            });
+        }
+    });
+}, { threshold: 0.4 });
+
+sections.forEach(s => navObserver.observe(s));
+
+/* ==================== TOOLTIP SYSTEM (fixed-position bubble) ==================== */
+/*
+ * A single #tooltip-bubble div is appended to <body> and repositioned
+ * on every show event using getBoundingClientRect() + viewport math.
+ * Because it uses position:fixed on the body, it can never be clipped
+ * by overflow:hidden on any ancestor element.
+ *
+ * Algorithm:
+ *  1. Measure the term's viewport rect.
+ *  2. Try to place the bubble ABOVE the term (preferred).
+ *  3. If not enough room above, try BELOW.
+ *  4. If not enough room below, try RIGHT, then LEFT.
+ *  5. After picking a side, clamp horizontally (or vertically for
+ *     left/right bubbles) so the bubble never exits the viewport.
+ *  6. Position the arrow caret to always point at the term.
+ */
+const BUBBLE_GAP   = 10;   // px gap between term and bubble
+const BUBBLE_PAD   = 8;    // px minimum margin from viewport edge
+const BUBBLE_ARROW = 16;   // arrow height (border trick = 8px * 2)
+
+// Create the global bubble element
+const bubble = document.createElement('div');
+bubble.id = 'tooltip-bubble';
+bubble.setAttribute('role', 'tooltip');
+bubble.setAttribute('aria-hidden', 'true');
+document.body.appendChild(bubble);
+
+let hideTimer = null;
+
+function showTooltip(term) {
+    clearTimeout(hideTimer);
+
+    // Get text from the hidden .tooltip-content span
+    const src = term.querySelector('.tooltip-content');
+    if (!src) return;
+    bubble.textContent = src.textContent.trim();
+
+    // Must briefly make bubble visible (but still opacity:0) to measure it
+    bubble.style.opacity = '0';
+    bubble.style.visibility = 'visible';
+    bubble.style.maxWidth = '300px';
+    bubble.style.width   = 'max-content';
+
+    // Force layout so we can measure
+    bubble.style.top  = '-9999px';
+    bubble.style.left = '-9999px';
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const tr = term.getBoundingClientRect();          // term rect
+    const bw = Math.min(bubble.offsetWidth,  300);    // bubble width (capped)
+    const bh = bubble.offsetHeight;                   // bubble height
+
+    // Constrain bubble width to viewport
+    bubble.style.maxWidth = Math.min(300, vw - BUBBLE_PAD * 2) + 'px';
+
+    let top, left, dir, arrowX, arrowY;
+
+    const spaceAbove = tr.top;
+    const spaceBelow = vh - tr.bottom;
+    const spaceLeft  = tr.left;
+    const spaceRight = vw - tr.right;
+
+    if (spaceAbove >= bh + BUBBLE_GAP + BUBBLE_PAD) {
+        // ---- ABOVE ----
+        dir  = 'above';
+        top  = tr.top - bh - BUBBLE_GAP;
+        left = tr.left + tr.width / 2 - bw / 2;  // centred on term
+        // Clamp horizontally
+        left = Math.max(BUBBLE_PAD, Math.min(left, vw - bw - BUBBLE_PAD));
+        // Arrow X: point at term centre, expressed as % of bubble width
+        arrowX = (tr.left + tr.width / 2 - left);
+        arrowX = Math.max(16, Math.min(arrowX, bw - 16)); // keep within bubble
+        bubble.style.setProperty('--arrow-x', arrowX + 'px');
+
+    } else if (spaceBelow >= bh + BUBBLE_GAP + BUBBLE_PAD) {
+        // ---- BELOW ----
+        dir  = 'below';
+        top  = tr.bottom + BUBBLE_GAP;
+        left = tr.left + tr.width / 2 - bw / 2;
+        left = Math.max(BUBBLE_PAD, Math.min(left, vw - bw - BUBBLE_PAD));
+        arrowX = (tr.left + tr.width / 2 - left);
+        arrowX = Math.max(16, Math.min(arrowX, bw - 16));
+        bubble.style.setProperty('--arrow-x', arrowX + 'px');
+
+    } else if (spaceRight >= bw + BUBBLE_GAP + BUBBLE_PAD) {
+        // ---- RIGHT ----
+        dir  = 'right';
+        left = tr.right + BUBBLE_GAP;
+        top  = tr.top + tr.height / 2 - bh / 2;
+        top  = Math.max(BUBBLE_PAD, Math.min(top, vh - bh - BUBBLE_PAD));
+        arrowY = (tr.top + tr.height / 2 - top);
+        arrowY = Math.max(16, Math.min(arrowY, bh - 16));
+        bubble.style.setProperty('--arrow-y', arrowY + 'px');
+
+    } else {
+        // ---- LEFT (fallback) ----
+        dir  = 'left';
+        left = tr.left - bw - BUBBLE_GAP;
+        left = Math.max(BUBBLE_PAD, left);           // clamp to viewport
+        top  = tr.top + tr.height / 2 - bh / 2;
+        top  = Math.max(BUBBLE_PAD, Math.min(top, vh - bh - BUBBLE_PAD));
+        arrowY = (tr.top + tr.height / 2 - top);
+        arrowY = Math.max(16, Math.min(arrowY, bh - 16));
+        bubble.style.setProperty('--arrow-y', arrowY + 'px');
+    }
+
+    bubble.setAttribute('data-dir', dir);
+    bubble.style.top        = top  + 'px';
+    bubble.style.left       = left + 'px';
+    bubble.style.visibility = 'visible';
+    bubble.classList.add('visible');
+}
+
+function hideTooltip() {
+    bubble.classList.remove('visible');
+    hideTimer = setTimeout(() => {
+        bubble.style.visibility = 'hidden';
+    }, 160);
+}
+
+document.querySelectorAll('.tooltip-term').forEach(term => {
+    term.addEventListener('mouseenter', () => showTooltip(term));
+    term.addEventListener('focus',      () => showTooltip(term));
+    term.addEventListener('mouseleave', hideTooltip);
+    term.addEventListener('blur',       hideTooltip);
+    term.addEventListener('keydown',    e => { if (e.key === 'Escape') { hideTooltip(); term.blur(); } });
+});
+
+/* ==================== TAB SYSTEM ==================== */
+document.querySelectorAll('.tab-buttons').forEach(tabBar => {
+    const buttons = tabBar.querySelectorAll('.tab-btn');
+    const container = tabBar.closest('.tabs');
+
+    buttons.forEach((btn, idx) => {
+        btn.addEventListener('click', () => activateTab(buttons, container, idx));
+
+        btn.addEventListener('keydown', e => {
+            let newIdx = idx;
+            if (e.key === 'ArrowRight') newIdx = (idx + 1) % buttons.length;
+            else if (e.key === 'ArrowLeft') newIdx = (idx - 1 + buttons.length) % buttons.length;
+            else return;
+            e.preventDefault();
+            activateTab(buttons, container, newIdx);
+            buttons[newIdx].focus();
+        });
+    });
+});
+
+function activateTab(buttons, container, activeIdx) {
+    buttons.forEach((btn, i) => {
+        const panelId = btn.getAttribute('aria-controls');
+        const panel = document.getElementById(panelId);
+        const isActive = i === activeIdx;
+
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive);
+        if (panel) panel.classList.toggle('active', isActive);
+    });
+}
+
+/* ==================== EXPANDABLE SECTIONS ==================== */
+document.querySelectorAll('.expandable-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const expanded = header.getAttribute('aria-expanded') === 'true';
+        header.setAttribute('aria-expanded', !expanded);
+        const contentId = header.getAttribute('aria-controls');
+        const content = document.getElementById(contentId);
+        if (content) content.classList.toggle('show', !expanded);
+    });
+});
+
+/* ==================== QUIZ LOGIC ==================== */
+const correctAnswers = {
+    1: { ans: 'b', exp: '#!/bin/bash is the shebang line that must be the very first line of a Bash script. It tells the kernel to use /bin/bash as the interpreter.' },
+    2: { ans: 'c', exp: '$# holds the count of positional parameters passed to the script. With 3 arguments (alpha beta gamma), $# equals 3. The script name ($0) is NOT counted.' },
+    3: { ans: 'a', exp: '-f tests if a path is a regular file. -d tests for directories, -e tests existence (files, dirs, links), -r tests for readable permission.' },
+    4: { ans: 'd', exp: 'The local keyword declares a variable with scope limited to the current function. Without local, variables are global and can unintentionally affect the rest of the script.' },
+    5: { ans: 'b', exp: 'while IFS= read -r line; do ... done < file.txt is the correct and safe way to read line by line. IFS= prevents trimming whitespace; -r prevents backslash interpretation.' },
+    6: { ans: 'c', exp: 'By Unix convention, exit code 0 means success. Any non-zero value indicates some form of failure. Scripts and tools use this to communicate status to callers.' },
+    7: { ans: 'a', exp: '${NAME,,} is Bash parameter expansion for converting a string to all lowercase. ${NAME^^} would convert to all uppercase. ${NAME^} capitalizes only the first letter.' },
+    8: { ans: 'd', exp: 'continue skips the rest of the current iteration and jumps to the next one. break exits the loop entirely. exit exits the entire script. return exits a function.' }
+};
+
+const checkQuizBtn = document.getElementById('check-quiz');
+const resetQuizBtn = document.getElementById('reset-quiz');
+const quizScore = document.getElementById('quiz-score');
+
+checkQuizBtn.addEventListener('click', () => {
+    let score = 0;
+    const questions = document.querySelectorAll('.quiz-question');
+
+    questions.forEach(q => {
+        const num = q.getAttribute('data-question');
+        const correct = q.getAttribute('data-correct');
+        const selected = q.querySelector('input:checked');
+        const feedback = document.getElementById('feedback-' + num);
+
+        q.querySelectorAll('.quiz-option').forEach(opt => {
+            opt.classList.remove('correct-answer', 'wrong-answer');
+        });
+
+        if (selected) {
+            const selectedLabel = selected.closest('.quiz-option');
+            if (selected.value === correct) {
+                score++;
+                selectedLabel.classList.add('correct-answer');
+                q.classList.remove('incorrect');
+                q.classList.add('correct');
+                feedback.className = 'quiz-feedback show correct';
+                feedback.innerHTML = '\u2714 Correct! ' + correctAnswers[parseInt(num)].exp;
+            } else {
+                selectedLabel.classList.add('wrong-answer');
+                q.classList.remove('correct');
+                q.classList.add('incorrect');
+                // Highlight correct
+                q.querySelectorAll('input').forEach(inp => {
+                    if (inp.value === correct) inp.closest('.quiz-option').classList.add('correct-answer');
+                });
+                feedback.className = 'quiz-feedback show incorrect';
+                feedback.innerHTML = '\u2718 Incorrect. ' + correctAnswers[parseInt(num)].exp;
+            }
+        } else {
+            feedback.className = 'quiz-feedback show incorrect';
+            feedback.innerHTML = '\u26A0 Please select an answer.';
+        }
+    });
+
+    quizScore.className = 'quiz-score show';
+    const pct = Math.round((score / questions.length) * 100);
+    let msg = '';
+    if (pct >= 90) msg = ' Excellent work!';
+    else if (pct >= 70) msg = ' Good effort &mdash; review the missed topics.';
+    else msg = ' Review the chapter sections and try again.';
+    quizScore.innerHTML = 'Score: ' + score + ' / ' + questions.length + ' (' + pct + '%)' + msg;
+
+    checkQuizBtn.style.display = 'none';
+    resetQuizBtn.style.display = 'inline-block';
+});
+
+resetQuizBtn.addEventListener('click', () => {
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('correct', 'incorrect');
+        q.querySelectorAll('input').forEach(i => i.checked = false);
+        q.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('correct-answer', 'wrong-answer'));
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(f => { f.className = 'quiz-feedback'; f.innerHTML = ''; });
+    quizScore.className = 'quiz-score';
+    checkQuizBtn.style.display = 'inline-block';
+    resetQuizBtn.style.display = 'none';
+});
+
+/* ==================== SHELL VARIABLE SIMULATOR ==================== */
+const simOutput = document.getElementById('sim-output');
+const simInput = document.getElementById('sim-input');
+const simVars = {};
+
+const simCommands = {
+    'echo': (args) => {
+        // Simple variable substitution
+        let out = args.join(' ');
+        out = out.replace(/\$\{([^}]+)\}/g, (m, k) => simVars[k] !== undefined ? simVars[k] : m);
+        out = out.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (m, k) => simVars[k] !== undefined ? simVars[k] : m);
+        // Handle $((arithmetic))
+        out = out.replace(/\$\(\(([^)]+)\)\)/g, (m, expr) => {
+            try {
+                // Replace var names in expr
+                let e = expr.replace(/([A-Za-z_]\w*)/g, (v) => simVars[v] || 0);
+                return String(Function('"use strict"; return (' + e + ')')());
+            } catch(e) { return m; }
+        });
+        // Strip surrounding quotes if present
+        out = out.replace(/^["'](.*)["']$/, '$1');
+        return out;
+    }
+};
+
+function simAddLine(html) {
+    simOutput.innerHTML += html + '<br>';
+    simOutput.scrollTop = simOutput.scrollHeight;
+}
+
+function simRun(cmd) {
+    // Unescape html entities for display
+    const displayCmd = cmd.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+    simAddLine('<span class="out-prompt">[student@workstation ~]$</span> <span class="out-cmd">' + displayCmd + '</span>');
+
+    // Process assignment
+    const assignMatch = displayCmd.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/);
+    if (assignMatch) {
+        let val = assignMatch[2].replace(/^["'](.*)["']$/, '$1');
+        // Handle command substitution $(date ...)
+        val = val.replace(/\$\(date \+([^)]+)\)/g, () => {
+            const d = new Date();
+            return d.toISOString().slice(0,10);
+        });
+        val = val.replace(/\$\(hostname.*?\)/g, 'workstation');
+        // Handle arithmetic
+        val = val.replace(/\$\(\(([^)]+)\)\)/g, (m, expr) => {
+            try {
+                let e = expr.replace(/([A-Za-z_]\w*)/g, (v) => simVars[v] || 0);
+                return String(Function('"use strict"; return (' + e + ')')());
+            } catch(e) { return '0'; }
+        });
+        // Substitute other variables
+        val = val.replace(/\$\{([^}:-]+):-([^}]*)\}/g, (m, k, d) => simVars[k] !== undefined ? simVars[k] : d);
+        val = val.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (m, k) => simVars[k] !== undefined ? simVars[k] : '');
+        simVars[assignMatch[1]] = val;
+        // No output for assignment
+        return;
+    }
+
+    // Handle compound: VAR=val; echo ...
+    if (displayCmd.includes(';')) {
+        displayCmd.split(';').forEach(part => simRun(part.trim()));
+        return;
+    }
+
+    if (displayCmd.startsWith('echo ')) {
+        let arg = displayCmd.slice(5).trim();
+        // Remove surrounding quotes
+        arg = arg.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+        // Substitute ${VAR:-default}
+        arg = arg.replace(/\$\{([^}:-]+):-([^}]*)\}/g, (m, k, d) => simVars[k] !== undefined ? simVars[k] : d);
+        // Substitute ${#VAR}
+        arg = arg.replace(/\$\{#([A-Za-z_][A-Za-z0-9_]*)\}/g, (m, k) => simVars[k] ? String(simVars[k].length) : '0');
+        // Substitute ${VAR}
+        arg = arg.replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}/g, (m, k) => simVars[k] !== undefined ? simVars[k] : '');
+        // Substitute $VAR
+        arg = arg.replace(/\$([A-Za-z_][A-Za-z0-9_]*)/g, (m, k) => {
+            if (k === '0') return './simulator';
+            if (k === '$') return '12345';
+            if (k === '?') return '0';
+            return simVars[k] !== undefined ? simVars[k] : '';
+        });
+        // Handle $((...))
+        arg = arg.replace(/\$\(\(([^)]+)\)\)/g, (m, expr) => {
+            try {
+                let e = expr.replace(/([A-Za-z_]\w*)/g, (v) => simVars[v] || 0);
+                return String(Function('"use strict"; return (' + e + ')')());
+            } catch(ex) { return '0'; }
+        });
+        simAddLine('<span class="out-result">' + arg + '</span>');
+    } else if (displayCmd === 'clear' || displayCmd === 'simClear()') {
+        simClear();
+    } else {
+        simAddLine('<span class="out-comment"># (Simulated: ' + displayCmd.split(' ')[0] + ' runs here)</span>');
+    }
+}
+
+function simClear() {
+    simOutput.innerHTML = '<span class="out-comment"># Terminal cleared. Variables are preserved in this session.</span><br>';
+}
+
+simInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const cmd = simInput.value.trim();
+        if (cmd) simRun(cmd);
+        simInput.value = '';
+    }
+});
+</script>
+
+</body>
+</html>
