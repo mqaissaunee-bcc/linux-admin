@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 2: Using Regular Expressions for Practical Applications | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-title { background: var(--rh-red-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-highlight { color: #FFD700; font-weight: 600; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
+        .tooltip-content { display: none !important; }
+        #tooltip-bubble { position: fixed; z-index: 99999; background: var(--rh-gray-dark); color: var(--rh-white); padding: 11px 15px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; font-weight: 400; line-height: 1.5; max-width: 300px; width: max-content; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 8px solid transparent; }
+        #tooltip-bubble[data-dir="above"]::after { top: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="below"]::after { bottom: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="left"]::after { left: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="right"]::after { right: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.info { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning .note-box-header { color: #8B6914; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.info .note-box-header { color: var(--rh-blue-dark); }
+        .note-box p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .data-table tr:hover { background: #E8E8E8; }
+        .data-table code { font-family: var(--font-mono); background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 0.88rem; }
+
+        /* ==================== TABS ==================== */
+        .tabs { margin: 20px 0; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--rh-gray); border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE ==================== */
+        .expandable { margin: 12px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-header { width: 100%; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--rh-gray-lighter); border: none; cursor: pointer; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left; }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expand-icon { transition: transform var(--transition-fast); font-size: 1.1rem; }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { margin-bottom: 28px; padding: 20px; border: 2px solid var(--rh-gray-lighter); border-radius: var(--radius-md); transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-q-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; font-size: 1rem; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; margin: 6px 0; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; border: 1px solid var(--rh-gray-lighter); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: var(--rh-gray-lighter); }
+        .quiz-option input { margin-top: 2px; flex-shrink: 0; accent-color: var(--rh-red); }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; display: none; padding: 8px 12px; border-radius: var(--radius-sm); }
+        .quiz-feedback.correct-fb { color: var(--rh-green-dark); background: #E8F5E9; display: block; }
+        .quiz-feedback.incorrect-fb { color: var(--rh-red-dark); background: #FFEBEE; display: block; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin: 8px 4px; }
+        .quiz-btn.primary { background: var(--rh-red); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-red-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-light); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin: 16px 0; padding: 14px; border-radius: var(--radius-md); background: var(--rh-gray-lighter); text-align: center; display: none; }
+
+        /* ==================== REGEX TESTER ==================== */
+        .regex-tester { background: #F8F8F8; border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .regex-tester h3 { font-family: var(--font-display); color: var(--rh-blue-dark); margin-bottom: 16px; }
+        .regex-input-row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .regex-input-row label { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-gray-dark); display: block; margin-bottom: 4px; }
+        .regex-field { flex: 1; min-width: 200px; }
+        .regex-field input, .regex-field textarea { width: 100%; padding: 10px 14px; font-family: var(--font-mono); font-size: 0.9rem; border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm); color: var(--rh-black); background: var(--rh-white); }
+        .regex-field textarea { height: 80px; resize: vertical; }
+        .regex-test-btn { padding: 10px 24px; background: var(--rh-blue); color: var(--rh-white); border: none; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 600; cursor: pointer; transition: background var(--transition-fast); align-self: flex-end; }
+        .regex-test-btn:hover { background: var(--rh-blue-dark); }
+        .regex-results { background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.875rem; min-height: 60px; margin-top: 12px; white-space: pre-wrap; word-break: break-all; }
+        .regex-match { background: rgba(255,215,0,0.3); color: #FFD700; border-radius: 2px; font-weight: 600; }
+        .regex-info { font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray); margin-top: 8px; }
+
+        /* ==================== GREP SIMULATOR ==================== */
+        .grep-sim { background: #1E1E1E; border-radius: var(--radius-md); padding: 20px; margin: 20px 0; }
+        .grep-sim-title { color: #4EC9B0; font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; font-size: 1rem; }
+        .grep-sim-controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .grep-example-btn { padding: 8px 14px; background: #333; color: #D4D4D4; border: 1px solid #555; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.8rem; cursor: pointer; transition: all var(--transition-fast); }
+        .grep-example-btn:hover, .grep-example-btn.active-ex { background: var(--rh-red-dark); color: var(--rh-white); border-color: var(--rh-red); }
+        .grep-command-display { color: #4EC9B0; font-family: var(--font-mono); font-size: 0.875rem; margin-bottom: 12px; }
+        .grep-output-area { color: #9CDCFE; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.8; white-space: pre-wrap; }
+        .grep-match-highlight { color: #FFD700; font-weight: 700; }
+        .grep-line-num { color: #6A9955; }
+
+        /* ==================== REGEX REFERENCE CARDS ==================== */
+        .regex-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+        .regex-card { background: var(--rh-white); border: 2px solid var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px; cursor: pointer; transition: all var(--transition-fast); text-align: center; }
+        .regex-card:hover { border-color: var(--rh-blue); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+        .regex-card:focus { border-color: var(--rh-blue); outline: 3px solid var(--rh-blue); }
+        .regex-card-pattern { font-family: var(--font-mono); font-size: 1.4rem; font-weight: 700; color: var(--rh-red); margin-bottom: 6px; }
+        .regex-card-name { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-gray-dark); margin-bottom: 4px; }
+        .regex-card-desc { font-family: var(--font-display); font-size: 0.78rem; color: var(--rh-gray); }
+        .regex-card-detail { display: none; background: var(--rh-gray-lighter); padding: 12px; margin-top: 10px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.8rem; text-align: left; }
+        .regex-card.expanded .regex-card-detail { display: block; }
+
+        /* ==================== CHECKLIST ==================== */
+        .lab-checklist { list-style: none; margin: 16px 0; padding: 0; }
+        .lab-checklist li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.95rem; margin-bottom: 4px; }
+        .lab-checklist li::before { content: '&#10003;'; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; }
+        .check-item { cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .check-item:hover { background: var(--rh-gray-lighter); }
+        .check-item.checked { background: #E8F5E9; text-decoration: line-through; color: var(--rh-gray); }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin: 30px 0; flex-wrap: wrap; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-chapter-btn.next:hover { background: var(--rh-red-dark); border-color: var(--rh-red-dark); }
+
+        /* ==================== FOOTER ==================== */
+        .main-footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; text-align: center; margin-top: 40px; }
+        .footer-content { max-width: var(--content-width); margin: 0 auto; font-family: var(--font-display); font-size: 0.85rem; }
+        .footer-content p { margin-bottom: 8px; }
+
+        /* ==================== OBJECTIVES LIST ==================== */
+        .objectives-list { list-style: none; padding: 0; margin: 0; }
+        .objectives-list li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.95rem; }
+        .objectives-list li:last-child { border-bottom: none; }
+        .obj-icon { color: var(--rh-green); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .regex-input-row { flex-direction: column; }
+            .regex-card-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            .chapter-nav { flex-direction: column; }
+            .nav-chapter-btn { justify-content: center; }
+            .grep-sim-controls { flex-direction: column; }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav, .regex-tester, .grep-sim { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+            .expandable-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
+
+<!-- ==================== HEADER ==================== -->
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">🎩</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 2: Using Regular Expressions for Practical Applications</h1>
+        <p class="chapter-subtitle">Master pattern matching with grep, sed, awk, and extended regex for real system administration tasks</p>
+        <div class="header-meta">
+            <span>&#128337; Estimated Time: 2&ndash;3 hours</span>
+            <span>&#128218; RH134 &mdash; Red Hat System Administration II</span>
+            <span>&#127919; RHEL 10</span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== PROGRESS BAR ==================== -->
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             aria-label="Chapter reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text">Progress: 0%</div>
+</div>
+
+<!-- ==================== SECTION NAV ==================== -->
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives" class="nav-btn" aria-label="Go to Learning Objectives">1. Objectives</a></li>
+        <li><a href="#section-intro" class="nav-btn" aria-label="Go to Introduction to Regex">2. Intro to Regex</a></li>
+        <li><a href="#section-basic" class="nav-btn" aria-label="Go to Basic Patterns">3. Basic Patterns</a></li>
+        <li><a href="#section-extended" class="nav-btn" aria-label="Go to Extended Regex">4. Extended Regex</a></li>
+        <li><a href="#section-grep" class="nav-btn" aria-label="Go to grep and egrep">5. grep &amp; egrep</a></li>
+        <li><a href="#section-sed" class="nav-btn" aria-label="Go to sed Stream Editor">6. sed</a></li>
+        <li><a href="#section-awk" class="nav-btn" aria-label="Go to awk">7. awk</a></li>
+        <li><a href="#section-exercise" class="nav-btn" aria-label="Go to Guided Exercise">8. Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" aria-label="Go to Knowledge Check">9. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" aria-label="Go to Hands-On Lab">10. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" aria-label="Go to Chapter Summary">11. Summary</a></li>
+    </ul>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main id="main-content">
+
+    <!-- SECTION 1: LEARNING OBJECTIVES -->
+    <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">1</span>
+            <h2 id="objectives-heading">Learning Objectives</h2>
+        </div>
+        <div class="section-body">
+            <p>After completing this chapter, you will be able to:</p>
+            <ul class="objectives-list" role="list">
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Define regular expressions and explain how they differ from shell globbing patterns</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Construct basic regular expressions using anchors, character classes, quantifiers, and special metacharacters</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Apply extended regular expressions using <code class="inline">grep -E</code> (egrep) for advanced pattern matching</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Use <code class="inline">grep</code> with common options to search files and command output effectively</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Perform in-place and piped text substitution with <code class="inline">sed</code> using regular expressions</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Extract, filter, and transform structured text data using <code class="inline">awk</code></li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Combine grep, sed, and awk in pipelines to solve real system administration tasks</li>
+                <li><span class="obj-icon" aria-hidden="true">&#10003;</span>Analyze log files and configuration files using regular expressions for troubleshooting</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 2: INTRODUCTION TO REGEX -->
+    <section id="section-intro" class="content-section" aria-labelledby="intro-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">2</span>
+            <h2 id="intro-heading">Introduction to Regular Expressions</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-regex">regular expression</span>
+                (regex or regexp) is a sequence of characters that defines a search pattern. Unlike simple string searches
+                that look for exact matches, regular expressions can describe an almost unlimited variety of text patterns.
+                They are a fundamental skill for any Linux system administrator.
+                <span class="tooltip-content" id="tt-regex">A formal pattern language used to describe sets of strings. Regular expressions are interpreted by an engine that searches for or matches text conforming to the pattern.</span>
+            </p>
+            <p>
+                Regular expressions are supported natively by dozens of Linux tools including
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grep">grep</span>,
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sed">sed</span>,
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-awk">awk</span>,
+                <code class="inline">vim</code>, <code class="inline">less</code>, and many programming languages. Learning regular
+                expressions once means you can apply them across all of these tools.
+            </p>
+            <span class="tooltip-content" id="tt-grep">A command-line utility that searches text files or standard input for lines matching a specified pattern and prints matching lines to standard output.</span>
+            <span class="tooltip-content" id="tt-sed">The Stream EDitor &mdash; a non-interactive line-oriented text editor that reads input line by line and applies commands including substitution, deletion, and insertion based on regular expressions.</span>
+            <span class="tooltip-content" id="tt-awk">A programming language and command-line tool designed for text processing. Named after its creators Aho, Weinberger, and Kernighan. Awk processes files record by record (usually line by line) and applies patterns and actions.</span>
+
+            <h3>Regular Expressions vs. Shell Globbing</h3>
+            <p>
+                Students often confuse regular expressions with
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-glob">shell globbing</span> patterns.
+                While both use special characters to describe patterns, they are completely different systems with different syntax
+                and are processed by different programs.
+            </p>
+            <span class="tooltip-content" id="tt-glob">Shell filename expansion (globbing) uses wildcards like *, ?, and [] to match filenames before a command runs. The shell itself expands the glob; the command never sees the wildcard characters.</span>
+
+            <div class="tabs" aria-label="Regex vs Globbing comparison">
+                <div class="tab-buttons" role="tablist" aria-label="Comparison tabs">
+                    <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-compare" id="tb-compare">Regex vs Globbing</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-history" id="tb-history">Why Regex Matters</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-engines" id="tb-engines">Regex Engines (BRE vs ERE)</button>
+                </div>
+                <div id="tab-compare" class="tab-panel active" role="tabpanel" aria-labelledby="tb-compare">
+                    <table class="data-table" aria-label="Comparison of regex and shell globbing">
+                        <thead>
+                            <tr><th>Feature</th><th>Shell Globbing</th><th>Regular Expressions</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Who processes it?</td><td>The shell (bash)</td><td>The tool (grep, sed, etc.)</td></tr>
+                            <tr><td>Primary use</td><td>Filename matching</td><td>Text pattern matching</td></tr>
+                            <tr><td><code>*</code> means</td><td>Any string of characters</td><td>Zero or more of the preceding element</td></tr>
+                            <tr><td><code>?</code> means</td><td>Any single character</td><td>Zero or one of the preceding element (ERE)</td></tr>
+                            <tr><td><code>.</code> means</td><td>A literal dot</td><td>Any single character</td></tr>
+                            <tr><td>Groups</td><td>Not supported</td><td><code>(abc)</code> groups characters</td></tr>
+                            <tr><td>Anchors</td><td>Not supported</td><td><code>^</code> and <code>$</code> for start/end</td></tr>
+                            <tr><td>Example</td><td><code>ls *.log</code></td><td><code>grep '\.log$' file.txt</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="note-box warning">
+                        <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Common Mistake</span></div>
+                        <p>In shell globbing, <code>*</code> matches anything. In a regular expression, <code>.*</code> matches anything (dot = any char, star = zero or more). A bare <code>*</code> in a regex means "zero or more of the preceding character," not "anything." This is one of the most common sources of confusion for new regex users.</p>
+                    </div>
+                </div>
+                <div id="tab-history" class="tab-panel" role="tabpanel" aria-labelledby="tb-history">
+                    <h4>Practical Value for System Administrators</h4>
+                    <p>Regular expressions unlock capabilities that no amount of manual searching can match. Consider these real system administration scenarios:</p>
+                    <ul>
+                        <li><strong>Log analysis:</strong> Find all SSH authentication failures for a specific IP range in a 500 MB log file in under a second</li>
+                        <li><strong>Configuration management:</strong> Change a service address across 200 configuration files simultaneously with one <code class="inline">sed</code> command</li>
+                        <li><strong>User provisioning:</strong> Extract username and UID columns from <code class="inline">/etc/passwd</code> to generate reports</li>
+                        <li><strong>Security auditing:</strong> Search scripts for hardcoded passwords or IP addresses matching specific patterns</li>
+                        <li><strong>Monitoring:</strong> Filter systemd journal output to show only critical events matching a pattern</li>
+                    </ul>
+                    <p>Red Hat recommends that system administrators develop fluency with regular expressions as part of the RH134 curriculum, since automation scripts that cannot process text intelligently require constant manual intervention.</p>
+                </div>
+                <div id="tab-engines" class="tab-panel" role="tabpanel" aria-labelledby="tb-engines">
+                    <h4>BRE vs. ERE: Two Flavors of Regex</h4>
+                    <p>POSIX defines two standards for regular expressions that Linux tools implement:</p>
+                    <table class="data-table" aria-label="BRE vs ERE comparison">
+                        <thead>
+                            <tr><th>Feature</th><th>BRE (Basic)</th><th>ERE (Extended)</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Command</td><td><code>grep</code>, <code>sed</code></td><td><code>grep -E</code>, <code>egrep</code>, <code>awk</code></td></tr>
+                            <tr><td>Grouping</td><td><code>\(abc\)</code></td><td><code>(abc)</code></td></tr>
+                            <tr><td>Alternation</td><td><code>\|</code></td><td><code>|</code></td></tr>
+                            <tr><td>One or more</td><td><code>\+</code></td><td><code>+</code></td></tr>
+                            <tr><td>Zero or one</td><td><code>\?</code></td><td><code>?</code></td></tr>
+                            <tr><td>Repetition</td><td><code>\{3,5\}</code></td><td><code>{3,5}</code></td></tr>
+                        </tbody>
+                    </table>
+                    <div class="note-box tip">
+                        <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+                        <p>For new patterns, prefer <code class="inline">grep -E</code> or <code class="inline">awk</code> which use ERE. The syntax is cleaner because you don&rsquo;t need backslashes before <code>(</code>, <code>)</code>, <code>+</code>, <code>?</code>, and <code>|</code>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: BASIC PATTERNS -->
+    <section id="section-basic" class="content-section" aria-labelledby="basic-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">3</span>
+            <h2 id="basic-heading">Basic Regular Expression Patterns</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                Basic regular expression patterns are the building blocks you combine to describe any text pattern.
+                Every regex is made up of <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-literal">literal characters</span>
+                and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-meta">metacharacters</span>.
+                Understanding each metacharacter's purpose is the foundation of regex fluency.
+            </p>
+            <span class="tooltip-content" id="tt-literal">Characters in a regex that match themselves exactly. The letter 'a' matches the letter 'a'; the digit '5' matches the digit '5'.</span>
+            <span class="tooltip-content" id="tt-meta">Special characters in a regex that have meaning beyond their literal character value. Examples: . * ^ $ [ ] \ ( ) + ? { } |</span>
+
+            <h3>Interactive Regex Pattern Reference</h3>
+            <p>Click any pattern card to see examples and explanations. Use arrow keys to navigate between cards.</p>
+
+            <div class="regex-card-grid" role="list" aria-label="Regex pattern reference cards">
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">.</div>
+                    <div class="regex-card-name">Dot (any char)</div>
+                    <div class="regex-card-desc">Matches any single character except newline</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>c.t</code><br>
+                        Matches: cat, cut, c3t, c t<br>
+                        No match: ct, cctt
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">^</div>
+                    <div class="regex-card-name">Anchor: Start</div>
+                    <div class="regex-card-desc">Matches only at the start of a line</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>^root</code><br>
+                        Matches: "root:x:0:0:..."<br>
+                        No match: "operator:x:11:root"
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">$</div>
+                    <div class="regex-card-name">Anchor: End</div>
+                    <div class="regex-card-desc">Matches only at the end of a line</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>bash$</code><br>
+                        Matches: "/bin/bash"<br>
+                        No match: "bash_history"
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">*</div>
+                    <div class="regex-card-name">Quantifier: 0+</div>
+                    <div class="regex-card-desc">Zero or more of the preceding element</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>er*ror</code><br>
+                        Matches: eror, error, errror<br>
+                        Also matches: eror (zero r's before "ror")
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">[ ]</div>
+                    <div class="regex-card-name">Character Class</div>
+                    <div class="regex-card-desc">Matches any one character inside the brackets</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>[aeiou]</code><br>
+                        Matches: any vowel<br>
+                        Pattern: <code>[0-9]</code><br>
+                        Matches: any digit 0 through 9
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">[^ ]</div>
+                    <div class="regex-card-name">Negated Class</div>
+                    <div class="regex-card-desc">Matches any character NOT inside the brackets</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>[^0-9]</code><br>
+                        Matches: any non-digit<br>
+                        Pattern: <code>[^aeiou]</code><br>
+                        Matches: any consonant or symbol
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">\</div>
+                    <div class="regex-card-name">Escape</div>
+                    <div class="regex-card-desc">Treats next metacharacter as a literal</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>\.</code><br>
+                        Matches: literal dot "."<br>
+                        Pattern: <code>\*</code><br>
+                        Matches: literal asterisk "*"
+                    </div>
+                </div>
+                <div class="regex-card" tabindex="0" role="listitem button" aria-expanded="false" onclick="toggleCard(this)" onkeydown="cardKeyNav(event, this)">
+                    <div class="regex-card-pattern">.*</div>
+                    <div class="regex-card-name">Any String</div>
+                    <div class="regex-card-desc">Matches any sequence of zero or more characters</div>
+                    <div class="regex-card-detail">
+                        Pattern: <code>^ERROR.*timeout</code><br>
+                        Matches lines starting with ERROR that contain "timeout" anywhere
+                    </div>
+                </div>
+            </div>
+
+            <h3>POSIX Character Classes</h3>
+            <p>
+                POSIX defines named <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-posix">character classes</span>
+                that work correctly with the system locale. These are preferred over simple ranges like <code class="inline">[A-Z]</code>
+                because locale settings can affect how ranges are interpreted.
+            </p>
+            <span class="tooltip-content" id="tt-posix">POSIX (Portable Operating System Interface) character classes are locale-aware named sets enclosed in [: :] notation used inside bracket expressions. They ensure consistent behavior across different character encodings and languages.</span>
+
+            <table class="data-table" aria-label="POSIX character classes">
+                <thead>
+                    <tr><th>Class</th><th>Equivalent to</th><th>Matches</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>[:alpha:]</code></td><td><code>[A-Za-z]</code></td><td>Any alphabetic letter</td></tr>
+                    <tr><td><code>[:digit:]</code></td><td><code>[0-9]</code></td><td>Any decimal digit</td></tr>
+                    <tr><td><code>[:alnum:]</code></td><td><code>[A-Za-z0-9]</code></td><td>Any alphanumeric character</td></tr>
+                    <tr><td><code>[:lower:]</code></td><td><code>[a-z]</code></td><td>Any lowercase letter</td></tr>
+                    <tr><td><code>[:upper:]</code></td><td><code>[A-Z]</code></td><td>Any uppercase letter</td></tr>
+                    <tr><td><code>[:space:]</code></td><td><code>[ \t\n\r]</code></td><td>Any whitespace character</td></tr>
+                    <tr><td><code>[:blank:]</code></td><td><code>[ \t]</code></td><td>Space or tab only</td></tr>
+                    <tr><td><code>[:punct:]</code></td><td>Punctuation chars</td><td>Any punctuation character</td></tr>
+                    <tr><td><code>[:print:]</code></td><td>Printable chars</td><td>Any printable character including space</td></tr>
+                </tbody>
+            </table>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Syntax Note</span></div>
+                <p>POSIX classes must be used <em>inside</em> a bracket expression. To match any digit, write <code class="inline">[[:digit:]]</code> &mdash; double brackets are required. The outer <code>[]</code> creates the character class; the inner <code>[: :]</code> names the POSIX class within it.</p>
+            </div>
+
+            <div class="code-block" role="region" aria-label="POSIX character class examples">
+                <div class="code-title">POSIX Character Class Examples</div>
+                <code>
+<span class="code-comment"># Match lines containing only alphabetic characters</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep '^[[:alpha:]]*$' /etc/hostname</span>
+<span class="code-output">workstation</span>
+
+<span class="code-comment"># Find lines in /etc/passwd where the UID contains only digits</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep '^[[:alpha:]]*:[^:]*:[[:digit:]]' /etc/passwd | head -3</span>
+<span class="code-output">root:x:0:0:root:/root:/bin/bash</span>
+<span class="code-output">bin:x:1:1:bin:/bin:/sbin/nologin</span>
+<span class="code-output">daemon:x:2:2:daemon:/sbin:/sbin/nologin</span>
+
+<span class="code-comment"># Find IP addresses (simplified pattern)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep '[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}\.[[:digit:]]\{1,3\}' /var/log/secure</span>
+                </code>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: EXTENDED REGEX -->
+    <section id="section-extended" class="content-section" aria-labelledby="extended-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">4</span>
+            <h2 id="extended-heading">Extended Regular Expressions</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ere">Extended Regular Expressions (ERE)</span>
+                add several powerful features to basic regex syntax. ERE is used by <code class="inline">grep -E</code>,
+                <code class="inline">egrep</code>, and <code class="inline">awk</code>. The key advantage is cleaner syntax
+                &mdash; you don&rsquo;t need backslashes before grouping, quantifier, and alternation operators.
+            </p>
+            <span class="tooltip-content" id="tt-ere">Extended Regular Expressions (ERE) are a POSIX-standardized superset of basic regex. ERE adds the +, ?, |, and () operators without requiring backslash escaping, making complex patterns more readable.</span>
+
+            <h3>ERE-Only Quantifiers</h3>
+            <table class="data-table" aria-label="ERE quantifiers">
+                <thead>
+                    <tr><th>Quantifier</th><th>Meaning</th><th>Example Pattern</th><th>Matches</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>+</code></td><td>One or more of preceding</td><td><code>er+ror</code></td><td>error, errror (not eror)</td></tr>
+                    <tr><td><code>?</code></td><td>Zero or one of preceding</td><td><code>colou?r</code></td><td>color, colour</td></tr>
+                    <tr><td><code>{n}</code></td><td>Exactly n occurrences</td><td><code>[0-9]{4}</code></td><td>Exactly 4 digits</td></tr>
+                    <tr><td><code>{n,}</code></td><td>n or more occurrences</td><td><code>[0-9]{3,}</code></td><td>3 or more digits</td></tr>
+                    <tr><td><code>{n,m}</code></td><td>Between n and m occurrences</td><td><code>[0-9]{2,4}</code></td><td>2 to 4 digits</td></tr>
+                    <tr><td><code>(abc)</code></td><td>Grouping</td><td><code>(ha)+</code></td><td>ha, haha, hahaha</td></tr>
+                    <tr><td><code>a|b</code></td><td>Alternation (OR)</td><td><code>cat|dog</code></td><td>cat or dog</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Grouping and Alternation</h3>
+            <p>
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-group">Grouping</span>
+                with parentheses lets you apply quantifiers to multi-character sequences and create
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-backref">backreferences</span>
+                for matching repeated patterns.
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-alt">Alternation</span>
+                with the pipe character <code class="inline">|</code> acts like a logical OR between two sub-patterns.
+            </p>
+            <span class="tooltip-content" id="tt-group">Parentheses in regex create a capture group that treats the enclosed characters as a single unit. Quantifiers after the closing parenthesis apply to the entire group. Groups can also capture matched text for backreferences.</span>
+            <span class="tooltip-content" id="tt-backref">A backreference in regex refers back to what a capture group matched earlier in the same pattern. Written as \1, \2, etc. Useful for finding repeated words or duplicate fields.</span>
+            <span class="tooltip-content" id="tt-alt">The pipe character | in ERE means "or" — the pattern matches if either the left side or the right side matches. Alternation has the lowest precedence, so use grouping to limit its scope.</span>
+
+            <div class="code-block" role="region" aria-label="ERE grouping and alternation examples">
+                <div class="code-title">ERE Grouping and Alternation</div>
+                <code>
+<span class="code-comment"># Match lines with "error" or "warning" (case-insensitive)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -Ei '(error|warning)' /var/log/messages | tail -5</span>
+<span class="code-output">Mar  5 09:12:03 workstation kernel: ERROR: Unable to mount device</span>
+<span class="code-output">Mar  5 09:15:44 workstation sshd: WARNING: too many authentication failures</span>
+
+<span class="code-comment"># Match IPv4 addresses using groups and quantifiers</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -E '([0-9]{1,3}\.){3}[0-9]{1,3}' /etc/hosts</span>
+<span class="code-output">127.0.0.1   localhost localhost.localdomain</span>
+<span class="code-output">192.168.1.100   workstation.lab.example.com workstation</span>
+
+<span class="code-comment"># Find duplicate words in a file (backreference)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -E '\b([a-z]+) \1\b' document.txt</span>
+<span class="code-output">The the server was was restarted.</span>
+
+<span class="code-comment"># Match lines with "failed" or "refused" in journal</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">journalctl -u sshd | grep -E 'failed|refused|invalid'</span>
+<span class="code-output">Mar 05 10:22:11 workstation sshd[1423]: Failed password for invalid user admin</span>
+                </code>
+            </div>
+
+            <h3>Anchors and Word Boundaries</h3>
+            <p>
+                Beyond <code class="inline">^</code> and <code class="inline">$</code> for line anchors,
+                the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-wordboundary">word boundary</span>
+                metacharacter <code class="inline">\b</code> is extremely useful for matching whole words without
+                accidentally matching substrings within longer words.
+            </p>
+            <span class="tooltip-content" id="tt-wordboundary">A word boundary \b matches the position between a word character (alphanumeric or underscore) and a non-word character. It does not consume any characters; it matches a position. Use \b to find whole words and avoid partial matches.</span>
+
+            <div class="code-block" role="region" aria-label="Anchor and word boundary examples">
+                <div class="code-title">Anchors and Word Boundaries</div>
+                <code>
+<span class="code-comment"># ^ matches beginning of line — only lines starting with "root"</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep '^root' /etc/passwd</span>
+<span class="code-output">root:x:0:0:root:/root:/bin/bash</span>
+
+<span class="code-comment"># $ matches end of line — only accounts using /bin/bash shell</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep '/bin/bash$' /etc/passwd</span>
+<span class="code-output">root:x:0:0:root:/root:/bin/bash</span>
+<span class="code-output">student:x:1000:1000:Student User:/home/student:/bin/bash</span>
+
+<span class="code-comment"># \b prevents "error" from matching inside "erroring" or "errored"</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -E '\berror\b' /var/log/messages</span>
+
+<span class="code-comment"># Combine anchors: match lines that contain ONLY whitespace or are empty</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -E '^[[:space:]]*$' /etc/ssh/sshd_config | wc -l</span>
+<span class="code-output">18</span>
+
+<span class="code-comment"># Match blank lines to count them</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -c '^$' /etc/ssh/sshd_config</span>
+<span class="code-output">18</span>
+                </code>
+            </div>
+
+            <!-- LIVE REGEX TESTER -->
+            <div class="regex-tester" role="region" aria-label="Live regular expression tester">
+                <h3>&#128270; Live Regex Tester</h3>
+                <p style="font-family: var(--font-display); font-size:0.9rem; color: var(--rh-gray); margin-bottom:16px;">
+                    Type a regex pattern and test text below. Matches will be highlighted in gold. This simulates how grep processes text.
+                </p>
+                <div class="regex-input-row">
+                    <div class="regex-field">
+                        <label for="rt-pattern">Pattern (regex):</label>
+                        <input type="text" id="rt-pattern" value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+                               placeholder="Enter regex pattern..." aria-label="Regular expression pattern input">
+                    </div>
+                    <div class="regex-field">
+                        <label for="rt-flags">Options:</label>
+                        <input type="text" id="rt-flags" value="gi" placeholder="g=global, i=ignore case, m=multiline"
+                               aria-label="Regex flags: g for global, i for case-insensitive, m for multiline" style="max-width:200px;">
+                    </div>
+                </div>
+                <div class="regex-field" style="margin-bottom:12px;">
+                    <label for="rt-text">Test text (one entry per line):</label>
+                    <textarea id="rt-text" aria-label="Text to test the regular expression against">192.168.1.100 workstation.lab.example.com
+127.0.0.1 localhost
+::1 localhost6
+10.0.2.15 serverb.lab.example.com
+Not an IP address
+2001:db8::1 ipv6host</textarea>
+                </div>
+                <button class="regex-test-btn" onclick="runRegexTest()" aria-label="Test the regular expression against the sample text">&#9654; Test Pattern</button>
+                <div class="regex-results" id="rt-results" aria-live="polite" aria-label="Regex test results">Results will appear here...</div>
+                <div class="regex-info" id="rt-info" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: GREP -->
+    <section id="section-grep" class="content-section" aria-labelledby="grep-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">5</span>
+            <h2 id="grep-heading">Using grep and egrep</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grep2">grep</span>
+                command is arguably the most important text-searching tool on a Linux system. Its name comes from the
+                <code class="inline">ed</code> editor command <code>g/re/p</code> (Global Regular Expression Print).
+                Mastering grep's options dramatically speeds up log analysis, configuration auditing, and troubleshooting.
+            </p>
+            <span class="tooltip-content" id="tt-grep2">grep (Global Regular Expression Print) searches input files or stdin for lines matching a pattern and outputs matching lines. Originally derived from the g/re/p command in the ed text editor.</span>
+
+            <h3>Essential grep Options</h3>
+            <table class="data-table" aria-label="Common grep options">
+                <thead>
+                    <tr><th>Option</th><th>Long form</th><th>Effect</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>-i</code></td><td><code>--ignore-case</code></td><td>Case-insensitive matching</td></tr>
+                    <tr><td><code>-v</code></td><td><code>--invert-match</code></td><td>Show lines that do NOT match</td></tr>
+                    <tr><td><code>-c</code></td><td><code>--count</code></td><td>Print count of matching lines</td></tr>
+                    <tr><td><code>-n</code></td><td><code>--line-number</code></td><td>Prefix each line with its line number</td></tr>
+                    <tr><td><code>-l</code></td><td><code>--files-with-matches</code></td><td>Print only filenames with matches</td></tr>
+                    <tr><td><code>-L</code></td><td><code>--files-without-match</code></td><td>Print filenames with NO matches</td></tr>
+                    <tr><td><code>-r</code></td><td><code>--recursive</code></td><td>Search directories recursively</td></tr>
+                    <tr><td><code>-A n</code></td><td><code>--after-context=n</code></td><td>Print n lines after each match</td></tr>
+                    <tr><td><code>-B n</code></td><td><code>--before-context=n</code></td><td>Print n lines before each match</td></tr>
+                    <tr><td><code>-C n</code></td><td><code>--context=n</code></td><td>Print n lines before and after match</td></tr>
+                    <tr><td><code>-E</code></td><td><code>--extended-regexp</code></td><td>Use extended regex (like egrep)</td></tr>
+                    <tr><td><code>-F</code></td><td><code>--fixed-strings</code></td><td>Treat pattern as literal string (no regex)</td></tr>
+                    <tr><td><code>-w</code></td><td><code>--word-regexp</code></td><td>Match whole words only</td></tr>
+                    <tr><td><code>-o</code></td><td><code>--only-matching</code></td><td>Print only the matched portion</td></tr>
+                    <tr><td><code>-q</code></td><td><code>--quiet</code></td><td>Suppress output; exit 0 if match found</td></tr>
+                </tbody>
+            </table>
+
+            <!-- INTERACTIVE GREP SIMULATOR -->
+            <h3>Interactive grep Simulator</h3>
+            <p>Select an example scenario to see how grep processes real system files. Each example demonstrates a practical system administration use case.</p>
+
+            <div class="grep-sim" role="region" aria-label="Interactive grep simulator">
+                <div class="grep-sim-title">&#128187; grep Command Simulator</div>
+                <div class="grep-sim-controls" role="group" aria-label="grep example scenarios">
+                    <button class="grep-example-btn active-ex" onclick="showGrepExample(0,this)" aria-pressed="true">SSH Failures</button>
+                    <button class="grep-example-btn" onclick="showGrepExample(1,this)" aria-pressed="false">Service Status</button>
+                    <button class="grep-example-btn" onclick="showGrepExample(2,this)" aria-pressed="false">Active Users</button>
+                    <button class="grep-example-btn" onclick="showGrepExample(3,this)" aria-pressed="false">Config Audit</button>
+                    <button class="grep-example-btn" onclick="showGrepExample(4,this)" aria-pressed="false">Context Lines</button>
+                </div>
+                <div class="grep-command-display" id="grep-cmd" aria-live="polite"></div>
+                <div class="grep-output-area" id="grep-output" aria-live="polite" aria-label="grep command output"></div>
+            </div>
+
+            <div class="code-block" role="region" aria-label="Advanced grep usage examples">
+                <div class="code-title">Advanced grep Techniques</div>
+                <code>
+<span class="code-comment"># Search multiple files recursively for a config option</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -rl 'PermitRootLogin' /etc/ssh/</span>
+<span class="code-output">/etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Find all failed login attempts in the last 100 journal lines</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">journalctl -n 100 | grep -i 'failed\|invalid\|refused'</span>
+<span class="code-output">Mar 05 11:02:14 serverb sshd[2341]: Failed password for root from 10.0.2.2 port 54321 ssh2</span>
+
+<span class="code-comment"># Extract only IP addresses from auth log (-o shows only match)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' /var/log/secure | sort | uniq -c | sort -rn | head</span>
+<span class="code-output">     47 192.168.1.50</span>
+<span class="code-output">     12 10.0.2.2</span>
+<span class="code-output">      3 172.16.0.1</span>
+
+<span class="code-comment"># Silent test: check if a service is enabled (use in scripts)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl is-enabled sshd | grep -q 'enabled' && echo "SSH enabled" || echo "SSH disabled"</span>
+<span class="code-output">SSH enabled</span>
+
+<span class="code-comment"># Show lines with context: -B 2 -A 3 for before/after</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">grep -n -B 2 -A 3 'PermitRootLogin' /etc/ssh/sshd_config</span>
+<span class="code-output">45-# Authentication:</span>
+<span class="code-output">46-</span>
+<span class="code-output">47:#PermitRootLogin prohibit-password</span>
+<span class="code-output">48-PermitRootLogin no</span>
+<span class="code-output">49-</span>
+<span class="code-output">50-# AuthorizedKeysFile controls where public keys are looked up</span>
+<span class="code-output">51-AuthorizedKeysFile .ssh/authorized_keys</span>
+                </code>
+            </div>
+
+            <div class="note-box info">
+                <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>grep Exit Status</span></div>
+                <p>grep returns exit code <strong>0</strong> if a match is found, <strong>1</strong> if no match, and <strong>2</strong> for errors. This makes <code class="inline">grep -q</code> very useful in scripts: <code class="inline">if grep -q 'pattern' file; then ...</code> checks for pattern without producing output.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: SED -->
+    <section id="section-sed" class="content-section" aria-labelledby="sed-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">6</span>
+            <h2 id="sed-heading">The sed Stream Editor</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sed2">sed</span>
+                (Stream EDitor) reads input line by line, applies editing commands to each line based on address or pattern
+                matching, and writes the result to standard output. It is the preferred tool for automated, non-interactive
+                text transformation &mdash; especially modifying configuration files in scripts.
+            </p>
+            <span class="tooltip-content" id="tt-sed2">sed is a non-interactive, line-oriented stream editor. It processes each line of input through a script of editing commands and writes the transformed text to standard output. It never modifies the input file unless the -i (in-place) flag is used.</span>
+
+            <h3>sed Addressing</h3>
+            <p>
+                Before a sed command, you can specify an
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sedaddr">address</span>
+                that restricts which lines the command applies to. Without an address, the command applies to every line.
+            </p>
+            <span class="tooltip-content" id="tt-sedaddr">In sed, an address specifies which lines a command should act on. Addresses can be line numbers (5), ranges (3,7), last line ($), regex patterns (/pattern/), or step counts (first~step).</span>
+
+            <table class="data-table" aria-label="sed addressing forms">
+                <thead>
+                    <tr><th>Address Form</th><th>Meaning</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>5</code></td><td>Line number 5 only</td><td><code>5s/old/new/</code></td></tr>
+                    <tr><td><code>3,7</code></td><td>Lines 3 through 7</td><td><code>3,7d</code></td></tr>
+                    <tr><td><code>1,$</code></td><td>All lines (1 to last)</td><td><code>1,$s/foo/bar/</code></td></tr>
+                    <tr><td><code>/pattern/</code></td><td>Lines matching pattern</td><td><code>/^#/d</code></td></tr>
+                    <tr><td><code>/start/,/end/</code></td><td>Range between two patterns</td><td><code>/BEGIN/,/END/p</code></td></tr>
+                    <tr><td><code>0~2</code></td><td>Every 2nd line (even)</td><td><code>0~2d</code></td></tr>
+                    <tr><td><code>$</code></td><td>Last line only</td><td><code>$d</code></td></tr>
+                </tbody>
+            </table>
+
+            <h3>The Substitution Command: s///</h3>
+            <p>
+                The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sedsubst">substitution command</span>
+                <code class="inline">s/pattern/replacement/flags</code> is the most-used sed command.
+                It replaces text matching the pattern with the replacement string. The delimiter is usually
+                <code>/</code> but can be any character &mdash; useful when the pattern contains forward slashes.
+            </p>
+            <span class="tooltip-content" id="tt-sedsubst">The sed s command (substitute) has the form s/regexp/replacement/flags. It finds the first occurrence of regexp on the line and replaces it with replacement. The g flag replaces all occurrences; the I flag makes matching case-insensitive.</span>
+
+            <div class="code-block" role="region" aria-label="sed substitution command examples">
+                <div class="code-title">sed Substitution Examples</div>
+                <code>
+<span class="code-comment"># Basic substitution: replace first "old" with "new" on each line</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "old config old" | sed 's/old/new/'</span>
+<span class="code-output">new config old</span>
+
+<span class="code-comment"># Global flag (g): replace ALL occurrences on each line</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "old config old" | sed 's/old/new/g'</span>
+<span class="code-output">new config new</span>
+
+<span class="code-comment"># Change delimiter to | when pattern contains slashes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sed 's|/usr/local/bin|/usr/bin|g' /etc/environment</span>
+
+<span class="code-comment"># In-place edit with backup (-i.bak creates sshd_config.bak)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">sed -i.bak 's/^#PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Use & to include the matched text in the replacement</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "192.168.1.100" | sed 's/[0-9]\+/[&]/g'</span>
+<span class="code-output">[192].[168].[1].[100]</span>
+
+<span class="code-comment"># Backreferences in replacement using \1, \2</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "John Smith" | sed 's/\([A-Z][a-z]*\) \([A-Z][a-z]*\)/\2, \1/'</span>
+<span class="code-output">Smith, John</span>
+
+<span class="code-comment"># Delete comment lines and blank lines from a config file (preview)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' /etc/ssh/sshd_config</span>
+<span class="code-output">Port 22</span>
+<span class="code-output">AddressFamily any</span>
+<span class="code-output">ListenAddress 0.0.0.0</span>
+<span class="code-output">...</span>
+                </code>
+            </div>
+
+            <h3>Other sed Commands</h3>
+            <table class="data-table" aria-label="Additional sed commands">
+                <thead>
+                    <tr><th>Command</th><th>Action</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>d</code></td><td>Delete line</td><td><code>/^#/d</code> &mdash; delete comment lines</td></tr>
+                    <tr><td><code>p</code></td><td>Print line (use with -n)</td><td><code>-n '/error/p'</code> &mdash; print only matching</td></tr>
+                    <tr><td><code>q</code></td><td>Quit after line</td><td><code>'10q'</code> &mdash; print first 10 lines</td></tr>
+                    <tr><td><code>a text</code></td><td>Append text after line</td><td><code>'/^Port/a # Firewall must allow this port'</code></td></tr>
+                    <tr><td><code>i text</code></td><td>Insert text before line</td><td><code>'1i #!/bin/bash'</code></td></tr>
+                    <tr><td><code>c text</code></td><td>Change (replace) line</td><td><code>'/^Port 22/c Port 2222'</code></td></tr>
+                    <tr><td><code>y/a/b/</code></td><td>Transliterate chars</td><td><code>'y/abc/ABC/'</code> &mdash; lowercase to upper</td></tr>
+                    <tr><td><code>=</code></td><td>Print current line number</td><td><code>'/error/='</code></td></tr>
+                </tbody>
+            </table>
+
+            <div class="note-box important">
+                <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Always Test Before -i</span></div>
+                <p>Before using <code class="inline">sed -i</code> on a production file, run the command <em>without</em> <code>-i</code> first to verify the output is what you expect. When using <code>-i</code>, always provide a backup extension like <code>-i.bak</code> so you can recover the original. Never run <code>sed -i</code> on critical files without a backup strategy.</p>
+            </div>
+
+            <h3>Practical sed: Cleaning Config Files</h3>
+            <div class="code-block" role="region" aria-label="sed practical examples for config file management">
+                <div class="code-title">Real-World sed Scenarios</div>
+                <code>
+<span class="code-comment"># Show only active (non-comment, non-blank) settings in sshd_config</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sed -n '/^[[:space:]]*[^#]/p' /etc/ssh/sshd_config</span>
+<span class="code-output">Port 22</span>
+<span class="code-output">PermitRootLogin no</span>
+<span class="code-output">PubkeyAuthentication yes</span>
+<span class="code-output">PasswordAuthentication no</span>
+
+<span class="code-comment"># Update server address across multiple config files</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">sed -i 's/old-server\.example\.com/new-server.example.com/g' /etc/app/*.conf</span>
+
+<span class="code-comment"># Extract lines between two patterns (inclusive)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sed -n '/^## Security/,/^## /p' /etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Number lines and show only lines with errors</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sed -n '/error/=' error.log | head</span>
+<span class="code-output">14</span>
+<span class="code-output">47</span>
+<span class="code-output">103</span>
+                </code>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: AWK -->
+    <section id="section-awk" class="content-section" aria-labelledby="awk-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">7</span>
+            <h2 id="awk-heading">Text Processing with awk</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-awk2">awk</span>
+                is a complete programming language optimized for processing structured text.
+                Where <code class="inline">grep</code> selects lines and <code class="inline">sed</code> transforms text,
+                <code class="inline">awk</code> <em>understands structure</em> &mdash; it can extract specific columns,
+                perform calculations, reformat data, and generate reports from text files.
+            </p>
+            <span class="tooltip-content" id="tt-awk2">awk is a programming language for text processing. It automatically splits each input line into fields (separated by a delimiter), making it ideal for processing structured text like CSV files, /etc/passwd, log files with fixed columns, or any tabular data.</span>
+
+            <h3>awk's Data Model</h3>
+            <p>
+                awk processes input as a series of <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-awkrecord">records</span>
+                (by default, lines). Each record is split into
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-awkfield">fields</span>
+                based on the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-awkfs">field separator</span>.
+                awk automatically sets variables for each field: <code class="inline">$1</code> is the first field,
+                <code class="inline">$2</code> the second, and so on. <code class="inline">$0</code> is always the entire record.
+            </p>
+            <span class="tooltip-content" id="tt-awkrecord">In awk, a record is one unit of input — by default a single line terminated by a newline. The record separator (RS variable) can be changed to split on other characters.</span>
+            <span class="tooltip-content" id="tt-awkfield">In awk, a field is one unit within a record — by default a whitespace-delimited word. Fields are numbered starting at $1. $NF always refers to the last field regardless of how many fields there are.</span>
+            <span class="tooltip-content" id="tt-awkfs">The awk field separator (FS) defines how records are split into fields. Default is any whitespace. Set with -F option or FS= in BEGIN block. Common values: FS=":" for /etc/passwd, FS="," for CSV files.</span>
+
+            <h3>awk Program Structure</h3>
+            <p>An awk program consists of one or more rules of the form: <code class="inline">pattern { action }</code></p>
+            <ul>
+                <li>If <strong>pattern</strong> is omitted, the action runs on every record</li>
+                <li>If <strong>action</strong> is omitted, matching records are printed</li>
+                <li>The special patterns <code class="inline">BEGIN</code> and <code class="inline">END</code> run before or after all input</li>
+            </ul>
+
+            <div class="code-block" role="region" aria-label="awk fundamental examples">
+                <div class="code-title">awk Fundamentals</div>
+                <code>
+<span class="code-comment"># Print the first and third fields (username and UID) from /etc/passwd</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk -F: '{print $1, $3}' /etc/passwd | head -5</span>
+<span class="code-output">root 0</span>
+<span class="code-output">bin 1</span>
+<span class="code-output">daemon 2</span>
+<span class="code-output">adm 3</span>
+<span class="code-output">lp 4</span>
+
+<span class="code-comment"># Print only users with UID >= 1000 (regular user accounts)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk -F: '$3 >= 1000 {print $1, $3, $6}' /etc/passwd</span>
+<span class="code-output">student 1000 /home/student</span>
+<span class="code-output">operator 1001 /home/operator</span>
+
+<span class="code-comment"># Count lines matching a pattern (like grep -c but with awk math)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk '/error/{count++} END{print "Errors found:", count}' /var/log/messages</span>
+<span class="code-output">Errors found: 47</span>
+
+<span class="code-comment"># Print formatted report with BEGIN header and END footer</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk -F: 'BEGIN{print "USER\t\tUID\tHOME"} $3>=1000{printf "%-15s %d\t%s\n",$1,$3,$6} END{print "---done---"}' /etc/passwd</span>
+<span class="code-output">USER		UID	HOME</span>
+<span class="code-output">student         1000	/home/student</span>
+<span class="code-output">---done---</span>
+                </code>
+            </div>
+
+            <h3>awk Built-in Variables</h3>
+            <table class="data-table" aria-label="awk built-in variables">
+                <thead>
+                    <tr><th>Variable</th><th>Meaning</th><th>Default</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>FS</code></td><td>Field separator</td><td>Whitespace</td></tr>
+                    <tr><td><code>OFS</code></td><td>Output field separator</td><td>Space</td></tr>
+                    <tr><td><code>RS</code></td><td>Record separator</td><td>Newline</td></tr>
+                    <tr><td><code>ORS</code></td><td>Output record separator</td><td>Newline</td></tr>
+                    <tr><td><code>NR</code></td><td>Number of records processed</td><td>Increments per record</td></tr>
+                    <tr><td><code>NF</code></td><td>Number of fields in current record</td><td>Varies per line</td></tr>
+                    <tr><td><code>$0</code></td><td>Entire current record (line)</td><td>&mdash;</td></tr>
+                    <tr><td><code>$NF</code></td><td>Last field on the current line</td><td>&mdash;</td></tr>
+                    <tr><td><code>FILENAME</code></td><td>Current input filename</td><td>&mdash;</td></tr>
+                    <tr><td><code>FNR</code></td><td>Record number within current file</td><td>Resets per file</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Practical awk: System Administration Tasks</h3>
+            <div class="code-block" role="region" aria-label="Advanced awk system administration examples">
+                <div class="code-title">awk for System Administration</div>
+                <code>
+<span class="code-comment"># Disk usage report: show filesystems over 80% used</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -h | awk 'NR>1 && $5+0 > 80 {print $1, $5, "ALERT"}'</span>
+<span class="code-output">/dev/sda1 84% ALERT</span>
+
+<span class="code-comment"># Calculate average load from /proc/loadavg</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">uptime | awk -F'[, ]+' '{print "1min:", $(NF-2), "5min:", $(NF-1), "15min:", $NF}'</span>
+<span class="code-output">1min: 0.45 5min: 0.38 15min: 0.31</span>
+
+<span class="code-comment"># Sum the size of all .log files in /var/log</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -l /var/log/*.log | awk '{sum += $5} END {print "Total bytes:", sum}'</span>
+<span class="code-output">Total bytes: 184729600</span>
+
+<span class="code-comment"># Parse Apache/nginx access log for status code counts</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk '{codes[$9]++} END {for(c in codes) print c, codes[c]}' /var/log/httpd/access_log | sort -k2 -rn</span>
+<span class="code-output">200 18423</span>
+<span class="code-output">304 2145</span>
+<span class="code-output">404 387</span>
+<span class="code-output">500 12</span>
+
+<span class="code-comment"># Extract lines between timestamps (e.g., 10:00 to 11:00)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">awk '/10:00:00/,/11:00:00/' /var/log/messages</span>
+
+<span class="code-comment"># Show processes by user with total memory %</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ps aux | awk 'NR>1 {mem[$1]+=$4} END {for(u in mem) printf "%s: %.1f%%\n", u, mem[u]}' | sort -t: -k2 -rn | head</span>
+<span class="code-output">student: 8.3%</span>
+<span class="code-output">root: 5.1%</span>
+<span class="code-output">dbus: 0.4%</span>
+                </code>
+            </div>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Choosing the Right Tool</span></div>
+                <p>
+                    Use <strong>grep</strong> when you need to select lines based on a pattern.<br>
+                    Use <strong>sed</strong> when you need to modify or transform text on matching lines.<br>
+                    Use <strong>awk</strong> when you need to work with specific columns, do arithmetic, or generate reports from structured data.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8: GUIDED EXERCISE -->
+    <section id="section-exercise" class="content-section" aria-labelledby="exercise-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">8</span>
+            <h2 id="exercise-heading">Guided Exercise: Log Analysis with Regex</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                In this guided exercise, you analyze system logs to identify and summarize security events.
+                This mirrors a real-world incident response scenario where you must quickly extract meaningful
+                information from large log files using regex-powered tools.
+            </p>
+
+            <div class="note-box info">
+                <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Scenario</span></div>
+                <p>The security team has flagged unusual activity on <strong>serverb.lab.example.com</strong>. You must analyze <code>/var/log/secure</code> and <code>/var/log/messages</code> to identify failed login attempts, extract attacker IP addresses, and produce a summary report. Work from <strong>workstation.lab.example.com</strong> via SSH.</p>
+            </div>
+
+            <h3>Exercise Steps</h3>
+
+            <div class="expandable" aria-label="Exercise step 1">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>Step 1: Connect to serverb and Examine Log Files</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Objective:</strong> Connect to serverb and identify relevant log files.</p>
+                    <div class="code-block" role="region" aria-label="Step 1 commands">
+                        <div class="code-title">Step 1: Initial Connection and Log Examination</div>
+                        <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb.lab.example.com</span>
+<span class="code-output">Activate the web console with: systemctl enable --now cockpit.socket</span>
+<span class="code-output">Last login: Wed Mar  5 08:00:00 2025 from workstation.lab.example.com</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ls -lh /var/log/secure /var/log/messages</span>
+<span class="code-output">-rw-------. 1 root root 2.3M Mar  5 11:00 /var/log/secure</span>
+<span class="code-output">-rw-------. 1 root root 18M  Mar  5 11:00 /var/log/messages</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tail -5 /var/log/secure</span>
+<span class="code-output">Mar  5 10:58:01 serverb sshd[5423]: Failed password for root from 203.0.113.42 port 44821 ssh2</span>
+<span class="code-output">Mar  5 10:59:14 serverb sshd[5501]: Accepted publickey for student from 192.168.1.5 port 52341 ssh2</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Exercise step 2">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>Step 2: Count Failed Authentication Attempts</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Objective:</strong> Use grep to count and categorize failed authentication events.</p>
+                    <div class="code-block" role="region" aria-label="Step 2 commands">
+                        <div class="code-title">Step 2: grep for Failed Logins</div>
+                        <code>
+<span class="code-comment"># Count all failed password attempts</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep -c 'Failed password' /var/log/secure</span>
+<span class="code-output">847</span>
+
+<span class="code-comment"># Count attempts by username</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep 'Failed password' /var/log/secure | grep -oE 'for [a-z_]+ ' | sort | uniq -c | sort -rn | head -5</span>
+<span class="code-output">    412 for root </span>
+<span class="code-output">    203 for admin </span>
+<span class="code-output">     89 for oracle </span>
+<span class="code-output">     67 for postgres </span>
+<span class="code-output">     44 for mysql </span>
+
+<span class="code-comment"># Show attempts for invalid usernames</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep -c 'invalid user' /var/log/secure</span>
+<span class="code-output">393</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Exercise step 3">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>Step 3: Extract and Analyze Attacker IP Addresses</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Objective:</strong> Extract IP addresses from failed login entries and identify the top attackers.</p>
+                    <div class="code-block" role="region" aria-label="Step 3 commands">
+                        <div class="code-title">Step 3: IP Extraction with grep and awk</div>
+                        <code>
+<span class="code-comment"># Extract all attacker IPs using grep -oE</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep 'Failed password' /var/log/secure | grep -oE 'from [0-9]{1,3}(\.[0-9]{1,3}){3}' | awk '{print $2}' | sort | uniq -c | sort -rn | head -10</span>
+<span class="code-output">    215 203.0.113.42</span>
+<span class="code-output">    189 198.51.100.7</span>
+<span class="code-output">     99 192.0.2.134</span>
+<span class="code-output">     88 203.0.113.8</span>
+<span class="code-output">     76 198.51.100.99</span>
+
+<span class="code-comment"># Get unique attacker count</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep 'Failed password' /var/log/secure | grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | sort -u | wc -l</span>
+<span class="code-output">23</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Exercise step 4">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>Step 4: Generate a Security Summary Report with awk</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Objective:</strong> Use awk to produce a formatted security report from the log data.</p>
+                    <div class="code-block" role="region" aria-label="Step 4 commands">
+                        <div class="code-title">Step 4: awk Security Report</div>
+                        <code>
+<span class="code-comment"># Create a formatted security summary report</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep 'Failed password' /var/log/secure | \
+  awk '{
+    # Extract IP: field after "from"
+    for(i=1;i<=NF;i++) if($i=="from") ip=$(i+1)
+    ips[ip]++
+    total++
+  }
+  END {
+    printf "%-20s %s\n", "SOURCE IP", "ATTEMPTS"
+    printf "%-20s %s\n", "----------", "--------"
+    for(ip in ips) printf "%-20s %d\n", ip, ips[ip]
+    print ""
+    print "Total failed attempts:", total
+  }' | sort -k2 -rn | head -15</span>
+<span class="code-output">SOURCE IP            ATTEMPTS</span>
+<span class="code-output">----------           --------</span>
+<span class="code-output">203.0.113.42         215</span>
+<span class="code-output">198.51.100.7         189</span>
+<span class="code-output">192.0.2.134          99</span>
+<span class="code-output"></span>
+<span class="code-output">Total failed attempts: 847</span>
+                        </code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Exercise step 5">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>Step 5: Use sed to Create a Firewall Block List</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Objective:</strong> Transform the IP list into firewall-cmd commands using sed and awk.</p>
+                    <div class="code-block" role="region" aria-label="Step 5 commands">
+                        <div class="code-title">Step 5: Generating Firewall Commands</div>
+                        <code>
+<span class="code-comment"># Extract unique IPs with 50+ attempts and generate firewall-cmd commands</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo grep 'Failed password' /var/log/secure | \
+  grep -oE '[0-9]{1,3}(\.[0-9]{1,3}){3}' | \
+  sort | uniq -c | sort -rn | \
+  awk '$1 >= 50 {print $2}' | \
+  sed 's/.*/firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=& reject"/'</span>
+<span class="code-output">firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=203.0.113.42 reject"</span>
+<span class="code-output">firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=198.51.100.7 reject"</span>
+<span class="code-output">firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=192.0.2.134 reject"</span>
+<span class="code-output">firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=203.0.113.8 reject"</span>
+                        </code>
+                    </div>
+                    <div class="note-box warning">
+                        <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Review Before Running</span></div>
+                        <p>Always review the generated commands before executing them. Pipe to a file first, review the contents, then execute. Never automatically block IPs without human review &mdash; legitimate traffic could be blocked.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: QUIZ -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">9</span>
+            <h2 id="quiz-heading">Knowledge Check</h2>
+        </div>
+        <div class="section-body">
+            <p>Test your understanding of regular expressions and their practical applications. Select the best answer for each question.</p>
+
+            <!-- Question 1 -->
+            <div class="quiz-question" data-question="1" data-correct="b">
+                <div class="quiz-q-text">1. Which regex pattern matches lines that BEGIN with the word "error" (case-sensitive)?</div>
+                <label class="quiz-option"><input type="radio" name="q1" value="a"> <span>a) <code>error$</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q1" value="b"> <span>b) <code>^error</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q1" value="c"> <span>c) <code>.*error</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q1" value="d"> <span>d) <code>[error]</code></span></label>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="quiz-question" data-question="2" data-correct="c">
+                <div class="quiz-q-text">2. What is the key difference between <code>*</code> in shell globbing and <code>*</code> in a regular expression?</div>
+                <label class="quiz-option"><input type="radio" name="q2" value="a"> <span>a) In globbing, <code>*</code> must be at the start of a pattern; in regex it can appear anywhere</span></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="b"> <span>b) They are identical &mdash; both match any string of characters</span></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="c"> <span>c) In globbing, <code>*</code> matches any string; in regex, <code>*</code> means "zero or more of the preceding element"</span></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="d"> <span>d) In regex, <code>*</code> only works inside character classes like <code>[a-z*]</code></span></label>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <!-- Question 3 -->
+            <div class="quiz-question" data-question="3" data-correct="d">
+                <div class="quiz-q-text">3. You want to search <code>/var/log/secure</code> for lines containing "Failed password" and show the 3 lines before each match for context. Which command is correct?</div>
+                <label class="quiz-option"><input type="radio" name="q3" value="a"> <span>a) <code>grep -A 3 'Failed password' /var/log/secure</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="b"> <span>b) <code>grep -n 3 'Failed password' /var/log/secure</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="c"> <span>c) <code>grep -C 3 'Failed password' /var/log/secure</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="d"> <span>d) <code>grep -B 3 'Failed password' /var/log/secure</code></span></label>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <!-- Question 4 -->
+            <div class="quiz-question" data-question="4" data-correct="a">
+                <div class="quiz-q-text">4. Which <code>sed</code> command would replace ALL occurrences of "http" with "https" on every line of a file, and save the result back to the file?</div>
+                <label class="quiz-option"><input type="radio" name="q4" value="a"> <span>a) <code>sed -i 's/http/https/g' file.conf</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="b"> <span>b) <code>sed 's/http/https/' file.conf</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="c"> <span>c) <code>sed -n 's/http/https/g' file.conf</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="d"> <span>d) <code>sed -i 's/http/https/' file.conf</code></span></label>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+            <!-- Question 5 -->
+            <div class="quiz-question" data-question="5" data-correct="b">
+                <div class="quiz-q-text">5. In <code>awk -F: '{print $1, $3}' /etc/passwd</code>, what does <code>$3</code> represent?</div>
+                <label class="quiz-option"><input type="radio" name="q5" value="a"> <span>a) The third line of the file</span></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="b"> <span>b) The third colon-delimited field (UID) of the current line</span></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="c"> <span>c) The third character of the line</span></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="d"> <span>d) A variable named "3" defined earlier in the script</span></label>
+                <div class="quiz-feedback" id="feedback-5"></div>
+            </div>
+
+            <!-- Question 6 -->
+            <div class="quiz-question" data-question="6" data-correct="c">
+                <div class="quiz-q-text">6. Which of the following correctly uses an Extended Regular Expression to match lines containing either "failed" OR "denied" using <code>grep</code>?</div>
+                <label class="quiz-option"><input type="radio" name="q6" value="a"> <span>a) <code>grep 'failed\|denied' logfile</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="b"> <span>b) <code>grep 'failed OR denied' logfile</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="c"> <span>c) <code>grep -E 'failed|denied' logfile</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="d"> <span>d) <code>grep 'failed&denied' logfile</code></span></label>
+                <div class="quiz-feedback" id="feedback-6"></div>
+            </div>
+
+            <!-- Question 7 -->
+            <div class="quiz-question" data-question="7" data-correct="d">
+                <div class="quiz-q-text">7. What does the <code>-o</code> option to <code>grep</code> do?</div>
+                <label class="quiz-option"><input type="radio" name="q7" value="a"> <span>a) Makes grep output line numbers</span></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="b"> <span>b) Reads the pattern from a file instead of the command line</span></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="c"> <span>c) Makes grep case-insensitive (like -i)</span></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="d"> <span>d) Prints only the matched portion of each line, not the whole line</span></label>
+                <div class="quiz-feedback" id="feedback-7"></div>
+            </div>
+
+            <!-- Question 8 -->
+            <div class="quiz-question" data-question="8" data-correct="a">
+                <div class="quiz-q-text">8. The POSIX character class <code>[[:digit:]]</code> is equivalent to which range expression?</div>
+                <label class="quiz-option"><input type="radio" name="q8" value="a"> <span>a) <code>[0-9]</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="b"> <span>b) <code>[A-Za-z]</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="c"> <span>c) <code>[a-z0-9]</code></span></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="d"> <span>d) <code>[[:alnum:]]</code></span></label>
+                <div class="quiz-feedback" id="feedback-8"></div>
+            </div>
+
+            <div style="margin-top: 24px;">
+                <button class="quiz-btn primary" onclick="checkQuiz()" aria-label="Check all quiz answers">&#10003; Check Answers</button>
+                <button class="quiz-btn secondary" onclick="resetQuiz()" aria-label="Reset quiz and clear all answers">&#8635; Reset Quiz</button>
+            </div>
+            <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: HANDS-ON LAB -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">10</span>
+            <h2 id="lab-heading">Hands-On Lab: Regex-Powered System Audit</h2>
+        </div>
+        <div class="section-body">
+            <div class="note-box info">
+                <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Lab Overview</span></div>
+                <p><strong>Scenario:</strong> You are a system administrator performing a security and configuration audit on <strong>serverb.lab.example.com</strong>. Use regular expressions with grep, sed, and awk to extract information, identify misconfigurations, and produce a clean audit report. Work from <strong>workstation.lab.example.com</strong>.</p>
+            </div>
+
+            <h3>Lab Tasks</h3>
+
+            <div class="expandable" aria-label="Lab task 1">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>&#128269; Task 1: Audit User Accounts</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Goal:</strong> Identify accounts with UID 0 (root-equivalent), accounts with no password, and users whose login shell is not <code>/sbin/nologin</code> or <code>/bin/bash</code>.</p>
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)" style="background:#E8F0FE; color:#003366;">
+                            <span>Show Solution</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div class="expandable-content">
+                            <div class="code-block" role="region" aria-label="Task 1 solution">
+                                <div class="code-title">Task 1: Solution</div>
+                                <code>
+<span class="code-comment"># Find all root-equivalent accounts (UID 0)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">awk -F: '$3 == 0 {print "ROOT-EQ:", $1}' /etc/passwd</span>
+<span class="code-output">ROOT-EQ: root</span>
+
+<span class="code-comment"># Find accounts with empty password field (field 2 is empty in shadow)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo awk -F: '$2 == "" {print "NO PASSWORD:", $1}' /etc/shadow</span>
+
+<span class="code-comment"># Find users with unexpected login shells</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">awk -F: '$NF !~ /(nologin|bash|false|sh)$/ {print $1, $NF}' /etc/passwd</span>
+
+<span class="code-comment"># Count accounts by shell type</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">awk -F: '{shells[$NF]++} END {for(s in shells) print shells[s], s}' /etc/passwd | sort -rn</span>
+<span class="code-output">25 /sbin/nologin</span>
+<span class="code-output">3 /bin/bash</span>
+<span class="code-output">1 /bin/sync</span>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Lab task 2">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>&#128269; Task 2: Audit SSH Configuration</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Goal:</strong> Use grep and awk to verify that key SSH hardening settings are in place in <code>/etc/ssh/sshd_config</code>.</p>
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)" style="background:#E8F0FE; color:#003366;">
+                            <span>Show Solution</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div class="expandable-content">
+                            <div class="code-block" role="region" aria-label="Task 2 solution">
+                                <div class="code-title">Task 2: Solution</div>
+                                <code>
+<span class="code-comment"># Check all key security settings at once (active, non-commented lines)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">grep -E '^(PermitRootLogin|PasswordAuthentication|PubkeyAuthentication|Protocol|MaxAuthTries|PermitEmptyPasswords)' /etc/ssh/sshd_config</span>
+<span class="code-output">PermitRootLogin no</span>
+<span class="code-output">PubkeyAuthentication yes</span>
+<span class="code-output">PasswordAuthentication no</span>
+<span class="code-output">PermitEmptyPasswords no</span>
+<span class="code-output">MaxAuthTries 3</span>
+
+<span class="code-comment"># Check for non-default Port settings</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">grep -E '^Port[[:space:]]+[0-9]+' /etc/ssh/sshd_config</span>
+<span class="code-output">Port 22</span>
+
+<span class="code-comment"># Verify sshd_config has no world-readable permissions</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ls -l /etc/ssh/sshd_config | awk '{print $1, $3, $4}' | grep -v '^-rw-------'</span>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Lab task 3">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>&#128269; Task 3: Analyze System Logs for Critical Events</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Goal:</strong> Use grep with ERE to identify critical, alert, and emergency messages from the system journal within the last 24 hours.</p>
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)" style="background:#E8F0FE; color:#003366;">
+                            <span>Show Solution</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div class="expandable-content">
+                            <div class="code-block" role="region" aria-label="Task 3 solution">
+                                <div class="code-title">Task 3: Solution</div>
+                                <code>
+<span class="code-comment"># Show critical and above priority messages from journal since yesterday</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">journalctl -p crit..emerg --since yesterday --no-pager</span>
+
+<span class="code-comment"># Alternatively: grep journal output for severity keywords</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">journalctl --since "24 hours ago" | grep -iE '(critical|alert|emergency|kernel panic|oom|out of memory)' | head -20</span>
+
+<span class="code-comment"># Count kernel OOM (Out of Memory) events</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">journalctl -k | grep -c 'Out of memory'</span>
+<span class="code-output">0</span>
+
+<span class="code-comment"># Find any disk I/O errors</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">journalctl -k --since yesterday | grep -E '(I/O error|EXT4-fs error|Buffer I/O)' | head -5</span>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Lab task 4">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>&#128269; Task 4: Use sed to Remediate Configuration Issues</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Goal:</strong> Use sed to enable <code>MaxAuthTries 4</code> and ensure <code>PermitRootLogin no</code> is set in <code>/etc/ssh/sshd_config</code>, then reload the service.</p>
+                    <div class="note-box warning">
+                        <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Warning</span></div>
+                        <p>Test your sed commands without <code>-i</code> first. Always create a backup with <code>-i.bak</code> before modifying SSH configuration. Incorrect SSH settings could lock you out of a remote server.</p>
+                    </div>
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)" style="background:#E8F0FE; color:#003366;">
+                            <span>Show Solution</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div class="expandable-content">
+                            <div class="code-block" role="region" aria-label="Task 4 solution">
+                                <div class="code-title">Task 4: Solution</div>
+                                <code>
+<span class="code-comment"># Test first (no -i) — verify output looks correct</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo sed 's/^#MaxAuthTries.*/MaxAuthTries 4/' /etc/ssh/sshd_config | grep MaxAuth</span>
+<span class="code-output">MaxAuthTries 4</span>
+
+<span class="code-comment"># Apply with backup</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo sed -i.bak 's/^#MaxAuthTries.*/MaxAuthTries 4/' /etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Ensure PermitRootLogin is set (uncomment if needed, set to no)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Verify changes</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">grep -E '^(MaxAuthTries|PermitRootLogin)' /etc/ssh/sshd_config</span>
+<span class="code-output">MaxAuthTries 4</span>
+<span class="code-output">PermitRootLogin no</span>
+
+<span class="code-comment"># Validate config and reload service</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo sshd -t && sudo systemctl reload sshd && echo "Config valid, service reloaded"</span>
+<span class="code-output">Config valid, service reloaded</span>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable" aria-label="Lab task 5">
+                <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)">
+                    <span>&#128269; Task 5: Generate a Formatted Audit Report</span>
+                    <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                </button>
+                <div class="expandable-content">
+                    <p><strong>Goal:</strong> Combine grep, sed, and awk in a pipeline to generate a readable audit summary report.</p>
+                    <div class="expandable">
+                        <button class="expandable-header" aria-expanded="false" onclick="toggleExpand(this)" style="background:#E8F0FE; color:#003366;">
+                            <span>Show Solution</span>
+                            <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                        </button>
+                        <div class="expandable-content">
+                            <div class="code-block" role="region" aria-label="Task 5 solution">
+                                <div class="code-title">Task 5: Solution</div>
+                                <code>
+<span class="code-comment"># Comprehensive audit script using all three tools</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">cat &lt;&lt;'EOF' &gt; ~/audit_report.sh
+#!/bin/bash
+echo "=============================="
+echo " Security Audit: $(hostname)"
+echo " Date: $(date '+%Y-%m-%d %H:%M')"
+echo "=============================="
+echo ""
+
+echo "=== USER ACCOUNT SUMMARY ==="
+awk -F: 'BEGIN{print "UID  USERNAME        SHELL"} \
+  {printf "%-5s %-15s %s\n",$3,$1,$NF}' /etc/passwd | sort -n | head -10
+
+echo ""
+echo "=== SSH SECURITY SETTINGS ==="
+grep -E '^(PermitRootLogin|PasswordAuthentication|MaxAuthTries|PubkeyAuthentication)' \
+  /etc/ssh/sshd_config | sed 's/^/  /'
+
+echo ""
+echo "=== RECENT FAILED LOGINS (last 50) ==="
+grep 'Failed password' /var/log/secure 2>/dev/null | tail -5 | \
+  awk '{print "  Source:", $11, "| User:", $9, "| Time:", $1,$2,$3}'
+
+echo ""
+echo "=== DISK USAGE ALERTS (>80%) ==="
+df -h | awk 'NR>1 && $5+0>80 {print "  ALERT:", $1, $5, "used"}'
+
+echo "=============================="
+echo "Audit complete."
+EOF
+chmod +x ~/audit_report.sh && sudo ~/audit_report.sh</span>
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Lab Completion Checklist</h3>
+            <ul class="lab-checklist" role="list">
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Identified root-equivalent accounts using awk on /etc/passwd</li>
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Verified SSH hardening settings with grep -E</li>
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Searched system journal for critical events using journalctl piped to grep</li>
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Used sed -i.bak to safely modify sshd_config settings</li>
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Validated SSH config with sshd -t before reloading</li>
+                <li class="check-item" tabindex="0" onclick="toggleCheck(this)" onkeydown="if(event.key==='Enter'||event.key===' '){toggleCheck(this)}" role="checkbox" aria-checked="false">Generated a formatted audit report using grep, sed, and awk in a shell script</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 11: SUMMARY -->
+    <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">11</span>
+            <h2 id="summary-heading">Chapter Summary</h2>
+        </div>
+        <div class="section-body">
+            <p>
+                In this chapter, you learned to harness the power of regular expressions for practical Linux system administration.
+                Regular expressions are a force multiplier: a single well-crafted pattern can replace hours of manual searching and editing.
+            </p>
+
+            <h3>Key Concepts</h3>
+            <ul>
+                <li>Regular expressions are pattern-matching languages processed by tools (not the shell), distinct from shell globbing</li>
+                <li>POSIX defines BRE (Basic) and ERE (Extended) regex; ERE has cleaner syntax for complex patterns</li>
+                <li>Core metacharacters: <code>.</code> <code>^</code> <code>$</code> <code>*</code> <code>[]</code> <code>[^]</code> <code>\</code></li>
+                <li>ERE adds: <code>+</code> <code>?</code> <code>{n,m}</code> <code>()</code> <code>|</code> without backslash escaping</li>
+                <li>POSIX character classes (<code>[[:alpha:]]</code>, <code>[[:digit:]]</code>, etc.) are locale-safe alternatives to ranges</li>
+            </ul>
+
+            <h3>Command Quick Reference</h3>
+            <table class="data-table" aria-label="Chapter 2 command reference">
+                <thead>
+                    <tr><th>Command</th><th>Purpose</th><th>Key Option</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>grep 'pattern' file</code></td><td>Find lines matching pattern (BRE)</td><td><code>-i</code> case-insensitive</td></tr>
+                    <tr><td><code>grep -E 'pattern' file</code></td><td>Find lines using ERE</td><td><code>-v</code> invert match</td></tr>
+                    <tr><td><code>grep -o 'pattern' file</code></td><td>Print only matched text</td><td><code>-c</code> count matches</td></tr>
+                    <tr><td><code>grep -r 'pattern' dir/</code></td><td>Recursive directory search</td><td><code>-l</code> list files only</td></tr>
+                    <tr><td><code>grep -B n 'pattern' file</code></td><td>Show n lines before match</td><td><code>-A n</code> after, <code>-C n</code> both</td></tr>
+                    <tr><td><code>sed 's/old/new/g' file</code></td><td>Replace text (stdout only)</td><td><code>-n</code> suppress auto-print</td></tr>
+                    <tr><td><code>sed -i.bak 's/old/new/' file</code></td><td>In-place edit with backup</td><td><code>/pattern/d</code> delete lines</td></tr>
+                    <tr><td><code>awk '{print $1}' file</code></td><td>Print first field (whitespace FS)</td><td><code>-F:</code> set field separator</td></tr>
+                    <tr><td><code>awk '$3&gt;=1000' file</code></td><td>Print lines where field 3 &ge; 1000</td><td><code>NR</code> record number</td></tr>
+                    <tr><td><code>awk 'BEGIN{} {} END{}'</code></td><td>Run blocks before/after input</td><td><code>NF</code> field count</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Regex Pattern Quick Reference</h3>
+            <table class="data-table" aria-label="Regex pattern quick reference">
+                <thead>
+                    <tr><th>Pattern</th><th>Matches</th><th>Example</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>.</code></td><td>Any single character</td><td><code>c.t</code> &rarr; cat, cut, c3t</td></tr>
+                    <tr><td><code>^</code></td><td>Start of line</td><td><code>^root</code> &rarr; lines starting with root</td></tr>
+                    <tr><td><code>$</code></td><td>End of line</td><td><code>bash$</code> &rarr; lines ending with bash</td></tr>
+                    <tr><td><code>*</code></td><td>Zero or more of preceding</td><td><code>ab*c</code> &rarr; ac, abc, abbc</td></tr>
+                    <tr><td><code>+</code></td><td>One or more (ERE)</td><td><code>ab+c</code> &rarr; abc, abbc (not ac)</td></tr>
+                    <tr><td><code>?</code></td><td>Zero or one (ERE)</td><td><code>colou?r</code> &rarr; color, colour</td></tr>
+                    <tr><td><code>[abc]</code></td><td>Any char in set</td><td><code>[aeiou]</code> &rarr; any vowel</td></tr>
+                    <tr><td><code>[^abc]</code></td><td>Any char NOT in set</td><td><code>[^0-9]</code> &rarr; any non-digit</td></tr>
+                    <tr><td><code>\b</code></td><td>Word boundary</td><td><code>\berror\b</code> &rarr; whole word only</td></tr>
+                    <tr><td><code>a|b</code></td><td>a OR b (ERE)</td><td><code>cat|dog</code> &rarr; cat or dog</td></tr>
+                    <tr><td><code>(abc)</code></td><td>Grouping (ERE)</td><td><code>(ha)+</code> &rarr; ha, haha, hahaha</td></tr>
+                    <tr><td><code>{n,m}</code></td><td>n to m occurrences (ERE)</td><td><code>[0-9]{2,4}</code> &rarr; 2-4 digits</td></tr>
+                </tbody>
+            </table>
+
+            <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+                <a href="rh134_chapter1_shell_scripting.html" class="nav-chapter-btn prev">&larr; Chapter 1: Shell Scripting</a>
+                <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+                <a href="rh134_chapter3_scheduling_tasks.html" class="nav-chapter-btn next">Chapter 3: Scheduling Tasks &rarr;</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="main-footer" role="contentinfo">
+    <div class="footer-content">
+        <p><strong>RH134: Red Hat System Administration II</strong> &bull; Chapter 2: Using Regular Expressions for Practical Applications</p>
+        <p>Red Hat Enterprise Linux 10 &bull; RHCSA Exam Preparation</p>
+        <p style="margin-top:12px; font-size:0.8rem; color: var(--rh-gray-medium);">
+            Red Hat and RHEL are trademarks of Red Hat, Inc. This educational material is for instructional use only.
+        </p>
+    </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+/* ==================== TOOLTIP SYSTEM ==================== */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTimer = null;
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        if (!contentEl) return;
+        const text = contentEl.textContent.trim();
+        if (!text) return;
+
+        clearTimeout(activeTimer);
+        bubble.textContent = text;
+        bubble.removeAttribute('data-dir');
+        bubble.style.cssText = '';
+        bubble.setAttribute('aria-hidden', 'false');
+
+        const r = term.getBoundingClientRect();
+        const bw = Math.min(300, window.innerWidth - 24);
+        bubble.style.maxWidth = bw + 'px';
+
+        // Determine placement
+        const spaceAbove = r.top;
+        const spaceBelow = window.innerHeight - r.bottom;
+        let dir;
+
+        if (spaceAbove >= 130) dir = 'above';
+        else if (spaceBelow >= 130) dir = 'below';
+        else if (window.innerWidth - r.right >= 310) dir = 'right';
+        else dir = 'left';
+
+        bubble.setAttribute('data-dir', dir);
+        bubble.classList.add('visible');
+
+        // Position bubble
+        requestAnimationFrame(() => {
+            const bh = bubble.offsetHeight;
+            const bwActual = bubble.offsetWidth;
+            let top, left;
+
+            if (dir === 'above') {
+                top = r.top - bh - 12;
+                left = r.left + r.width / 2 - bwActual / 2;
+            } else if (dir === 'below') {
+                top = r.bottom + 12;
+                left = r.left + r.width / 2 - bwActual / 2;
+            } else if (dir === 'right') {
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.right + 12;
+            } else {
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.left - bwActual - 12;
+            }
+
+            // Clamp to viewport
+            const pad = 8;
+            left = Math.max(pad, Math.min(left, window.innerWidth - bwActual - pad));
+            top = Math.max(pad, Math.min(top, window.innerHeight - bh - pad));
+
+            bubble.style.left = left + 'px';
+            bubble.style.top = top + 'px';
+
+            // Arrow offset
+            if (dir === 'above' || dir === 'below') {
+                const arrowX = r.left + r.width / 2 - left;
+                const clamped = Math.max(16, Math.min(arrowX, bwActual - 16));
+                bubble.style.setProperty('--arrow-x', clamped + 'px');
+            }
+        });
+    }
+
+    function hideTooltip() {
+        activeTimer = setTimeout(() => {
+            bubble.classList.remove('visible');
+            bubble.setAttribute('aria-hidden', 'true');
+        }, 100);
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { hideTooltip(); term.blur(); }
+        });
+    });
+})();
+
+/* ==================== PROGRESS BAR ==================== */
+(function() {
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const sections = document.querySelectorAll('.content-section');
+    const visited = new Set();
+
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) visited.add(e.target.id); });
+        const pct = Math.round((visited.size / sections.length) * 100);
+        fill.style.width = pct + '%';
+        fill.setAttribute('aria-valuenow', pct);
+        text.textContent = 'Progress: ' + pct + '%';
+    }, { threshold: 0.3 });
+
+    sections.forEach(s => obs.observe(s));
+})();
+
+/* ==================== ACTIVE NAV ==================== */
+(function() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.content-section');
+
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const id = e.target.id;
+                navBtns.forEach(btn => {
+                    const isActive = btn.getAttribute('href') === '#' + id;
+                    btn.classList.toggle('active', isActive);
+                    if (isActive) btn.classList.add('visited');
+                });
+            }
+        });
+    }, { threshold: 0.4 });
+
+    sections.forEach(s => obs.observe(s));
+})();
+
+/* ==================== TAB SYSTEM ==================== */
+document.querySelectorAll('.tabs').forEach(tabContainer => {
+    const btns = tabContainer.querySelectorAll('.tab-btn');
+    const panels = tabContainer.querySelectorAll('.tab-panel');
+
+    function activate(idx) {
+        btns.forEach((b, i) => {
+            b.classList.toggle('active', i === idx);
+            b.setAttribute('aria-selected', i === idx);
+        });
+        panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+    }
+
+    btns.forEach((btn, idx) => {
+        btn.addEventListener('click', () => activate(idx));
+        btn.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') { e.preventDefault(); activate((idx + 1) % btns.length); btns[(idx + 1) % btns.length].focus(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); activate((idx - 1 + btns.length) % btns.length); btns[(idx - 1 + btns.length) % btns.length].focus(); }
+        });
+    });
+});
+
+/* ==================== EXPANDABLE SECTIONS ==================== */
+function toggleExpand(btn) {
+    const content = btn.nextElementSibling;
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', !expanded);
+    content.classList.toggle('show', !expanded);
+}
+
+/* ==================== REGEX CARD TOGGLE ==================== */
+function toggleCard(card) {
+    const wasExpanded = card.getAttribute('aria-expanded') === 'true';
+    document.querySelectorAll('.regex-card').forEach(c => {
+        c.classList.remove('expanded');
+        c.setAttribute('aria-expanded', 'false');
+    });
+    if (!wasExpanded) {
+        card.classList.add('expanded');
+        card.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function cardKeyNav(e, card) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCard(card); }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        const cards = [...document.querySelectorAll('.regex-card')];
+        const idx = cards.indexOf(card);
+        if (idx < cards.length - 1) cards[idx + 1].focus();
+    }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const cards = [...document.querySelectorAll('.regex-card')];
+        const idx = cards.indexOf(card);
+        if (idx > 0) cards[idx - 1].focus();
+    }
+}
+
+/* ==================== LIVE REGEX TESTER ==================== */
+function runRegexTest() {
+    const patternStr = document.getElementById('rt-pattern').value;
+    const flags = document.getElementById('rt-flags').value.replace(/[^gimsuy]/g, '');
+    const text = document.getElementById('rt-text').value;
+    const resultsEl = document.getElementById('rt-results');
+    const infoEl = document.getElementById('rt-info');
+
+    if (!patternStr) {
+        resultsEl.textContent = 'Please enter a pattern.';
+        return;
+    }
+
+    let regex;
+    try {
+        regex = new RegExp(patternStr, flags);
+    } catch (err) {
+        resultsEl.textContent = 'Invalid regex: ' + err.message;
+        infoEl.textContent = '';
+        return;
+    }
+
+    let matchCount = 0;
+    const highlighted = text.split('\n').map(line => {
+        let result = '';
+        let lastIndex = 0;
+        let match;
+        const lineRegex = new RegExp(patternStr, flags.includes('g') ? flags : flags + 'g');
+        while ((match = lineRegex.exec(line)) !== null) {
+            matchCount++;
+            result += escHtml(line.slice(lastIndex, match.index));
+            result += '<span class="grep-match-highlight">' + escHtml(match[0]) + '</span>';
+            lastIndex = match.index + match[0].length;
+            if (match[0].length === 0) { lineRegex.lastIndex++; }
+        }
+        result += escHtml(line.slice(lastIndex));
+        return result;
+    }).join('\n');
+
+    resultsEl.innerHTML = highlighted || '(no text to test)';
+    infoEl.textContent = matchCount + ' match' + (matchCount !== 1 ? 'es' : '') + ' found across ' + text.split('\n').length + ' lines.';
+}
+
+function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Run tester on Enter key in pattern field
+document.getElementById('rt-pattern').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runRegexTest();
+});
+
+/* ==================== GREP SIMULATOR ==================== */
+const grepExamples = [
+    {
+        label: 'SSH Failures',
+        cmd: "$ grep 'Failed password' /var/log/secure | tail -4",
+        output: [
+            { line: "Mar  5 09:44:01 serverb sshd[4201]: Failed password for root from 203.0.113.42 port 55821 ssh2", match: "Failed password" },
+            { line: "Mar  5 09:44:18 serverb sshd[4215]: Failed password for admin from 203.0.113.42 port 55822 ssh2", match: "Failed password" },
+            { line: "Mar  5 09:45:03 serverb sshd[4298]: Failed password for invalid user oracle from 198.51.100.7 port 33201 ssh2", match: "Failed password" },
+            { line: "Mar  5 09:45:44 serverb sshd[4301]: Failed password for root from 198.51.100.7 port 33202 ssh2", match: "Failed password" },
+        ]
+    },
+    {
+        label: 'Service Status',
+        cmd: "$ systemctl list-units --type=service | grep -E '(failed|dead)'",
+        output: [
+            { line: "  httpd.service       loaded failed failed The Apache HTTP Server", match: "failed" },
+            { line: "  postfix.service     loaded failed failed Postfix Mail Transport Agent", match: "failed" },
+        ]
+    },
+    {
+        label: 'Active Users',
+        cmd: "$ grep '/bin/bash$' /etc/passwd | awk -F: '{print $1, $3, $6}'",
+        output: [
+            { line: "root 0 /root", match: "" },
+            { line: "student 1000 /home/student", match: "" },
+            { line: "operator 1001 /home/operator", match: "" },
+        ]
+    },
+    {
+        label: 'Config Audit',
+        cmd: "$ grep -E '^(PermitRootLogin|PasswordAuthentication|PubkeyAuth)' /etc/ssh/sshd_config",
+        output: [
+            { line: "PermitRootLogin no", match: "PermitRootLogin" },
+            { line: "PubkeyAuthentication yes", match: "PubkeyAuthentication" },
+            { line: "PasswordAuthentication no", match: "PasswordAuthentication" },
+        ]
+    },
+    {
+        label: 'Context Lines',
+        cmd: "$ grep -n -C 2 'MaxAuthTries' /etc/ssh/sshd_config",
+        output: [
+            { line: "32-# Authentication:", match: "" },
+            { line: "33-", match: "" },
+            { line: "34:MaxAuthTries 4", match: "MaxAuthTries" },
+            { line: "35-", match: "" },
+            { line: "36-LoginGraceTime 2m", match: "" },
+        ]
+    }
+];
+
+function showGrepExample(idx, btn) {
+    document.querySelectorAll('.grep-example-btn').forEach((b, i) => {
+        b.classList.toggle('active-ex', i === idx);
+        b.setAttribute('aria-pressed', i === idx);
+    });
+    const ex = grepExamples[idx];
+    document.getElementById('grep-cmd').textContent = ex.cmd;
+    const outputEl = document.getElementById('grep-output');
+    outputEl.innerHTML = ex.output.map(row => {
+        if (!row.match) return escHtml(row.line);
+        return escHtml(row.line).replace(
+            escHtml(row.match),
+            '<span class="grep-match-highlight">' + escHtml(row.match) + '</span>'
+        );
+    }).join('\n');
+}
+
+// Initialize grep simulator
+showGrepExample(0, document.querySelector('.grep-example-btn'));
+
+/* ==================== QUIZ SYSTEM ==================== */
+const quizFeedback = {
+    1: { correct: '&#10003; Correct! <code>^</code> anchors the match to the start of the line, so <code>^error</code> only matches lines that begin with "error".', wrong: '&#10007; Incorrect. <code>$</code> anchors to the END of the line; <code>.*error</code> matches "error" anywhere; <code>[error]</code> is a character class matching any of e,r,o.' },
+    2: { correct: '&#10003; Correct! In globbing, <code>*</code> matches any string of characters. In regex, <code>*</code> is a quantifier meaning "zero or more of the preceding element" — you need <code>.*</code> to match any string in regex.', wrong: '&#10007; Incorrect. The key difference is fundamental: globbing\'s <code>*</code> matches any string, while regex <code>*</code> means "zero or more of the preceding element."' },
+    3: { correct: '&#10003; Correct! <code>-B n</code> shows n lines BEFORE each match. <code>-A n</code> is after, <code>-C n</code> is both before and after, and <code>-n</code> shows line numbers.', wrong: '&#10007; Incorrect. <code>-B</code> = Before context, <code>-A</code> = After context, <code>-C</code> = Context (both). The number <code>3</code> specifies how many context lines to show.' },
+    4: { correct: '&#10003; Correct! <code>-i</code> modifies the file in-place, and the <code>g</code> flag at the end of the substitution replaces ALL occurrences on each line, not just the first.', wrong: '&#10007; Incorrect. Without <code>-i</code>, the output only goes to stdout. Without the <code>g</code> flag, only the first occurrence per line is replaced. You need both <code>-i</code> AND <code>g</code>.' },
+    5: { correct: '&#10003; Correct! With <code>-F:</code> setting the field separator to colon, <code>$3</code> is the third colon-delimited field of each line in <code>/etc/passwd</code>, which is the UID.', wrong: '&#10007; Incorrect. In awk, <code>$1</code>, <code>$2</code>, etc. refer to fields (columns) of the current line, not line numbers. <code>-F:</code> sets the colon as the delimiter.' },
+    6: { correct: '&#10003; Correct! <code>grep -E</code> enables Extended Regular Expressions, where <code>|</code> means OR without needing a backslash. The basic <code>grep</code> needs <code>\\|</code> for alternation.', wrong: '&#10007; Incorrect. Basic grep requires <code>\\|</code> for alternation. With <code>grep -E</code> (ERE), you use <code>|</code> directly without escaping. "OR" and "&" are not regex syntax.' },
+    7: { correct: '&#10003; Correct! <code>-o</code> (only-matching) prints only the part of the line that matches the pattern, not the entire line. Very useful for extracting specific data like IP addresses from log lines.', wrong: '&#10007; Incorrect. <code>-n</code> shows line numbers, <code>-f</code> reads patterns from a file, <code>-i</code> is case-insensitive. The <code>-o</code> option prints ONLY the matched portion of each line.' },
+    8: { correct: '&#10003; Correct! <code>[[:digit:]]</code> is the POSIX character class that matches any decimal digit, equivalent to the range <code>[0-9]</code>. The double brackets are required syntax.', wrong: '&#10007; Incorrect. <code>[[:alpha:]]</code> matches letters (like [A-Za-z]), <code>[[:alnum:]]</code> matches letters and digits. <code>[[:digit:]]</code> specifically matches digits 0 through 9.' }
+};
+
+function checkQuiz() {
+    let score = 0;
+    const total = 8;
+
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        const qNum = parseInt(q.dataset.question);
+        const correct = q.dataset.correct;
+        const selected = q.querySelector('input:checked');
+        const fb = document.getElementById('feedback-' + qNum);
+
+        if (selected && selected.value === correct) {
+            score++;
+            q.classList.add('correct'); q.classList.remove('incorrect');
+            fb.className = 'quiz-feedback correct-fb';
+            fb.innerHTML = quizFeedback[qNum].correct;
+        } else if (selected) {
+            q.classList.add('incorrect'); q.classList.remove('correct');
+            fb.className = 'quiz-feedback incorrect-fb';
+            fb.innerHTML = quizFeedback[qNum].wrong + ' The correct answer is <strong>' + correct.toUpperCase() + '</strong>.';
+        }
+    });
+
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'block';
+    const pct = Math.round((score / total) * 100);
+    if (pct >= 80) {
+        scoreEl.style.background = '#E8F5E9'; scoreEl.style.color = '#1B5E20';
+        scoreEl.innerHTML = '&#127881; Excellent! You scored <strong>' + score + ' / ' + total + '</strong> (' + pct + '%). Great understanding of regular expressions!';
+    } else if (pct >= 60) {
+        scoreEl.style.background = '#FFFBF0'; scoreEl.style.color = '#8B6914';
+        scoreEl.innerHTML = '&#128218; Good effort! You scored <strong>' + score + ' / ' + total + '</strong> (' + pct + '%). Review the sections covering questions you missed.';
+    } else {
+        scoreEl.style.background = '#FFEBEE'; scoreEl.style.color = '#B71C1C';
+        scoreEl.innerHTML = '&#128214; You scored <strong>' + score + ' / ' + total + '</strong> (' + pct + '%). Please review the chapter content and try again.';
+    }
+    scoreEl.setAttribute('aria-live', 'assertive');
+}
+
+function resetQuiz() {
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('correct', 'incorrect');
+        q.querySelectorAll('input').forEach(i => i.checked = false);
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(f => {
+        f.className = 'quiz-feedback'; f.innerHTML = '';
+    });
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'none'; scoreEl.innerHTML = '';
+}
+
+/* ==================== LAB CHECKLIST ==================== */
+function toggleCheck(el) {
+    const checked = el.classList.toggle('checked');
+    el.setAttribute('aria-checked', checked);
+}
+</script>
+</body>
+</html>
