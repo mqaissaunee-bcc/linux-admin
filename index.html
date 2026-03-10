@@ -583,6 +583,137 @@
             background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%);
         }
 
+        /* ==================== COURSE ACCORDION ==================== */
+        .course-accordion-header {
+            grid-column: 1 / -1;
+            margin: 20px 0 0;
+        }
+
+        .accordion-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-family: var(--font-display);
+            text-align: left;
+            transition: background var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .accordion-toggle:focus-visible {
+            outline: 3px solid var(--rh-blue-light);
+            outline-offset: 2px;
+        }
+
+        .accordion-rh124 .accordion-toggle {
+            background: var(--rh-red);
+            color: var(--rh-white);
+            box-shadow: 0 3px 10px rgba(204,0,0,0.35);
+        }
+        .accordion-rh124 .accordion-toggle:hover {
+            background: var(--rh-red-dark);
+            box-shadow: 0 4px 14px rgba(204,0,0,0.45);
+        }
+
+        .accordion-rh134 .accordion-toggle {
+            background: var(--rh-blue-dark);
+            color: var(--rh-white);
+            box-shadow: 0 3px 10px rgba(0,51,102,0.35);
+        }
+        .accordion-rh134 .accordion-toggle:hover {
+            background: #002244;
+            box-shadow: 0 4px 14px rgba(0,51,102,0.45);
+        }
+
+        .accordion-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .accordion-badge svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        .accordion-badge-rh124 {
+            background: rgba(255,255,255,0.2);
+            color: var(--rh-white);
+        }
+        .accordion-badge-rh134 {
+            background: rgba(255,255,255,0.2);
+            color: var(--rh-white);
+        }
+
+        .accordion-label {
+            flex: 1;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .accordion-count {
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0.8;
+            white-space: nowrap;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.18);
+            padding: 3px 10px;
+            border-radius: 50px;
+        }
+
+        .accordion-chevron {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            transition: transform var(--transition-med);
+        }
+        .accordion-chevron svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+        }
+        /* Rotate chevron when collapsed */
+        .accordion-toggle[aria-expanded="false"] .accordion-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* Collapsible body */
+        .accordion-body {
+            grid-column: 1 / -1;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.35s ease,
+                        margin 0.3s ease;
+            max-height: 10000px; /* large enough for open state */
+            opacity: 1;
+            margin-top: 0;
+        }
+        .accordion-body.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-top: 0;
+            pointer-events: none;
+        }
+
+        .accordion-inner {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 20px 0 8px;
+        }
+
         .card-number {
             position: absolute;
             top: 20px;
@@ -1081,7 +1212,7 @@
                 <p>Access your course content organized by topic. Click any card to open the interactive learning module.</p>
             </div>
 
-            <div class="nav-grid" role="list">
+            <div class="nav-grid" id="main-nav-grid">
                 <!-- Schedule Card -->
                 <a href="redhat-schedule.html" target="_blank" rel="noopener noreferrer" class="nav-card card-schedule" role="listitem" aria-labelledby="card-schedule-title">
                     <div class="card-header">
@@ -1168,17 +1299,28 @@
                     </div>
                 </a>
 
-                <!-- RH124 Section Divider -->
-                <div class="course-section-divider divider-rh124" role="separator" aria-label="RH124 Red Hat System Administration I chapters">
-                    <div class="divider-badge">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
-                        </svg>
-                        RH124
-                    </div>
-                    <div class="divider-line" aria-hidden="true"></div>
-                    <span class="divider-desc">Red Hat System Administration I &mdash; Chapters 1&ndash;19</span>
+                <!-- RH124 Accordion Header -->
+                <div class="course-accordion-header accordion-rh124" id="accordion-rh124">
+                    <button type="button"
+                            class="accordion-toggle"
+                            aria-expanded="true"
+                            aria-controls="accordion-body-rh124"
+                            id="accordion-btn-rh124">
+                        <span class="accordion-badge accordion-badge-rh124">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
+                            </svg>
+                            RH124
+                        </span>
+                        <span class="accordion-label">Red Hat System Administration I &mdash; Chapters 1&ndash;19</span>
+                        <span class="accordion-count" id="accordion-count-rh124">19 chapters</span>
+                        <span class="accordion-chevron" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        </span>
+                    </button>
                 </div>
+                <div class="accordion-body" id="accordion-body-rh124" role="region" aria-labelledby="accordion-btn-rh124">
+                    <div class="accordion-inner" role="list">
 
                 <!-- Chapter 1 Card -->
                 <a href="chapter1_intro_to_rhel.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter" role="listitem" aria-labelledby="card-ch1-title">
@@ -2131,17 +2273,31 @@
                     </div>
                 </a>
 
-                <!-- RH134 Section Divider -->
-                <div class="course-section-divider divider-rh134" role="separator" aria-label="RH134 Red Hat System Administration II chapters">
-                    <div class="divider-badge">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
-                        </svg>
-                        RH134
-                    </div>
-                    <div class="divider-line" aria-hidden="true"></div>
-                    <span class="divider-desc">Red Hat System Administration II &mdash; Advanced Topics</span>
+                    </div><!-- /.accordion-inner (end RH124) -->
+                </div><!-- /.accordion-body#accordion-body-rh124 -->
+
+                <!-- RH134 Accordion Header -->
+                <div class="course-accordion-header accordion-rh134" id="accordion-rh134">
+                    <button type="button"
+                            class="accordion-toggle"
+                            aria-expanded="true"
+                            aria-controls="accordion-body-rh134"
+                            id="accordion-btn-rh134">
+                        <span class="accordion-badge accordion-badge-rh134">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 3L1 9l4 2.18V15c0 3.31 7 5 7 5s7-1.69 7-5v-3.82L21 9 12 3zm0 12.5c-2.33 0-4.32-.67-5.26-1.62l5.26-1.21 5.26 1.21c-.94.95-2.93 1.62-5.26 1.62zm6-3.09-6 1.38-6-1.38v-1.96L12 12l6 .91v-.5z"/>
+                            </svg>
+                            RH134
+                        </span>
+                        <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
+                        <span class="accordion-count" id="accordion-count-rh134">2 chapters</span>
+                        <span class="accordion-chevron" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                        </span>
+                    </button>
                 </div>
+                <div class="accordion-body" id="accordion-body-rh134" role="region" aria-labelledby="accordion-btn-rh134">
+                    <div class="accordion-inner" role="list">
 
                 <!-- RH134 Chapter 1 Card -->
                 <a href="rh134_chapter1_shell_scripting.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch1-title">
@@ -2254,7 +2410,9 @@
                         </span>
                     </div>
                 </a>
-            </div>
+                    </div><!-- /.accordion-inner (end RH134) -->
+                </div><!-- /.accordion-body#accordion-body-rh134 -->
+            </div><!-- /.nav-grid -->
         </section>
 
         <!-- Learning Path Section -->
@@ -2666,6 +2824,84 @@
                 }
             }
         });
+
+        // ── Course Section Accordions ──────────────────────────────────
+        (function() {
+            const STORAGE_KEY = 'courseAccordionState';
+
+            // Default: both sections open
+            function getStoredState() {
+                try {
+                    const raw = sessionStorage.getItem(STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : { rh124: true, rh134: true };
+                } catch (e) {
+                    return { rh124: true, rh134: true };
+                }
+            }
+
+            function saveState(state) {
+                try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+            }
+
+            function setAccordion(btnId, bodyId, expanded, animate) {
+                const btn  = document.getElementById(btnId);
+                const body = document.getElementById(bodyId);
+                if (!btn || !body) return;
+
+                btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+                if (expanded) {
+                    // Temporarily reveal to measure, then animate open
+                    body.style.transition = animate ? '' : 'none';
+                    body.classList.remove('collapsed');
+                } else {
+                    body.style.transition = animate ? '' : 'none';
+                    body.classList.add('collapsed');
+                }
+            }
+
+            function toggleAccordion(sectionKey, btnId, bodyId) {
+                const state = getStoredState();
+                state[sectionKey] = !state[sectionKey];
+                saveState(state);
+                setAccordion(btnId, bodyId, state[sectionKey], true);
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const state = getStoredState();
+
+                // Apply saved state without animation on load
+                setAccordion('accordion-btn-rh124', 'accordion-body-rh124', state.rh124, false);
+                setAccordion('accordion-btn-rh134', 'accordion-body-rh134', state.rh134, false);
+
+                // Wire up buttons
+                const btnRH124 = document.getElementById('accordion-btn-rh124');
+                const btnRH134 = document.getElementById('accordion-btn-rh134');
+
+                if (btnRH124) {
+                    btnRH124.addEventListener('click', function() {
+                        toggleAccordion('rh124', 'accordion-btn-rh124', 'accordion-body-rh124');
+                    });
+                }
+                if (btnRH134) {
+                    btnRH134.addEventListener('click', function() {
+                        toggleAccordion('rh134', 'accordion-btn-rh134', 'accordion-body-rh134');
+                    });
+                }
+
+                // Keyboard: Enter/Space already fires click on <button>;
+                // also support keyboard-only users toggling with Space bar
+                [btnRH124, btnRH134].forEach(function(btn) {
+                    if (!btn) return;
+                    btn.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            btn.click();
+                        }
+                    });
+                });
+            });
+        })();
     </script>
 </body>
 </html>
