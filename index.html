@@ -2290,7 +2290,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">2 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">3 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -2393,6 +2393,57 @@
                             <li>Basic and extended regex patterns</li>
                             <li>grep, egrep, sed, and awk</li>
                             <li>Log file analysis and troubleshooting</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 3 Card -->
+                <a href="rh134_chapter3_scheduling.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch3-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 3</span>
+                        <h3 class="card-title" id="card-rh134-ch3-title">Scheduling User Tasks</h3>
+                        <p class="card-subtitle">Automating jobs with at, cron, and systemd timers</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Schedule one-time and recurring tasks using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-at-cmd">at</button>
+                                <span class="tooltip-content" id="tooltip-at-cmd" role="tooltip">The at command schedules a command or script to run once at a specified future time. Jobs are queued and executed by the atd daemon. Use atq to list pending jobs and atrm to remove them.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-cron">cron</button>
+                                <span class="tooltip-content" id="tooltip-cron" role="tooltip">cron is a time-based job scheduler. Users define recurring jobs in a crontab file using a five-field time specification (minute, hour, day, month, weekday) followed by the command to run.</span>
+                            </span>, and
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-systemd-timer">systemd timers</button>
+                                <span class="tooltip-content" id="tooltip-systemd-timer" role="tooltip">systemd timer units are the modern alternative to cron. A .timer unit activates a corresponding .service unit on a schedule defined with OnCalendar= or OnBootSec=, and offers better logging via journalctl.</span>
+                            </span>
+                            to automate system administration work without manual intervention.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Scheduling deferred jobs with at</li>
+                            <li>Recurring jobs with crontab syntax</li>
+                            <li>systemd timer units</li>
                         </ul>
                     </div>
                     <div class="card-footer">
@@ -2662,8 +2713,18 @@
                     </div>
                 </div>
 
-                <div class="path-item" role="listitem">
+                <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">24</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Automate Work with Job Scheduling</h3>
+                        <p class="path-description">
+                            RH134 Chapter 3 covers scheduling tasks&mdash;running one-time jobs with at, setting up recurring jobs with crontab, and managing modern systemd timer units.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">25</div>
                     <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
@@ -2754,6 +2815,7 @@
                 <a href="chapter19_configuring_securing_ssh.html" target="_blank" rel="noopener noreferrer">Chapter 19</a>
                 <a href="rh134_chapter1_shell_scripting.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 1</a>
                 <a href="rh134_chapter2_regex.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 2</a>
+                <a href="rh134_chapter3_scheduling.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 3</a>
             </nav>
         </div>
     </footer>
