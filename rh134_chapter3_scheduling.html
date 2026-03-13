@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 3: Scheduling User Tasks | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-title { background: var(--rh-red-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-highlight { color: #FFD700; font-weight: 600; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
+        .tooltip-content { display: none !important; }
+        #tooltip-bubble { position: fixed; z-index: 99999; background: var(--rh-gray-dark); color: var(--rh-white); padding: 11px 15px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; font-weight: 400; line-height: 1.5; max-width: 300px; width: max-content; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 8px solid transparent; }
+        #tooltip-bubble[data-dir="above"]::after { top: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="below"]::after { bottom: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="left"]::after { left: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="right"]::after { right: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.info { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning .note-box-header { color: #8B6914; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.info .note-box-header { color: var(--rh-blue-dark); }
+        .note-box p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .data-table tr:hover { background: #E8E8E8; }
+        .data-table code { font-family: var(--font-mono); background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 0.88rem; }
+
+        /* ==================== TABS ==================== */
+        .tabs { margin: 20px 0; }
+        .tab-buttons { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; background: transparent; cursor: pointer; color: var(--rh-gray); border-bottom: 3px solid transparent; transition: all var(--transition-fast); margin-bottom: -2px; }
+        .tab-btn:hover { color: var(--rh-red); background: var(--rh-gray-lighter); }
+        .tab-btn.active { color: var(--rh-red); border-bottom-color: var(--rh-red); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE ==================== */
+        .expandable { margin: 12px 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-header { width: 100%; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--rh-gray-lighter); border: none; cursor: pointer; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-gray-dark); transition: background var(--transition-fast); text-align: left; }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expand-icon { transition: transform var(--transition-fast); font-size: 1.1rem; flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { margin-bottom: 28px; padding: 20px; border: 2px solid var(--rh-gray-lighter); border-radius: var(--radius-md); transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-q-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; font-size: 1rem; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; margin: 6px 0; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; border: 1px solid var(--rh-gray-lighter); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: var(--rh-gray-lighter); }
+        .quiz-option input { margin-top: 2px; flex-shrink: 0; accent-color: var(--rh-red); }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; display: none; padding: 8px 12px; border-radius: var(--radius-sm); }
+        .quiz-feedback.correct-fb { color: var(--rh-green-dark); background: #E8F5E9; display: block; }
+        .quiz-feedback.incorrect-fb { color: var(--rh-red-dark); background: #FFEBEE; display: block; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin: 8px 4px; }
+        .quiz-btn.primary { background: var(--rh-red); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-red-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-light); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin: 16px 0; padding: 14px; border-radius: var(--radius-md); background: var(--rh-gray-lighter); text-align: center; display: none; }
+
+        /* ==================== CONCEPT CARDS ==================== */
+        .concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+        .concept-card { padding: 20px; border-radius: var(--radius-md); border-top: 4px solid; }
+        .concept-card h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; margin-bottom: 8px; }
+        .concept-card p { font-family: var(--font-display); font-size: 0.88rem; margin: 0; line-height: 1.5; }
+        .cc-blue { background: #EEF5FF; border-color: var(--rh-blue); }
+        .cc-blue h4 { color: var(--rh-blue-dark); }
+        .cc-green { background: #EFFFEF; border-color: var(--rh-green); }
+        .cc-green h4 { color: var(--rh-green-dark); }
+        .cc-orange { background: #FFF5EE; border-color: var(--rh-orange); }
+        .cc-orange h4 { color: #CC4400; }
+        .cc-teal { background: #EFFFFF; border-color: var(--rh-teal); }
+        .cc-teal h4 { color: var(--rh-teal-dark); }
+
+        /* ==================== CRON BUILDER ==================== */
+        .cron-builder { background: #1A1A2E; border-radius: var(--radius-md); padding: 24px; margin: 20px 0; color: var(--rh-white); }
+        .cron-builder h3 { font-family: var(--font-display); color: #7EC8E3; margin-bottom: 16px; font-size: 1.1rem; }
+        .cron-fields { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .cron-field { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .cron-field label { font-family: var(--font-display); font-size: 0.72rem; color: #7EC8E3; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cron-field input { width: 70px; padding: 8px; text-align: center; font-family: var(--font-mono); font-size: 1rem; background: #2A2A4E; border: 2px solid #4A4A8E; border-radius: var(--radius-sm); color: #FFD700; }
+        .cron-field input:focus { border-color: #7EC8E3; outline: none; }
+        .cron-cmd-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+        .cron-cmd-row label { font-family: var(--font-display); font-size: 0.72rem; color: #7EC8E3; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cron-cmd-input { flex: 1; min-width: 200px; padding: 8px 12px; font-family: var(--font-mono); font-size: 0.9rem; background: #2A2A4E; border: 2px solid #4A4A8E; border-radius: var(--radius-sm); color: #D4D4D4; }
+        .cron-preview { background: #0D0D1A; border: 1px solid #4A4A8E; border-radius: var(--radius-sm); padding: 14px 16px; font-family: var(--font-mono); font-size: 0.95rem; color: #4EC9B0; margin-bottom: 10px; word-break: break-all; }
+        .cron-description { font-family: var(--font-display); font-size: 0.88rem; color: #CCC; min-height: 40px; }
+        .cron-parse-btn { padding: 8px 20px; background: var(--rh-teal); color: var(--rh-white); border: none; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .cron-parse-btn:hover { background: var(--rh-teal-dark); }
+
+        /* ==================== AT COMMAND SIMULATOR ==================== */
+        .at-simulator { background: #F8F9FA; border: 2px solid var(--rh-teal); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .at-simulator h3 { font-family: var(--font-display); color: var(--rh-teal-dark); margin-bottom: 16px; }
+        .at-form-row { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-end; flex-wrap: wrap; }
+        .at-form-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 150px; }
+        .at-form-group label { font-family: var(--font-display); font-size: 0.82rem; font-weight: 600; color: var(--rh-gray-dark); }
+        .at-form-group input, .at-form-group select { padding: 9px 12px; font-family: var(--font-mono); font-size: 0.9rem; border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm); color: var(--rh-black); background: var(--rh-white); }
+        .at-btn { padding: 9px 20px; background: var(--rh-teal); color: var(--rh-white); border: none; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 600; cursor: pointer; transition: background var(--transition-fast); white-space: nowrap; }
+        .at-btn:hover { background: var(--rh-teal-dark); }
+        .at-btn.danger { background: var(--rh-red); }
+        .at-btn.danger:hover { background: var(--rh-red-dark); }
+        .at-queue { background: #1E1E1E; border-radius: var(--radius-sm); padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; color: #D4D4D4; min-height: 80px; margin-top: 12px; }
+        .at-queue-header { color: #4EC9B0; font-weight: 600; margin-bottom: 8px; font-family: var(--font-display); }
+        .at-job-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #333; }
+        .at-job-row:last-child { border-bottom: none; }
+        .at-empty { color: #666; font-style: italic; }
+
+        /* ==================== TIMESPEC REFERENCE ==================== */
+        .timespec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
+        .timespec-card { background: var(--rh-gray-lighter); border-radius: var(--radius-sm); padding: 14px; border-left: 3px solid var(--rh-teal); }
+        .timespec-card code { font-family: var(--font-mono); color: var(--rh-red-dark); font-size: 0.9rem; display: block; font-weight: 600; margin-bottom: 4px; }
+        .timespec-card p { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray); margin: 0; }
+
+        /* ==================== CHECKLIST ==================== */
+        .checklist { list-style: none; padding: 0; }
+        .checklist li { padding: 8px 12px; font-family: var(--font-display); font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid var(--rh-gray-lighter); }
+        .checklist li:last-child { border-bottom: none; }
+        .checklist li::before { content: "&#x2713;"; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin-top: 40px; flex-wrap: wrap; }
+        .nav-chapter-btn { padding: 12px 20px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); border: 2px solid var(--rh-gray-light); color: var(--rh-gray-dark); transition: all var(--transition-fast); text-align: center; flex: 1; min-width: 140px; }
+        .nav-chapter-btn:hover { border-color: var(--rh-red); color: var(--rh-red); }
+        .nav-chapter-btn.prev { border-color: var(--rh-blue); color: var(--rh-blue); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-blue); color: var(--rh-white); }
+        .nav-chapter-btn.next { border-color: var(--rh-red); color: var(--rh-red); }
+        .nav-chapter-btn.next:hover { background: var(--rh-red); color: var(--rh-white); }
+        .nav-chapter-btn.home { border-color: var(--rh-gray-dark); color: var(--rh-gray-dark); }
+        .nav-chapter-btn.home:hover { background: var(--rh-gray-dark); color: var(--rh-white); }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); text-align: center; padding: 28px 24px; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.8; }
+        footer a { color: var(--rh-gray-light); }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .cron-fields { justify-content: center; }
+            .chapter-nav { flex-direction: column; }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .at-btn, .cron-parse-btn { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Skip Link -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Tooltip Bubble (global, single instance) -->
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<!-- ==================== HEADER ==================== -->
+<header role="banner" class="main-header">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F3A9;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Chapter 3</div>
+        <h1 class="chapter-title">Scheduling User Tasks</h1>
+        <p class="chapter-subtitle">Schedule programs to run once in the future or on a recurring basis as a regular user</p>
+        <div class="header-meta">
+            <span>&#x23F1;&#xFE0F; Estimated Time: 2&ndash;3 hours</span>
+            <span>&#x1F4DA; RH134: Red Hat System Administration II</span>
+            <span>&#x1F3AF; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== PROGRESS BAR ==================== -->
+<div class="progress-container">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             aria-label="Chapter reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<!-- ==================== SECTION NAV ==================== -->
+<nav aria-label="Chapter sections" class="section-nav">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives" class="nav-btn" aria-label="Learning objectives">1. Objectives</a></li>
+        <li><a href="#section-deferred" class="nav-btn" aria-label="Scheduling deferred jobs with at">2. Deferred Jobs (at)</a></li>
+        <li><a href="#section-at-usage" class="nav-btn" aria-label="Using the at command">3. Using at</a></li>
+        <li><a href="#section-guided-at" class="nav-btn" aria-label="Guided exercise for at">4. Guided Exercise: at</a></li>
+        <li><a href="#section-recurring" class="nav-btn" aria-label="Scheduling recurring jobs with cron">5. Recurring Jobs (cron)</a></li>
+        <li><a href="#section-crontab" class="nav-btn" aria-label="Crontab syntax and usage">6. Crontab Syntax</a></li>
+        <li><a href="#section-cron-examples" class="nav-btn" aria-label="Cron examples">7. Cron Examples</a></li>
+        <li><a href="#section-guided-cron" class="nav-btn" aria-label="Guided exercise for cron">8. Guided Exercise: cron</a></li>
+        <li><a href="#section-quiz" class="nav-btn" aria-label="Knowledge check quiz">9. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" aria-label="Hands-on lab">10. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" aria-label="Chapter summary">11. Summary</a></li>
+    </ul>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main id="main-content">
+
+<!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Describe how the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-atd">atd daemon</span> schedules one-time deferred jobs and how to interact with it using the <code class="inline">at</code> command.</li>
+            <li>Schedule a command or script to run once at a specific future time using the <code class="inline">at</code> command with natural language
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-timespec">time specifications</span>.</li>
+            <li>Inspect and remove pending deferred jobs using <code class="inline">atq</code> and <code class="inline">atrm</code>.</li>
+            <li>Explain how the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-crond">crond daemon</span> manages recurring scheduled jobs on RHEL 10.</li>
+            <li>Create, edit, list, and remove user
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-crontab">crontab</span> entries using proper five-field syntax.</li>
+            <li>Apply crontab field syntax including wildcards, ranges, lists, and step values to construct precise schedules.</li>
+            <li>Distinguish when to use <code class="inline">at</code> versus <code class="inline">crontab</code> based on scheduling requirements.</li>
+        </ul>
+
+        <!-- Hidden tooltip content spans -->
+        <span class="tooltip-content" id="tt-atd" role="tooltip">The atd system daemon monitors and executes jobs scheduled with the at command. It runs as a background service and is enabled by default in RHEL 10.</span>
+        <span class="tooltip-content" id="tt-timespec" role="tooltip">Natural language time expressions accepted by the at command, such as "now +5min", "teatime tomorrow", or "noon +4 days". Defined in /usr/share/doc/at/timespec.</span>
+        <span class="tooltip-content" id="tt-crond" role="tooltip">The cron daemon (crond) reads per-user crontab files and system-wide configuration to run recurring jobs at scheduled times. It starts automatically at boot in RHEL 10.</span>
+        <span class="tooltip-content" id="tt-crontab" role="tooltip">A configuration file containing scheduled recurring job entries, each with five time fields (minute, hour, day-of-month, month, day-of-week) followed by the command to run.</span>
+
+        <div class="concept-grid">
+            <div class="concept-card cc-blue">
+                <h4>&#x23F2;&#xFE0F; Deferred Jobs</h4>
+                <p>Run a command exactly once at a future time using <code class="inline">at</code> and the <code class="inline">atd</code> daemon.</p>
+            </div>
+            <div class="concept-card cc-green">
+                <h4>&#x1F501; Recurring Jobs</h4>
+                <p>Run commands on a repeating schedule using crontab files managed by the <code class="inline">crond</code> daemon.</p>
+            </div>
+            <div class="concept-card cc-orange">
+                <h4>&#x1F4CB; Job Management</h4>
+                <p>Inspect, remove, and audit scheduled jobs for both <code class="inline">at</code> queues and user crontabs.</p>
+            </div>
+            <div class="concept-card cc-teal">
+                <h4>&#x1F3AF; RHCSA Relevance</h4>
+                <p>Scheduling tasks is a tested skill on the RHCSA exam. Both <code class="inline">at</code> and crontab usage are fair game.</p>
+            </div>
+        </div>
+
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;&#xFE0F;</span><span>Why Task Scheduling Matters</span></div>
+            <p>System administrators rarely sit at a terminal waiting to run commands at 3&nbsp;AM. Task scheduling lets you automate maintenance windows, generate nightly reports, run backup jobs, and enforce security checks without manual intervention. Mastering both one-time (<code class="inline">at</code>) and recurring (<code class="inline">cron</code>) scheduling gives you full control over your system&rsquo;s automated behavior.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 2: DEFERRED JOBS ==================== -->
+<section id="section-deferred" class="content-section" aria-labelledby="deferred-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="deferred-heading">Scheduling Deferred User Jobs</h2>
+    </div>
+    <div class="section-body">
+        <p>Sometimes you need to run one or more commands at a specific future time. A
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-deferred">deferred job</span>
+            is a task scheduled to execute once, at a particular point in the future. Unlike recurring cron jobs, deferred jobs run exactly once and are automatically removed from the queue after execution.</p>
+
+        <span class="tooltip-content" id="tt-deferred" role="tooltip">A job that is queued to run one time at a specified future date and time. After it executes, it is removed from the job queue automatically.</span>
+
+        <h3>Common Use Cases</h3>
+        <p>Consider these real-world scenarios where a one-time future job is the right tool:</p>
+        <ul>
+            <li><strong>Overnight maintenance:</strong> A user queues a long-running database optimization script to run at 2&nbsp;AM so it does not affect daytime performance.</li>
+            <li><strong>Firewall safety net:</strong> A system administrator applies experimental firewall rules, then schedules a job to revert them in 10 minutes. If the new rules work correctly, the administrator cancels the revert job. If the connection is lost, the revert runs automatically.</li>
+            <li><strong>One-time report generation:</strong> A report must be delivered at a precise time, but the administrator will not be available at that moment.</li>
+            <li><strong>Staged deployments:</strong> A configuration change is queued for a future maintenance window approved by change management.</li>
+        </ul>
+
+        <h3>The at Package and atd Daemon</h3>
+        <p>Red Hat Enterprise Linux provides the <code class="inline">at</code> package, which is installed and enabled by default in RHEL 10. This package supplies:</p>
+
+        <table class="data-table" aria-label="Components of the at package">
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>atd</code></td>
+                    <td>System daemon</td>
+                    <td>Runs in the background, checks for pending jobs, and executes them at the correct time.</td>
+                </tr>
+                <tr>
+                    <td><code>at</code></td>
+                    <td>Command</td>
+                    <td>Queues a new job and reads the commands to run from standard input or a script file.</td>
+                </tr>
+                <tr>
+                    <td><code>atq</code></td>
+                    <td>Command</td>
+                    <td>Lists all pending jobs for the current user (equivalent to <code>at -l</code>).</td>
+                </tr>
+                <tr>
+                    <td><code>atrm</code></td>
+                    <td>Command</td>
+                    <td>Removes a pending job by its job number (equivalent to <code>at -d</code>).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Job Queues</h3>
+        <p>The <code class="inline">atd</code> daemon supports multiple
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-queue">job queues</span>,
+            labeled <strong>a</strong> through <strong>z</strong> and <strong>A</strong> through <strong>Z</strong>.
+            Jobs are placed in the default queue <strong>a</strong> unless the <code class="inline">-q</code> option specifies otherwise.
+            Queues with higher letters run at a higher
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-niceval">nice value</span>
+            (lower CPU priority), meaning they run more politely in the background.</p>
+
+        <span class="tooltip-content" id="tt-queue" role="tooltip">A labeled group of scheduled at jobs. The atd daemon supports queues a-z and A-Z, with higher-letter queues receiving lower scheduling priority.</span>
+        <span class="tooltip-content" id="tt-niceval" role="tooltip">A process scheduling priority value (-20 to 19). Higher nice values mean the process yields CPU time to others and runs at lower priority. "Being nice" means using fewer resources.</span>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Privilege Boundary</span></div>
+            <p>Unprivileged users can view and manage <em>only their own</em> queued jobs. The <code class="inline">root</code> user can view and manage all jobs for all users. This is an important distinction for multi-user environments.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: USING AT ==================== -->
+<section id="section-at-usage" class="content-section" aria-labelledby="at-usage-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="at-usage-heading">Using the at Command</h2>
+    </div>
+    <div class="section-body">
+
+        <h3>Scheduling a New Job</h3>
+        <p>The basic syntax for queueing a deferred job is:</p>
+
+        <div class="code-block" role="region" aria-label="at command basic syntax">
+            <div class="code-title">Basic at Command Syntax</div>
+            <code>
+<span class="code-comment"># Queue a job from a script file (most common method)</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">at <em>TIMESPEC</em> &lt; <em>script_file</em></span>
+
+<span class="code-comment"># Queue a job interactively (type commands, finish with Ctrl+D)</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">at <em>TIMESPEC</em></span>
+<span class="code-output">at> echo "Job running" &gt; /tmp/job.out</span>
+<span class="code-output">at> <Ctrl+D></span>
+<span class="code-output">job 5 at Thu Mar 12 23:00:00 2026</span>
+            </code>
+        </div>
+
+        <p>The <code class="inline">at</code> command reads the commands to execute from
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-stdin">standard input (STDIN)</span>.
+            When you redirect from a script file (<code class="inline">&lt; myscript</code>), the script&rsquo;s contents become the job. When entering commands interactively, press <kbd>Ctrl+D</kbd> on an empty line to signal end of input.</p>
+
+        <span class="tooltip-content" id="tt-stdin" role="tooltip">Standard input — the default source of data for a command, typically the keyboard in interactive use. Can be redirected from a file using the < operator.</span>
+
+        <div class="code-block" role="region" aria-label="at command scheduling example">
+            <div class="code-title">Scheduling a Script to Run in 5 Minutes</div>
+            <code>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">at now +5min &lt; myfile</span>
+<span class="code-output">warning: commands will be executed using /bin/sh</span>
+<span class="code-output">job 2 at Wed May 14 20:40:00 2025</span>
+            </code>
+        </div>
+
+        <h3>Time Specification (TIMESPEC)</h3>
+        <p>The <code class="inline">at</code> command accepts flexible, natural language time specifications. The general rule is: provide time first, then optionally a date or offset.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Time vs. Date Defaults</span></div>
+            <p>If you specify <em>only a time</em> (no date), the job runs today if that time hasn&rsquo;t passed yet, or tomorrow if it has. If you specify <em>only a date</em>, the time defaults to the current time of day.</p>
+        </div>
+
+        <div class="timespec-grid" aria-label="Time specification examples">
+            <div class="timespec-card">
+                <code>now +5min</code>
+                <p>Five minutes from this moment.</p>
+            </div>
+            <div class="timespec-card">
+                <code>now +2hours</code>
+                <p>Two hours from now.</p>
+            </div>
+            <div class="timespec-card">
+                <code>teatime tomorrow</code>
+                <p>4:00 PM tomorrow (teatime = 16:00).</p>
+            </div>
+            <div class="timespec-card">
+                <code>noon +4 days</code>
+                <p>12:00 PM four days from today.</p>
+            </div>
+            <div class="timespec-card">
+                <code>midnight</code>
+                <p>Midnight tonight (00:00).</p>
+            </div>
+            <div class="timespec-card">
+                <code>02:00pm</code>
+                <p>2:00 PM today or tomorrow.</p>
+            </div>
+            <div class="timespec-card">
+                <code>15:59</code>
+                <p>3:59 PM in 24-hour format.</p>
+            </div>
+            <div class="timespec-card">
+                <code>5pm august 3 2026</code>
+                <p>5:00 PM on a specific date.</p>
+            </div>
+        </div>
+
+        <p>The full list of valid specifications is documented in <code class="inline">/usr/share/doc/at/timespec</code> on your RHEL system.</p>
+
+        <h3>Inspecting the Job Queue with atq</h3>
+        <p>Use <code class="inline">atq</code> (or the equivalent <code class="inline">at -l</code>) to list pending jobs:</p>
+
+        <div class="code-block" role="region" aria-label="atq output example">
+            <div class="code-title">Viewing Pending Jobs with atq</div>
+            <code>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">atq</span>
+<span class="code-output">28    Mon May 19 05:13:00 2025 a user</span>
+<span class="code-output">29    Tue May 20 16:00:00 2025 h user</span>
+<span class="code-output">30    Wed May 21 12:00:00 2025 a user</span>
+            </code>
+        </div>
+
+        <p>Each line of <code class="inline">atq</code> output contains four fields:</p>
+        <table class="data-table" aria-label="atq output fields">
+            <thead>
+                <tr><th>Field</th><th>Example</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Job number</td><td><code>28</code></td><td>Unique identifier for this job. Used with <code>atrm</code> to remove it.</td></tr>
+                <tr><td>Execution date/time</td><td><code>Mon May 19 05:13:00 2025</code></td><td>When the job will run.</td></tr>
+                <tr><td>Queue letter</td><td><code>a</code></td><td>Which queue the job is in (a&ndash;z, A&ndash;Z).</td></tr>
+                <tr><td>Owner</td><td><code>user</code></td><td>The user account that created the job.</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Inspecting Job Contents with at -c</h3>
+        <p>To see what commands a specific job will run, use <code class="inline">at -c JOBNUMBER</code>. This displays the full shell environment that was captured when the job was created, followed by the commands themselves:</p>
+
+        <div class="code-block" role="region" aria-label="at -c job inspection example">
+            <div class="code-title">Inspecting Job #28 Contents</div>
+            <code>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">at -c 28</span>
+<span class="code-output">#!/bin/sh</span>
+<span class="code-output"># atrun uid=1000 gid=1000</span>
+<span class="code-output"># mail user 0</span>
+<span class="code-output">umask 22</span>
+<span class="code-output">SHELL=/bin/bash; export SHELL</span>
+<span class="code-output">HOME=/home/user; export HOME</span>
+<span class="code-output">PATH=/usr/local/bin:/usr/bin:/bin; export PATH</span>
+<span class="code-output">cd /home/user || { echo 'Execution directory inaccessible'; exit 1; }</span>
+<span class="code-highlight">/usr/local/bin/daily_report.sh</span>
+            </code>
+        </div>
+
+        <h3>Removing Jobs with atrm</h3>
+        <p>To cancel a pending job before it runs, use <code class="inline">atrm JOBNUMBER</code>:</p>
+
+        <div class="code-block" role="region" aria-label="atrm job removal example">
+            <div class="code-title">Removing a Pending Job</div>
+            <code>
+<span class="code-comment"># Remove job number 29 from the queue</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">atrm 29</span>
+
+<span class="code-comment"># Verify it was removed</span>
+<span class="code-prompt">user@host:~$</span> <span class="code-command">atq</span>
+<span class="code-output">28    Mon May 19 05:13:00 2025 a user</span>
+<span class="code-output">30    Wed May 21 12:00:00 2025 a user</span>
+            </code>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Jobs Execute in the Background</span></div>
+            <p>Jobs run by <code class="inline">atd</code> do not have a controlling terminal. Any output (stdout or stderr) that is not redirected to a file will be emailed to the job owner. Ensure your system has a
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mta">mail transfer agent (MTA)</span>
+                configured, or always redirect output explicitly in your scripts.</p>
+        </div>
+        <span class="tooltip-content" id="tt-mta" role="tooltip">A mail transfer agent (MTA) is software that routes email between systems. Examples include Postfix and Sendmail. Without one configured, at job output is silently lost.</span>
+
+        <!-- Interactive AT Simulator -->
+        <div class="at-simulator" aria-label="Interactive at command simulator">
+            <h3>&#x1F9EA; Interactive: Simulate the at Job Queue</h3>
+            <p style="font-family: var(--font-display); font-size: 0.9rem; color: var(--rh-gray); margin-bottom: 16px;">Practice scheduling and managing deferred jobs. This simulates the <code class="inline">at</code> queue in your browser &mdash; no real commands are executed.</p>
+            <div class="at-form-row">
+                <div class="at-form-group">
+                    <label for="at-timespec">Time Specification</label>
+                    <select id="at-timespec">
+                        <option value="now +5min">now +5min</option>
+                        <option value="now +1hour">now +1hour</option>
+                        <option value="midnight">midnight</option>
+                        <option value="teatime tomorrow">teatime tomorrow</option>
+                        <option value="noon +4 days">noon +4 days</option>
+                        <option value="now +10min">now +10min</option>
+                    </select>
+                </div>
+                <div class="at-form-group">
+                    <label for="at-command">Command to Run</label>
+                    <input type="text" id="at-command" value="/usr/local/bin/backup.sh" aria-label="Command for at job" />
+                </div>
+                <div class="at-form-group">
+                    <label for="at-queue">Queue</label>
+                    <select id="at-queue">
+                        <option value="a">a (default)</option>
+                        <option value="b">b</option>
+                        <option value="h">h</option>
+                    </select>
+                </div>
+                <button class="at-btn" id="at-schedule-btn" aria-label="Schedule the at job">Schedule Job</button>
+            </div>
+            <div class="at-form-row">
+                <div class="at-form-group">
+                    <label for="at-remove-num">Job # to Remove</label>
+                    <input type="number" id="at-remove-num" min="1" value="" aria-label="Job number to remove" style="width:90px;" />
+                </div>
+                <button class="at-btn danger" id="at-remove-btn" aria-label="Remove selected job">atrm</button>
+                <button class="at-btn" id="at-clear-btn" style="background:var(--rh-gray); margin-left:auto;" aria-label="Clear all jobs">Clear All</button>
+            </div>
+            <div class="at-queue" role="region" aria-label="at job queue display" aria-live="polite">
+                <div class="at-queue-header">atq output:</div>
+                <div id="at-queue-display"><span class="at-empty">No jobs scheduled. Use the form above to add jobs.</span></div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ==================== SECTION 4: GUIDED EXERCISE AT ==================== -->
+<section id="section-guided-at" class="content-section" aria-labelledby="guided-at-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="guided-at-heading">Guided Exercise: Schedule a Future User Job</h2>
+    </div>
+    <div class="section-body">
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F5A5;&#xFE0F;</span><span>Lab Environment</span></div>
+            <p>This exercise uses <strong>workstation.lab.example.com</strong> as the student workstation. You log in as the <code class="inline">student</code> user. The lab scenario requires scheduling a disk usage report to run at a specific future time.</p>
+        </div>
+
+        <h3>Scenario</h3>
+        <p>Your manager has asked you to generate a disk usage report for the <code class="inline">/home</code> directory tree and save it to <code class="inline">/tmp/du_report.txt</code>. The report must be generated tonight at 11:30&nbsp;PM so it reflects end-of-business usage. You will schedule this as a deferred job, verify it is queued, and then practice removing it.</p>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-at-1">
+                <span>Task 1: Create a job script</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-at-1" class="expandable-content">
+                <p>First create a simple script that will generate the report:</p>
+                <div class="code-block" role="region" aria-label="Creating the report script">
+                    <div class="code-title">Create /home/student/du_report.sh</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat &gt; ~/du_report.sh &lt;&lt; 'EOF'</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output">echo "Disk Usage Report - $(date)" &gt; /tmp/du_report.txt</span>
+<span class="code-output">du -sh /home/* &gt;&gt; /tmp/du_report.txt 2&gt;&amp;1</span>
+<span class="code-output">echo "Report complete."</span>
+<span class="code-output">EOF</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod +x ~/du_report.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat ~/du_report.sh</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output">echo "Disk Usage Report - $(date)" > /tmp/du_report.txt</span>
+<span class="code-output">du -sh /home/* >> /tmp/du_report.txt 2>&1</span>
+<span class="code-output">echo "Report complete."</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-at-2">
+                <span>Task 2: Schedule the script with at</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-at-2" class="expandable-content">
+                <p>Schedule the script to run tonight at 11:30&nbsp;PM using a time specification:</p>
+                <div class="code-block" role="region" aria-label="Scheduling with at">
+                    <div class="code-title">Schedule the Report for 23:30</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">at 23:30 &lt; ~/du_report.sh</span>
+<span class="code-output">warning: commands will be executed using /bin/sh</span>
+<span class="code-output">job 1 at Thu Mar 12 23:30:00 2026</span>
+                    </code>
+                </div>
+                <p>The system confirms the job number (1) and the scheduled execution time. Note the warning that commands will use <code class="inline">/bin/sh</code> by default.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-at-3">
+                <span>Task 3: Verify the job is queued</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-at-3" class="expandable-content">
+                <p>Use <code class="inline">atq</code> to confirm the job appears in the queue, then inspect its contents:</p>
+                <div class="code-block" role="region" aria-label="Verifying the job queue">
+                    <div class="code-title">Verify the Queue and Job Contents</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">1    Thu Mar 12 23:30:00 2026 a student</span>
+
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">at -c 1</span>
+<span class="code-output">#!/bin/sh</span>
+<span class="code-output"># atrun uid=1001 gid=1001</span>
+<span class="code-output">...</span>
+<span class="code-output">cd /home/student || { echo 'Execution directory inaccessible'; exit 1; }</span>
+<span class="code-highlight">#!/bin/bash</span>
+<span class="code-highlight">echo "Disk Usage Report - $(date)" > /tmp/du_report.txt</span>
+<span class="code-highlight">du -sh /home/* >> /tmp/du_report.txt 2>&1</span>
+<span class="code-highlight">echo "Report complete."</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-at-4">
+                <span>Task 4: Schedule a safety job and then cancel it</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-at-4" class="expandable-content">
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Simulated Exercise</span></div>
+                    <p>This task simulates the firewall safety-net pattern. Do not run these commands on a production system without authorization.</p>
+                </div>
+                <p>Schedule a firewall revert job 10 minutes in the future, then immediately remove it (simulating a successful config test):</p>
+                <div class="code-block" role="region" aria-label="Safety job and cancel workflow">
+                    <div class="code-title">Safety Job Pattern</div>
+                    <code>
+<span class="code-comment"># Queue a firewall revert to run in 10 minutes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "firewall-cmd --reload" | at now +10min</span>
+<span class="code-output">warning: commands will be executed using /bin/sh</span>
+<span class="code-output">job 2 at Thu Mar 12 14:23:00 2026</span>
+
+<span class="code-comment"># New firewall config works — cancel the revert job</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atrm 2</span>
+
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">1    Thu Mar 12 23:30:00 2026 a student</span>
+                    </code>
+                </div>
+                <p>Job 2 has been removed. Only the original disk report job (job 1) remains.</p>
+            </div>
+        </div>
+
+        <h3>Exercise Completion Checklist</h3>
+        <ul class="checklist" aria-label="Exercise completion checklist">
+            <li>Created a shell script that generates a disk usage report</li>
+            <li>Used <code class="inline">at 23:30</code> with input redirection to schedule the script</li>
+            <li>Confirmed the job appears in <code class="inline">atq</code> output with correct time and queue</li>
+            <li>Inspected job contents with <code class="inline">at -c 1</code></li>
+            <li>Demonstrated the safety-net pattern: schedule, then remove with <code class="inline">atrm</code></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 5: RECURRING JOBS ==================== -->
+<section id="section-recurring" class="content-section" aria-labelledby="recurring-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="recurring-heading">Scheduling Recurring User Jobs</h2>
+    </div>
+    <div class="section-body">
+        <p>Many system administration tasks need to run not once, but repeatedly on a regular schedule &mdash; every day, every week, or every few minutes.
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-recurring">Recurring jobs</span>
+            are managed by the <code class="inline">crond</code> daemon, which is enabled and started by default in RHEL 10.</p>
+
+        <span class="tooltip-content" id="tt-recurring" role="tooltip">A scheduled task that runs automatically at repeated intervals according to a defined schedule, such as daily, weekly, or every N minutes.</span>
+
+        <h3>How crond Works</h3>
+        <p>The <code class="inline">crond</code> daemon wakes up every minute, reads its configuration files, and launches any jobs whose schedule matches the current time. It reads from two sources:</p>
+        <ul>
+            <li><strong>Per-user crontab files:</strong> Each user has a personal crontab file edited with the <code class="inline">crontab -e</code> command. These files are stored in a system directory but are owned and managed by the respective user.</li>
+            <li><strong>System-wide cron directories:</strong> Files in <code class="inline">/etc/cron.d/</code>, <code class="inline">/etc/cron.daily/</code>, <code class="inline">/etc/cron.hourly/</code>, etc. These are for system-level recurring tasks and are managed by the root user or packages.</li>
+        </ul>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Do Not Use crontab as root for Personal Jobs</span></div>
+            <p>Using <code class="inline">crontab</code> as the root user is discouraged because personal jobs configured to run as root can be exploited by privilege escalation attacks. System-wide scheduled jobs should instead use the <code class="inline">/etc/cron.d/</code> drop-in directory with explicit user fields. This chapter covers <em>user</em> crontab management only.</p>
+        </div>
+
+        <h3>Crontab Command Options</h3>
+
+        <table class="data-table" aria-label="crontab command options">
+            <thead>
+                <tr><th>Command</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>crontab -l</code></td>
+                    <td>List all scheduled jobs for the current user.</td>
+                </tr>
+                <tr>
+                    <td><code>crontab -e</code></td>
+                    <td>Open the user&rsquo;s crontab in the default editor (vim unless <code>$EDITOR</code> is set).</td>
+                </tr>
+                <tr>
+                    <td><code>crontab -r</code></td>
+                    <td>Remove <em>all</em> jobs for the current user. <strong>Use with caution &mdash; no confirmation prompt.</strong></td>
+                </tr>
+                <tr>
+                    <td><code>crontab <em>filename</em></code></td>
+                    <td>Replace the current crontab with the contents of <em>filename</em>. Reads from stdin if no file given.</td>
+                </tr>
+                <tr>
+                    <td><code>crontab -u <em>username</em> -l</code></td>
+                    <td>List jobs for another user (requires privilege, typically root).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Output and Email Behavior</h3>
+        <p>When a cron job produces output to stdout or stderr that is not redirected, the <code class="inline">crond</code> daemon captures it and emails it to the job owner. Two
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-envvar">environment variables</span>
+            in the crontab file control this behavior:</p>
+
+        <span class="tooltip-content" id="tt-envvar" role="tooltip">A named variable stored in the shell environment that affects process behavior. In a crontab, variables like SHELL and MAILTO configure how jobs run and where output is sent.</span>
+
+        <table class="data-table" aria-label="Crontab environment variables">
+            <thead>
+                <tr><th>Variable</th><th>Purpose</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>SHELL</code></td>
+                    <td>Sets the shell used to execute cron commands. Default is <code>/bin/sh</code>.</td>
+                    <td><code>SHELL=/bin/bash</code></td>
+                </tr>
+                <tr>
+                    <td><code>MAILTO</code></td>
+                    <td>Email address to receive job output. Set to empty (<code>MAILTO=""</code>) to suppress all email.</td>
+                    <td><code>MAILTO=admin@example.com</code></td>
+                </tr>
+                <tr>
+                    <td><code>HOME</code></td>
+                    <td>Home directory used by the cron job. Defaults to the user&rsquo;s home directory.</td>
+                    <td><code>HOME=/home/student</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Suppress Email Output</span></div>
+            <p>To prevent email noise from cron jobs, either redirect all output explicitly in the command (<code class="inline">&gt;&gt; /var/log/myjob.log 2&gt;&amp;1</code>) or add <code class="inline">MAILTO=""</code> at the top of your crontab file.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 6: CRONTAB SYNTAX ==================== -->
+<section id="section-crontab" class="content-section" aria-labelledby="crontab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="crontab-heading">Crontab Syntax</h2>
+    </div>
+    <div class="section-body">
+        <p>Each job entry in a crontab file consists of exactly six fields separated by whitespace. The first five fields define the schedule; the sixth is the command:</p>
+
+        <div class="code-block" role="region" aria-label="Crontab field order">
+            <div class="code-title">Crontab Field Order</div>
+            <code>
+<span class="code-comment"># minute  hour  day-of-month  month  day-of-week  command</span>
+<span class="code-highlight">  *        *     *             *      *            /path/to/command</span>
+<span class="code-comment"># |        |     |             |      |</span>
+<span class="code-comment"># 0-59     0-23  1-31          1-12   0-7</span>
+<span class="code-comment">#                              (or name)(0=Sun, 7=Sun)</span>
+            </code>
+        </div>
+
+        <h3>Field Value Syntax</h3>
+        <p>Each of the five time fields uses the same set of syntax rules:</p>
+
+        <div class="tabs" role="region" aria-label="Crontab field syntax rules">
+            <div class="tab-buttons" role="tablist" aria-label="Syntax rule types">
+                <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-wildcard" id="btn-wildcard">Wildcard *</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-number" id="btn-number">Number</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-range" id="btn-range">Range x-y</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-list" id="btn-list">List x,y</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-step" id="btn-step">Step */x</button>
+            </div>
+            <div id="tab-wildcard" class="tab-panel active" role="tabpanel" aria-labelledby="btn-wildcard">
+                <h4>Wildcard: <code class="inline">*</code></h4>
+                <p>The asterisk means &ldquo;every possible value&rdquo; for that field. For example, <code class="inline">*</code> in the Hours field means every hour (0&ndash;23).</p>
+                <div class="code-block" role="region" aria-label="Wildcard example">
+                    <code>
+<span class="code-comment"># Run every minute, every hour, every day</span>
+<span class="code-command">* * * * * /usr/local/bin/heartbeat.sh</span>
+
+<span class="code-comment"># Run at minute 0 of every hour, every day</span>
+<span class="code-command">0 * * * * /usr/local/bin/hourly_check.sh</span>
+                    </code>
+                </div>
+            </div>
+            <div id="tab-number" class="tab-panel" role="tabpanel" aria-labelledby="btn-number">
+                <h4>Specific Number</h4>
+                <p>A single integer selects exactly one value for the field. Days of the week use 0&ndash;7 where both 0 and 7 represent Sunday. Month names (Jan&ndash;Dec) and day names (Mon&ndash;Sun) are also accepted as three-letter abbreviations.</p>
+                <div class="code-block" role="region" aria-label="Number example">
+                    <code>
+<span class="code-comment"># Run at 9:00 AM every Friday</span>
+<span class="code-command">0 9 * * 5 /usr/local/bin/weekly_report.sh</span>
+
+<span class="code-comment"># Same job using day abbreviation</span>
+<span class="code-command">0 9 * * Fri /usr/local/bin/weekly_report.sh</span>
+
+<span class="code-comment"># Run at 9:00 AM on the 1st of every February</span>
+<span class="code-command">0 9 1 2 * /usr/local/bin/feb_audit.sh</span>
+                    </code>
+                </div>
+            </div>
+            <div id="tab-range" class="tab-panel" role="tabpanel" aria-labelledby="btn-range">
+                <h4>Range: <code class="inline">x-y</code></h4>
+                <p>A hyphen between two values selects all integers from x to y inclusive. The first number must always be less than or equal to the second.</p>
+                <div class="code-block" role="region" aria-label="Range example">
+                    <code>
+<span class="code-comment"># Run at 9:00 AM Monday through Friday</span>
+<span class="code-command">0 9 * * 1-5 /usr/local/bin/daily_report.sh</span>
+
+<span class="code-comment"># Run every minute during business hours (9AM-5PM)</span>
+<span class="code-command">* 9-17 * * 1-5 /usr/local/bin/monitor.sh</span>
+
+<span class="code-comment"># WRONG: Fri-Tue is invalid because 5 > 2</span>
+<span class="code-comment"># CORRECT: Use a list of two ranges instead</span>
+<span class="code-command">0 9 * * 0-2,5-6 /usr/local/bin/job.sh</span>
+                    </code>
+                </div>
+                <div class="note-box important">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Range Direction Rule</span></div>
+                    <p>In a range <code class="inline">x-y</code>, x must be less than or equal to y. <code class="inline">Tue-Fri</code> (2-5) is valid. <code class="inline">Fri-Tue</code> (5-2) is <strong>not</strong> valid and will cause an error. Express wrap-around schedules as a comma-separated list of two ranges.</p>
+                </div>
+            </div>
+            <div id="tab-list" class="tab-panel" role="tabpanel" aria-labelledby="btn-list">
+                <h4>List: <code class="inline">x,y</code></h4>
+                <p>Comma-separated values match each individual value in the list. Lists may also contain ranges.</p>
+                <div class="code-block" role="region" aria-label="List example">
+                    <code>
+<span class="code-comment"># Run at minutes 0, 15, 30, and 45 of every hour</span>
+<span class="code-command">0,15,30,45 * * * * /usr/local/bin/quarter_check.sh</span>
+
+<span class="code-comment"># Run at minutes 5, 10-13, and 17</span>
+<span class="code-command">5,10-13,17 * * * * /usr/local/bin/complex_check.sh</span>
+
+<span class="code-comment"># Run on January, March, July (months 1, 3, 7)</span>
+<span class="code-command">0 0 1 1,3,7 * /usr/local/bin/quarterly.sh</span>
+                    </code>
+                </div>
+            </div>
+            <div id="tab-step" class="tab-panel" role="tabpanel" aria-labelledby="btn-step">
+                <h4>Step Interval: <code class="inline">*/x</code></h4>
+                <p>The slash operator defines a step interval. <code class="inline">*/x</code> matches every x-th value in the full range of the field. Can also be combined with a range: <code class="inline">10-50/5</code> means every 5th value from 10 to 50.</p>
+                <div class="code-block" role="region" aria-label="Step example">
+                    <code>
+<span class="code-comment"># Run every 7 minutes</span>
+<span class="code-command">*/7 * * * * /usr/local/bin/poll.sh</span>
+
+<span class="code-comment"># Run every 2 hours</span>
+<span class="code-command">0 */2 * * * /usr/local/bin/bi_hourly.sh</span>
+
+<span class="code-comment"># Run every 5 minutes between :10 and :50</span>
+<span class="code-command">10-50/5 * * * * /usr/local/bin/windowed_check.sh</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>The Percentage Sign (%) in Commands</h3>
+        <p>The crontab format has one quirk: an unescaped
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-percent">percent sign (<code class="inline">%</code>)</span>
+            in the command field is treated as a newline character, and everything after it is passed to the command as standard input.</p>
+
+        <span class="tooltip-content" id="tt-percent" role="tooltip">In crontab command fields, an unescaped % is treated as a newline. Text after % is piped to the command as stdin. Escape literal % characters with a backslash: \%.</span>
+
+        <div class="code-block" role="region" aria-label="Percent sign usage in crontab">
+            <div class="code-title">Percent Sign as Newline / stdin in Crontab</div>
+            <code>
+<span class="code-comment"># Send email with body text using % as newline/stdin separator</span>
+<span class="code-command">0 9 * * 1-5 mutt -s "Checking in" developer@example.com % Hi there, just checking in.</span>
+
+<span class="code-comment"># The % sends "Hi there, just checking in." as stdin to mutt</span>
+
+<span class="code-comment"># To use a literal % in a command, escape it with backslash</span>
+<span class="code-command">*/5 * * * * printf "Load: \%s\n" "$(cat /proc/loadavg)" &gt;&gt; /var/log/load.log</span>
+            </code>
+        </div>
+
+        <!-- Interactive Cron Builder -->
+        <div class="cron-builder" aria-label="Interactive cron expression builder">
+            <h3>&#x1F527; Interactive Cron Expression Builder</h3>
+            <p style="font-family: var(--font-display); font-size: 0.85rem; color: #CCC; margin-bottom: 16px;">Fill in the fields to build a cron expression. Use *, numbers, ranges (1-5), lists (1,3,5), or steps (*/2).</p>
+            <div class="cron-fields">
+                <div class="cron-field">
+                    <label for="cron-min">Minute</label>
+                    <input type="text" id="cron-min" value="0" maxlength="15" aria-label="Minute field (0-59 or *)" />
+                </div>
+                <div class="cron-field">
+                    <label for="cron-hour">Hour</label>
+                    <input type="text" id="cron-hour" value="9" maxlength="15" aria-label="Hour field (0-23 or *)" />
+                </div>
+                <div class="cron-field">
+                    <label for="cron-dom">Day/Month</label>
+                    <input type="text" id="cron-dom" value="*" maxlength="15" aria-label="Day of month field (1-31 or *)" />
+                </div>
+                <div class="cron-field">
+                    <label for="cron-mon">Month</label>
+                    <input type="text" id="cron-mon" value="*" maxlength="15" aria-label="Month field (1-12 or *)" />
+                </div>
+                <div class="cron-field">
+                    <label for="cron-dow">Day/Week</label>
+                    <input type="text" id="cron-dow" value="1-5" maxlength="15" aria-label="Day of week field (0-7 or *)" />
+                </div>
+            </div>
+            <div class="cron-cmd-row">
+                <label for="cron-cmd" style="white-space:nowrap;">Command:</label>
+                <input type="text" id="cron-cmd" class="cron-cmd-input" value="/usr/local/bin/daily_report.sh" aria-label="Cron command to execute" />
+                <button class="cron-parse-btn" id="cron-build-btn" aria-label="Build and describe cron expression">Build &amp; Describe</button>
+            </div>
+            <div class="cron-preview" id="cron-preview" aria-label="Generated cron expression" aria-live="polite">0 9 * * 1-5 /usr/local/bin/daily_report.sh</div>
+            <div class="cron-description" id="cron-description" aria-live="polite">Click "Build &amp; Describe" to see a plain-English description of the schedule.</div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ==================== SECTION 7: CRON EXAMPLES ==================== -->
+<section id="section-cron-examples" class="content-section" aria-labelledby="cron-examples-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="cron-examples-heading">Examples of Recurring User Jobs</h2>
+    </div>
+    <div class="section-body">
+        <p>Let&rsquo;s walk through several real-world crontab examples from the course material, analyzing the schedule expressed by each entry.</p>
+
+        <h3>Example 1: Annual Backup</h3>
+        <div class="code-block" role="region" aria-label="Annual backup crontab entry">
+            <div class="code-title">Run on February 3rd at 9:00 AM, Every Year</div>
+            <code>
+<span class="code-comment"># Minute  Hour  DayOfMonth  Month  DayOfWeek  Command</span>
+<span class="code-command">0         9     3           2      *          /usr/local/bin/yearly_backup</span>
+            </code>
+        </div>
+        <p><strong>Reading this entry:</strong> Run at minute 0 of hour 9 (9:00&nbsp;AM), on the 3rd day of the month, only in month 2 (February), on any day of the week. The combination of specific day-of-month (3) and specific month (2) means this job runs once per year: February 3rd at 9:00&nbsp;AM.</p>
+
+        <h3>Example 2: Friday Chime in July</h3>
+        <div class="code-block" role="region" aria-label="Friday chime crontab entry">
+            <div class="code-title">Every 5 Minutes, Fridays in July, 9AM&ndash;4:55PM</div>
+            <code>
+<span class="code-comment"># Minute  Hour  DayOfMonth  Month  DayOfWeek  Command</span>
+<span class="code-command">*/5       9-16  *           Jul    5          echo "Chime"</span>
+            </code>
+        </div>
+        <p><strong>Reading this entry:</strong> At every 5th minute (0, 5, 10, &hellip;, 55), during hours 9 through 16 (9:00&nbsp;AM through 4:59&nbsp;PM), on any day of the month, only in July, only on Fridays (day 5). The range 9&ndash;16 for hours means the job starts at 9:00 and the last execution occurs at 16:55, because the next interval (17:00) falls outside the range.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Email Output Behavior</span></div>
+            <p>Because this job uses <code class="inline">echo "Chime"</code> without output redirection, the <code class="inline">crond</code> daemon will capture that output and email it to the job owner. This runs in a background environment with no controlling terminal (no screen), so <code class="inline">crond</code> buffers output and sends it via email. Set <code class="inline">MAILTO=""</code> in your crontab to suppress this.</p>
+        </div>
+
+        <h3>Example 3: Weekday Midnight Report</h3>
+        <div class="code-block" role="region" aria-label="Midnight weekday report crontab entry">
+            <div class="code-title">Two Minutes Before Midnight, Monday&ndash;Friday</div>
+            <code>
+<span class="code-comment"># Minute  Hour  DayOfMonth  Month  DayOfWeek  Command</span>
+<span class="code-command">58        23    *           *      1-5        /usr/local/bin/daily_report</span>
+            </code>
+        </div>
+        <p><strong>Reading this entry:</strong> At minute 58 of hour 23 (11:58&nbsp;PM), every day of the month, every month, Monday through Friday (days 1&ndash;5). This job runs just before midnight on every weekday, a common pattern for &ldquo;end of business day&rdquo; reporting.</p>
+
+        <h3>Example 4: Email Check-In with stdin</h3>
+        <div class="code-block" role="region" aria-label="Email check-in crontab entry">
+            <div class="code-title">Daily Email Check-In at 9:00 AM Weekdays</div>
+            <code>
+<span class="code-comment"># Minute  Hour  DayOfMonth  Month  DayOfWeek  Command</span>
+<span class="code-command">0         9     *           *      1-5        mutt -s "Checking in" developer@example.com % Hi there, just checking in.</span>
+            </code>
+        </div>
+        <p><strong>Reading this entry:</strong> At 9:00&nbsp;AM every weekday, run <code class="inline">mutt</code> to send an email. The <code class="inline">%</code> character separates the command from the message body &mdash; text after the first <code class="inline">%</code> is passed to <code class="inline">mutt</code> as standard input, which becomes the email body.</p>
+
+        <h3>Quick Reference: Common Crontab Patterns</h3>
+        <table class="data-table" aria-label="Common crontab schedule patterns">
+            <thead>
+                <tr><th>Schedule Description</th><th>Crontab Entry</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Every minute</td><td><code>* * * * * command</code></td></tr>
+                <tr><td>Every hour (at :00)</td><td><code>0 * * * * command</code></td></tr>
+                <tr><td>Every day at midnight</td><td><code>0 0 * * * command</code></td></tr>
+                <tr><td>Every Sunday at 3:00 AM</td><td><code>0 3 * * 0 command</code></td></tr>
+                <tr><td>First day of every month</td><td><code>0 0 1 * * command</code></td></tr>
+                <tr><td>Every 15 minutes</td><td><code>*/15 * * * * command</code></td></tr>
+                <tr><td>Every weekday at 8:30 AM</td><td><code>30 8 * * 1-5 command</code></td></tr>
+                <tr><td>Twice daily (noon &amp; midnight)</td><td><code>0 0,12 * * * command</code></td></tr>
+                <tr><td>Every other hour</td><td><code>0 */2 * * * command</code></td></tr>
+                <tr><td>January 1st at midnight</td><td><code>0 0 1 1 * command</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ==================== SECTION 8: GUIDED EXERCISE CRON ==================== -->
+<section id="section-guided-cron" class="content-section" aria-labelledby="guided-cron-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="guided-cron-heading">Guided Exercise: Schedule Recurring User Jobs</h2>
+    </div>
+    <div class="section-body">
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F5A5;&#xFE0F;</span><span>Lab Environment</span></div>
+            <p>This exercise uses <strong>workstation.lab.example.com</strong>. Log in as <code class="inline">student</code>. You will create a user crontab with multiple scheduled jobs demonstrating different scheduling patterns.</p>
+        </div>
+
+        <h3>Scenario</h3>
+        <p>You have been asked to set up several recurring automated tasks for your user account:</p>
+        <ol>
+            <li>Log current disk usage to a file every 5 minutes.</li>
+            <li>Run a cleanup script every weekday at 11:55&nbsp;PM.</li>
+            <li>Send yourself a system status reminder every Monday morning at 8:00&nbsp;AM.</li>
+        </ol>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-cron-1">
+                <span>Task 1: Open and examine the crontab editor</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-cron-1" class="expandable-content">
+                <div class="code-block" role="region" aria-label="Opening crontab">
+                    <div class="code-title">Opening the Crontab Editor</div>
+                    <code>
+<span class="code-comment"># Open your personal crontab in the default editor (vim)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -e</span>
+<span class="code-output"># This opens vim with your crontab file</span>
+<span class="code-output"># The file starts empty for a new user</span>
+
+<span class="code-comment"># Verify no jobs exist yet (before editing)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">no crontab for student</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-cron-2">
+                <span>Task 2: Add the three recurring job entries</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-cron-2" class="expandable-content">
+                <p>Inside the crontab editor, add the following lines. Note the header comment lines and the <code class="inline">MAILTO</code> setting:</p>
+                <div class="code-block" role="region" aria-label="Complete crontab with three jobs">
+                    <div class="code-title">Complete Crontab File Contents</div>
+                    <code>
+<span class="code-comment"># Student user crontab - workstation.lab.example.com</span>
+<span class="code-comment"># Suppress email output (redirect output to log files instead)</span>
+<span class="code-highlight">MAILTO=""</span>
+<span class="code-highlight">SHELL=/bin/bash</span>
+
+<span class="code-comment"># Job 1: Log disk usage every 5 minutes</span>
+<span class="code-command">*/5 * * * * df -h &gt;&gt; /home/student/disk_usage.log 2&gt;&amp;1</span>
+
+<span class="code-comment"># Job 2: Run cleanup script Monday-Friday at 11:55 PM</span>
+<span class="code-command">55 23 * * 1-5 /home/student/cleanup.sh &gt;&gt; /home/student/cleanup.log 2&gt;&amp;1</span>
+
+<span class="code-comment"># Job 3: Monday morning status reminder via logger</span>
+<span class="code-command">0 8 * * 1 logger "Weekly Monday status check reminder for student"</span>
+                    </code>
+                </div>
+                <p>Save the file in vim with <kbd>:wq</kbd>. The crontab is installed immediately upon saving.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-cron-3">
+                <span>Task 3: Verify the crontab is installed correctly</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-cron-3" class="expandable-content">
+                <div class="code-block" role="region" aria-label="Verifying the crontab">
+                    <div class="code-title">List and Verify Installed Jobs</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output"># Student user crontab - workstation.lab.example.com</span>
+<span class="code-output">MAILTO=""</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output"></span>
+<span class="code-output">*/5 * * * * df -h >> /home/student/disk_usage.log 2>&1</span>
+<span class="code-output">55 23 * * 1-5 /home/student/cleanup.sh >> /home/student/cleanup.log 2>&1</span>
+<span class="code-output">0 8 * * 1 logger "Weekly Monday status check reminder for student"</span>
+                    </code>
+                </div>
+                <p>All three jobs are listed. After several minutes, verify the disk usage log is being created:</p>
+                <div class="code-block" role="region" aria-label="Checking log output">
+                    <code>
+<span class="code-comment"># Wait 5+ minutes, then check the log</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /home/student/disk_usage.log</span>
+<span class="code-output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="code-output">devtmpfs        4.0M     0  4.0M   0% /dev</span>
+<span class="code-output">tmpfs           3.9G     0  3.9G   0% /dev/shm</span>
+<span class="code-output">/dev/sda1        50G  8.2G   42G  17% /</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task-cron-4">
+                <span>Task 4: Remove the crontab and confirm deletion</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="task-cron-4" class="expandable-content">
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning: crontab -r Has No Confirmation</span></div>
+                    <p>The <code class="inline">crontab -r</code> command removes your <strong>entire</strong> crontab immediately with no confirmation dialog and no undo. Always export a backup first using <code class="inline">crontab -l &gt; ~/crontab.bak</code>.</p>
+                </div>
+                <div class="code-block" role="region" aria-label="Removing the crontab">
+                    <div class="code-title">Back Up and Remove the Crontab</div>
+                    <code>
+<span class="code-comment"># First, save a backup</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l &gt; ~/crontab_backup.txt</span>
+
+<span class="code-comment"># Remove all jobs</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -r</span>
+
+<span class="code-comment"># Confirm the crontab is gone</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">no crontab for student</span>
+
+<span class="code-comment"># Restore from backup</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab ~/crontab_backup.txt</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">MAILTO=""</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">*/5 * * * * df -h >> /home/student/disk_usage.log 2>&1</span>
+<span class="code-output">...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Exercise Completion Checklist</h3>
+        <ul class="checklist" aria-label="Exercise completion checklist">
+            <li>Opened the crontab editor with <code class="inline">crontab -e</code></li>
+            <li>Added <code class="inline">MAILTO=""</code> and <code class="inline">SHELL</code> environment variable headers</li>
+            <li>Created a <code class="inline">*/5</code> step-interval job for disk usage logging</li>
+            <li>Created a weekday-range job using <code class="inline">1-5</code> in the day-of-week field</li>
+            <li>Created a specific-day job using <code class="inline">1</code> for Monday</li>
+            <li>Verified installed jobs with <code class="inline">crontab -l</code></li>
+            <li>Demonstrated safe backup and restore with <code class="inline">crontab -l</code> and <code class="inline">crontab filename</code></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 9: QUIZ ==================== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="quiz-heading">Knowledge Check: Scheduling User Tasks</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of the concepts covered in this chapter. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <!-- Question 1 -->
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <div class="quiz-q-text">1. A system administrator wants to run a script exactly once, ten minutes from now. Which command is most appropriate?</div>
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> <span><code>crontab -e</code> and add a <code>*/10 * * * *</code> entry</span></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> <span><code>at now +10min &lt; myscript.sh</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> <span><code>systemctl start myscript.service</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> <span><code>bash myscript.sh &amp;</code> (run in background)</span></label>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <div class="quiz-q-text">2. Which command lists all pending deferred jobs for the current user?</div>
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> <span><code>crontab -l</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> <span><code>systemctl list-jobs</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> <span><code>atq</code></span></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> <span><code>jobs -l</code></span></label>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="quiz-question" data-question="3" data-correct="d">
+            <div class="quiz-q-text">3. What does the following crontab entry do?<br><code style="display:block; margin-top:8px; padding:8px; background:#F0F0F0; border-radius:4px;">*/5 9-16 * Jul 5 echo "Chime"</code></div>
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> <span>Runs every 5 hours on Fridays in July, from 9 AM to 4 PM</span></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> <span>Runs at minute 5 of every hour from 9 AM to 4 PM, on the 5th day of July</span></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> <span>Runs every 5 minutes, all day on Fridays in July</span></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> <span>Runs every 5 minutes from 9:00 AM to 4:55 PM on Fridays in July</span></label>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="quiz-question" data-question="4" data-correct="a">
+            <div class="quiz-q-text">4. A user runs <code>crontab -r</code> by mistake. What is the effect?</div>
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> <span>All of the user's crontab entries are permanently deleted with no confirmation prompt</span></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> <span>The last-added crontab entry is removed</span></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> <span>The crontab editor opens with all entries highlighted for deletion</span></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> <span>The crond daemon restarts and re-reads the crontab from backup</span></label>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Question 5 -->
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <div class="quiz-q-text">5. Which crontab entry runs a job at 9:00 AM on the first day of every month, but <em>only</em> if it is also a Monday?</div>
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> <span><code>0 9 1 * Mon</code> — Day-of-month OR Day-of-week, whichever comes first</span></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> <span>This is not directly possible with standard cron — cron uses OR logic for day-of-month and day-of-week when both are non-wildcard</span></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> <span><code>0 9 1 * 1</code> — Runs only on days that match both conditions simultaneously</span></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> <span><code>0 9 1 Mon *</code> — The month field accepts day-of-week names</span></label>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Question 6 -->
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <div class="quiz-q-text">6. In a crontab command field, what does an unescaped <code>%</code> character do?</div>
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> <span>It comments out the rest of the line</span></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> <span>It signals the end of the command and prevents any further execution</span></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> <span>It acts as a newline; text after it is passed to the command as standard input</span></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> <span>It is a wildcard matching any single character in file names</span></label>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Question 7 -->
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <div class="quiz-q-text">7. Which crontab range is <strong>invalid</strong> and will cause an error?</div>
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> <span><code>Fri-Tue</code> in the day-of-week field (5-2)</span></label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> <span><code>Mon-Fri</code> in the day-of-week field (1-5)</span></label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> <span><code>Jan-Dec</code> in the month field (1-12)</span></label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> <span><code>9-17</code> in the hour field</span></label>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Question 8 -->
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <div class="quiz-q-text">8. You inspect a pending <code>at</code> job with <code>at -c 5</code> and see unfamiliar commands. What is the best next step?</div>
+            <label class="quiz-option"><input type="radio" name="q8" value="a"> <span>Run the commands manually to see what they do</span></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="b"> <span>Ignore it — the atd daemon is responsible for all jobs</span></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="c"> <span>Restart the atd service to clear unknown jobs</span></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="d"> <span>Remove the job with <code>atrm 5</code> if it looks suspicious, and investigate how it was created</span></label>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="quiz-btn primary" id="check-answers">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 10: LAB ==================== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="lab-heading">Hands-On Lab: Scheduling User Tasks</h2>
+    </div>
+    <div class="section-body">
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F9EA;</span><span>Lab Overview</span></div>
+            <p>In this lab, you will schedule both deferred and recurring jobs on <strong>workstation.lab.example.com</strong> as the <code class="inline">student</code> user. You will verify job execution, inspect outputs, and manage the job lifecycle from creation through removal.</p>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Lab Environment Notice</span></div>
+            <p>These commands are intended for your Red Hat learning environment only. Do not schedule jobs on production systems without authorization. Always confirm the scheduled time and command before saving a job.</p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
+                <span>Lab Task 1: Schedule a deferred log rotation job</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task-1" class="expandable-content">
+                <p><strong>Objective:</strong> Use <code class="inline">at</code> to schedule a simulated log archive job to run two minutes from now.</p>
+                <div class="code-block" role="region" aria-label="Lab task 1 commands">
+                    <div class="code-title">Schedule a Log Archive Job</div>
+                    <code>
+<span class="code-comment"># Create the log archive script</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat &gt; ~/archive_logs.sh &lt;&lt; 'EOF'</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output">ARCHIVE_DIR="/tmp/log_archive_$(date +%Y%m%d_%H%M)"</span>
+<span class="code-output">mkdir -p "$ARCHIVE_DIR"</span>
+<span class="code-output">cp /var/log/messages "$ARCHIVE_DIR/" 2>/dev/null || echo "No messages log"</span>
+<span class="code-output">echo "Archive complete: $ARCHIVE_DIR" > /tmp/archive_result.txt</span>
+<span class="code-output">EOF</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod +x ~/archive_logs.sh</span>
+
+<span class="code-comment"># Schedule it to run in 2 minutes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">at now +2min &lt; ~/archive_logs.sh</span>
+<span class="code-output">warning: commands will be executed using /bin/sh</span>
+<span class="code-output">job 1 at Thu Mar 12 14:17:00 2026</span>
+
+<span class="code-comment"># Verify it is in the queue</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">1    Thu Mar 12 14:17:00 2026 a student</span>
+
+<span class="code-comment"># Wait 2 minutes, then verify the output</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat /tmp/archive_result.txt</span>
+<span class="code-output">Archive complete: /tmp/log_archive_20260312_1417</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
+                <span>Lab Task 2: Create a recurring system health crontab</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task-2" class="expandable-content">
+                <p><strong>Objective:</strong> Set up a user crontab that logs system load every 2 minutes and generates a daily summary at 11:55&nbsp;PM on weekdays.</p>
+                <div class="code-block" role="region" aria-label="Lab task 2 crontab">
+                    <div class="code-title">Recurring Health Check Crontab</div>
+                    <code>
+<span class="code-comment"># Create the daily summary script first</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat &gt; ~/daily_summary.sh &lt;&lt; 'EOF'</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output">echo "=== Daily Summary $(date) ===" >> /home/student/daily_summary.log</span>
+<span class="code-output">echo "Uptime: $(uptime)" >> /home/student/daily_summary.log</span>
+<span class="code-output">echo "Disk: $(df -h / | tail -1)" >> /home/student/daily_summary.log</span>
+<span class="code-output">echo "" >> /home/student/daily_summary.log</span>
+<span class="code-output">EOF</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod +x ~/daily_summary.sh</span>
+
+<span class="code-comment"># Install the crontab</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -e</span>
+<span class="code-comment"># Enter the following in the editor:</span>
+<span class="code-output">MAILTO=""</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output"></span>
+<span class="code-output"># Log system load every 2 minutes</span>
+<span class="code-output">*/2 * * * * cat /proc/loadavg >> /home/student/load.log 2>&1</span>
+<span class="code-output"></span>
+<span class="code-output"># Daily summary at 11:55 PM on weekdays</span>
+<span class="code-output">55 23 * * 1-5 /home/student/daily_summary.sh</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
+                <span>Lab Task 3: Verify and troubleshoot the crontab</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task-3" class="expandable-content">
+                <p><strong>Objective:</strong> Confirm cron jobs are executing by checking the log files, and understand how to verify crond is running.</p>
+                <div class="code-block" role="region" aria-label="Lab task 3 verification">
+                    <div class="code-title">Verifying Cron Execution</div>
+                    <code>
+<span class="code-comment"># List installed crontab</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">MAILTO=""</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">*/2 * * * * cat /proc/loadavg >> /home/student/load.log 2>&1</span>
+<span class="code-output">55 23 * * 1-5 /home/student/daily_summary.sh</span>
+
+<span class="code-comment"># Verify crond daemon is active</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">systemctl status crond</span>
+<span class="code-output">● crond.service - Command Scheduler</span>
+<span class="code-output">     Loaded: loaded (/usr/lib/systemd/system/crond.service; enabled)</span>
+<span class="code-output">     Active: <span class="code-highlight">active (running)</span> since ...</span>
+
+<span class="code-comment"># After 2 minutes, check the load log</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tail -5 ~/load.log</span>
+<span class="code-output">0.23 0.31 0.28 1/312 14893</span>
+<span class="code-output">0.19 0.29 0.27 1/312 14907</span>
+<span class="code-output">0.22 0.30 0.28 1/312 14921</span>
+
+<span class="code-comment"># Check system journal for cron execution logs</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">journalctl -u crond --since "5 minutes ago"</span>
+<span class="code-output">Mar 12 14:16:01 workstation CROND[14893]: (student) CMD (cat /proc/loadavg >> /home/student/load.log 2>&1)</span>
+<span class="code-output">Mar 12 14:18:01 workstation CROND[14907]: (student) CMD (cat /proc/loadavg >> /home/student/load.log 2>&1)</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
+                <span>Lab Task 4: Practice the at safety-net pattern</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task-4" class="expandable-content">
+                <p><strong>Objective:</strong> Demonstrate the firewall safety-net pattern: schedule a revert job, make a &ldquo;configuration change&rdquo;, confirm success, and cancel the revert.</p>
+                <div class="code-block" role="region" aria-label="Lab task 4 safety net">
+                    <div class="code-title">The Safety-Net Pattern with at</div>
+                    <code>
+<span class="code-comment"># Step 1: Queue a revert job to run in 5 minutes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "echo 'REVERT: restoring firewall rules' &gt; /tmp/revert_ran.txt" | at now +5min</span>
+<span class="code-output">warning: commands will be executed using /bin/sh</span>
+<span class="code-output">job 2 at Thu Mar 12 14:22:00 2026</span>
+
+<span class="code-comment"># Step 2: "Apply" your change (simulated)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo "Applying configuration change..."</span>
+<span class="code-output">Applying configuration change...</span>
+
+<span class="code-comment"># Step 3: Test succeeds — cancel the revert job</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">1    Thu Mar 12 14:17:00 2026 a student</span>
+<span class="code-output">2    Thu Mar 12 14:22:00 2026 a student</span>
+
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atrm 2</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">1    Thu Mar 12 14:17:00 2026 a student</span>
+<span class="code-comment"># Revert job cancelled successfully — change is permanent</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
+                <span>Lab Task 5: Clean up all lab jobs</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task-5" class="expandable-content">
+                <div class="code-block" role="region" aria-label="Lab task 5 cleanup">
+                    <div class="code-title">Remove All Lab Jobs</div>
+                    <code>
+<span class="code-comment"># Back up the crontab before removing</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l &gt; ~/lab_crontab_backup.txt</span>
+
+<span class="code-comment"># Remove all recurring jobs</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -r</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">no crontab for student</span>
+
+<span class="code-comment"># Remove any remaining at jobs</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">atq</span>
+<span class="code-output">(empty — all deferred jobs have already executed or were removed)</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="checklist" aria-label="Lab completion checklist">
+            <li>Scheduled a deferred job with <code class="inline">at now +2min</code> and verified execution output</li>
+            <li>Confirmed job was listed in <code class="inline">atq</code> before execution</li>
+            <li>Created a multi-job user crontab with <code class="inline">MAILTO=""</code> and correct five-field syntax</li>
+            <li>Used step (<code class="inline">*/2</code>), range (<code class="inline">1-5</code>), and specific-value scheduling patterns</li>
+            <li>Verified cron execution via log file and <code class="inline">journalctl -u crond</code></li>
+            <li>Demonstrated the safety-net <code class="inline">at</code> pattern with successful cancellation</li>
+            <li>Cleaned up with <code class="inline">crontab -r</code> after creating a backup</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 11: SUMMARY ==================== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned how to schedule both one-time deferred jobs and recurring automated tasks on RHEL 10 as a regular user, without requiring root access or system-level configuration.</p>
+
+        <h3>Key Concepts Reviewed</h3>
+        <ul>
+            <li>The <code class="inline">at</code> command queues a job to run exactly once at a future time specified in natural language. The <code class="inline">atd</code> daemon monitors the queue and executes jobs at the scheduled time.</li>
+            <li>The <code class="inline">atq</code> command (or <code class="inline">at -l</code>) lists pending jobs; <code class="inline">atrm</code> (or <code class="inline">at -d</code>) cancels them by job number.</li>
+            <li>Time specifications for <code class="inline">at</code> are flexible natural language expressions: <code class="inline">now +5min</code>, <code class="inline">teatime tomorrow</code>, <code class="inline">noon +4 days</code>, <code class="inline">5pm august 3 2026</code>.</li>
+            <li>The safety-net pattern uses <code class="inline">at</code> to schedule a revert job when making risky configuration changes, then cancels it if the change succeeds.</li>
+            <li>The <code class="inline">crond</code> daemon manages recurring jobs from per-user crontab files, which are edited with <code class="inline">crontab -e</code>.</li>
+            <li>Crontab entries use five time fields (minute, hour, day-of-month, month, day-of-week) followed by the command, supporting <code class="inline">*</code> wildcards, specific values, ranges (<code class="inline">x-y</code>), lists (<code class="inline">x,y</code>), and step intervals (<code class="inline">*/x</code>).</li>
+            <li>An unescaped <code class="inline">%</code> in a crontab command field acts as a newline and passes subsequent text to the command as standard input.</li>
+            <li>Always back up a crontab with <code class="inline">crontab -l &gt; backup.txt</code> before running <code class="inline">crontab -r</code>, which deletes all entries with no confirmation.</li>
+        </ul>
+
+        <h3>Command Quick Reference</h3>
+        <table class="data-table" aria-label="Command quick reference for scheduling">
+            <thead>
+                <tr><th>Command</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>at TIMESPEC &lt; script</code></td><td>Schedule a one-time deferred job from a script file</td></tr>
+                <tr><td><code>at TIMESPEC</code></td><td>Schedule a one-time job interactively (end with Ctrl+D)</td></tr>
+                <tr><td><code>atq</code> / <code>at -l</code></td><td>List pending deferred jobs for the current user</td></tr>
+                <tr><td><code>at -c JOBNUM</code></td><td>Show the commands that will run for a specific job</td></tr>
+                <tr><td><code>atrm JOBNUM</code> / <code>at -d JOBNUM</code></td><td>Remove a pending deferred job by job number</td></tr>
+                <tr><td><code>crontab -e</code></td><td>Edit the current user&rsquo;s crontab in the default editor</td></tr>
+                <tr><td><code>crontab -l</code></td><td>List all recurring jobs for the current user</td></tr>
+                <tr><td><code>crontab -r</code></td><td>Remove all recurring jobs (no confirmation!)</td></tr>
+                <tr><td><code>crontab filename</code></td><td>Replace current crontab with contents of filename</td></tr>
+                <tr><td><code>systemctl status crond</code></td><td>Check if the crond daemon is running</td></tr>
+                <tr><td><code>journalctl -u crond</code></td><td>View cron execution logs in the system journal</td></tr>
+            </tbody>
+        </table>
+
+        <h3>When to Use at vs. crontab</h3>
+        <table class="data-table" aria-label="Comparison of at vs crontab">
+            <thead>
+                <tr><th>Criterion</th><th><code>at</code></th><th><code>crontab</code></th></tr>
+            </thead>
+            <tbody>
+                <tr><td>How many times?</td><td>Exactly once</td><td>Repeatedly on a schedule</td></tr>
+                <tr><td>When to use</td><td>Future maintenance, safety reverts, one-time jobs</td><td>Daily reports, periodic monitoring, backups</td></tr>
+                <tr><td>Auto-removal?</td><td>Yes — removed after execution</td><td>No — persists until manually deleted</td></tr>
+                <tr><td>Time format</td><td>Natural language (now +5min, teatime)</td><td>Five-field cron syntax</td></tr>
+                <tr><td>Queue management</td><td>atq / atrm</td><td>crontab -l / crontab -r</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Chapter Navigation -->
+        <div class="chapter-nav">
+            <a href="rh134_chapter2_regex.html" class="nav-chapter-btn prev">&#x2190; Chapter 2: Regular Expressions</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter4_priority.html" class="nav-chapter-btn next">Chapter 4: Priority Tuning &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer role="contentinfo">
+    <p><strong>RH134: Red Hat System Administration II</strong> &bull; Chapter 3: Scheduling User Tasks</p>
+    <p>Red Hat Enterprise Linux 10 &bull; RHCSA Exam Preparation</p>
+    <p style="margin-top: 8px; font-size: 0.78rem; color: #888;">
+        Red Hat and RHEL are trademarks of Red Hat, Inc. This educational material is for classroom use only and is not affiliated with or endorsed by Red Hat, Inc.
+    </p>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+(function () {
+    'use strict';
+
+    // ==================== PROGRESS BAR ====================
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const sections = document.querySelectorAll('.content-section');
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const visitedSections = new Set();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                visitedSections.add(entry.target.id);
+                const pct = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = pct + '%';
+                progressFill.setAttribute('aria-valuenow', pct);
+                progressText.textContent = pct + '% complete';
+                // Active nav
+                navBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('href') === '#' + entry.target.id) {
+                        btn.classList.add('active');
+                    }
+                    if (visitedSections.has(btn.getAttribute('href').slice(1))) {
+                        btn.classList.add('visited');
+                    }
+                });
+            }
+        });
+    }, { threshold: 0.15 });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ==================== TOOLTIP SYSTEM ====================
+    const bubble = document.getElementById('tooltip-bubble');
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+        const text = contentEl.textContent.trim();
+        if (!text) return;
+        bubble.textContent = text;
+        bubble.style.maxWidth = '300px';
+        bubble.style.width = '';
+        bubble.style.left = '';
+        bubble.style.top = '';
+        bubble.style.right = '';
+        bubble.style.removeProperty('--arrow-x');
+        bubble.style.removeProperty('--arrow-y');
+        bubble.classList.add('visible');
+
+        const rect = term.getBoundingClientRect();
+        const bw = bubble.offsetWidth || 260;
+        const bh = bubble.offsetHeight || 80;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const MARGIN = 8;
+
+        let left, top, dir;
+        const spaceAbove = rect.top;
+        const spaceBelow = vh - rect.bottom;
+
+        if (spaceAbove >= bh + 18) {
+            dir = 'above';
+            top = rect.top - bh - 14;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceBelow >= bh + 18) {
+            dir = 'below';
+            top = rect.bottom + 14;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (vw - rect.right >= bw + 14) {
+            dir = 'right';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.right + 14;
+        } else {
+            dir = 'left';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.left - bw - 14;
+        }
+
+        // Clamp
+        const clampedLeft = Math.max(MARGIN, Math.min(left, vw - bw - MARGIN));
+        const clampedTop = Math.max(MARGIN, Math.min(top, vh - bh - MARGIN));
+
+        bubble.style.left = clampedLeft + 'px';
+        bubble.style.top = clampedTop + 'px';
+        bubble.setAttribute('data-dir', dir);
+
+        // Arrow position
+        if (dir === 'above' || dir === 'below') {
+            const arrowX = rect.left + rect.width / 2 - clampedLeft;
+            const clamped = Math.max(16, Math.min(arrowX, bw - 16));
+            bubble.style.setProperty('--arrow-x', clamped + 'px');
+        } else {
+            const arrowY = rect.top + rect.height / 2 - clampedTop;
+            const clamped = Math.max(16, Math.min(arrowY, bh - 16));
+            bubble.style.setProperty('--arrow-y', clamped + 'px');
+        }
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Escape') hideTooltip();
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showTooltip(term); }
+        });
+    });
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tabs').forEach(tabContainer => {
+        const buttons = Array.from(tabContainer.querySelectorAll('.tab-btn'));
+        const panels = Array.from(tabContainer.querySelectorAll('.tab-panel'));
+
+        function activateTab(idx) {
+            buttons.forEach((b, i) => {
+                b.classList.toggle('active', i === idx);
+                b.setAttribute('aria-selected', i === idx);
+                b.setAttribute('tabindex', i === idx ? '0' : '-1');
+            });
+            panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+        }
+
+        buttons.forEach((btn, idx) => {
+            btn.addEventListener('click', () => activateTab(idx));
+            btn.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') { e.preventDefault(); activateTab((idx + 1) % buttons.length); buttons[(idx + 1) % buttons.length].focus(); }
+                if (e.key === 'ArrowLeft') { e.preventDefault(); activateTab((idx - 1 + buttons.length) % buttons.length); buttons[(idx - 1 + buttons.length) % buttons.length].focus(); }
+            });
+        });
+        activateTab(0);
+    });
+
+    // ==================== EXPANDABLES ====================
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const content = document.getElementById(header.getAttribute('aria-controls'));
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+
+    // ==================== AT SIMULATOR ====================
+    let atJobs = [];
+    let nextJobId = 1;
+
+    function resolveTimespec(spec) {
+        const now = new Date();
+        const s = spec.toLowerCase().trim();
+        if (s === 'midnight') { const d = new Date(now); d.setHours(0,0,0,0); if (d <= now) d.setDate(d.getDate()+1); return d; }
+        if (s.startsWith('now +')) {
+            const match = s.match(/now \+(\d+)(min|hour|day)/);
+            if (match) {
+                const n = parseInt(match[1]);
+                const unit = match[2];
+                const d = new Date(now);
+                if (unit === 'min') d.setMinutes(d.getMinutes()+n);
+                else if (unit === 'hour') d.setHours(d.getHours()+n);
+                else if (unit === 'day') d.setDate(d.getDate()+n);
+                return d;
+            }
+        }
+        if (s.startsWith('teatime')) {
+            const d = new Date(now); d.setHours(16,0,0,0);
+            if (s.includes('tomorrow')) d.setDate(d.getDate()+1);
+            else if (d <= now) d.setDate(d.getDate()+1);
+            return d;
+        }
+        if (s.startsWith('noon')) {
+            const d = new Date(now); d.setHours(12,0,0,0);
+            const m = s.match(/\+(\d+)\s*day/);
+            if (m) d.setDate(d.getDate()+parseInt(m[1]));
+            else if (d <= now) d.setDate(d.getDate()+1);
+            return d;
+        }
+        const d = new Date(now); d.setMinutes(d.getMinutes()+15);
+        return d;
+    }
+
+    function renderAtQueue() {
+        const display = document.getElementById('at-queue-display');
+        if (atJobs.length === 0) {
+            display.innerHTML = '<span class="at-empty">No jobs scheduled.</span>';
+            return;
+        }
+        display.innerHTML = atJobs.map(j => {
+            const dt = j.time.toLocaleString('en-US', {weekday:'short',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',year:'numeric'});
+            return `<div class="at-job-row"><span>${j.id}&nbsp;&nbsp;&nbsp;${dt}&nbsp;${j.queue}&nbsp;student</span><span style="color:#F44747;font-size:0.78rem;font-family:var(--font-mono);">${j.cmd.substring(0,30)}${j.cmd.length>30?'...':''}</span></div>`;
+        }).join('');
+    }
+
+    document.getElementById('at-schedule-btn').addEventListener('click', () => {
+        const spec = document.getElementById('at-timespec').value;
+        const cmd = document.getElementById('at-command').value.trim() || '/usr/local/bin/command.sh';
+        const queue = document.getElementById('at-queue').value;
+        const t = resolveTimespec(spec);
+        atJobs.push({ id: nextJobId++, time: t, queue, cmd });
+        atJobs.sort((a,b) => a.time - b.time);
+        renderAtQueue();
+    });
+
+    document.getElementById('at-remove-btn').addEventListener('click', () => {
+        const num = parseInt(document.getElementById('at-remove-num').value);
+        if (!isNaN(num)) {
+            atJobs = atJobs.filter(j => j.id !== num);
+            renderAtQueue();
+        }
+    });
+
+    document.getElementById('at-clear-btn').addEventListener('click', () => {
+        atJobs = [];
+        renderAtQueue();
+    });
+
+    // ==================== CRON BUILDER ====================
+    function describeCron(min, hour, dom, mon, dow, cmd) {
+        const parts = [];
+        // Minute
+        if (min === '*') parts.push('every minute');
+        else if (min.startsWith('*/')) parts.push('every ' + min.slice(2) + ' minutes');
+        else parts.push('at minute ' + min);
+        // Hour
+        if (hour === '*') { /* every hour */ }
+        else if (hour.startsWith('*/')) parts.push('every ' + hour.slice(2) + ' hours');
+        else if (hour.includes('-')) { const [a,b] = hour.split('-'); parts.push('from ' + a + ':00 to ' + b + ':59'); }
+        else parts.push('at hour ' + hour + ':00');
+        // DOM
+        if (dom !== '*') parts.push('on day ' + dom + ' of the month');
+        // Month
+        const monthNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+        const monthAbbr = {jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12};
+        if (mon !== '*') {
+            const mLower = mon.toLowerCase();
+            const mNum = monthAbbr[mLower] || parseInt(mon);
+            if (!isNaN(mNum) && mNum >= 1 && mNum <= 12) parts.push('in ' + monthNames[mNum]);
+            else parts.push('in month ' + mon);
+        }
+        // DOW
+        const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const dowAbbr = {sun:0,mon:1,tue:2,wed:3,thu:4,fri:5,sat:6};
+        if (dow !== '*') {
+            if (dow === '1-5') parts.push('on weekdays (Mon-Fri)');
+            else if (dow === '0' || dow === '7' || dow.toLowerCase() === 'sun') parts.push('on Sundays');
+            else if (dow === '6' || dow.toLowerCase() === 'sat') parts.push('on Saturdays');
+            else {
+                const dLow = dow.toLowerCase();
+                const dNum = dowAbbr[dLow] !== undefined ? dowAbbr[dLow] : parseInt(dow);
+                if (!isNaN(dNum) && dNum >= 0 && dNum <= 7) parts.push('on ' + (dowNames[dNum % 7] || 'day ' + dNum));
+                else parts.push('on day-of-week ' + dow);
+            }
+        }
+        return 'Runs ' + parts.join(', ') + (cmd ? ': <code class="inline">' + cmd + '</code>' : '');
+    }
+
+    function buildCron() {
+        const min = document.getElementById('cron-min').value.trim() || '*';
+        const hour = document.getElementById('cron-hour').value.trim() || '*';
+        const dom = document.getElementById('cron-dom').value.trim() || '*';
+        const mon = document.getElementById('cron-mon').value.trim() || '*';
+        const dow = document.getElementById('cron-dow').value.trim() || '*';
+        const cmd = document.getElementById('cron-cmd').value.trim();
+        const expr = [min, hour, dom, mon, dow, cmd].join(' ');
+        document.getElementById('cron-preview').textContent = expr;
+        document.getElementById('cron-description').innerHTML = describeCron(min, hour, dom, mon, dow, cmd);
+    }
+
+    document.getElementById('cron-build-btn').addEventListener('click', buildCron);
+    ['cron-min','cron-hour','cron-dom','cron-mon','cron-dow','cron-cmd'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            const min = document.getElementById('cron-min').value.trim() || '*';
+            const hour = document.getElementById('cron-hour').value.trim() || '*';
+            const dom = document.getElementById('cron-dom').value.trim() || '*';
+            const mon = document.getElementById('cron-mon').value.trim() || '*';
+            const dow = document.getElementById('cron-dow').value.trim() || '*';
+            const cmd = document.getElementById('cron-cmd').value.trim();
+            document.getElementById('cron-preview').textContent = [min,hour,dom,mon,dow,cmd].join(' ');
+        });
+    });
+
+    // ==================== QUIZ ====================
+    const quizAnswers = {
+        1: { correct: 'b', explanation: 'The <code>at</code> command schedules a job to run exactly once at a future time. <code>crontab</code> is for recurring jobs, not one-time use.' },
+        2: { correct: 'c', explanation: '<code>atq</code> (or <code>at -l</code>) lists pending deferred jobs for the current user. <code>crontab -l</code> lists recurring cron jobs, not at-queue jobs.' },
+        3: { correct: 'd', explanation: '<code>*/5</code> in the minutes field means every 5 minutes. <code>9-16</code> means hours 9 through 16 (9 AM to 4:59 PM). <code>Jul</code> = July only. <code>5</code> = Fridays. The last execution is 16:55 because 17:00 falls outside the hour range.' },
+        4: { correct: 'a', explanation: '<code>crontab -r</code> immediately and permanently deletes all of the user\'s crontab entries. There is no confirmation prompt and no undo. Always back up with <code>crontab -l > backup.txt</code> first.' },
+        5: { correct: 'b', explanation: 'When both day-of-month and day-of-week are non-wildcard values, cron uses OR logic — the job runs when EITHER condition matches, not when both match simultaneously. You cannot express AND logic directly in standard cron.' },
+        6: { correct: 'c', explanation: 'An unescaped <code>%</code> in a crontab command field acts as a newline character. All text after the first <code>%</code> is passed to the command as standard input. Use <code>\\%</code> to include a literal percent sign.' },
+        7: { correct: 'a', explanation: 'In a crontab range, the first number must be ≤ the second. <code>Fri-Tue</code> (5-2) is invalid because 5 > 2. Express this as two ranges: <code>5-6,0-2</code> or <code>Fri-Sat,Sun-Tue</code>.' },
+        8: { correct: 'd', explanation: 'Inspecting an unfamiliar job with <code>at -c</code> is good practice. If the contents are suspicious or unknown, remove it with <code>atrm</code> and investigate how it was created — this could indicate unauthorized access to your account.' }
+    };
+
+    document.getElementById('check-answers').addEventListener('click', () => {
+        let score = 0;
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            const qNum = parseInt(q.getAttribute('data-question'));
+            const selected = q.querySelector('input[type="radio"]:checked');
+            const feedback = document.getElementById('feedback-' + qNum);
+            q.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('correct-fb', 'incorrect-fb');
+            feedback.innerHTML = '';
+            if (!selected) { feedback.innerHTML = '&#x26A0; Please select an answer.'; feedback.style.display = 'block'; feedback.style.color = 'var(--rh-gold)'; feedback.style.background = '#FFFBF0'; return; }
+            const isCorrect = selected.value === quizAnswers[qNum].correct;
+            if (isCorrect) { score++; q.classList.add('correct'); feedback.innerHTML = '&#x2714; Correct! ' + quizAnswers[qNum].explanation; feedback.classList.add('correct-fb'); }
+            else { q.classList.add('incorrect'); const correctLetter = quizAnswers[qNum].correct.toUpperCase(); feedback.innerHTML = '&#x2718; Incorrect. The correct answer is (' + correctLetter + '). ' + quizAnswers[qNum].explanation; feedback.classList.add('incorrect-fb'); }
+        });
+        const total = Object.keys(quizAnswers).length;
+        const scoreEl = document.getElementById('quiz-score');
+        scoreEl.style.display = 'block';
+        scoreEl.innerHTML = 'Score: <strong>' + score + ' / ' + total + '</strong> &mdash; ' + (score === total ? '&#x1F3C6; Perfect score!' : score >= total * 0.75 ? '&#x1F44D; Good job!' : '&#x1F4DA; Review the sections above and try again.');
+        scoreEl.setAttribute('aria-live', 'polite');
+    });
+
+    document.getElementById('reset-quiz').addEventListener('click', () => {
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            q.classList.remove('correct', 'incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            const qNum = q.getAttribute('data-question');
+            const fb = document.getElementById('feedback-' + qNum);
+            fb.innerHTML = '';
+            fb.className = 'quiz-feedback';
+            fb.style.display = '';
+            fb.style.color = '';
+            fb.style.background = '';
+        });
+        const scoreEl = document.getElementById('quiz-score');
+        scoreEl.style.display = 'none';
+        scoreEl.innerHTML = '';
+    });
+
+})();
+</script>
+</body>
+</html>
