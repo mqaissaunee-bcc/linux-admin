@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Scheduling System Tasks | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-title { background: var(--rh-red-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-highlight { color: #FFD700; font-weight: 600; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
+        .tooltip-content { display: none !important; }
+        #tooltip-bubble { position: fixed; z-index: 99999; background: var(--rh-gray-dark); color: var(--rh-white); padding: 11px 15px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; font-weight: 400; line-height: 1.5; max-width: 300px; width: max-content; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 8px solid transparent; }
+        #tooltip-bubble[data-dir="above"]::after { top: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="below"]::after { bottom: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="left"]::after { left: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="right"]::after { right: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.info { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.note { background: #F8F8FF; border-color: var(--rh-purple); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning .note-box-header { color: #8B6914; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.info .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.note .note-box-header { color: var(--rh-purple); }
+        .note-box p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .data-table tr:hover { background: #E8E8E8; }
+        .data-table code { font-family: var(--font-mono); background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 3px; font-size: 0.88rem; }
+
+        /* ==================== TABS ==================== */
+        .tabs-container { margin: 20px 0; }
+        .tabs-nav { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; color: var(--rh-gray); background: transparent; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all var(--transition-fast); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-red-dark); border-bottom-color: var(--rh-red); background: var(--rh-white); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable { border: 1px solid var(--rh-gray-lighter); border-radius: var(--radius-md); margin: 12px 0; overflow: hidden; }
+        .expandable-header { width: 100%; background: var(--rh-gray-lighter); border: none; padding: 14px 20px; text-align: left; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-gray-dark); cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-red); color: var(--rh-white); }
+        .expandable-arrow { font-size: 0.8rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expandable-arrow { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; background: var(--rh-white); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== TIMER DIAGRAM ==================== */
+        .timer-flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 20px 0; }
+        .timer-box { background: var(--rh-blue-dark); color: var(--rh-white); padding: 14px 18px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-align: center; min-width: 130px; box-shadow: var(--shadow-sm); }
+        .timer-box.active-box { background: var(--rh-red); }
+        .timer-box.service-box { background: var(--rh-green-dark); }
+        .timer-box.config-box { background: var(--rh-purple); }
+        .timer-arrow { font-size: 1.5rem; color: var(--rh-gray); }
+        .timer-box small { display: block; font-size: 0.75rem; opacity: 0.85; margin-top: 4px; font-weight: 400; }
+        @media (max-width: 600px) { .timer-arrow { transform: rotate(90deg); } .timer-flow { flex-direction: column; } }
+
+        /* ==================== TMPFILES COLUMNS DIAGRAM ==================== */
+        .columns-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin: 16px 0; }
+        .col-card { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px; border-radius: var(--radius-sm); text-align: center; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; }
+        .col-card small { display: block; font-size: 0.72rem; opacity: 0.8; margin-top: 4px; font-weight: 400; }
+        .col-card.required { background: var(--rh-red); }
+
+        /* ==================== CRON BUILDER ==================== */
+        .cron-builder { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin: 16px 0; }
+        .cron-builder h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 14px; color: var(--rh-gray-dark); }
+        .cron-fields { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 14px; }
+        .cron-field label { display: block; font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; color: var(--rh-gray); margin-bottom: 4px; }
+        .cron-field input { width: 100%; padding: 8px; border: 2px solid var(--rh-gray-light); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.95rem; text-align: center; }
+        .cron-field input:focus { border-color: var(--rh-red); }
+        .cron-output { background: #1E1E1E; color: #FFD700; padding: 12px 16px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.95rem; margin-top: 10px; word-break: break-all; }
+        .cron-meaning { font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray-dark); margin-top: 8px; padding: 8px 12px; background: var(--rh-white); border-radius: var(--radius-sm); border-left: 3px solid var(--rh-blue); }
+        @media (max-width: 600px) { .cron-fields { grid-template-columns: repeat(3, 1fr); } }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; font-family: var(--font-display); font-size: 0.9rem; }
+        .quiz-option:hover { background: rgba(0,0,0,0.05); }
+        .quiz-option input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+        .quiz-feedback { font-family: var(--font-display); font-size: 0.88rem; padding: 8px 12px; border-radius: var(--radius-sm); margin-top: 10px; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #d4edda; color: #155724; }
+        .quiz-feedback.incorrect { background: #f8d7da; color: #721c24; }
+        .quiz-controls { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); }
+        .quiz-btn.primary { background: var(--rh-red); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-red-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 1px solid var(--rh-gray-light); }
+        .quiz-btn.secondary:hover { background: #E0E0E0; }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); padding: 10px 0; }
+
+        /* ==================== LAB ==================== */
+        .lab-scenario { background: linear-gradient(135deg, var(--rh-blue-dark), var(--rh-blue)); color: var(--rh-white); padding: 20px 24px; border-radius: var(--radius-md); margin-bottom: 20px; }
+        .lab-scenario h3 { font-family: var(--font-display); margin-bottom: 8px; font-size: 1.05rem; }
+        .lab-scenario p { margin-bottom: 0; opacity: 0.9; font-family: var(--font-display); font-size: 0.9rem; }
+        .lab-task { counter-increment: task; }
+        .task-number { background: var(--rh-red); color: var(--rh-white); width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; margin-right: 10px; flex-shrink: 0; }
+        .completion-checklist { list-style: none; margin: 16px 0; padding: 0; }
+        .completion-checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.9rem; }
+        .completion-checklist li::before { content: '✓'; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+
+        /* ==================== COMMAND REFERENCE TABLE ==================== */
+        .cmd-ref { font-family: var(--font-mono); font-size: 0.85rem; }
+
+        /* ==================== PRECEDENCE DIAGRAM ==================== */
+        .prec-stack { display: flex; flex-direction: column; gap: 6px; max-width: 500px; margin: 16px auto; }
+        .prec-item { padding: 12px 20px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+        .prec-item.top { background: var(--rh-green); color: var(--rh-white); }
+        .prec-item.mid { background: var(--rh-gold); color: var(--rh-black); }
+        .prec-item.bot { background: var(--rh-gray-medium); color: var(--rh-white); }
+        .prec-label { font-size: 0.75rem; opacity: 0.9; font-weight: 400; }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; font-family: var(--font-display); font-size: 0.85rem; line-height: 1.8; }
+        footer a { color: var(--rh-blue-light); }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 30px; flex-wrap: wrap; }
+        .nav-chapter-btn { padding: 12px 20px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-chapter-btn.next:hover { background: var(--rh-red-dark); }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .completion-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .section-header { padding: 16px 20px; }
+            .chapter-nav { flex-direction: column; }
+            .nav-chapter-btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
+
+<!-- ==================== HEADER ==================== -->
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">🎩</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Chapter 4</div>
+        <h1 class="chapter-title">Scheduling System Tasks</h1>
+        <p class="chapter-subtitle">Automating recurring jobs with systemd timers, tmpfiles, cron, and anacron</p>
+        <div class="header-meta">
+            <span>&#128337; 2&ndash;3 Hours</span>
+            <span>&#128218; RH134 &mdash; Red Hat System Administration II</span>
+            <span>&#127919; RHCSA Exam Prep</span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== PROGRESS BAR ==================== -->
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"
+             role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             aria-label="Chapter reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<!-- ==================== SECTION NAV ==================== -->
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#objectives" class="nav-btn" data-section="objectives">1. Objectives</a></li>
+        <li><a href="#systemd-timers" class="nav-btn" data-section="systemd-timers">2. Systemd Timers</a></li>
+        <li><a href="#timer-commands" class="nav-btn" data-section="timer-commands">3. Timer Commands</a></li>
+        <li><a href="#timer-config" class="nav-btn" data-section="timer-config">4. Timer Configuration</a></li>
+        <li><a href="#tmpfiles" class="nav-btn" data-section="tmpfiles">5. Temp Files</a></li>
+        <li><a href="#tmpfiles-syntax" class="nav-btn" data-section="tmpfiles-syntax">6. tmpfiles Syntax</a></li>
+        <li><a href="#cron" class="nav-btn" data-section="cron">7. Cron Jobs</a></li>
+        <li><a href="#anacron" class="nav-btn" data-section="anacron">8. Anacron</a></li>
+        <li><a href="#quiz" class="nav-btn" data-section="quiz">9. Quiz</a></li>
+        <li><a href="#lab" class="nav-btn" data-section="lab">10. Lab</a></li>
+        <li><a href="#summary" class="nav-btn" data-section="summary">11. Summary</a></li>
+    </ul>
+</nav>
+
+<!-- ==================== MAIN ==================== -->
+<main id="main-content">
+
+<!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+<section id="objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Investigate, interpret, and manage recurring system tasks scheduled as <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-timer-unit">systemd timer units<span class="tooltip-content" id="tt-timer-unit">A systemd unit type defined in a .timer file that triggers other units (usually services) at specified times or intervals.</span></span>.</li>
+            <li>Configure software that uses a timer unit to schedule tasks to clear temporary files, or to ensure that certain files or directories exist.</li>
+            <li>Schedule commands to run on a recurring schedule by using the system crontab file and the cron directories.</li>
+            <li>Understand the relationship between <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-crond">crond<span class="tooltip-content" id="tt-crond">The cron daemon — a background service that reads crontab files and executes scheduled commands at the specified times.</span></span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-anacron">anacron<span class="tooltip-content" id="tt-anacron">A job scheduler that guarantees scheduled tasks run even if the system was offline at the scheduled time, unlike crond which skips missed jobs.</span></span> for reliable job execution.</li>
+            <li>Override vendor-provided configuration files safely using the correct file precedence directories.</li>
+        </ul>
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>RHCSA Relevance</span></div>
+            <p>Scheduling recurring system tasks is a tested skill on the Red Hat Certified System Administrator exam. You must be comfortable with systemd timer units, the cron system, and managing temporary files using <code class="inline">systemd-tmpfiles</code>.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 2: SYSTEMD TIMERS ==================== -->
+<section id="systemd-timers" class="content-section" aria-labelledby="timers-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="timers-heading">Managing Repeating Jobs with Systemd Timer Units</h2>
+    </div>
+    <div class="section-body">
+        <p>Starting from Red Hat Enterprise Linux 10, the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-systemd">systemd<span class="tooltip-content" id="tt-systemd">The system and service manager for Linux, responsible for initializing the system, managing services, and providing dependency tracking between units.</span></span> daemon and service manager replaces the traditional cron daemon for <em>most</em> scheduled system tasks via the <strong>systemd timer units</strong>.</p>
+
+        <p>A systemd timer unit is defined by a unit configuration file whose name ends in <code class="inline">.timer</code>. Timer units activate a unit of another type &mdash; usually a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-service-unit">service unit<span class="tooltip-content" id="tt-service-unit">A systemd unit type that describes how to start, stop, and manage a background process or application.</span></span>. By default, the timer unit activates the service with the matching base name.</p>
+
+        <p>For example, <code class="inline">logrotate.timer</code> triggers <code class="inline">logrotate.service</code>. The timer unit describes <em>when</em> to run; the service unit describes <em>what</em> to run.</p>
+
+        <p>An important advantage of systemd timer units over cron is that timer events are logged in the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journal">system journal<span class="tooltip-content" id="tt-journal">The systemd logging subsystem (journald) that captures structured log data from the kernel, services, and applications, queryable with journalctl.</span></span>, making debugging significantly easier.</p>
+
+        <!-- Timer flow diagram -->
+        <h3>How Systemd Timers Work</h3>
+        <div class="timer-flow" role="img" aria-label="Systemd timer activation flow: timer unit reads configuration, triggers service unit, service executes task">
+            <div class="timer-box config-box">
+                <span>&#128196;</span> .timer file<br>
+                <small>Defines schedule</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box active-box">
+                Systemd Scheduler<br>
+                <small>Monitors time</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box service-box">
+                <span>&#9881;</span> .service unit<br>
+                <small>Executes the task</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box">
+                &#128196; System Journal<br>
+                <small>Logs the event</small>
+            </div>
+        </div>
+
+        <h3>Common Built-in Timer Units</h3>
+        <p>RHEL 10 ships with several pre-configured timer units that handle critical system maintenance automatically:</p>
+
+        <table class="data-table" aria-label="Common systemd timer units in RHEL 10">
+            <thead>
+                <tr><th scope="col">Timer Unit</th><th scope="col">Purpose</th><th scope="col">Default Schedule</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>dnf-makecache.timer</code></td><td>Refresh the DNF package metadata cache</td><td>Multiple times daily</td></tr>
+                <tr><td><code>logrotate.timer</code></td><td>Rotate and compress system log files</td><td>Daily</td></tr>
+                <tr><td><code>fstrim.timer</code></td><td>Discard unused blocks on SSD storage</td><td>Weekly</td></tr>
+                <tr><td><code>systemd-tmpfiles-clean.timer</code></td><td>Clean up stale temporary files</td><td>Daily (15 min after boot)</td></tr>
+                <tr><td><code>fwupd-refresh.timer</code></td><td>Refresh firmware update metadata</td><td>Daily</td></tr>
+                <tr><td><code>plocate-updatedb.timer</code></td><td>Update the file location database</td><td>Daily</td></tr>
+                <tr><td><code>raid-check.timer</code></td><td>Check RAID array integrity</td><td>Weekly</td></tr>
+                <tr><td><code>sysstat-collect.timer</code></td><td>Collect system performance statistics</td><td>Every 10 minutes</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#128203;</span><span>Note</span></div>
+            <p>Fuller discussion of systemd timer unit internals is beyond the scope of this section. For more information, see the <code class="inline">systemd(1)</code> and <code class="inline">systemd.timer(5)</code> man pages.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: TIMER COMMANDS ==================== -->
+<section id="timer-commands" class="content-section" aria-labelledby="timer-commands-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="timer-commands-heading">Working with Systemd Timer Commands</h2>
+    </div>
+    <div class="section-body">
+        <p>All timer units are managed using the <code class="inline">systemctl</code> command, just like other systemd units. The key distinction is that you use the <code class="inline">-t timer</code> filter to work specifically with timer units.</p>
+
+        <!-- Tabs for list/inspect/manage operations -->
+        <div class="tabs-container" role="region" aria-label="Timer command categories">
+            <div class="tabs-nav" role="tablist" aria-label="Timer operations">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-list" id="btn-list">Listing Timers</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-start-stop" id="btn-start">Start &amp; Stop</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-enable" id="btn-enable">Enable &amp; Disable</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-status" id="btn-status">Checking Status</button>
+            </div>
+
+            <div id="tab-list" class="tab-panel active" role="tabpanel" aria-labelledby="btn-list">
+                <p>Use <code class="inline">systemctl list-units</code> to see timers that are currently loaded in memory (active, pending, or failed). Add <code class="inline">--all</code> to include inactive timers.</p>
+                <div class="code-block" role="region" aria-label="List active timer units">
+                    <div class="code-title">List active/loaded timer units</div>
+                    <code>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl list-units -t timer</span>
+<span class="code-output">UNIT                            LOAD    ACTIVE  SUB      DESCRIPTION</span>
+<span class="code-output">dnf-makecache.timer             loaded  active  waiting  dnf makecache --timer</span>
+<span class="code-output">fstrim.timer                    loaded  active  waiting  Discard unused blocks once a week</span>
+<span class="code-output">fwupd-refresh.timer             loaded  active  waiting  Refresh fwupd metadata and update motd</span>
+<span class="code-output">logrotate.timer                 loaded  active  waiting  Daily rotation of log files</span>
+<span class="code-output">plocate-updatedb.timer          loaded  active  waiting  Update the plocate database daily</span>
+<span class="code-output">raid-check.timer                loaded  active  waiting  Weekly RAID setup health check</span>
+<span class="code-output">systemd-tmpfiles-clean.timer    loaded  active  waiting  Daily Cleanup of Temporary Directories</span>
+<span class="code-output">...output omitted...</span>
+                    </code>
+                </div>
+                <p>Use <code class="inline">systemctl list-unit-files</code> to see <em>all installed</em> timer unit files, including templates and disabled units:</p>
+                <div class="code-block" role="region" aria-label="List installed timer unit files">
+                    <div class="code-title">List all installed timer unit files</div>
+                    <code>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl list-unit-files -t timer</span>
+<span class="code-output">UNIT FILE                           STATE      PRESET</span>
+<span class="code-output">dnf-makecache.timer                 enabled    enabled</span>
+<span class="code-output">fstrim.timer                        enabled    enabled</span>
+<span class="code-output">fwupd-refresh.timer                 enabled    enabled</span>
+<span class="code-output">insights-client.timer               disabled   disabled</span>
+<span class="code-output">logrotate.timer                     enabled    enabled</span>
+<span class="code-output">mdadm-last-resort@.timer            static     -</span>
+<span class="code-output">podman-auto-update.timer            disabled   disabled</span>
+<span class="code-output">systemd-tmpfiles-clean.timer        static     -</span>
+<span class="code-output">16 unit files listed.</span>
+                    </code>
+                </div>
+                <table class="data-table" aria-label="Column descriptions for list-unit-files output">
+                    <thead><tr><th scope="col">Column</th><th scope="col">Meaning</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>UNIT FILE</code></td><td>Full name of the timer unit file</td></tr>
+                        <tr><td><code>STATE</code></td><td>Current enablement: <em>enabled</em> (starts at boot), <em>disabled</em>, <em>static</em> (no [Install] section; activated by other units)</td></tr>
+                        <tr><td><code>PRESET</code></td><td>Whether the vendor default enables or disables this unit</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="tab-start-stop" class="tab-panel" role="tabpanel" aria-labelledby="btn-start">
+                <p>Starting or stopping a timer unit affects its <em>current session only</em>. The change does not survive a reboot unless the unit is also enabled.</p>
+                <div class="code-block" role="region" aria-label="Start and stop timer unit examples">
+                    <div class="code-title">Start and stop a timer unit</div>
+                    <code>
+<span class="code-comment"># Start a timer unit immediately (current session only)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl start logrotate.timer</span>
+
+<span class="code-comment"># Stop a running timer unit (current session only)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl stop logrotate.timer</span>
+                    </code>
+                </div>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+                    <p>Starting a timer unit manually is useful to test that it functions correctly before enabling it for persistent use at boot time.</p>
+                </div>
+            </div>
+
+            <div id="tab-enable" class="tab-panel" role="tabpanel" aria-labelledby="btn-enable">
+                <p>Enabling a timer unit ensures it starts automatically at system boot. Disabling removes that automatic start.</p>
+                <div class="code-block" role="region" aria-label="Enable and disable timer unit examples">
+                    <div class="code-title">Enable and disable timer units</div>
+                    <code>
+<span class="code-comment"># Enable at boot (does NOT start immediately)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl enable logrotate.timer</span>
+
+<span class="code-comment"># Enable AND start immediately with --now</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl enable --now logrotate.timer</span>
+
+<span class="code-comment"># Disable at boot (does NOT stop immediately)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl disable logrotate.timer</span>
+
+<span class="code-comment"># Disable AND stop immediately with --now</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl disable --now logrotate.timer</span>
+                    </code>
+                </div>
+                <div class="note-box important">
+                    <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important</span></div>
+                    <p>The <code class="inline">systemctl enable</code> command alone does <strong>not</strong> start the timer unit. Use <code class="inline">--now</code> to both enable and start in a single command. The same applies to <code class="inline">disable</code> &mdash; it does not stop the running unit without <code class="inline">--now</code>.</p>
+                </div>
+            </div>
+
+            <div id="tab-status" class="tab-panel" role="tabpanel" aria-labelledby="btn-status">
+                <p>The <code class="inline">systemctl status</code> command displays comprehensive information about a timer unit, including its next scheduled trigger time and recent activity.</p>
+                <div class="code-block" role="region" aria-label="Timer unit status output example">
+                    <div class="code-title">View timer unit status</div>
+                    <code>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl status logrotate.timer</span>
+<span class="code-output">&#9679; logrotate.timer - Daily rotation of log files</span>
+<span class="code-output">     Loaded: loaded (/usr/lib/.../logrotate.timer; enabled; preset: enabled)</span>
+<span class="code-output">     Active: active (waiting) since Wed 2025-05-28 23:28:22 UTC; 54min ago</span>
+<span class="code-output"> Invocation: 3a95de54d4c04c539d43b3808c27e99a</span>
+<span class="code-output">    Trigger: Fri 2025-05-30 00:48:43 UTC; 24h left</span>
+<span class="code-output">   Triggers: &#9679; logrotate.service</span>
+<span class="code-output">       Docs: man:logrotate(8)</span>
+<span class="code-output">             man:logrotate.conf(5)</span>
+<span class="code-output">May 28 ... workstation systemd[1]: Started logrotate.timer - Daily rotation...</span>
+                    </code>
+                </div>
+                <p>Key fields in the status output:</p>
+                <ul>
+                    <li><strong>Active:</strong> Shows whether the timer is currently waiting (active), stopped, or failed</li>
+                    <li><strong>Trigger:</strong> The date and time of the next scheduled activation</li>
+                    <li><strong>Triggers:</strong> The service unit that will be activated when the timer fires</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 4: TIMER CONFIGURATION ==================== -->
+<section id="timer-config" class="content-section" aria-labelledby="timer-config-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="timer-config-heading">Timer Unit Configuration Files</h2>
+    </div>
+    <div class="section-body">
+        <p>Understanding how timer unit configuration files are structured gives you the knowledge to interpret existing timers and create custom ones.</p>
+
+        <h3>Structure of a Timer Unit File</h3>
+        <p>Like all systemd unit files, timer units contain sections delimited by section headers in brackets. The timer-specific options live in the <code class="inline">[Timer]</code> section:</p>
+
+        <div class="code-block" role="region" aria-label="Example sysstat-collect timer unit configuration">
+            <div class="code-title">/usr/lib/systemd/system/sysstat-collect.timer</div>
+            <code>
+<span class="code-comment"># ...output omitted...</span>
+
+<span class="code-highlight">[Unit]</span>
+<span class="code-output">Description=Run system activity accounting tool every 10 minutes</span>
+
+<span class="code-highlight">[Timer]</span>
+<span class="code-output">OnCalendar=*:00/10</span>
+
+<span class="code-highlight">[Install]</span>
+<span class="code-output">WantedBy=sysstat.service</span>
+            </code>
+        </div>
+
+        <p>The <code class="inline">OnCalendar=*:00/10</code> option means: every hour (<code class="inline">*</code>), starting at minute 0, repeating every 10 minutes (<code class="inline">00/10</code>). The resulting trigger times within any given hour are 00, 10, 20, 30, 40, and 50 minutes past.</p>
+
+        <h3>Timer Unit Calendar Expressions</h3>
+        <p>The <code class="inline">OnCalendar</code> option accepts flexible calendar expressions. Here are examples ranging from simple to complex:</p>
+
+        <table class="data-table" aria-label="OnCalendar timer expression examples">
+            <thead>
+                <tr><th scope="col">Expression</th><th scope="col">Meaning</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>*:00/10</code></td><td>Every 10 minutes</td></tr>
+                <tr><td><code>daily</code></td><td>Every day at midnight (shorthand)</td></tr>
+                <tr><td><code>weekly</code></td><td>Every Monday at midnight</td></tr>
+                <tr><td><code>monthly</code></td><td>First day of each month at midnight</td></tr>
+                <tr><td><code>Mon..Fri 09:00</code></td><td>Weekdays at 09:00</td></tr>
+                <tr><td><code>2025-07-* 12:35,37,39:16</code></td><td>Jul 2025, at 12:35:16, 12:37:16, 12:39:16</td></tr>
+                <tr><td><code>*-*-1 00:00:00</code></td><td>First day of every month at midnight</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Relative Timers with OnUnitActiveSec</h3>
+        <p>Instead of calendar-based scheduling, you can trigger timers relative to when the service unit was last active. This is useful for maintenance tasks that should run a set interval <em>after</em> previous execution completes:</p>
+
+        <div class="code-block" role="region" aria-label="OnUnitActiveSec relative timer example">
+            <div class="code-title">Relative timer example (fires 15 minutes after last activation)</div>
+            <code>
+<span class="code-highlight">[Timer]</span>
+<span class="code-output">OnUnitActiveSec=15min</span>
+            </code>
+        </div>
+
+        <h3>Where Timer Configuration Files Live</h3>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important &mdash; Never Edit Files in /usr/lib/systemd/system/</span></div>
+            <p>Do <strong>not</strong> modify unit configuration files in the <code class="inline">/usr/lib/systemd/system/</code> directory. Package updates will overwrite your changes. To customize a systemd unit, copy its file to <code class="inline">/etc/systemd/system/</code> and edit the copy. When two files share the same name, systemd uses the one in <code class="inline">/etc/systemd/system/</code>.</p>
+        </div>
+
+        <p>The correct workflow for customizing a timer unit:</p>
+        <div class="code-block" role="region" aria-label="Workflow to customize a systemd timer unit">
+            <div class="code-title">Safely customize a timer unit</div>
+            <code>
+<span class="code-comment"># 1. Copy the vendor file to the administrator directory</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">cp /usr/lib/systemd/system/logrotate.timer \</span>
+<span class="code-output">        /etc/systemd/system/logrotate.timer</span>
+
+<span class="code-comment"># 2. Edit the copy to make your changes</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">vim /etc/systemd/system/logrotate.timer</span>
+
+<span class="code-comment"># 3. Reload systemd to apply the new configuration</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># 4. Enable and start the updated timer</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl enable --now logrotate.timer</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+            <p>Use <code class="inline">systemctl cat logrotate.timer</code> to display the current effective configuration of a unit, including which file is being read. This is a quick way to confirm that your override in <code class="inline">/etc/systemd/system/</code> is taking effect.</p>
+        </div>
+
+        <h3>References</h3>
+        <p>For complete documentation on timer unit options, consult the following man pages: <code class="inline">systemctl(1)</code>, <code class="inline">systemd.directives(7)</code>, <code class="inline">systemd.time(7)</code>, <code class="inline">systemd.timer(5)</code>, <code class="inline">systemd.syntax(7)</code>, and <code class="inline">systemd.unit(5)</code>.</p>
+    </div>
+</section>
+
+<!-- ==================== SECTION 5: TMPFILES ==================== -->
+<section id="tmpfiles" class="content-section" aria-labelledby="tmpfiles-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="tmpfiles-heading">Managing Temporary Files with systemd-tmpfiles</h2>
+    </div>
+    <div class="section-body">
+        <p>Most critical applications and services rely on temporary files and directories. Some use the <code class="inline">/tmp</code> directory for transient working data; others use task-specific locations such as daemon-specific directories under <code class="inline">/run</code>, which reside only in memory and are self-cleaning after a reboot.</p>
+
+        <p>However, temporary files on persistent storage can accumulate indefinitely, causing disk space issues or leaving stale data that can disrupt service operation. Likewise, daemons and scripts often require their expected temporary files and directories to exist before they can function correctly.</p>
+
+        <h3>The systemd-tmpfiles Tool</h3>
+        <p>Red Hat Enterprise Linux includes the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfiles">systemd-tmpfiles<span class="tooltip-content" id="tt-tmpfiles">A utility that provides structured, configurable management of temporary files and directories: creating, deleting, or setting permissions based on configuration files.</span></span> tool, which provides a structured and configurable method to manage temporary directories and files. It reads instructions from configuration files and acts on them during system startup and on a schedule.</p>
+
+        <p>At system boot, one of the first systemd service units to launch is <code class="inline">systemd-tmpfiles-setup.service</code>. This service runs the <code class="inline">systemd-tmpfiles --create</code> command, which reads configuration files from three locations:</p>
+
+        <ul>
+            <li><code class="inline">/usr/lib/tmpfiles.d/*.conf</code> &mdash; Vendor-provided configurations (do not edit)</li>
+            <li><code class="inline">/run/tmpfiles.d/*.conf</code> &mdash; Runtime configurations managed by daemons</li>
+            <li><code class="inline">/etc/tmpfiles.d/*.conf</code> &mdash; Administrator-defined configurations (edit here)</li>
+        </ul>
+
+        <h3>Cleaning Temporary Files on a Schedule</h3>
+        <p>To prevent long-running systems from filling up with stale data, a systemd timer unit called <code class="inline">systemd-tmpfiles-clean.timer</code> periodically triggers <code class="inline">systemd-tmpfiles-clean.service</code>, which runs <code class="inline">systemd-tmpfiles --clean</code>.</p>
+
+        <p>View the timer unit configuration with <code class="inline">systemctl cat</code>:</p>
+
+        <div class="code-block" role="region" aria-label="View the systemd-tmpfiles-clean timer configuration">
+            <div class="code-title">systemctl cat systemd-tmpfiles-clean.timer</div>
+            <code>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">systemctl cat systemd-tmpfiles-clean.timer</span>
+<span class="code-output"># /usr/lib/systemd/system/systemd-tmpfiles-clean.timer</span>
+<span class="code-comment"># SPDX-License-Identifier: LGPL-2.1-or-later</span>
+<span class="code-output">...</span>
+
+<span class="code-highlight">[Unit]</span>
+<span class="code-output">Description=Daily Cleanup of Temporary Directories</span>
+<span class="code-output">Documentation=man:tmpfiles.d(5) man:systemd-tmpfiles(8)</span>
+<span class="code-output">ConditionPathExists=!/etc/initrd-release</span>
+
+<span class="code-highlight">[Timer]</span>
+<span class="code-output">OnBootSec=15min</span>
+<span class="code-output">OnUnitActiveSec=1d</span>
+            </code>
+        </div>
+
+        <p>Interpreting these timer parameters:</p>
+        <ul>
+            <li><strong><code>OnBootSec=15min</code></strong> &mdash; Triggers the cleanup service 15 minutes after the system boots</li>
+            <li><strong><code>OnUnitActiveSec=1d</code></strong> &mdash; Triggers again 24 hours after the service was last activated</li>
+        </ul>
+
+        <p>After checking the current timer status, you can view when the next cleanup is scheduled:</p>
+        <div class="code-block" role="region" aria-label="Check status of systemd-tmpfiles-clean timer">
+            <div class="code-title">Check timer status</div>
+            <code>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemctl status systemd-tmpfiles-clean.timer</span>
+<span class="code-output">&#9679; systemd-tmpfiles-clean.timer - Daily Cleanup of Temporary Directories</span>
+<span class="code-output">     Loaded: loaded (/usr/lib/.../systemd-tmpfiles-clean.timer; static)</span>
+<span class="code-output">     Active: active (waiting) since Fri 2025-05-30 13:59:31 UTC; 19min ago</span>
+<span class="code-output">    Trigger: Sat 2025-05-31 14:14:31 UTC; 23h left</span>
+<span class="code-output">   Triggers: &#9679; systemd-tmpfiles-clean.service</span>
+            </code>
+        </div>
+
+        <h3>Cleaning Temporary Files Manually</h3>
+        <p>You can also run the cleanup manually without waiting for the timer to fire. The <code class="inline">systemd-tmpfiles --clean</code> command purges all files that were not accessed, changed, or modified more recently than the maximum age defined in the configuration files:</p>
+
+        <div class="code-block" role="region" aria-label="Manual tmpfiles cleanup commands">
+            <div class="code-title">Manual tmpfiles operations</div>
+            <code>
+<span class="code-comment"># Create files and directories as defined in config files</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemd-tmpfiles --create</span>
+
+<span class="code-comment"># Clean (purge aged-out) files as defined in config files</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemd-tmpfiles --clean</span>
+
+<span class="code-comment"># Apply only a specific configuration file (for testing)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">systemd-tmpfiles --clean /etc/tmpfiles.d/myapp.conf</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip: Testing Configurations</span></div>
+            <p>When testing new or modified configurations, apply commands from a <strong>single</strong> configuration file at a time by specifying its full path on the command line. This avoids unexpected side effects from other configuration files.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 6: TMPFILES SYNTAX ==================== -->
+<section id="tmpfiles-syntax" class="content-section" aria-labelledby="tmpfiles-syntax-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="tmpfiles-syntax-heading">The tmpfiles.d Configuration File Syntax</h2>
+    </div>
+    <div class="section-body">
+        <p>Configuration files for <code class="inline">systemd-tmpfiles</code> follow a specific columnar syntax. Each non-comment line specifies an action to take on a path. Understanding this syntax allows you to create custom configurations for your applications.</p>
+
+        <h3>Column Format</h3>
+        <p>Each line in a <code class="inline">tmpfiles.d</code> configuration file contains seven space-separated columns:</p>
+
+        <div class="columns-grid" role="list" aria-label="tmpfiles.d configuration columns">
+            <div class="col-card required" role="listitem">Type<small>Required<br>Action to take</small></div>
+            <div class="col-card required" role="listitem">Path<small>Required<br>File/directory path</small></div>
+            <div class="col-card" role="listitem">Mode<small>Optional<br>Permissions (octal)</small></div>
+            <div class="col-card" role="listitem">UID<small>Optional<br>Owner user</small></div>
+            <div class="col-card" role="listitem">GID<small>Optional<br>Owner group</small></div>
+            <div class="col-card" role="listitem">Age<small>Optional<br>Max file age</small></div>
+            <div class="col-card" role="listitem">Argument<small>Optional<br>Extra data</small></div>
+        </div>
+
+        <h3>Common Type Values</h3>
+        <table class="data-table" aria-label="tmpfiles.d type column values">
+            <thead>
+                <tr><th scope="col">Type</th><th scope="col">Action</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>d</code></td><td>Create directory if it does not exist; does <em>not</em> purge contents automatically</td></tr>
+                <tr><td><code>D</code></td><td>Create directory if it does not exist; <strong>remove contents</strong> when cleaned</td></tr>
+                <tr><td><code>f</code></td><td>Create a file if it does not exist</td></tr>
+                <tr><td><code>L</code></td><td>Create a symbolic link</td></tr>
+                <tr><td><code>z</code></td><td>Set ownership and permissions on existing files</td></tr>
+                <tr><td><code>Z</code></td><td>Recursively set ownership, permissions, and restore SELinux contexts</td></tr>
+                <tr><td><code>r</code></td><td>Remove a path if it exists (without recursion)</td></tr>
+                <tr><td><code>R</code></td><td>Recursively remove a path if it exists</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Configuration Examples</h3>
+
+        <div class="expandable" aria-label="Example: Create directory without auto-cleanup">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-dir-content" id="ex-dir-header">
+                <span><span class="task-number">d</span>Example 1: Create a directory (no auto-purge)</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-dir-content" role="region" aria-labelledby="ex-dir-header">
+                <div class="code-block" role="region" aria-label="tmpfiles d type example">
+                    <div class="code-title">Create /run/systemd/seats (no auto-cleanup)</div>
+                    <code>
+<span class="code-output">d  /run/systemd/seats  0755  root  root  -</span>
+                    </code>
+                </div>
+                <ul>
+                    <li>Creates <code class="inline">/run/systemd/seats</code> if it does not exist</li>
+                    <li>If the directory already exists, takes no action</li>
+                    <li>Sets <code class="inline">root</code> user and <code class="inline">root</code> group as owners</li>
+                    <li>Sets permissions to <code class="inline">0755</code> (<code class="inline">rwxr-xr-x</code>)</li>
+                    <li>The <code class="inline">-</code> age value means this directory is <strong>never</strong> automatically purged</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="expandable" aria-label="Example: Create directory with auto-cleanup">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-dir-D-content" id="ex-dir-D-header">
+                <span><span class="task-number">D</span>Example 2: Create directory, remove old contents</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-dir-D-content" role="region" aria-labelledby="ex-dir-D-header">
+                <div class="code-block" role="region" aria-label="tmpfiles D type example">
+                    <div class="code-title">Create /home/student and purge files older than 1 day</div>
+                    <code>
+<span class="code-output">D  /home/student  0700  student  student  1d</span>
+                    </code>
+                </div>
+                <ul>
+                    <li>Creates the <code class="inline">/home/student</code> directory if it does not exist</li>
+                    <li>If the directory exists, removes its contents on cleanup</li>
+                    <li>Sets <code class="inline">student</code> user and <code class="inline">student</code> group as owners</li>
+                    <li>Sets permissions to <code class="inline">0700</code> (<code class="inline">rwx------</code>)</li>
+                    <li>Age is <code class="inline">1d</code>: files not accessed, changed, or modified within the past 1 day will be removed when <code class="inline">systemd-tmpfiles --clean</code> runs</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="expandable" aria-label="Example: Create symbolic link">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-link-content" id="ex-link-header">
+                <span><span class="task-number">L</span>Example 3: Create a symbolic link</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-link-content" role="region" aria-labelledby="ex-link-header">
+                <div class="code-block" role="region" aria-label="tmpfiles L type example">
+                    <div class="code-title">Create a symlink from /run/fstablink to /etc/fstab</div>
+                    <code>
+<span class="code-output">L  /run/fstablink  -  root  root  -  /etc/fstab</span>
+                    </code>
+                </div>
+                <ul>
+                    <li>Creates the <code class="inline">/run/fstablink</code> symbolic link pointing to <code class="inline">/etc/fstab</code></li>
+                    <li>Sets <code class="inline">root</code> user and <code class="inline">root</code> group as owners</li>
+                    <li>The <code class="inline">-</code> in the Mode and Age fields means use defaults and never purge</li>
+                    <li>The seventh column (Argument) specifies the symlink target: <code class="inline">/etc/fstab</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Configuration File Precedence</h3>
+        <p>When the same configuration file name exists in multiple directories, <code class="inline">systemd-tmpfiles</code> applies a strict precedence rule:</p>
+
+        <div class="prec-stack" role="list" aria-label="tmpfiles.d configuration file precedence, highest first">
+            <div class="prec-item top" role="listitem">
+                <span>/etc/tmpfiles.d/*.conf</span>
+                <span class="prec-label">Highest priority &mdash; admin settings</span>
+            </div>
+            <div class="prec-item mid" role="listitem">
+                <span>/run/tmpfiles.d/*.conf</span>
+                <span class="prec-label">Runtime (daemon-managed)</span>
+            </div>
+            <div class="prec-item bot" role="listitem">
+                <span>/usr/lib/tmpfiles.d/*.conf</span>
+                <span class="prec-label">Lowest &mdash; vendor defaults (do not edit)</span>
+            </div>
+        </div>
+
+        <p>This precedence hierarchy means you can safely override vendor settings by copying a file from <code class="inline">/usr/lib/tmpfiles.d/</code> to <code class="inline">/etc/tmpfiles.d/</code> and editing the copy. Package updates will never overwrite your administrator-managed settings in <code class="inline">/etc/tmpfiles.d/</code>.</p>
+
+        <h3>References</h3>
+        <p>For complete syntax documentation, see: <code class="inline">systemd-tmpfiles(8)</code>, <code class="inline">tmpfiles.d(5)</code>, <code class="inline">stat(1)</code>, <code class="inline">stat(2)</code>, and <code class="inline">systemd.timer(5)</code> man pages.</p>
+    </div>
+</section>
+
+<!-- ==================== SECTION 7: CRON ==================== -->
+<section id="cron" class="content-section" aria-labelledby="cron-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="cron-heading">Scheduling Recurring System Tasks with Cron</h2>
+    </div>
+    <div class="section-body">
+        <p>While systemd timer units are now the preferred mechanism for recurring system tasks in RHEL 10, the traditional <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cron">cron<span class="tooltip-content" id="tt-cron">A time-based job scheduler. The crond daemon reads crontab files that specify commands and their schedules, running them at the specified times.</span></span> system remains available and is still appropriate for time-sensitive tasks on always-running systems.</p>
+
+        <h3>Recurring System Jobs vs User Jobs</h3>
+        <p>System administrators often need recurring jobs that run from system accounts rather than user accounts. These are configured using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-crontab">system-wide crontab files<span class="tooltip-content" id="tt-crontab">Configuration files read by the crond daemon that specify when to run commands. System-wide crontab files include an extra field for the username that runs the command.</span></span> instead of the user-level <code class="inline">crontab</code> command. System-wide crontab entries have an extra field: the username to run the command as.</p>
+
+        <h3>The /etc/crontab File Structure</h3>
+        <p>The <code class="inline">/etc/crontab</code> file includes a helpful comment block explaining the format:</p>
+
+        <div class="code-block" role="region" aria-label="The /etc/crontab file format">
+            <div class="code-title">/etc/crontab</div>
+            <code>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span>
+<span class="code-output">MAILTO=root</span>
+<span class="code-output"></span>
+<span class="code-comment"># For details see man 4 crontabs</span>
+<span class="code-comment"># Example of job definition:</span>
+<span class="code-comment"># .------------- minute (0 - 59)</span>
+<span class="code-comment"># |  .---------- hour (0 - 23)</span>
+<span class="code-comment"># |  |  .------- day of month (1 - 31)</span>
+<span class="code-comment"># |  |  |  .---- month (1 - 12) OR jan,feb,mar,apr ...</span>
+<span class="code-comment"># |  |  |  |  .- day of week (0 - 6) (Sunday=0 or 7)</span>
+<span class="code-comment"># |  |  |  |  |</span>
+<span class="code-comment"># *  *  *  *  *  user-name  command to be executed</span>
+            </code>
+        </div>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important</span></div>
+            <p>Apart from comments, the <code class="inline">/etc/crontab</code> file is otherwise empty by default. <strong>Never edit the /etc/crontab file directly.</strong> Use it solely as a reference. Place individual crontab files in <code class="inline">/etc/cron.d/</code> instead, to prevent package updates from overwriting your entries.</p>
+        </div>
+
+        <h3>The Cron Directory Structure</h3>
+        <p>The cron system uses a structured set of directories for different job types. Always create custom crontab files in <code class="inline">/etc/cron.d/</code>:</p>
+
+        <table class="data-table" aria-label="Cron directory structure">
+            <thead>
+                <tr><th scope="col">Location</th><th scope="col">Contents</th><th scope="col">Notes</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/etc/crontab</code></td><td>Reference format file</td><td>Do not edit; reference only</td></tr>
+                <tr><td><code>/etc/cron.d/</code></td><td>Custom system crontab files</td><td>Create your files here</td></tr>
+                <tr><td><code>/etc/cron.hourly/</code></td><td>Executable scripts run every hour</td><td>Scripts, not crontab files</td></tr>
+                <tr><td><code>/etc/cron.daily/</code></td><td>Executable scripts run daily</td><td>Scripts, not crontab files</td></tr>
+                <tr><td><code>/etc/cron.weekly/</code></td><td>Executable scripts run weekly</td><td>Scripts, not crontab files</td></tr>
+                <tr><td><code>/etc/cron.monthly/</code></td><td>Executable scripts run monthly</td><td>Scripts, not crontab files</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Interactive Cron Expression Builder</h3>
+        <p>Experiment with cron field values to understand how they combine into a complete schedule:</p>
+
+        <div class="cron-builder" role="region" aria-label="Interactive cron expression builder">
+            <h4>Build a Cron Schedule</h4>
+            <div class="cron-fields">
+                <div class="cron-field">
+                    <label for="cron-min">Minute<br><small>(0-59, *)</small></label>
+                    <input type="text" id="cron-min" value="30" aria-label="Minute field" maxlength="10">
+                </div>
+                <div class="cron-field">
+                    <label for="cron-hour">Hour<br><small>(0-23, *)</small></label>
+                    <input type="text" id="cron-hour" value="2" aria-label="Hour field" maxlength="10">
+                </div>
+                <div class="cron-field">
+                    <label for="cron-dom">Day/Month<br><small>(1-31, *)</small></label>
+                    <input type="text" id="cron-dom" value="*" aria-label="Day of month field" maxlength="10">
+                </div>
+                <div class="cron-field">
+                    <label for="cron-mon">Month<br><small>(1-12, *)</small></label>
+                    <input type="text" id="cron-mon" value="*" aria-label="Month field" maxlength="10">
+                </div>
+                <div class="cron-field">
+                    <label for="cron-dow">Day/Week<br><small>(0-6, *)</small></label>
+                    <input type="text" id="cron-dow" value="*" aria-label="Day of week field" maxlength="10">
+                </div>
+            </div>
+            <div class="cron-output" id="cron-output" aria-live="polite" aria-label="Generated cron expression">
+                30 2 * * *  root  /usr/local/bin/backup.sh
+            </div>
+            <div class="cron-meaning" id="cron-meaning" aria-live="polite">
+                At 02:30, every day of the week, every month
+            </div>
+        </div>
+
+        <h3>Creating a System Cron Job</h3>
+        <p>To create a system cron job, add a new crontab file in the <code class="inline">/etc/cron.d/</code> directory. The following example appends a timestamp to a file every two minutes:</p>
+
+        <div class="code-block" role="region" aria-label="Creating a system cron job in /etc/cron.d">
+            <div class="code-title">/etc/cron.d/timestamp_example</div>
+            <code>
+<span class="code-comment"># Example timestamp cronjob</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span>
+<span class="code-output">MAILTO=root</span>
+<span class="code-output"></span>
+<span class="code-comment"># Every 2 minutes, as root, append date to file</span>
+<span class="code-output">*/2  *  *  *  *  root  date >> /tmp/timestamp_example.txt</span>
+            </code>
+        </div>
+
+        <p>The <code class="inline">*/2</code> notation means "every 2 units" &mdash; in the minute field, it runs every two minutes. After several minutes, verify the output:</p>
+
+        <div class="code-block" role="region" aria-label="Verify cron job output">
+            <div class="code-title">Verify the job is running</div>
+            <code>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">cat /tmp/timestamp_example.txt</span>
+<span class="code-output">Fri May 30 15:48:01 UTC 2025</span>
+<span class="code-output">Fri May 30 15:50:01 UTC 2025</span>
+<span class="code-output">Fri May 30 15:52:01 UTC 2025</span>
+<span class="code-output">Fri May 30 15:54:01 UTC 2025</span>
+<span class="code-output">...output omitted...</span>
+            </code>
+        </div>
+
+        <h3>The /etc/cron.d/0hourly File</h3>
+        <p>Every script placed in <code class="inline">/etc/cron.hourly/</code> is executed via the <code class="inline">/etc/cron.d/0hourly</code> secondary crontab file. This file instructs <code class="inline">crond</code> to run the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-run-parts">run-parts<span class="tooltip-content" id="tt-run-parts">A script that runs every executable file found in a specified directory, used by cron to execute all scripts in the hourly, daily, weekly, and monthly directories.</span></span> command on the <code class="inline">/etc/cron.hourly</code> directory as root at one minute past every hour:</p>
+
+        <div class="code-block" role="region" aria-label="The /etc/cron.d/0hourly file">
+            <div class="code-title">/etc/cron.d/0hourly</div>
+            <code>
+<span class="code-comment"># Run the hourly jobs</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span>
+<span class="code-output">MAILTO=root</span>
+<span class="code-output">01 * * * *  root  run-parts /etc/cron.hourly</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+            <p>Use <code class="inline">chmod +x scriptname</code> to make a script executable before placing it in <code class="inline">/etc/cron.hourly</code>, <code class="inline">/etc/cron.daily</code>, or any cron directory. The <code class="inline">run-parts</code> command only runs files that are executable.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 8: ANACRON ==================== -->
+<section id="anacron" class="content-section" aria-labelledby="anacron-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="anacron-heading">Running Periodic Commands with Anacron</h2>
+    </div>
+    <div class="section-body">
+        <p>The <code class="inline">crond</code> daemon assumes the system is always running. If a system is powered off or hibernated when a cron job was scheduled, that job is simply skipped &mdash; it will not run when the system comes back online. This is where <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-anacron2">anacron<span class="tooltip-content" id="tt-anacron2">A job scheduler that fills the gap left by crond: it ensures daily, weekly, and monthly jobs run even if the system was offline at the scheduled time, running them when the system becomes ready.</span></span> fills an important gap.</p>
+
+        <p>The <code class="inline">anacron</code> command uses the <code class="inline">run-parts</code> script to execute daily, weekly, or monthly jobs from the <code class="inline">/etc/anacrontab</code> configuration file. It ensures scheduled jobs always run and are not accidentally skipped due to the system being turned off or hibernated.</p>
+
+        <h3>How Anacron Works</h3>
+        <p>Anacron tracks the last time each job ran by storing timestamps in the <code class="inline">/var/spool/anacron/</code> directory. When the system starts or anacron is invoked, it compares the current date against those timestamps. If a job is overdue, anacron runs it (after a configurable delay).</p>
+
+        <h3>The /etc/anacrontab Configuration File</h3>
+        <p>The <code class="inline">/etc/anacrontab</code> file has a different syntax from regular crontab files, using four fields per job line:</p>
+
+        <div class="code-block" role="region" aria-label="The /etc/anacrontab configuration file">
+            <div class="code-title">/etc/anacrontab</div>
+            <code>
+<span class="code-comment"># /etc/anacrontab: configuration file for anacron</span>
+<span class="code-comment"># See anacron(8) and anacrontab(5) for details.</span>
+<span class="code-output">SHELL=/bin/sh</span>
+<span class="code-output">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span>
+<span class="code-output">MAILTO=root</span>
+<span class="code-comment"># the maximal random delay added to the base delay</span>
+<span class="code-output">RANDOM_DELAY=45</span>
+<span class="code-comment"># jobs start only during these hours</span>
+<span class="code-output">START_HOURS_RANGE=3-22</span>
+<span class="code-output"></span>
+<span class="code-comment">#period-in-days  delay-minutes  job-id        command</span>
+<span class="code-output">1                5              cron.daily    nice run-parts /etc/cron.daily</span>
+<span class="code-output">7                25             cron.weekly   nice run-parts /etc/cron.weekly</span>
+<span class="code-output">@monthly         45             cron.monthly  nice run-parts /etc/cron.monthly</span>
+            </code>
+        </div>
+
+        <h3>Anacrontab Field Descriptions</h3>
+        <table class="data-table" aria-label="Anacrontab field descriptions">
+            <thead>
+                <tr><th scope="col">Field</th><th scope="col">Description</th><th scope="col">Example</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Period in days</strong></td>
+                    <td>How often to run the job (in days). Also accepts macros: <code>@daily</code> (=1), <code>@weekly</code> (=7), <code>@monthly</code>.</td>
+                    <td><code>1</code>, <code>7</code>, <code>@monthly</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Delay in minutes</strong></td>
+                    <td>How long the crond daemon waits before starting the job after anacron is invoked. Prevents all jobs from running simultaneously at startup.</td>
+                    <td><code>5</code>, <code>25</code>, <code>45</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Job identifier</strong></td>
+                    <td>A unique name that identifies this job in log messages and the <code>/var/spool/anacron/</code> timestamp files.</td>
+                    <td><code>cron.daily</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Command</strong></td>
+                    <td>The command to execute. Typically <code>nice run-parts /etc/cron.daily</code> to run all scripts in the directory at reduced priority.</td>
+                    <td><code>nice run-parts /etc/cron.daily</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Important Anacrontab Variables</h3>
+        <ul>
+            <li><strong><code>RANDOM_DELAY</code></strong> &mdash; A random number of minutes (up to this value) added to the base delay for each job. This staggers job execution to avoid resource spikes when multiple jobs become due simultaneously.</li>
+            <li><strong><code>START_HOURS_RANGE</code></strong> &mdash; Jobs only start during this time window. If a job is due but the system time is outside this range, the job will wait until the next day's window. In the example above, jobs only run between 03:00 and 22:00.</li>
+        </ul>
+
+        <h3>The Relationship Between Cron and Anacron</h3>
+        <p>The <code class="inline">crond</code> service and <code class="inline">anacron</code> work together in a carefully orchestrated chain:</p>
+
+        <div class="timer-flow" role="img" aria-label="Cron and anacron relationship: crond runs 0hourly at :01, which triggers 0anacron script, which runs anacron -s, which reads anacrontab and runs daily/weekly/monthly cron directories">
+            <div class="timer-box config-box">
+                crond<br><small>Runs every minute</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box active-box">
+                /etc/cron.d/0hourly<br><small>Runs run-parts at :01</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box">
+                /etc/cron.hourly/0anacron<br><small>Invokes anacron -s</small>
+            </div>
+            <div class="timer-arrow" aria-hidden="true">&#8594;</div>
+            <div class="timer-box service-box">
+                anacron reads<br>/etc/anacrontab<br><small>Runs daily/weekly/monthly</small>
+            </div>
+        </div>
+
+        <ol>
+            <li><strong>crond</strong> reads <code class="inline">/etc/cron.d/0hourly</code> and at one minute past every hour executes <code class="inline">run-parts /etc/cron.hourly</code> as root.</li>
+            <li>The <code class="inline">/etc/cron.hourly/</code> directory contains a shell script named <code class="inline">0anacron</code> that conditionally runs <code class="inline">/usr/sbin/anacron -s</code>.</li>
+            <li><code class="inline">anacron -s</code> reads <code class="inline">/etc/anacrontab</code> and executes <code class="inline">nice run-parts</code> on the <code class="inline">cron.daily</code>, <code class="inline">cron.weekly</code>, and <code class="inline">cron.monthly</code> directories (with a random delay of up to 45 minutes).</li>
+        </ol>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#128203;</span><span>Note</span></div>
+            <p>The <code class="inline">crontabs</code> command is a legacy name for the <code class="inline">run-parts</code> script and the system crontab. You may encounter it in older documentation.</p>
+        </div>
+
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Cron vs Systemd Timers: When to Use Each</span></div>
+            <p><strong>Use systemd timer units</strong> for new scheduled system tasks on RHEL 10. They integrate with journald for logging, support richer calendar expressions, and are the preferred method going forward. <strong>Use cron/anacron</strong> when managing legacy scripts already placed in <code class="inline">/etc/cron.d/</code> or the periodic directories, or when time-sensitive precision is required.</p>
+        </div>
+
+        <h3>References</h3>
+        <p>For complete documentation, see: <code class="inline">crontab(5)</code>, <code class="inline">crontabs(4)</code>, <code class="inline">anacron(8)</code>, <code class="inline">anacrontab(5)</code>, and <code class="inline">crond(8)</code> man pages.</p>
+    </div>
+</section>
+
+<!-- ==================== SECTION 9: QUIZ ==================== -->
+<section id="quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of scheduling system tasks. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <!-- Q1 -->
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. In RHEL 10, which mechanism has replaced the traditional cron daemon as the primary method for scheduling recurring system tasks?</p>
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> at command</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> systemd timer units</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> anacron</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> /etc/crontab</label>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. You want to customize the <code class="inline">logrotate.timer</code> unit configuration without risking your changes being overwritten by a package update. Where should you place the modified file?</p>
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> /run/systemd/system/</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> /usr/lib/systemd/system/</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> /etc/systemd/system/</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> /var/lib/systemd/system/</label>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p>3. After modifying a systemd timer unit configuration file, which command must you run before the changes take effect?</p>
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> systemctl daemon-reload</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> systemctl restart systemd</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> systemd-tmpfiles --refresh</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> systemctl reset-failed</label>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p>4. In a <code class="inline">tmpfiles.d</code> configuration file, what does the type letter <strong>D</strong> (uppercase) indicate, compared to lowercase <strong>d</strong>?</p>
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> D deletes the directory; d creates it</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> D creates the directory with root ownership; d allows any user</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> Both are identical; case does not matter</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> D creates the directory and removes its contents when cleaned; d creates the directory without purging contents</label>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. A system is shut down every night for maintenance. You need a script in <code class="inline">/etc/cron.daily/</code> to run every day. Which tool ensures this script still runs on days when the system was offline at the scheduled time?</p>
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> crond</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> anacron</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> systemd-tmpfiles</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> at</label>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p>6. Which <code class="inline">systemd-tmpfiles</code> configuration file location takes highest priority when the same filename exists in multiple directories?</p>
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> /run/tmpfiles.d/</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> /usr/lib/tmpfiles.d/</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> /etc/tmpfiles.d/</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> All locations are treated equally</label>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p>7. What is the correct cron expression to run a command at 03:30 every Sunday?</p>
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> 30 3 * * 0</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> 3 30 * * 0</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> 30 3 0 * *</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> * * * * 0 03:30</label>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-question" data-question="8" data-correct="b">
+            <p>8. You run <code class="inline">systemctl enable logrotate.timer</code>. What is the immediate effect of this command?</p>
+            <label class="quiz-option"><input type="radio" name="q8" value="a"> The timer starts immediately and is configured to start at boot</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="b"> The timer is configured to start at boot, but does not start right now</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="c"> The timer starts immediately for this session only</label>
+            <label class="quiz-option"><input type="radio" name="q8" value="d"> The logrotate.service runs immediately</label>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div class="quiz-controls">
+            <button class="quiz-btn primary" id="check-quiz" aria-label="Check quiz answers">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz" aria-label="Reset quiz">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 10: LAB ==================== -->
+<section id="lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="lab-heading">Hands-On Lab: Scheduling System Tasks</h2>
+    </div>
+    <div class="section-body">
+
+        <div class="lab-scenario">
+            <h3>&#128296; Lab Scenario</h3>
+            <p>You are a system administrator at Redhat Training. You need to configure <strong>serverb.lab.example.com</strong> to run several recurring maintenance tasks: a custom systemd timer unit for performance data collection, a tmpfiles configuration to manage a custom working directory, and a system cron job for log archiving. All work is done on <strong>workstation.lab.example.com</strong> via SSH.</p>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Warning</span></div>
+            <p>The commands in tasks 2 and 3 modify system scheduling and temporary file configurations. Always test configurations individually before applying them system-wide. On production systems, use <code class="inline">--create</code> before <code class="inline">--clean</code> to avoid accidental data loss.</p>
+        </div>
+
+        <!-- Task 1 -->
+        <div class="expandable lab-task" aria-label="Task 1: Explore existing timer units">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1-content" id="lab-task1-header">
+                <span><span class="task-number">1</span>Task 1: Explore and inspect existing timer units</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1-content" role="region" aria-labelledby="lab-task1-header">
+                <p><strong>Objective:</strong> List active timer units, inspect a timer's configuration, and identify the next trigger time for the log rotation timer.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Step 1: SSH to serverb and list active timers</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-root">[student@serverb ~]$</span> <span class="code-command">sudo systemctl list-units -t timer</span>
+<span class="code-output">UNIT                            LOAD    ACTIVE  SUB      DESCRIPTION</span>
+<span class="code-output">dnf-makecache.timer             loaded  active  waiting  dnf makecache</span>
+<span class="code-output">logrotate.timer                 loaded  active  waiting  Daily rotation of log files</span>
+<span class="code-output">systemd-tmpfiles-clean.timer    loaded  active  waiting  Daily Cleanup...</span>
+<span class="code-output">...output omitted...</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 1 step 2 commands">
+                    <div class="code-title">Step 2: Inspect logrotate.timer details</div>
+                    <code>
+<span class="code-root">[student@serverb ~]$</span> <span class="code-command">sudo systemctl cat logrotate.timer</span>
+<span class="code-output"># /usr/lib/systemd/system/logrotate.timer</span>
+<span class="code-output">[Unit]</span>
+<span class="code-output">Description=Daily rotation of log files</span>
+<span class="code-output">[Timer]</span>
+<span class="code-output">OnCalendar=daily</span>
+<span class="code-output">AccuracySec=1h</span>
+<span class="code-output">Persistent=true</span>
+<span class="code-output">[Install]</span>
+<span class="code-output">WantedBy=timers.target</span>
+
+<span class="code-root">[student@serverb ~]$</span> <span class="code-command">sudo systemctl status logrotate.timer</span>
+<span class="code-output">&#9679; logrotate.timer - Daily rotation of log files</span>
+<span class="code-output">     Active: active (waiting)...</span>
+<span class="code-output">    Trigger: Fri 2025-05-31 00:00:00 UTC; 8h left</span>
+<span class="code-output">   Triggers: &#9679; logrotate.service</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="expandable lab-task" aria-label="Task 2: Create a custom systemd timer unit">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2-content" id="lab-task2-header">
+                <span><span class="task-number">2</span>Task 2: Create a custom systemd timer unit for performance data</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2-content" role="region" aria-labelledby="lab-task2-header">
+                <p><strong>Objective:</strong> Create a service unit that logs system load, and a timer unit that runs it every 5 minutes.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Step 1: Create the service unit</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat &gt; /etc/systemd/system/perflog.service &lt;&lt;'EOF'</span>
+<span class="code-output">[Unit]</span>
+<span class="code-output">Description=Log system performance data</span>
+<span class="code-output"></span>
+<span class="code-output">[Service]</span>
+<span class="code-output">Type=oneshot</span>
+<span class="code-output">ExecStart=/bin/bash -c 'echo "$(date): load=$(cat /proc/loadavg)" >> /var/log/perflog.txt'</span>
+<span class="code-output">EOF</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 2 step 2">
+                    <div class="code-title">Step 2: Create the timer unit</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat &gt; /etc/systemd/system/perflog.timer &lt;&lt;'EOF'</span>
+<span class="code-output">[Unit]</span>
+<span class="code-output">Description=Log performance data every 5 minutes</span>
+<span class="code-output"></span>
+<span class="code-output">[Timer]</span>
+<span class="code-output">OnCalendar=*:00/5</span>
+<span class="code-output">Persistent=true</span>
+<span class="code-output"></span>
+<span class="code-output">[Install]</span>
+<span class="code-output">WantedBy=timers.target</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Reload systemd and enable the timer</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now perflog.timer</span>
+<span class="code-output">Created symlink /etc/systemd/system/timers.target.wants/perflog.timer...</span>
+
+<span class="code-comment"># Verify the timer is active</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl status perflog.timer</span>
+<span class="code-output">&#9679; perflog.timer - Log performance data every 5 minutes</span>
+<span class="code-output">     Active: active (waiting)...</span>
+<span class="code-output">    Trigger: ...next 5-minute mark...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="expandable lab-task" aria-label="Task 3: Configure a tmpfiles.d entry">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3-content" id="lab-task3-header">
+                <span><span class="task-number">3</span>Task 3: Create a tmpfiles.d configuration for a custom working directory</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3-content" role="region" aria-labelledby="lab-task3-header">
+                <p><strong>Objective:</strong> Create a tmpfiles.d configuration that ensures a custom working directory exists, is owned by the <code class="inline">webapp</code> user, and files older than 7 days are automatically purged.</p>
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Create and apply a custom tmpfiles.d configuration</div>
+                    <code>
+<span class="code-comment"># Create the configuration file (in /etc/tmpfiles.d/ for admin settings)</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat &gt; /etc/tmpfiles.d/webapp.conf &lt;&lt;'EOF'</span>
+<span class="code-comment"># Webapp working directory - purge files older than 7 days</span>
+<span class="code-output">D  /run/webapp  0750  webapp  webapp  7d</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Apply the configuration immediately (create the directory now)</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemd-tmpfiles --create /etc/tmpfiles.d/webapp.conf</span>
+
+<span class="code-comment"># Verify the directory was created with the correct permissions</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ls -ld /run/webapp</span>
+<span class="code-output">drwxr-x--- 2 webapp webapp 40 May 30 16:00 /run/webapp</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4 -->
+        <div class="expandable lab-task" aria-label="Task 4: Create a system cron job">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4-content" id="lab-task4-header">
+                <span><span class="task-number">4</span>Task 4: Create a system cron job for log archiving</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4-content" role="region" aria-labelledby="lab-task4-header">
+                <p><strong>Objective:</strong> Create a system cron job that compresses the access log every Sunday at 02:00 as the root user.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Create /etc/cron.d/archive_access_log</div>
+                    <code>
+<span class="code-comment"># Create the crontab file in /etc/cron.d/</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat &gt; /etc/cron.d/archive_access_log &lt;&lt;'EOF'</span>
+<span class="code-comment"># Archive access log every Sunday at 02:00</span>
+<span class="code-output">SHELL=/bin/bash</span>
+<span class="code-output">PATH=/sbin:/bin:/usr/sbin:/usr/bin</span>
+<span class="code-output">MAILTO=root</span>
+<span class="code-output">0  2  *  *  0  root  gzip -c /var/log/httpd/access_log >> /var/log/httpd/access_log_archive.gz</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Verify crond picks up the file (no restart needed)</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ls -la /etc/cron.d/archive_access_log</span>
+<span class="code-output">-rw-r--r-- 1 root root 198 May 30 16:15 /etc/cron.d/archive_access_log</span>
+
+<span class="code-comment"># crond reads /etc/cron.d/ automatically; no reload required</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 5 -->
+        <div class="expandable lab-task" aria-label="Task 5: Customize the tmpfiles-clean timer">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5-content" id="lab-task5-header">
+                <span><span class="task-number">5</span>Task 5: Customize the systemd-tmpfiles-clean.timer interval</span>
+                <span class="expandable-arrow" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task5-content" role="region" aria-labelledby="lab-task5-header">
+                <p><strong>Objective:</strong> Change the <code class="inline">systemd-tmpfiles-clean.timer</code> to run every 30 minutes instead of daily, without editing the vendor-provided file.</p>
+                <div class="code-block" role="region" aria-label="Task 5 commands">
+                    <div class="code-title">Safely override the vendor timer configuration</div>
+                    <code>
+<span class="code-comment"># 1. Copy vendor file to administrator directory</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cp /usr/lib/systemd/system/systemd-tmpfiles-clean.timer \</span>
+<span class="code-output">        /etc/systemd/system/systemd-tmpfiles-clean.timer</span>
+
+<span class="code-comment"># 2. Edit the copy — change OnUnitActiveSec to 30min</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">sed -i 's/OnUnitActiveSec=1d/OnUnitActiveSec=30min/' \</span>
+<span class="code-output">        /etc/systemd/system/systemd-tmpfiles-clean.timer</span>
+
+<span class="code-comment"># 3. Reload systemd daemon to apply the new configuration</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># 4. Verify the change took effect</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl cat systemd-tmpfiles-clean.timer | grep OnUnit</span>
+<span class="code-output">OnUnitActiveSec=30min</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Completion checklist -->
+        <h3>Lab Completion Checklist</h3>
+        <ul class="completion-checklist" role="list">
+            <li>Listed active timer units using <code class="inline">systemctl list-units -t timer</code> and inspected the logrotate timer</li>
+            <li>Created a <code class="inline">perflog.service</code> and <code class="inline">perflog.timer</code> in <code class="inline">/etc/systemd/system/</code></li>
+            <li>Ran <code class="inline">systemctl daemon-reload</code> and enabled the custom timer with <code class="inline">--now</code></li>
+            <li>Created <code class="inline">/etc/tmpfiles.d/webapp.conf</code> and applied it with <code class="inline">systemd-tmpfiles --create</code></li>
+            <li>Created a cron job in <code class="inline">/etc/cron.d/</code> (not in <code class="inline">/etc/crontab</code>)</li>
+            <li>Safely overrode <code class="inline">systemd-tmpfiles-clean.timer</code> by copying to <code class="inline">/etc/systemd/system/</code></li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 11: SUMMARY ==================== -->
+<section id="summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned about the methods used to run recurring system tasks automatically in Red Hat Enterprise Linux 10.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li><strong>Systemd timer units</strong> are the preferred mechanism for scheduling recurring system tasks in RHEL 10. A <code class="inline">.timer</code> file defines the schedule; a matching <code class="inline">.service</code> file performs the work. Timer events are logged in the system journal for easy debugging.</li>
+            <li><strong>Timer management</strong> uses standard <code class="inline">systemctl</code> commands: <code class="inline">list-units -t timer</code>, <code class="inline">start</code>, <code class="inline">stop</code>, <code class="inline">enable --now</code>, and <code class="inline">status</code>. Always run <code class="inline">systemctl daemon-reload</code> after modifying unit files.</li>
+            <li><strong>Safe customization</strong> of vendor-provided unit files requires copying from <code class="inline">/usr/lib/systemd/system/</code> to <code class="inline">/etc/systemd/system/</code> and editing the copy. Files in <code class="inline">/etc/systemd/system/</code> take precedence.</li>
+            <li><strong>systemd-tmpfiles</strong> provides structured management of temporary files and directories using configuration files in <code class="inline">/etc/tmpfiles.d/</code>, <code class="inline">/run/tmpfiles.d/</code>, and <code class="inline">/usr/lib/tmpfiles.d/</code>. The <code class="inline">systemd-tmpfiles-clean.timer</code> runs periodic cleanups automatically.</li>
+            <li><strong>The cron system</strong> (crond + anacron) remains important for time-sensitive jobs and legacy scripts. Always create custom crontab files in <code class="inline">/etc/cron.d/</code>, never edit <code class="inline">/etc/crontab</code> directly.</li>
+            <li><strong>Anacron</strong> ensures that daily, weekly, and monthly jobs in the cron directories are not skipped due to the system being offline, making it ideal for workstations and systems that are not always running.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="data-table cmd-ref" aria-label="Chapter 4 command quick reference">
+            <thead>
+                <tr><th scope="col">Command</th><th scope="col">Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>systemctl list-units -t timer</code></td><td>List active/loaded timer units</td></tr>
+                <tr><td><code>systemctl list-unit-files -t timer</code></td><td>List all installed timer unit files</td></tr>
+                <tr><td><code>systemctl start|stop UNIT.timer</code></td><td>Start or stop a timer (current session)</td></tr>
+                <tr><td><code>systemctl enable --now UNIT.timer</code></td><td>Enable at boot and start immediately</td></tr>
+                <tr><td><code>systemctl disable --now UNIT.timer</code></td><td>Disable at boot and stop immediately</td></tr>
+                <tr><td><code>systemctl status UNIT.timer</code></td><td>Show timer status and next trigger time</td></tr>
+                <tr><td><code>systemctl cat UNIT.timer</code></td><td>Display the timer unit configuration file</td></tr>
+                <tr><td><code>systemctl daemon-reload</code></td><td>Reload all systemd unit configurations</td></tr>
+                <tr><td><code>systemd-tmpfiles --create [FILE]</code></td><td>Create files/dirs per configuration</td></tr>
+                <tr><td><code>systemd-tmpfiles --clean [FILE]</code></td><td>Purge aged-out temporary files</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Chapter navigation -->
+        <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+            <a href="rh134_chapter3_scheduling.html" class="nav-chapter-btn prev">&#8592; Chapter 3: Scheduling User Tasks</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter5.html" class="nav-chapter-btn next">Chapter 5: Managing Tuning Profiles &#8594;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer role="contentinfo">
+    <p><strong>RH134 &mdash; Red Hat System Administration II</strong> | Chapter 4: Scheduling System Tasks</p>
+    <p>Targeting RHEL 10 &bull; RHCSA Exam Preparation</p>
+    <p style="margin-top:10px; font-size:0.8rem; opacity:0.7;">
+        Red Hat and Red Hat Enterprise Linux are registered trademarks of Red Hat, Inc. in the United States and other countries.<br>
+        This material is an independent educational resource and is not affiliated with or endorsed by Red Hat, Inc.
+    </p>
+    <p style="margin-top:8px;"><a href="index.html">&#8592; Return to Course Index</a></p>
+</footer>
+
+
+<script>
+/* ==================== PROGRESS BAR ==================== */
+(function() {
+    const sections = document.querySelectorAll('.content-section');
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const visited = new Set();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) visited.add(e.target.id); });
+        const pct = Math.round((visited.size / sections.length) * 100);
+        fill.style.width = pct + '%';
+        fill.setAttribute('aria-valuenow', pct);
+        text.textContent = pct + '% complete';
+    }, { threshold: 0.25 });
+
+    sections.forEach(s => observer.observe(s));
+})();
+
+/* ==================== ACTIVE NAV HIGHLIGHTING ==================== */
+(function() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.content-section');
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-section') === id) {
+                        btn.classList.add('active', 'visited');
+                    }
+                });
+            }
+        });
+    }, { rootMargin: '-20% 0px -60% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+})();
+
+/* ==================== TOOLTIP SYSTEM ==================== */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTimeout = null;
+
+    function positionBubble(term) {
+        const rect = term.getBoundingClientRect();
+        const bw = bubble.offsetWidth || 280;
+        const bh = bubble.offsetHeight || 80;
+        const margin = 8;
+        const arrowH = 10;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        const spaceAbove = rect.top;
+        const spaceBelow = vh - rect.bottom;
+
+        let left, top, dir;
+
+        if (spaceAbove >= bh + arrowH + margin) {
+            dir = 'above';
+            top = rect.top - bh - arrowH - 2;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceBelow >= bh + arrowH + margin) {
+            dir = 'below';
+            top = rect.bottom + arrowH + 2;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (vw - rect.right >= bw + margin) {
+            dir = 'right';
+            left = rect.right + arrowH + 2;
+            top = rect.top + rect.height / 2 - bh / 2;
+        } else {
+            dir = 'left';
+            left = rect.left - bw - arrowH - 2;
+            top = rect.top + rect.height / 2 - bh / 2;
+        }
+
+        // Clamp to viewport
+        left = Math.max(margin, Math.min(left, vw - bw - margin));
+        top  = Math.max(margin, Math.min(top,  vh - bh - margin));
+
+        // Arrow offset
+        if (dir === 'above' || dir === 'below') {
+            const rawArrowX = rect.left + rect.width / 2 - left;
+            const clampedArrowX = Math.max(16, Math.min(rawArrowX, bw - 16));
+            bubble.style.setProperty('--arrow-x', clampedArrowX + 'px');
+            bubble.style.removeProperty('--arrow-y');
+        } else {
+            const rawArrowY = rect.top + rect.height / 2 - top;
+            const clampedArrowY = Math.max(16, Math.min(rawArrowY, bh - 16));
+            bubble.style.setProperty('--arrow-y', clampedArrowY + 'px');
+            bubble.style.removeProperty('--arrow-x');
+        }
+
+        bubble.style.left = left + 'px';
+        bubble.style.top  = top  + 'px';
+        bubble.setAttribute('data-dir', dir);
+    }
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        if (!contentEl) return;
+
+        bubble.textContent = contentEl.textContent.trim();
+        bubble.removeAttribute('aria-hidden');
+        bubble.classList.add('visible');
+
+        // Measure after making visible
+        requestAnimationFrame(() => {
+            positionBubble(term);
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+        bubble.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => { clearTimeout(activeTimeout); showTooltip(term); });
+        term.addEventListener('mouseleave', () => { activeTimeout = setTimeout(hideTooltip, 200); });
+        term.addEventListener('focus',      () => { clearTimeout(activeTimeout); showTooltip(term); });
+        term.addEventListener('blur',       () => { activeTimeout = setTimeout(hideTooltip, 200); });
+        term.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
+    });
+
+    bubble.addEventListener('mouseenter', () => clearTimeout(activeTimeout));
+    bubble.addEventListener('mouseleave', () => { activeTimeout = setTimeout(hideTooltip, 200); });
+})();
+
+/* ==================== TAB SYSTEM ==================== */
+(function() {
+    document.querySelectorAll('.tabs-container').forEach(container => {
+        const btns = container.querySelectorAll('.tab-btn');
+        const panels = container.querySelectorAll('.tab-panel');
+
+        function activateTab(idx) {
+            btns.forEach((b, i) => {
+                b.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+            });
+            panels.forEach((p, i) => {
+                p.classList.toggle('active', i === idx);
+            });
+        }
+
+        btns.forEach((btn, idx) => {
+            btn.addEventListener('click', () => activateTab(idx));
+            btn.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') { e.preventDefault(); activateTab((idx + 1) % btns.length); btns[(idx + 1) % btns.length].focus(); }
+                if (e.key === 'ArrowLeft')  { e.preventDefault(); activateTab((idx - 1 + btns.length) % btns.length); btns[(idx - 1 + btns.length) % btns.length].focus(); }
+                if (e.key === 'Home') { e.preventDefault(); activateTab(0); btns[0].focus(); }
+                if (e.key === 'End')  { e.preventDefault(); activateTab(btns.length - 1); btns[btns.length - 1].focus(); }
+            });
+        });
+    });
+})();
+
+/* ==================== EXPANDABLE SECTIONS ==================== */
+(function() {
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const contentId = header.getAttribute('aria-controls');
+            const content = document.getElementById(contentId);
+            if (content) content.classList.toggle('show', !expanded);
+        });
+    });
+})();
+
+/* ==================== CRON BUILDER ==================== */
+(function() {
+    const fields = {
+        min: document.getElementById('cron-min'),
+        hour: document.getElementById('cron-hour'),
+        dom: document.getElementById('cron-dom'),
+        mon: document.getElementById('cron-mon'),
+        dow: document.getElementById('cron-dow')
+    };
+    const output = document.getElementById('cron-output');
+    const meaning = document.getElementById('cron-meaning');
+
+    const dowNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const monNames = ['','January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function describe(field, val, type) {
+        if (val === '*') {
+            if (type === 'min') return 'every minute';
+            if (type === 'hour') return 'every hour';
+            if (type === 'dom') return 'every day of the month';
+            if (type === 'mon') return 'every month';
+            if (type === 'dow') return 'every day of the week';
+        }
+        if (val.startsWith('*/')) {
+            const n = val.substring(2);
+            if (type === 'min') return `every ${n} minutes`;
+            if (type === 'hour') return `every ${n} hours`;
+            return `every ${n}`;
+        }
+        const n = parseInt(val);
+        if (!isNaN(n)) {
+            if (type === 'min') return `at minute ${n}`;
+            if (type === 'hour') return `hour ${n} (${n < 12 ? n + ' AM' : (n === 12 ? '12 PM' : (n-12) + ' PM')})`;
+            if (type === 'dom') return `day ${n} of the month`;
+            if (type === 'mon') return monNames[n] || `month ${n}`;
+            if (type === 'dow') return dowNames[n] || `day ${n} of the week`;
+        }
+        return val;
+    }
+
+    function updateCron() {
+        const m = fields.min.value || '*';
+        const h = fields.hour.value || '*';
+        const d = fields.dom.value || '*';
+        const mo = fields.mon.value || '*';
+        const dw = fields.dow.value || '*';
+
+        output.textContent = `${m} ${h} ${d} ${mo} ${dw}  root  /usr/local/bin/yourscript.sh`;
+
+        const parts = [];
+        if (m !== '*' || h !== '*') parts.push(`At ${describe(fields.min, m, 'min')}, ${describe(fields.hour, h, 'hour')}`);
+        else parts.push('Every minute of every hour');
+        if (d !== '*') parts.push(describe(fields.dom, d, 'dom'));
+        if (mo !== '*') parts.push(`in ${describe(fields.mon, mo, 'mon')}`);
+        if (dw !== '*') parts.push(`on ${describe(fields.dow, dw, 'dow')}`);
+        meaning.textContent = parts.join(', ');
+    }
+
+    Object.values(fields).forEach(f => { if (f) f.addEventListener('input', updateCron); });
+    updateCron();
+})();
+
+/* ==================== QUIZ LOGIC ==================== */
+(function() {
+    const checkBtn  = document.getElementById('check-quiz');
+    const resetBtn  = document.getElementById('reset-quiz');
+    const scoreDiv  = document.getElementById('quiz-score');
+
+    const explanations = {
+        1: { correct: 'Correct! In RHEL 10, systemd timer units have replaced crond as the primary scheduling mechanism for system tasks.', wrong: 'Incorrect. In RHEL 10, systemd timer units are the primary mechanism for scheduling recurring system tasks.' },
+        2: { correct: 'Correct! Files in /etc/systemd/system/ override those in /usr/lib/systemd/system/ and are not overwritten by package updates.', wrong: 'Incorrect. To safely override vendor unit files, copy them to /etc/systemd/system/ — this directory takes precedence and is not overwritten by updates.' },
+        3: { correct: 'Correct! You must run systemctl daemon-reload after modifying any unit configuration file to reload the changes.', wrong: 'Incorrect. After modifying a unit configuration file, run systemctl daemon-reload to make systemd aware of the changes.' },
+        4: { correct: 'Correct! Uppercase D creates the directory and removes its contents during cleanup; lowercase d creates the directory but does not purge contents.', wrong: 'Incorrect. Uppercase D creates the directory and removes old contents during cleanup. Lowercase d creates the directory but never purges contents automatically.' },
+        5: { correct: 'Correct! Anacron ensures jobs in /etc/cron.daily/ are not skipped due to the system being offline, making it ideal for this scenario.', wrong: 'Incorrect. Anacron tracks whether jobs have run and ensures they run even if the system was offline at the scheduled time.' },
+        6: { correct: 'Correct! /etc/tmpfiles.d/ has the highest priority — files there override both /run/tmpfiles.d/ and /usr/lib/tmpfiles.d/.', wrong: 'Incorrect. /etc/tmpfiles.d/ has the highest priority, followed by /run/tmpfiles.d/, then /usr/lib/tmpfiles.d/.' },
+        7: { correct: 'Correct! Cron order is: minute hour dom month dow. So "30 3 * * 0" means minute 30, hour 3, every dom, every month, Sunday (0).', wrong: 'Incorrect. Cron field order is: minute hour day-of-month month day-of-week. Sunday at 03:30 is: 30 3 * * 0.' },
+        8: { correct: 'Correct! systemctl enable configures the unit to start at boot but does not start it immediately. Use --now to both enable and start.', wrong: 'Incorrect. systemctl enable without --now only configures the unit to start at boot — it does not start the timer in the current session.' }
+    };
+
+    if (checkBtn) {
+        checkBtn.addEventListener('click', () => {
+            let score = 0;
+            let total = 0;
+            document.querySelectorAll('.quiz-question').forEach(q => {
+                const qNum = parseInt(q.getAttribute('data-question'));
+                const correct = q.getAttribute('data-correct');
+                const selected = q.querySelector('input[type="radio"]:checked');
+                const fb = document.getElementById('feedback-' + qNum);
+                total++;
+
+                q.classList.remove('correct', 'incorrect');
+                if (fb) { fb.classList.remove('show', 'correct', 'incorrect'); }
+
+                if (selected) {
+                    const isCorrect = selected.value === correct;
+                    q.classList.add(isCorrect ? 'correct' : 'incorrect');
+                    if (fb && explanations[qNum]) {
+                        fb.textContent = isCorrect ? explanations[qNum].correct : explanations[qNum].wrong;
+                        fb.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+                    }
+                    if (isCorrect) score++;
+                } else {
+                    q.classList.add('incorrect');
+                    if (fb) { fb.textContent = 'Please select an answer.'; fb.classList.add('show', 'incorrect'); }
+                }
+            });
+            scoreDiv.textContent = `Score: ${score} / ${total} correct`;
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            document.querySelectorAll('.quiz-question').forEach(q => {
+                q.classList.remove('correct', 'incorrect');
+                q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+                const qNum = q.getAttribute('data-question');
+                const fb = document.getElementById('feedback-' + qNum);
+                if (fb) { fb.classList.remove('show', 'correct', 'incorrect'); fb.textContent = ''; }
+            });
+            scoreDiv.textContent = '';
+        });
+    }
+})();
+</script>
+</body>
+</html>
