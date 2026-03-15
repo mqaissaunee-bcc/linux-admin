@@ -2290,7 +2290,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">3 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">5 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -2444,6 +2444,108 @@
                             <li>Scheduling deferred jobs with at</li>
                             <li>Recurring jobs with crontab syntax</li>
                             <li>systemd timer units</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 4 Card -->
+                <a href="rh134_chapter4_scheduling_system_tasks.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch4-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19.43 12.98c.04-.32.07-.64.07-.98 0-.34-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98 0 .33.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 4</span>
+                        <h3 class="card-title" id="card-rh134-ch4-title">Scheduling System Tasks</h3>
+                        <p class="card-subtitle">systemd timers, tmpfiles, and anacron</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Manage system-level scheduled tasks using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-systemd-timers4">systemd timer units</button>
+                                <span class="tooltip-content" id="tooltip-systemd-timers4" role="tooltip">systemd timer units activate a corresponding .service unit on a schedule. They offer precise OnCalendar= scheduling, boot-relative delays with OnBootSec=, and full integration with journalctl for logging.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-tmpfiles">systemd-tmpfiles</button>
+                                <span class="tooltip-content" id="tooltip-tmpfiles" role="tooltip">systemd-tmpfiles manages the creation, deletion, and cleaning of temporary files and directories. Rules in /etc/tmpfiles.d/ define what to create or purge, replacing legacy init scripts for /tmp and /run management.</span>
+                            </span>, and
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-anacron">anacron</button>
+                                <span class="tooltip-content" id="tooltip-anacron" role="tooltip">anacron runs periodic commands on systems that are not always on. Unlike cron, it tracks the last run time in a timestamp file and executes missed jobs after the system boots, making it ideal for laptops and desktops.</span>
+                            </span>
+                            to keep systems clean and tasks running reliably across reboots.
+                        </p>
+                        <ul class="card-topics">
+                            <li>systemd timer unit configuration</li>
+                            <li>Managing temporary files with systemd-tmpfiles</li>
+                            <li>Recurring system jobs with cron and anacron</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 5 Card -->
+                <a href="rh134_chapter5_logs.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch5-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6zm2-4h8v2H8v-2zm0-4h8v2H8v-2zm0-4h5v2H8v-2z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 5</span>
+                        <h3 class="card-title" id="card-rh134-ch5-title">Analyzing and Storing Logs</h3>
+                        <p class="card-subtitle">rsyslog, journald, and centralized logging</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Collect, query, and manage system logs using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-journald">systemd-journald</button>
+                                <span class="tooltip-content" id="tooltip-journald" role="tooltip">systemd-journald collects structured binary log data from the kernel, services, and applications. Use journalctl to query logs by unit, priority, time range, or boot session. Persistent storage requires /var/log/journal/ to exist.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rsyslog">rsyslog</button>
+                                <span class="tooltip-content" id="tooltip-rsyslog" role="tooltip">rsyslog is a high-performance syslog daemon that routes log messages based on facility and severity to files, remote servers, or databases. Configuration lives in /etc/rsyslog.conf and /etc/rsyslog.d/.</span>
+                            </span>, and
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-logrotate">logrotate</button>
+                                <span class="tooltip-content" id="tooltip-logrotate" role="tooltip">logrotate automates the rotation, compression, and deletion of log files to prevent disk exhaustion. Policies in /etc/logrotate.d/ define rotation frequency, retention count, and post-rotate actions like sending HUP signals.</span>
+                            </span>
+                            to troubleshoot systems and forward logs to a centralized server.
+                        </p>
+                        <ul class="card-topics">
+                            <li>RHEL 10 logging architecture</li>
+                            <li>Querying logs with journalctl</li>
+                            <li>Centralized remote logging with rsyslog</li>
                         </ul>
                     </div>
                     <div class="card-footer">
@@ -2723,8 +2825,28 @@
                     </div>
                 </div>
 
-                <div class="path-item" role="listitem">
+                <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">25</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Schedule System-Level Tasks</h3>
+                        <p class="path-description">
+                            RH134 Chapter 4 covers system-level scheduling&mdash;configuring systemd timer units, managing temporary files with systemd-tmpfiles, and running periodic jobs with cron and anacron.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">26</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Analyze and Store Logs</h3>
+                        <p class="path-description">
+                            RH134 Chapter 5 teaches log management&mdash;querying structured logs with journalctl, configuring rsyslog facilities and priorities, rotating logs with logrotate, and forwarding logs to a centralized server.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">27</div>
                     <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
@@ -2816,6 +2938,8 @@
                 <a href="rh134_chapter1_shell_scripting.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 1</a>
                 <a href="rh134_chapter2_regex.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 2</a>
                 <a href="rh134_chapter3_scheduling.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 3</a>
+                <a href="rh134_chapter4_scheduling_system_tasks.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 4</a>
+                <a href="rh134_chapter5_logs.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 5</a>
             </nav>
         </div>
     </footer>

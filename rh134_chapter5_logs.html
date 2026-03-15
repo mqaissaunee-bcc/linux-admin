@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 5: Analyzing and Storing Logs | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
+        .code-title { background: var(--rh-red-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-highlight { color: #FFD700; font-weight: 600; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
+        .tooltip-content { display: none !important; }
+        #tooltip-bubble { position: fixed; z-index: 99999; background: var(--rh-gray-dark); color: var(--rh-white); padding: 11px 15px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; font-weight: 400; line-height: 1.5; max-width: 300px; width: max-content; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 8px solid transparent; }
+        #tooltip-bubble[data-dir="above"]::after { top: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="below"]::after { bottom: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="left"]::after { left: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="right"]::after { right: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.info { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.note { background: #F8F8FF; border-color: var(--rh-purple); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning .note-box-header { color: #8B6914; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.info .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.note .note-box-header { color: var(--rh-purple); }
+        .note-box p { margin-bottom: 0; font-size: 0.95rem; }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .data-table tr:hover { background: #E8E8E8; }
+        .data-table caption { font-family: var(--font-display); font-weight: 600; color: var(--rh-gray-dark); text-align: left; margin-bottom: 8px; font-size: 0.9rem; }
+
+        /* ==================== TABS ==================== */
+        .tabs-container { margin: 20px 0; }
+        .tabs-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); overflow-x: auto; padding-bottom: 0; margin-bottom: 0; list-style: none; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; background: var(--rh-gray-lighter); color: var(--rh-gray); border: 1px solid var(--rh-gray-light); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; white-space: nowrap; transition: all var(--transition-fast); }
+        .tab-btn:hover { background: #E0E0E0; color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .tab-panel { display: none; padding: 24px; border: 1px solid var(--rh-gray-lighter); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE ==================== */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 12px 0; overflow: hidden; }
+        .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; color: var(--rh-gray-dark); border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-red-dark); color: var(--rh-white); }
+        .expandable-icon { font-size: 1.1rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(90deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { border: 2px solid var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin: 16px 0; }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-question-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; font-size: 1rem; }
+        .quiz-options { list-style: none; margin: 0; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin: 6px 0; cursor: pointer; font-family: var(--font-display); font-size: 0.9rem; transition: background var(--transition-fast); }
+        .quiz-option:hover { background: var(--rh-gray-lighter); }
+        .quiz-option input[type="radio"] { margin-top: 3px; flex-shrink: 0; }
+        .quiz-feedback { font-family: var(--font-display); font-size: 0.9rem; margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm); display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #E8FFE8; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background: #FFE8E8; color: var(--rh-red-dark); }
+        .quiz-btn { padding: 12px 28px; background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 1rem; cursor: pointer; margin: 8px 8px 0 0; transition: background var(--transition-fast); }
+        .quiz-btn:hover { background: var(--rh-red-dark); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-gray-dark); margin-top: 16px; padding: 12px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); display: none; }
+        .quiz-score.show { display: block; }
+
+        /* ==================== PRIORITY BADGES ==================== */
+        .priority-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .priority-emerg  { background: #2B0000; color: #FF6666; }
+        .priority-alert  { background: #3B0000; color: #FF9999; }
+        .priority-crit   { background: #4A0000; color: #FFAAAA; }
+        .priority-err    { background: #660000; color: #FFCCCC; }
+        .priority-warning{ background: #5C4400; color: #FFE066; }
+        .priority-notice { background: #003355; color: #99CCFF; }
+        .priority-info   { background: #003300; color: #99FF99; }
+        .priority-debug  { background: #333333; color: #CCCCCC; }
+
+        /* ==================== FACILITY/PRIORITY EXPLORER ==================== */
+        .log-explorer { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; margin: 20px 0; }
+        .log-explorer-header { background: var(--rh-blue-dark); color: var(--rh-white); padding: 14px 20px; font-family: var(--font-display); font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .log-explorer-body { padding: 20px; }
+        .log-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 10px; }
+        .log-cell { padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.78rem; border: 1px solid var(--rh-gray-light); cursor: pointer; transition: all var(--transition-fast); text-align: center; }
+        .log-cell:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+        .log-cell.selected { outline: 3px solid var(--rh-blue); }
+        .log-detail-box { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px 18px; margin-top: 14px; font-family: var(--font-display); font-size: 0.9rem; min-height: 60px; }
+
+        /* ==================== JOURNAL FILTER SIM ==================== */
+        .journal-sim { background: #1E1E1E; border-radius: var(--radius-md); overflow: hidden; margin: 20px 0; border: 1px solid #444; }
+        .journal-sim-toolbar { background: #2D2D2D; padding: 12px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .journal-sim-toolbar label { color: #CCC; font-family: var(--font-display); font-size: 0.82rem; }
+        .journal-sim-toolbar select, .journal-sim-toolbar input[type="text"] { background: #1E1E1E; color: #D4D4D4; border: 1px solid #555; border-radius: var(--radius-sm); padding: 5px 10px; font-family: var(--font-mono); font-size: 0.82rem; }
+        .journal-sim-toolbar button { background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-sm); padding: 6px 14px; font-family: var(--font-display); font-size: 0.82rem; cursor: pointer; font-weight: 600; }
+        .journal-sim-output { padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; color: #9CDCFE; max-height: 260px; overflow-y: auto; line-height: 1.7; }
+        .journal-sim-output .j-ts { color: #6A9955; }
+        .journal-sim-output .j-host { color: #4EC9B0; }
+        .journal-sim-output .j-unit { color: #DCDCAA; }
+        .journal-sim-output .j-msg { color: #D4D4D4; }
+        .journal-sim-output .j-err { color: #F44747; }
+        .journal-sim-output .j-warn { color: #FFD700; }
+        .journal-sim-output .j-empty { color: #666; font-style: italic; }
+
+        /* ==================== RSYSLOG CONFIG VIEWER ==================== */
+        .config-viewer { background: #1E1E1E; border-radius: var(--radius-md); overflow: hidden; margin: 16px 0; }
+        .config-viewer-header { background: #2D2D30; color: #CCC; padding: 8px 16px; font-family: var(--font-mono); font-size: 0.8rem; border-bottom: 1px solid #444; }
+        .config-viewer pre { padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; color: #D4D4D4; white-space: pre-wrap; overflow-x: auto; margin: 0; }
+        .cfg-comment { color: #6A9955; }
+        .cfg-directive { color: #569CD6; }
+        .cfg-value { color: #CE9178; }
+        .cfg-module { color: #DCDCAA; }
+        .cfg-filter { color: #4EC9B0; }
+        .cfg-action { color: #9CDCFE; }
+
+        /* ==================== LEARNING OBJECTIVES ==================== */
+        .obj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+        .obj-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px; border-left: 4px solid var(--rh-red); }
+        .obj-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
+        .obj-card h3 { font-family: var(--font-display); font-size: 0.9rem; color: var(--rh-red-dark); margin-bottom: 6px; }
+        .obj-card p { font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray-dark); margin: 0; }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-top: 30px; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--rh-white); border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; color: var(--rh-gray-dark); text-decoration: none; transition: all var(--transition-fast); }
+        .nav-chapter-btn:hover { border-color: var(--rh-red); color: var(--rh-red); }
+        .nav-chapter-btn.home { background: var(--rh-gray-dark); color: var(--rh-white); border-color: var(--rh-gray-dark); }
+        .nav-chapter-btn.home:hover { background: var(--rh-black); border-color: var(--rh-black); }
+
+        /* ==================== COMMAND REFERENCE ==================== */
+        .cmd-ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        @media (max-width: 640px) { .cmd-ref-grid { grid-template-columns: 1fr; } }
+        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px; border-top: 3px solid var(--rh-red); }
+        .cmd-card code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--rh-red-dark); font-weight: 700; display: block; margin-bottom: 6px; }
+        .cmd-card p { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray-dark); margin: 0; }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; margin-top: 40px; }
+        footer p { font-family: var(--font-display); font-size: 0.85rem; margin-bottom: 8px; }
+        footer a { color: var(--rh-gray-light); }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 18px; }
+            .obj-grid { grid-template-columns: 1fr; }
+            .header-meta { gap: 10px; }
+            .log-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+        }
+        @media (max-width: 480px) {
+            .chapter-nav { flex-direction: column; }
+            .journal-sim-toolbar { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<!-- ==================== HEADER ==================== -->
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">🎩</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Chapter 5</div>
+        <h1 class="chapter-title">Analyzing and Storing Logs</h1>
+        <p class="chapter-subtitle">Understanding systemd-journald, rsyslog, log rotation, and centralized log management</p>
+        <div class="header-meta">
+            <span>&#128337; 2&ndash;3 Hours</span>
+            <span>&#128218; RH134 Chapter 5</span>
+            <span>&#127919; RHCSA Exam Topic</span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== PROGRESS BAR ==================== -->
+<div class="progress-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-text" id="progress-text">Progress: 0%</div>
+</div>
+
+<!-- ==================== SECTION NAV ==================== -->
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" id="section-nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="objectives">1. Objectives</a></li>
+        <li><a href="#section-logging-overview" class="nav-btn" data-section="logging-overview">2. Logging Overview</a></li>
+        <li><a href="#section-syslog" class="nav-btn" data-section="syslog">3. Syslog Protocol</a></li>
+        <li><a href="#section-rsyslog" class="nav-btn" data-section="rsyslog">4. rsyslog</a></li>
+        <li><a href="#section-journald" class="nav-btn" data-section="journald">5. systemd-journald</a></li>
+        <li><a href="#section-journalctl" class="nav-btn" data-section="journalctl">6. journalctl</a></li>
+        <li><a href="#section-log-rotation" class="nav-btn" data-section="log-rotation">7. Log Rotation</a></li>
+        <li><a href="#section-remote-logging" class="nav-btn" data-section="remote-logging">8. Remote Logging</a></li>
+        <li><a href="#section-guided-exercise" class="nav-btn" data-section="guided-exercise">9. Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="quiz">10. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="lab">11. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="summary">12. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to describe the RHEL 10 logging architecture and use both traditional and modern tools to capture, query, and manage system logs effectively.</p>
+        <div class="obj-grid">
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#128269;</div>
+                <h3>Describe the Logging Architecture</h3>
+                <p>Explain how systemd-journald and rsyslog cooperate to collect and store log events on RHEL 10.</p>
+            </div>
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#127991;</div>
+                <h3>Interpret Syslog Facilities &amp; Priorities</h3>
+                <p>Classify log messages using standard syslog facility and priority codes to understand severity and source.</p>
+            </div>
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#9881;</div>
+                <h3>Configure rsyslog Rules</h3>
+                <p>Write rsyslog filter rules to direct messages from specific facilities and priorities to custom log files.</p>
+            </div>
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#128196;</div>
+                <h3>Query the systemd Journal</h3>
+                <p>Use journalctl with filters for unit, priority, time range, and boot to investigate system events.</p>
+            </div>
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#128260;</div>
+                <h3>Manage Log Rotation</h3>
+                <p>Configure logrotate to automatically archive, compress, and purge old log files on a schedule.</p>
+            </div>
+            <div class="obj-card">
+                <div class="obj-card-icon" aria-hidden="true">&#127760;</div>
+                <h3>Centralize Logs Remotely</h3>
+                <p>Configure rsyslog to forward log messages from client systems to a central log server over the network.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 2: LOGGING OVERVIEW ==================== -->
+<section id="section-logging-overview" class="content-section" aria-labelledby="logging-overview-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="logging-overview-heading">The RHEL 10 Logging Architecture</h2>
+    </div>
+    <div class="section-body">
+        <p>Log management is one of the most critical skills for any system administrator. Logs tell you what happened on a system, when it happened, which service or user triggered an event, and &mdash; crucially &mdash; why something went wrong. On RHEL 10, two complementary subsystems handle logging: <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-intro">systemd-journald</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-intro">rsyslog</span>.</p>
+        <span class="tooltip-content" id="tt-journald-intro">systemd-journald is the logging daemon built into systemd. It collects structured binary log entries from the kernel, boot messages, and all systemd-managed services, storing them in /run/log/journal.</span>
+        <span class="tooltip-content" id="tt-rsyslog-intro">rsyslog (Rocket-fast Syslog) is a traditional syslog daemon that receives messages from journald and other sources, then routes them to text log files under /var/log based on configurable rules.</span>
+
+        <h3>Why Two Logging Subsystems?</h3>
+        <p>RHEL 10 uses both systems because each has distinct strengths. systemd-journald captures structured, indexed metadata (unit name, PID, UID, message ID) that enables powerful filtering. rsyslog writes plain-text files compatible with legacy tools and UNIX conventions. The two systems are bridged: journald forwards messages to rsyslog via a socket, and rsyslog writes them to the traditional <code class="inline">/var/log/</code> hierarchy.</p>
+
+        <!-- Architecture Diagram -->
+        <h3>Log Flow Diagram</h3>
+        <div style="background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 24px; margin: 16px 0; overflow-x: auto;" role="img" aria-label="RHEL 10 log flow diagram showing message sources flowing into systemd-journald which forwards to rsyslog which writes to /var/log files">
+            <div style="display: flex; flex-direction: column; gap: 0; align-items: center; min-width: 520px;">
+                <!-- Sources row -->
+                <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                    <div style="background: var(--rh-blue-dark); color: #FFF; padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; text-align: center; min-width: 110px;">&#128268;<br>Kernel</div>
+                    <div style="background: var(--rh-blue-dark); color: #FFF; padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; text-align: center; min-width: 110px;">&#9881;<br>systemd units</div>
+                    <div style="background: var(--rh-blue-dark); color: #FFF; padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; text-align: center; min-width: 110px;">&#128187;<br>Applications</div>
+                    <div style="background: var(--rh-blue-dark); color: #FFF; padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; text-align: center; min-width: 110px;">&#128100;<br>Users (logger)</div>
+                </div>
+                <!-- Arrow -->
+                <div style="font-size: 1.6rem; color: var(--rh-gray); margin: 4px 0;" aria-hidden="true">&#8595;</div>
+                <!-- journald -->
+                <div style="background: var(--rh-red-dark); color: #FFF; padding: 14px 24px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; text-align: center; width: 100%; max-width: 340px;">&#128196; systemd-journald<br><span style="font-weight: 400; font-size: 0.8rem; opacity: 0.9;">Binary journal &bull; /run/log/journal</span></div>
+                <!-- Two arrows -->
+                <div style="display: flex; gap: 80px; margin: 2px 0;" aria-hidden="true">
+                    <div style="font-size: 1.4rem; color: var(--rh-gray);">&#8601;</div>
+                    <div style="font-size: 1.4rem; color: var(--rh-gray);">&#8600;</div>
+                </div>
+                <!-- Bottom row -->
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%;">
+                    <div style="background: var(--rh-teal-dark); color: #FFF; padding: 12px 18px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; text-align: center; min-width: 160px;">&#128196; rsyslog<br><span style="font-weight: 400; font-size: 0.78rem;">Text files in /var/log</span></div>
+                    <div style="background: var(--rh-purple); color: #FFF; padding: 12px 18px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; text-align: center; min-width: 160px;">&#128269; journalctl<br><span style="font-weight: 400; font-size: 0.78rem;">Query binary journal</span></div>
+                </div>
+                <!-- rsyslog arrow -->
+                <div style="font-size: 1.4rem; color: var(--rh-gray); margin-top: 2px;" aria-hidden="true">&#8595;</div>
+                <!-- Log files -->
+                <div style="background: var(--rh-green-dark); color: #FFF; padding: 12px 18px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.8rem; text-align: center; width: 100%; max-width: 340px;">/var/log/messages &bull; /var/log/secure<br>/var/log/maillog &bull; /var/log/cron</div>
+            </div>
+        </div>
+
+        <h3>Key Log Files in /var/log</h3>
+        <p>While systemd-journald is the primary collection point, rsyslog writes messages to traditional text files. You will use these files constantly as a system administrator:</p>
+        <table class="data-table" aria-label="Key log files under /var/log">
+            <caption>Important log files under /var/log</caption>
+            <thead>
+                <tr><th>File</th><th>Contents</th><th>Primary Use</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">/var/log/messages</code></td><td>General system messages, non-critical</td><td>First-stop for general troubleshooting</td></tr>
+                <tr><td><code class="inline">/var/log/secure</code></td><td>Authentication events, sudo, SSH logins</td><td>Security auditing, unauthorized access</td></tr>
+                <tr><td><code class="inline">/var/log/maillog</code></td><td>Mail server activity (postfix, sendmail)</td><td>Mail delivery troubleshooting</td></tr>
+                <tr><td><code class="inline">/var/log/cron</code></td><td>Cron job execution logs</td><td>Scheduled task debugging</td></tr>
+                <tr><td><code class="inline">/var/log/boot.log</code></td><td>System boot messages from init scripts</td><td>Boot process troubleshooting</td></tr>
+                <tr><td><code class="inline">/var/log/audit/audit.log</code></td><td>SELinux and kernel audit events</td><td>Security compliance, SELinux denials</td></tr>
+                <tr><td><code class="inline">/var/log/dnf.log</code></td><td>DNF package manager activity</td><td>Software installation history</td></tr>
+                <tr><td><code class="inline">/var/log/httpd/</code></td><td>Apache web server access and error logs</td><td>Web service troubleshooting</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip: Persistent Journal</span></div>
+            <p>By default, systemd-journald stores the journal in <code class="inline">/run/log/journal</code>, which is a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfs">tmpfs</span> filesystem and does <strong>not survive reboots</strong>. To persist the journal across reboots, create the directory <code class="inline">/var/log/journal</code> and restart journald. You can also set <code class="inline">Storage=persistent</code> in <code class="inline">/etc/systemd/journald.conf</code>.</p>
+            <span class="tooltip-content" id="tt-tmpfs">tmpfs is a temporary filesystem stored in RAM (and possibly swap). Its contents are lost when the system is powered off or rebooted, making it unsuitable for persistent log storage without extra configuration.</span>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: SYSLOG PROTOCOL ==================== -->
+<section id="section-syslog" class="content-section" aria-labelledby="syslog-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="syslog-heading">The Syslog Protocol: Facilities and Priorities</h2>
+    </div>
+    <div class="section-body">
+        <p>Before log messages can be routed to the right destination, they must be categorized. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-syslog-proto">syslog protocol</span> classifies every message along two dimensions: its <strong>facility</strong> (what part of the system generated it) and its <strong>priority</strong> (how severe it is).</p>
+        <span class="tooltip-content" id="tt-syslog-proto">The syslog protocol (RFC 5424) is a standard for system logging that defines message format, classification by facility and severity, and transport over TCP/UDP. It dates back to the early days of UNIX and is still central to Linux logging.</span>
+
+        <h3>Syslog Priorities (Severity Levels)</h3>
+        <p>Priorities are ordered from most severe (0 = emerg) to least severe (7 = debug). In rsyslog rules, specifying a priority also matches all <em>higher-severity</em> levels (lower numbers) unless you use the <code class="inline">=</code> exact-match modifier.</p>
+
+        <!-- Interactive Priority Explorer -->
+        <div class="log-explorer" role="region" aria-label="Syslog priority explorer">
+            <div class="log-explorer-header">
+                <span aria-hidden="true">&#127991;</span>
+                <span>Priority Explorer &mdash; click a severity level to learn more</span>
+            </div>
+            <div class="log-explorer-body">
+                <div class="log-grid" id="priority-grid" role="list">
+                    <div class="log-cell priority-emerg" role="listitem" tabindex="0" data-priority="emerg" data-num="0" data-desc="Emergency: system is unusable. Examples: kernel panic, total disk failure, corrupted init. Rarely seen but always critical. Alert all administrators immediately." data-example="kernel: BUG: soft lockup - CPU#0 stuck for 22s!">0 &mdash; emerg</div>
+                    <div class="log-cell priority-alert" role="listitem" tabindex="0" data-priority="alert" data-num="1" data-desc="Alert: action must be taken immediately. Example: critical hardware failure, a critical database corruption detected. Human intervention required now." data-example="mysqld: InnoDB: Cannot open tablespace: critical data loss">1 &mdash; alert</div>
+                    <div class="log-cell priority-crit" role="listitem" tabindex="0" data-priority="crit" data-num="2" data-desc="Critical: hardware or software condition is critical. Examples: failed RAID disk, out-of-memory kernel kill. Serious failures needing urgent attention." data-example="kernel: ata2.00: failed command: WRITE FPDMA QUEUED">2 &mdash; crit</div>
+                    <div class="log-cell priority-err" role="listitem" tabindex="0" data-priority="err" data-num="3" data-desc="Error: non-critical error conditions that still need attention. Examples: service failed to start, file not found, permission denied." data-example="sshd[1234]: error: Could not load host key: /etc/ssh/ssh_host_rsa_key">3 &mdash; err</div>
+                    <div class="log-cell priority-warning" role="listitem" tabindex="0" data-priority="warning" data-num="4" data-desc="Warning: potentially harmful situation. The system continues but something may be wrong. Examples: disk nearing capacity, deprecated config option used." data-example="kernel: Disk quota exceeded for uid 1001 on /dev/sda1">4 &mdash; warning</div>
+                    <div class="log-cell priority-notice" role="listitem" tabindex="0" data-priority="notice" data-num="5" data-desc="Notice: significant but normal condition. Examples: service started or stopped, user login, configuration reloaded. Worth noting but not alarming." data-example="sshd[1234]: Accepted publickey for admin from 192.168.1.5">5 &mdash; notice</div>
+                    <div class="log-cell priority-info" role="listitem" tabindex="0" data-priority="info" data-num="6" data-desc="Informational: general informational messages. Examples: job started, connection established, status updates. Normal operational messages." data-example="crond[891]: (root) CMD (/usr/lib64/sa/sa1 1 1)">6 &mdash; info</div>
+                    <div class="log-cell priority-debug" role="listitem" tabindex="0" data-priority="debug" data-num="7" data-desc="Debug: detailed debugging information. Usually only enabled when diagnosing a specific problem. Very verbose — not suitable for production." data-example="named[1100]: client 127.0.0.1#52413: query: example.com IN A +ED (127.0.0.1)">7 &mdash; debug</div>
+                </div>
+                <div class="log-detail-box" id="priority-detail" aria-live="polite" aria-label="Priority details">
+                    <em style="color: var(--rh-gray);">Select a priority level above to see details and a real-world log message example.</em>
+                </div>
+            </div>
+        </div>
+
+        <h3>Syslog Facilities</h3>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-facility">facility</span> identifies the subsystem or source that generated the message. Facilities allow rsyslog to route messages from different parts of the system to different log files.</p>
+        <span class="tooltip-content" id="tt-facility">A syslog facility is a numeric code (0&ndash;23) that identifies the source or subsystem of a log message, such as the kernel, mail system, or local applications. It is used as the basis for routing rules in rsyslog.</span>
+        <table class="data-table" aria-label="Common syslog facilities">
+            <caption>Common syslog facilities</caption>
+            <thead>
+                <tr><th>Facility</th><th>Numeric</th><th>Source</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">kern</code></td><td>0</td><td>Kernel messages</td></tr>
+                <tr><td><code class="inline">user</code></td><td>1</td><td>User-level messages</td></tr>
+                <tr><td><code class="inline">mail</code></td><td>2</td><td>Mail system</td></tr>
+                <tr><td><code class="inline">daemon</code></td><td>3</td><td>System daemons</td></tr>
+                <tr><td><code class="inline">auth</code></td><td>4</td><td>Security/authentication</td></tr>
+                <tr><td><code class="inline">syslog</code></td><td>5</td><td>Messages generated by syslogd</td></tr>
+                <tr><td><code class="inline">lpr</code></td><td>6</td><td>Line printer subsystem</td></tr>
+                <tr><td><code class="inline">cron</code></td><td>9</td><td>Clock daemon (cron, at)</td></tr>
+                <tr><td><code class="inline">local0&ndash;local7</code></td><td>16&ndash;23</td><td>Locally-defined applications</td></tr>
+                <tr><td><code class="inline">*</code></td><td>&mdash;</td><td>All facilities (wildcard)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>The Selector Syntax: facility.priority</h3>
+        <p>In rsyslog rules, you specify <code class="inline">facility.priority</code> to select which messages to act on. The full syntax supports wildcards and modifiers:</p>
+        <table class="data-table" aria-label="rsyslog selector syntax examples">
+            <caption>Selector syntax examples</caption>
+            <thead>
+                <tr><th>Selector</th><th>Meaning</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">kern.emerg</code></td><td>Kernel messages at emergency level</td></tr>
+                <tr><td><code class="inline">mail.warning</code></td><td>Mail messages at warning level <em>or higher severity</em></td></tr>
+                <tr><td><code class="inline">*.info</code></td><td>All facilities at info level or higher</td></tr>
+                <tr><td><code class="inline">*.debug</code></td><td>All messages from all facilities</td></tr>
+                <tr><td><code class="inline">mail.=info</code></td><td>Mail messages at <em>exactly</em> info level only</td></tr>
+                <tr><td><code class="inline">mail.none</code></td><td>Exclude all mail messages</td></tr>
+                <tr><td><code class="inline">*.info;mail.none;authpriv.none</code></td><td>All info+ except mail and authpriv (typical /var/log/messages rule)</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Priority Inheritance</span></div>
+            <p>Specifying a priority in a selector matches that level <em>and all more-severe levels</em>. So <code class="inline">*.warning</code> captures warning, err, crit, alert, and emerg. To match only one exact level, use the <code class="inline">=</code> prefix: <code class="inline">mail.=info</code>.</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 4: RSYSLOG ==================== -->
+<section id="section-rsyslog" class="content-section" aria-labelledby="rsyslog-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="rsyslog-heading">Configuring rsyslog</h2>
+    </div>
+    <div class="section-body">
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-full">rsyslog</span> is the default syslog implementation on RHEL 10. It provides both backward-compatible syslog functionality and powerful advanced features including property-based filtering, output buffering, and TLS-encrypted log forwarding.</p>
+        <span class="tooltip-content" id="tt-rsyslog-full">rsyslog (Rocket-fast SYStem LOGger) is an enhanced syslog daemon that extends traditional syslog with high-performance features, property-based filtering, and pluggable modules. It replaces older syslogd and syslog-ng implementations.</span>
+
+        <h3>Configuration File Structure</h3>
+        <p>rsyslog is configured through <code class="inline">/etc/rsyslog.conf</code> and any files matching <code class="inline">/etc/rsyslog.d/*.conf</code>. The recommended practice is to place custom rules in separate files under <code class="inline">/etc/rsyslog.d/</code> rather than editing the main config file directly. This simplifies management and avoids issues during package updates.</p>
+
+        <div class="code-block" role="region" aria-label="rsyslog configuration file structure">
+            <div class="code-title">/etc/rsyslog.conf (structure overview)</div>
+            <code>
+<span class="code-comment">#### MODULES ####</span>
+<span class="cfg-module">module(load="imuxsock")</span>  <span class="code-comment"># Local Unix socket (from journald)</span>
+<span class="cfg-module">module(load="imklog")</span>   <span class="code-comment"># Kernel log messages (/proc/kmsg)</span>
+<span class="cfg-module">module(load="imjournal")</span><span class="code-comment"># Forward from systemd journal</span>
+
+<span class="code-comment">#### GLOBAL DIRECTIVES ####</span>
+<span class="cfg-directive">$WorkDirectory</span> <span class="cfg-value">/var/lib/rsyslog</span>
+<span class="cfg-directive">$ActionFileDefaultTemplate</span> <span class="cfg-value">RSYSLOG_TraditionalFileFormat</span>
+<span class="cfg-directive">$IncludeConfig</span> <span class="cfg-value">/etc/rsyslog.d/*.conf</span>
+
+<span class="code-comment">#### RULES ####</span>
+<span class="code-comment"># facility.priority    /path/to/logfile</span>
+<span class="cfg-filter">*.info;mail.none;authpriv.none;cron.none</span>    <span class="cfg-action">/var/log/messages</span>
+<span class="cfg-filter">authpriv.*</span>                                  <span class="cfg-action">/var/log/secure</span>
+<span class="cfg-filter">mail.*</span>                                      <span class="cfg-action">-/var/log/maillog</span>
+<span class="cfg-filter">cron.*</span>                                      <span class="cfg-action">/var/log/cron</span>
+<span class="cfg-filter">*.emerg</span>                                     <span class="cfg-action">:omusrmsg:*</span>
+<span class="cfg-filter">uucp,news.crit</span>                              <span class="cfg-action">/var/log/spooler</span>
+<span class="cfg-filter">local7.*</span>                                    <span class="cfg-action">/var/log/boot.log</span>
+            </code>
+        </div>
+
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>The Minus (-) Prefix Explained</span></div>
+            <p>A <code class="inline">-</code> prefix before a log file path (as in <code class="inline">-/var/log/maillog</code>) tells rsyslog to use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-async-write">asynchronous writes</span>. This improves performance but means some messages could be lost if the system crashes before the write buffer is flushed to disk.</p>
+            <span class="tooltip-content" id="tt-async-write">Asynchronous (buffered) write mode allows rsyslog to accumulate log entries in memory and write them to disk in batches rather than after each individual message. This reduces disk I/O at the cost of potential data loss on a crash.</span>
+        </div>
+
+        <h3>Writing Custom rsyslog Rules</h3>
+        <p>Best practice is to create a new file under <code class="inline">/etc/rsyslog.d/</code> for custom rules. File names should start with a number to control load order (lower numbers load first).</p>
+
+        <div class="tabs-container" id="rsyslog-tabs">
+            <ul class="tabs-list" role="tablist" aria-label="rsyslog rule examples">
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="true" aria-controls="rp-tab1" id="rp-tab1-btn">Custom File</button></li>
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" aria-controls="rp-tab2" id="rp-tab2-btn">Forward Remote</button></li>
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" aria-controls="rp-tab3" id="rp-tab3-btn">Debug Logging</button></li>
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" aria-controls="rp-tab4" id="rp-tab4-btn">Property Filter</button></li>
+            </ul>
+            <div class="tab-panel active" id="rp-tab1" role="tabpanel" aria-labelledby="rp-tab1-btn">
+                <p>Log all <code class="inline">auth</code> and <code class="inline">authpriv</code> messages at <code class="inline">notice</code> level or higher to a dedicated security log file:</p>
+                <div class="code-block" role="region" aria-label="Custom security log rule">
+                    <div class="code-title">/etc/rsyslog.d/40-security.conf</div>
+                    <code>
+<span class="code-comment"># Capture all auth and authpriv messages notice and above</span>
+<span class="cfg-filter">auth,authpriv.notice</span>    <span class="cfg-action">/var/log/auth-custom.log</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Restart rsyslog command">
+                    <div class="code-title">Apply the new configuration</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart rsyslog</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p auth.notice "Test auth notice message"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">tail /var/log/auth-custom.log</span>
+<span class="code-output">Mar 14 10:15:30 servera root: Test auth notice message</span>
+                    </code>
+                </div>
+            </div>
+            <div class="tab-panel" id="rp-tab2" role="tabpanel" aria-labelledby="rp-tab2-btn">
+                <p>Forward all messages at <code class="inline">warning</code> level or higher to a central syslog server over UDP:</p>
+                <div class="code-block" role="region" aria-label="Remote forwarding rule">
+                    <div class="code-title">/etc/rsyslog.d/50-remote.conf</div>
+                    <code>
+<span class="code-comment"># Forward warning+ messages to logserver via UDP (port 514)</span>
+<span class="cfg-filter">*.warning</span>    <span class="cfg-action">@logserver.lab.example.com</span>
+
+<span class="code-comment"># For TCP forwarding, use @@ instead of @</span>
+<span class="cfg-filter">*.warning</span>    <span class="cfg-action">@@logserver.lab.example.com:514</span>
+                    </code>
+                </div>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>UDP vs TCP Forwarding</span></div>
+                    <p>A single <code class="inline">@</code> uses UDP (faster, no delivery guarantee). Double <code class="inline">@@</code> uses TCP (reliable, ordered delivery). For critical logs or high-volume environments, TCP is preferred.</p>
+                </div>
+            </div>
+            <div class="tab-panel" id="rp-tab3" role="tabpanel" aria-labelledby="rp-tab3-btn">
+                <p>Temporarily enable debug logging for a specific service (useful during troubleshooting):</p>
+                <div class="code-block" role="region" aria-label="Debug logging rule">
+                    <div class="code-title">/etc/rsyslog.d/99-debug.conf (temporary!)</div>
+                    <code>
+<span class="code-comment"># Log ALL messages including debug to a separate file</span>
+<span class="code-comment"># WARNING: Very verbose — remove when done troubleshooting!</span>
+<span class="cfg-filter">*.debug</span>    <span class="cfg-action">/var/log/debug-all.log</span>
+                    </code>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Warning: Debug Logging Is Verbose</span></div>
+                    <p>Debug-level logging generates enormous amounts of data and can fill disks quickly. Only enable it during active troubleshooting sessions and remove or disable the rule when done. Never leave <code class="inline">*.debug</code> rules active in production.</p>
+                </div>
+            </div>
+            <div class="tab-panel" id="rp-tab4" role="tabpanel" aria-labelledby="rp-tab4-btn">
+                <p>Use a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-prop-filter">property-based filter</span> to match messages containing specific text:</p>
+                <span class="tooltip-content" id="tt-prop-filter">A property-based filter in rsyslog matches messages based on message content fields (properties) rather than just facility/priority. It uses the syntax :property, compare-op, "value" and supports regex matching.</span>
+                <div class="code-block" role="region" aria-label="Property-based filter rule">
+                    <div class="code-title">/etc/rsyslog.d/60-oom.conf</div>
+                    <code>
+<span class="code-comment"># Capture Out-of-Memory killer events to a dedicated log</span>
+<span class="cfg-filter">:msg, contains, "Out of memory"</span>    <span class="cfg-action">/var/log/oom-events.log</span>
+
+<span class="code-comment"># Use regex for more flexible matching</span>
+<span class="cfg-filter">:msg, regex, "oom_kill|OOM killer"</span>  <span class="cfg-action">/var/log/oom-events.log</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Testing rsyslog Configuration</h3>
+        <p>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logger">logger</span> to send test messages to the syslog facility from the command line, and <code class="inline">rsyslogd -N1</code> to syntax-check your configuration without restarting the service.</p>
+        <span class="tooltip-content" id="tt-logger">The logger command is a shell command interface to the syslog(3) system call. It allows scripts and administrators to send messages to the system log from the command line, useful for testing rsyslog rules.</span>
+
+        <div class="code-block" role="region" aria-label="rsyslog testing commands">
+            <div class="code-title">Testing rsyslog rules</div>
+            <code>
+<span class="code-comment"># Test configuration syntax before restarting</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">rsyslogd -N1</span>
+<span class="code-output">rsyslogd: version 8.2312.0, config validation run (level 1), master config /etc/rsyslog.conf
+rsyslogd: End of config validation run. Bye.</span>
+
+<span class="code-comment"># Send test messages at specific facility.priority</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p local0.info "Test info from local0 facility"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p mail.err "Simulated mail delivery failure"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p auth.crit "Simulated authentication failure"</span>
+
+<span class="code-comment"># Send a tagged message (shows in log as: tag: message)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -t myapp -p user.warning "Low disk space on /data"</span>
+
+<span class="code-comment"># Verify message arrived in the expected log file</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">tail -5 /var/log/messages</span>
+<span class="code-output">Mar 14 10:22:01 servera root: Test info from local0 facility
+Mar 14 10:22:08 servera myapp: Low disk space on /data</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 5: SYSTEMD-JOURNALD ==================== -->
+<section id="section-journald" class="content-section" aria-labelledby="journald-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="journald-heading">systemd-journald: Structured Binary Logging</h2>
+    </div>
+    <div class="section-body">
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-detail">systemd-journald</span> is a fundamental change from traditional text-file logging. Rather than appending plain text lines to files, journald stores messages as structured, indexed binary records. Each record includes metadata fields such as the systemd unit name, PID, UID, GID, hostname, and a message catalog ID that can link to documentation.</p>
+        <span class="tooltip-content" id="tt-journald-detail">systemd-journald is the logging component of systemd. It collects log entries from kernel messages, early boot output, stdout/stderr of services, and applications using the native journal API, storing them as indexed binary records rather than plain text.</span>
+
+        <h3>What journald Collects</h3>
+        <p>journald is the single collection point for all system events, regardless of origin:</p>
+        <ul>
+            <li><strong>Kernel ring buffer:</strong> Kernel messages that would previously have gone to <code class="inline">/var/log/dmesg</code></li>
+            <li><strong>Early boot messages:</strong> Output captured before userspace services start</li>
+            <li><strong>systemd unit output:</strong> stdout and stderr of every service managed by systemd</li>
+            <li><strong>Native journal API:</strong> Applications that use <code class="inline">sd_journal_send()</code> to log structured data</li>
+            <li><strong>Traditional syslog socket:</strong> Messages from programs using <code class="inline">syslog(3)</code> or <code class="inline">openlog()</code></li>
+        </ul>
+
+        <h3>Journal Storage and Persistence</h3>
+        <p>The <code class="inline">/etc/systemd/journald.conf</code> file controls how the journal stores data. The most important setting for production systems is <code class="inline">Storage=</code>:</p>
+
+        <table class="data-table" aria-label="journald Storage options">
+            <caption>Journal Storage= configuration values</caption>
+            <thead>
+                <tr><th>Value</th><th>Behavior</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">volatile</code></td><td>Store only in RAM (<code class="inline">/run/log/journal</code>). Lost on reboot. Good for stateless containers.</td></tr>
+                <tr><td><code class="inline">persistent</code></td><td>Store on disk (<code class="inline">/var/log/journal</code>). Survives reboots. Journal files are created automatically.</td></tr>
+                <tr><td><code class="inline">auto</code></td><td><strong>Default:</strong> Persistent if <code class="inline">/var/log/journal</code> exists, otherwise volatile.</td></tr>
+                <tr><td><code class="inline">none</code></td><td>Discard all journal data. Forward to syslog socket only.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="code-block" role="region" aria-label="Enabling persistent journal storage">
+            <div class="code-title">Enable persistent journal storage</div>
+            <code>
+<span class="code-comment"># Method 1: Create the journal directory (triggers auto → persistent)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">mkdir -p /var/log/journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemd-tmpfiles --create --prefix /var/log/journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart systemd-journald</span>
+
+<span class="code-comment"># Method 2: Explicitly configure in journald.conf</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">grep -n Storage /etc/systemd/journald.conf</span>
+<span class="code-output">#Storage=auto</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">sed -i 's/#Storage=auto/Storage=persistent/' /etc/systemd/journald.conf</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart systemd-journald</span>
+            </code>
+        </div>
+
+        <h3>Controlling Journal Size</h3>
+        <p>The journal automatically manages its own size using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journal-rotation">rotation limits</span> defined in <code class="inline">journald.conf</code>. Key size parameters:</p>
+        <span class="tooltip-content" id="tt-journal-rotation">The systemd journal maintains its disk usage within configured limits by automatically rotating (archiving old files) and deleting archived files when limits are reached. This is distinct from logrotate, which manages traditional text log files.</span>
+
+        <table class="data-table" aria-label="journald size control parameters">
+            <caption>Key journald.conf size parameters</caption>
+            <thead>
+                <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">SystemMaxUse=</code></td><td>10% of filesystem</td><td>Maximum disk space for persistent journal</td></tr>
+                <tr><td><code class="inline">SystemKeepFree=</code></td><td>15% of filesystem</td><td>Minimum free space to keep on disk</td></tr>
+                <tr><td><code class="inline">SystemMaxFileSize=</code></td><td>SystemMaxUse/8</td><td>Maximum size of a single journal file</td></tr>
+                <tr><td><code class="inline">RuntimeMaxUse=</code></td><td>10% of /run</td><td>Maximum disk space for volatile journal</td></tr>
+                <tr><td><code class="inline">MaxRetentionSec=</code></td><td>0 (disabled)</td><td>Maximum age of journal entries before deletion</td></tr>
+                <tr><td><code class="inline">MaxFileSec=</code></td><td>1month</td><td>How long before starting a new journal file</td></tr>
+            </tbody>
+        </table>
+
+        <div class="code-block" role="region" aria-label="Check journal disk usage">
+            <div class="code-title">Check journal size and run manual cleanup</div>
+            <code>
+<span class="code-comment"># Check current journal disk usage</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">journalctl --disk-usage</span>
+<span class="code-output">Archived and active journals take up 248.0M in the file system.</span>
+
+<span class="code-comment"># Delete journal entries older than 2 weeks</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --vacuum-time=2weeks</span>
+<span class="code-output">Vacuuming done, freed 0B of archived journals from /var/log/journal/.</span>
+
+<span class="code-comment"># Reduce journal to 500MB maximum</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --vacuum-size=500M</span>
+<span class="code-output">Deleted archived journal /var/log/journal/abc123/system@xyz.journal (64.0M).
+Vacuuming done, freed 64.0M of archived journals from /var/log/journal/.</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 6: JOURNALCTL ==================== -->
+<section id="section-journalctl" class="content-section" aria-labelledby="journalctl-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="journalctl-heading">Querying Logs with journalctl</h2>
+    </div>
+    <div class="section-body">
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journalctl">journalctl</span> is the command-line tool for reading and filtering the systemd journal. Unlike browsing text log files with <code class="inline">grep</code> or <code class="inline">tail</code>, journalctl can filter on structured metadata fields, making it far more powerful for targeted investigations.</p>
+        <span class="tooltip-content" id="tt-journalctl">journalctl is the primary tool for querying and displaying systemd journal entries. It can filter by time, unit, priority, user, PID, and many other metadata fields, and it displays output through a pager for easy navigation.</span>
+
+        <h3>Basic journalctl Usage</h3>
+        <div class="code-block" role="region" aria-label="Basic journalctl commands">
+            <div class="code-title">Basic journalctl commands</div>
+            <code>
+<span class="code-comment"># Show all journal entries (oldest first, requires root for full access)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl</span>
+
+<span class="code-comment"># Show most recent entries first (-r reverse)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -r</span>
+
+<span class="code-comment"># Follow new entries in real time (like tail -f)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -f</span>
+
+<span class="code-comment"># Show last N lines (-n)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -n 20</span>
+
+<span class="code-comment"># Show journal in short, no-hostname format</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -o short-monotonic</span>
+            </code>
+        </div>
+
+        <h3>Filtering by Systemd Unit</h3>
+        <p>One of the most powerful features of journalctl is filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-unit">systemd unit</span>. The <code class="inline">-u</code> flag restricts output to messages from a specific service, making it far faster than grepping through combined log files.</p>
+        <span class="tooltip-content" id="tt-unit">A systemd unit is a configuration file that defines how systemd manages a resource. Unit types include .service (daemons), .timer (scheduled jobs), .socket (network listeners), .target (grouping units), and others.</span>
+
+        <div class="code-block" role="region" aria-label="journalctl unit filtering">
+            <div class="code-title">Filtering by unit</div>
+            <code>
+<span class="code-comment"># All messages from the sshd service</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -u sshd</span>
+<span class="code-output">-- Logs begin at Mon 2026-03-14 08:00:00 EDT, end at Sat 2026-03-14 10:15:00 EDT. --
+Mar 14 08:00:15 servera sshd[1234]: Server listening on 0.0.0.0 port 22
+Mar 14 08:00:15 servera sshd[1234]: Server listening on :: port 22
+Mar 14 10:05:22 servera sshd[2891]: Accepted publickey for admin from 192.168.1.5 port 43812</span>
+
+<span class="code-comment"># Follow sshd in real time</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -u sshd -f</span>
+
+<span class="code-comment"># Multiple units (OR logic)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -u sshd -u httpd</span>
+
+<span class="code-comment"># Just the most recent 5 lines from crond</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -u crond -n 5</span>
+            </code>
+        </div>
+
+        <h3>Filtering by Priority and Time</h3>
+
+        <div class="code-block" role="region" aria-label="journalctl priority and time filtering">
+            <div class="code-title">Filtering by priority and time</div>
+            <code>
+<span class="code-comment"># Show only errors and above (-p = priority)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -p err</span>
+
+<span class="code-comment"># Show exact priority only (err..err = only err, no crit/alert/emerg)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -p err..err</span>
+
+<span class="code-comment"># Priority range: warning through err</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -p warning..err</span>
+
+<span class="code-comment"># Entries since a specific time (--since)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since "2026-03-14 08:00:00"</span>
+
+<span class="code-comment"># Entries within a time window (--since + --until)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since "2026-03-14 09:00" --until "2026-03-14 10:00"</span>
+
+<span class="code-comment"># Convenient time keywords</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since today</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since yesterday</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since "-1 hour"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --since "-30 min"</span>
+            </code>
+        </div>
+
+        <h3>Boot-Specific Queries</h3>
+        <p>When troubleshooting intermittent problems or investigating a crash, filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-boot-id">boot ID</span> is essential. journalctl can show logs from the current boot or any previous boot stored in the persistent journal.</p>
+        <span class="tooltip-content" id="tt-boot-id">A boot ID is a unique identifier assigned to each system boot by systemd. journalctl uses boot IDs to segment journal entries by boot session, enabling queries like &quot;show me logs from two boots ago.&quot;</span>
+
+        <div class="code-block" role="region" aria-label="Boot-specific journalctl queries">
+            <div class="code-title">Boot-specific queries</div>
+            <code>
+<span class="code-comment"># Show only messages from the current boot (-b 0)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -b</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -b 0</span>
+
+<span class="code-comment"># Show messages from the previous boot (-b -1)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -b -1</span>
+
+<span class="code-comment"># List all boots stored in the journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --list-boots</span>
+<span class="code-output">-3 abc1234d... Mon 2026-03-11 07:55:01 EDT—Mon 2026-03-11 17:00:22 EDT
+-2 def5678e... Tue 2026-03-12 08:01:11 EDT—Tue 2026-03-12 18:05:30 EDT
+-1 ghi9012f... Wed 2026-03-13 08:00:45 EDT—Wed 2026-03-13 17:59:02 EDT
+ 0 jkl3456g... Thu 2026-03-14 08:00:00 EDT—Thu 2026-03-14 10:22:10 EDT</span>
+
+<span class="code-comment"># Show sshd errors from the previous boot</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -b -1 -u sshd -p err</span>
+            </code>
+        </div>
+
+        <!-- Interactive journalctl Simulator -->
+        <h3>Interactive Journal Filter Simulator</h3>
+        <p>Practice building <code class="inline">journalctl</code> filter combinations. Select options below and click <strong>Run Query</strong> to see simulated output:</p>
+        <div class="journal-sim" role="region" aria-label="journalctl filter simulator">
+            <div class="journal-sim-toolbar" role="group" aria-label="Filter controls">
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <label for="jsim-unit">Unit (-u):</label>
+                    <select id="jsim-unit">
+                        <option value="">-- any --</option>
+                        <option value="sshd">sshd</option>
+                        <option value="httpd">httpd</option>
+                        <option value="crond">crond</option>
+                        <option value="NetworkManager">NetworkManager</option>
+                        <option value="firewalld">firewalld</option>
+                    </select>
+                    <label for="jsim-prio">Priority (-p):</label>
+                    <select id="jsim-prio">
+                        <option value="">-- any --</option>
+                        <option value="emerg">0-emerg</option>
+                        <option value="alert">1-alert</option>
+                        <option value="crit">2-crit</option>
+                        <option value="err">3-err</option>
+                        <option value="warning">4-warning</option>
+                        <option value="notice">5-notice</option>
+                        <option value="info">6-info</option>
+                        <option value="debug">7-debug</option>
+                    </select>
+                    <label for="jsim-boot">Boot (-b):</label>
+                    <select id="jsim-boot">
+                        <option value="0">current (0)</option>
+                        <option value="-1">previous (-1)</option>
+                    </select>
+                    <button onclick="runJournalSim()" aria-label="Run journal query simulation">&#9654; Run Query</button>
+                </div>
+                <div id="jsim-cmd" style="color:#6A9955; font-family:var(--font-mono); font-size:0.82rem; margin-top:6px; width:100%;"></div>
+            </div>
+            <div class="journal-sim-output" id="jsim-output" role="log" aria-live="polite" aria-label="Journal query output">
+                <span class="j-empty">Select filters above and click Run Query to see output.</span>
+            </div>
+        </div>
+
+        <h3>Output Formats and Useful Options</h3>
+        <table class="data-table" aria-label="journalctl output format options">
+            <caption>Useful journalctl flags</caption>
+            <thead>
+                <tr><th>Flag</th><th>Effect</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code class="inline">-o short</code></td><td>Default format: timestamp, host, program, message</td></tr>
+                <tr><td><code class="inline">-o verbose</code></td><td>Show all metadata fields for each entry</td></tr>
+                <tr><td><code class="inline">-o json</code></td><td>Machine-readable JSON output (useful for scripting)</td></tr>
+                <tr><td><code class="inline">-o json-pretty</code></td><td>Pretty-printed JSON (one field per line)</td></tr>
+                <tr><td><code class="inline">-o cat</code></td><td>Message text only, no metadata</td></tr>
+                <tr><td><code class="inline">--no-pager</code></td><td>Print all output without launching a pager</td></tr>
+                <tr><td><code class="inline">-x</code></td><td>Add explanatory catalog text for well-known messages</td></tr>
+                <tr><td><code class="inline">-k</code></td><td>Show kernel messages only (equivalent to dmesg)</td></tr>
+                <tr><td><code class="inline">-e</code></td><td>Jump to end of journal in the pager</td></tr>
+                <tr><td><code class="inline">--identifier=TAG</code></td><td>Filter by syslog identifier (application tag)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 7: LOG ROTATION ==================== -->
+<section id="section-log-rotation" class="content-section" aria-labelledby="log-rotation-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="log-rotation-heading">Log Rotation with logrotate</h2>
+    </div>
+    <div class="section-body">
+        <p>Text log files under <code class="inline">/var/log/</code> grow indefinitely unless managed. <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logrotate">logrotate</span> automates the process of archiving old log files, compressing them to save disk space, and purging archives older than a configured age. Without log rotation, busy servers can fill their disks entirely with log data within days.</p>
+        <span class="tooltip-content" id="tt-logrotate">logrotate is a utility that automatically renames, compresses, and deletes old log files on a schedule. It is typically run daily by a cron job or systemd timer, and its behavior is controlled by rules in /etc/logrotate.conf and /etc/logrotate.d/.</span>
+
+        <h3>How logrotate Works</h3>
+        <p>logrotate is triggered by a daily <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cron-logrotate">cron job</span> or systemd timer (<code class="inline">logrotate.timer</code>). Each run processes all configured log files. When a log file meets its rotation criteria (size or age), logrotate:</p>
+        <span class="tooltip-content" id="tt-cron-logrotate">On RHEL 10, logrotate runs via a systemd timer unit (logrotate.timer) rather than a traditional cron job. The timer is set to run daily. You can force an immediate run with systemctl start logrotate.service.</span>
+        <ol>
+            <li>Renames the current log file (e.g., <code class="inline">messages</code> &rarr; <code class="inline">messages.1</code>)</li>
+            <li>Optionally compresses old rotated files using gzip (producing <code class="inline">.gz</code> archives)</li>
+            <li>Signals the logging daemon to reopen its log file descriptors (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-postrotate">postrotate</span>)</li>
+            <li>Deletes archives older than the configured <code class="inline">rotate</code> count</li>
+        </ol>
+        <span class="tooltip-content" id="tt-postrotate">A postrotate script runs after log rotation is complete. It is used to signal daemons to reopen their log file handles. Without this signal, a daemon would continue writing to the renamed old file instead of the newly created one.</span>
+
+        <h3>Configuration Files</h3>
+        <p>logrotate has two levels of configuration:</p>
+        <ul>
+            <li><strong><code class="inline">/etc/logrotate.conf</code></strong> &mdash; Global defaults that apply to all log files unless overridden</li>
+            <li><strong><code class="inline">/etc/logrotate.d/</code></strong> &mdash; Per-service configuration files. Each installed package that uses log files typically ships its own file here (e.g., <code class="inline">/etc/logrotate.d/httpd</code>, <code class="inline">/etc/logrotate.d/syslog</code>)</li>
+        </ul>
+
+        <div class="code-block" role="region" aria-label="logrotate configuration examples">
+            <div class="code-title">/etc/logrotate.conf (global defaults)</div>
+            <code>
+<span class="code-comment"># Rotate logs weekly by default</span>
+<span class="cfg-directive">weekly</span>
+
+<span class="code-comment"># Keep 4 weeks of rotated logs</span>
+<span class="cfg-directive">rotate</span> <span class="cfg-value">4</span>
+
+<span class="code-comment"># Create new empty log file after rotation (with same permissions)</span>
+<span class="cfg-directive">create</span>
+
+<span class="code-comment"># Compress rotated files with gzip</span>
+<span class="cfg-directive">compress</span>
+
+<span class="code-comment"># Include per-package config files</span>
+<span class="cfg-directive">include</span> <span class="cfg-value">/etc/logrotate.d</span>
+            </code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Custom logrotate rule for application log">
+            <div class="code-title">/etc/logrotate.d/myapp — custom application log rotation</div>
+            <code>
+<span class="cfg-value">/var/log/myapp/*.log</span> {
+    <span class="cfg-directive">daily</span>              <span class="code-comment"># Rotate every day (overrides global weekly)</span>
+    <span class="cfg-directive">rotate</span> <span class="cfg-value">14</span>          <span class="code-comment"># Keep 14 days of archives</span>
+    <span class="cfg-directive">compress</span>            <span class="code-comment"># gzip rotated files</span>
+    <span class="cfg-directive">delaycompress</span>       <span class="code-comment"># Don't compress last rotation (easier to read)</span>
+    <span class="cfg-directive">missingok</span>           <span class="code-comment"># No error if log file is missing</span>
+    <span class="cfg-directive">notifempty</span>         <span class="code-comment"># Don't rotate empty log files</span>
+    <span class="cfg-directive">sharedscripts</span>       <span class="code-comment"># Run postrotate script once even for multiple files</span>
+    <span class="cfg-directive">create</span> <span class="cfg-value">0640 myapp adm</span>  <span class="code-comment"># New log: permissions, owner, group</span>
+    <span class="cfg-directive">size</span> <span class="cfg-value">100M</span>            <span class="code-comment"># Also rotate if file exceeds 100MB</span>
+    <span class="cfg-directive">postrotate</span>
+        <span class="cfg-value">/bin/systemctl reload myapp.service 2>/dev/null || true</span>
+    <span class="cfg-directive">endscript</span>
+}
+            </code>
+        </div>
+
+        <div class="tabs-container" id="logrotate-tabs">
+            <ul class="tabs-list" role="tablist" aria-label="logrotate directive reference">
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="true" aria-controls="lr-tab1" id="lr-tab1-btn">Rotation Triggers</button></li>
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" aria-controls="lr-tab2" id="lr-tab2-btn">Retention &amp; Size</button></li>
+                <li role="presentation"><button class="tab-btn" role="tab" aria-selected="false" aria-controls="lr-tab3" id="lr-tab3-btn">Scripts</button></li>
+            </ul>
+            <div class="tab-panel active" id="lr-tab1" role="tabpanel" aria-labelledby="lr-tab1-btn">
+                <table class="data-table" aria-label="Rotation trigger directives">
+                    <thead><tr><th>Directive</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code class="inline">daily</code></td><td>Rotate once per day</td></tr>
+                        <tr><td><code class="inline">weekly</code></td><td>Rotate once per week (Monday)</td></tr>
+                        <tr><td><code class="inline">monthly</code></td><td>Rotate once per month (first run of month)</td></tr>
+                        <tr><td><code class="inline">yearly</code></td><td>Rotate once per year</td></tr>
+                        <tr><td><code class="inline">size 50M</code></td><td>Rotate when file exceeds 50 MB (ignores schedule)</td></tr>
+                        <tr><td><code class="inline">minsize 10M</code></td><td>Only rotate on schedule <em>if</em> file is at least 10 MB</td></tr>
+                        <tr><td><code class="inline">maxsize 100M</code></td><td>Rotate immediately if file exceeds 100 MB, regardless of schedule</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-panel" id="lr-tab2" role="tabpanel" aria-labelledby="lr-tab2-btn">
+                <table class="data-table" aria-label="Retention and size directives">
+                    <thead><tr><th>Directive</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code class="inline">rotate N</code></td><td>Keep N rotated files before deleting oldest</td></tr>
+                        <tr><td><code class="inline">compress</code></td><td>Compress rotated files with gzip</td></tr>
+                        <tr><td><code class="inline">delaycompress</code></td><td>Don&rsquo;t compress the most recent rotated file</td></tr>
+                        <tr><td><code class="inline">nocompress</code></td><td>Don&rsquo;t compress rotated files</td></tr>
+                        <tr><td><code class="inline">missingok</code></td><td>Silently ignore missing log files</td></tr>
+                        <tr><td><code class="inline">notifempty</code></td><td>Skip rotation if log file is empty</td></tr>
+                        <tr><td><code class="inline">ifempty</code></td><td>Rotate even if the file is empty (default)</td></tr>
+                        <tr><td><code class="inline">dateext</code></td><td>Add date stamp to rotated filename (e.g., messages-20260314)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-panel" id="lr-tab3" role="tabpanel" aria-labelledby="lr-tab3-btn">
+                <table class="data-table" aria-label="logrotate script directives">
+                    <thead><tr><th>Directive</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code class="inline">prerotate / endscript</code></td><td>Script runs before rotation begins</td></tr>
+                        <tr><td><code class="inline">postrotate / endscript</code></td><td>Script runs after rotation. Use to signal daemons to reopen log files.</td></tr>
+                        <tr><td><code class="inline">firstaction / endscript</code></td><td>Runs once before all files in a block are rotated</td></tr>
+                        <tr><td><code class="inline">lastaction / endscript</code></td><td>Runs once after all files in a block are rotated</td></tr>
+                        <tr><td><code class="inline">sharedscripts</code></td><td>Run postrotate script once for all matched log files (not per-file)</td></tr>
+                    </tbody>
+                </table>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip: Test Before Deploying</span></div>
+                    <p>Use <code class="inline">logrotate -d /etc/logrotate.d/myapp</code> to perform a <strong>dry run</strong> (&ndash;d for debug). It shows what would happen without making any changes. Use <code class="inline">logrotate -f</code> to force rotation even if the trigger conditions haven&rsquo;t been met.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="code-block" role="region" aria-label="logrotate testing commands">
+            <div class="code-title">Testing and forcing logrotate</div>
+            <code>
+<span class="code-comment"># Dry run a specific config (shows what WOULD happen, no changes)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logrotate -d /etc/logrotate.d/syslog</span>
+<span class="code-output">reading config file /etc/logrotate.d/syslog
+reading config info for /var/log/cron /var/log/maillog /var/log/messages /var/log/secure
+
+Handling 4 logs
+
+rotating pattern: /var/log/cron  weekly (4 rotations)
+...
+log does not need rotating (log has been rotated at 2026-03-09 03:10, that is not week ago yet)
+...</span>
+
+<span class="code-comment"># Force immediate rotation (ignores timing, useful for testing)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logrotate -f /etc/logrotate.d/syslog</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">ls -lh /var/log/messages*</span>
+<span class="code-output">-rw------- 1 root root  4.2K Mar 14 10:30 /var/log/messages
+-rw------- 1 root root  82K  Mar 13 23:59 /var/log/messages.1
+-rw------- 1 root root  65K  Mar  6 23:59 /var/log/messages.2.gz
+-rw------- 1 root root  71K  Feb 28 23:59 /var/log/messages.3.gz
+-rw------- 1 root root  68K  Feb 21 23:59 /var/log/messages.4.gz</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 8: REMOTE LOGGING ==================== -->
+<section id="section-remote-logging" class="content-section" aria-labelledby="remote-logging-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="remote-logging-heading">Centralized Remote Logging with rsyslog</h2>
+    </div>
+    <div class="section-body">
+        <p>In enterprise environments, collecting logs from dozens or hundreds of servers to a single <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-central-log">central log server</span> is a best practice for security auditing, compliance, and operational troubleshooting. rsyslog natively supports both sending and receiving logs over the network using TCP or UDP.</p>
+        <span class="tooltip-content" id="tt-central-log">A central log server aggregates log messages from multiple client hosts into one location. This simplifies log analysis, ensures logs survive if a client system is compromised or crashes, and supports security compliance requirements.</span>
+
+        <h3>Configuring the Log Server (Receiver)</h3>
+        <p>The receiving server must load an input module to listen for incoming syslog connections. Use <code class="inline">imudp</code> for UDP or <code class="inline">imtcp</code> for TCP. TCP is preferred for reliability.</p>
+
+        <div class="code-block" role="region" aria-label="rsyslog server configuration">
+            <div class="code-title">/etc/rsyslog.d/10-server.conf — on logserver.lab.example.com</div>
+            <code>
+<span class="code-comment"># Load TCP input module and listen on port 514</span>
+<span class="cfg-module">module(load="imtcp")</span>
+<span class="cfg-module">input(type="imtcp" port="514")</span>
+
+<span class="code-comment"># Optional: also accept UDP on port 514</span>
+<span class="cfg-module">module(load="imudp")</span>
+<span class="cfg-module">input(type="imudp" port="514")</span>
+
+<span class="code-comment"># Store incoming messages in per-host directories</span>
+<span class="code-comment"># %HOSTNAME% is a rsyslog template variable</span>
+<span class="cfg-directive">$template</span> <span class="cfg-value">RemoteLogs,"/var/log/remote/%HOSTNAME%/%PROGRAMNAME%.log"</span>
+<span class="cfg-filter">*.*</span>    <span class="cfg-action">?RemoteLogs</span>
+<span class="cfg-filter">&amp;</span>      <span class="cfg-action">~</span>   <span class="code-comment"># Stop processing — don't also write to local /var/log/messages</span>
+            </code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Server firewall and service commands">
+            <div class="code-title">Open firewall and restart rsyslog on the server</div>
+            <code>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">firewall-cmd --add-port=514/tcp --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">firewall-cmd --add-port=514/udp --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">systemctl restart rsyslog</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">ss -tlnp | grep :514</span>
+<span class="code-output">LISTEN  0  25  0.0.0.0:514  0.0.0.0:*  users:(("rsyslogd",pid=3201,fd=4))</span>
+            </code>
+        </div>
+
+        <h3>Configuring Log Clients (Senders)</h3>
+        <p>On each client system, add a forwarding rule to rsyslog. The <code class="inline">@@</code> prefix specifies TCP; <code class="inline">@</code> specifies UDP.</p>
+
+        <div class="code-block" role="region" aria-label="rsyslog client forwarding configuration">
+            <div class="code-title">/etc/rsyslog.d/50-forward.conf — on client systems</div>
+            <code>
+<span class="code-comment"># Forward all messages at info level and above to the central server via TCP</span>
+<span class="cfg-filter">*.info</span>    <span class="cfg-action">@@logserver.lab.example.com:514</span>
+
+<span class="code-comment"># For critical messages, ensure reliable delivery with queue</span>
+<span class="cfg-directive">$ActionQueueType</span> <span class="cfg-value">LinkedList</span>
+<span class="cfg-directive">$ActionQueueFileName</span> <span class="cfg-value">fwdRule1</span>     <span class="code-comment"># Spool to disk if server unreachable</span>
+<span class="cfg-directive">$ActionResumeRetryCount</span> <span class="cfg-value">-1</span>         <span class="code-comment"># Retry forever</span>
+<span class="cfg-filter">*.emerg</span>   <span class="cfg-action">@@logserver.lab.example.com:514</span>
+            </code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Test remote log forwarding">
+            <div class="code-title">Test the remote log forwarding</div>
+            <code>
+<span class="code-comment"># On the client: send a test message</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p user.info "Test message from servera to central log server"</span>
+
+<span class="code-comment"># On the log server: verify message arrived</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">ls /var/log/remote/</span>
+<span class="code-output">servera/</span>
+<span class="code-root">[root@logserver ~]#</span> <span class="code-command">cat /var/log/remote/servera/root.log</span>
+<span class="code-output">Mar 14 10:45:01 servera root: Test message from servera to central log server</span>
+            </code>
+        </div>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Security Considerations</span></div>
+            <p>Plain UDP/TCP syslog sends log data in cleartext, making it vulnerable to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-eavesdrop">eavesdropping and tampering</span>. For security-sensitive environments, configure rsyslog to use <strong>TLS encryption</strong> with the <code class="inline">gtls</code> module (<code class="inline">module(load="imtcp" StreamDriver="gtls")</code>). Also restrict which source IPs can connect to the log server using firewall rules or rsyslog&rsquo;s built-in <code class="inline">AllowedSender</code> directive.</p>
+            <span class="tooltip-content" id="tt-eavesdrop">Eavesdropping means an attacker can read log traffic in transit; tampering means they can inject false log entries. Both attacks are trivial on unencrypted syslog. TLS (Transport Layer Security) encrypts the connection and verifies server identity with certificates.</span>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 9: GUIDED EXERCISE ==================== -->
+<section id="section-guided-exercise" class="content-section" aria-labelledby="guided-exercise-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="guided-exercise-heading">Guided Exercise: Monitoring and Configuring Logs</h2>
+    </div>
+    <div class="section-body">
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Lab Environment</span></div>
+            <p>This exercise uses <strong>workstation.lab.example.com</strong> as the student workstation and <strong>servera.lab.example.com</strong> as the managed server. Use <code class="inline">ssh student@servera</code> to connect. Escalate to root with <code class="inline">sudo -i</code> where required.</p>
+        </div>
+
+        <h3>Scenario</h3>
+        <p>A security team has asked you to ensure that authentication-related events on <strong>servera</strong> are written to a dedicated log file <code class="inline">/var/log/auth-review.log</code> at <code class="inline">notice</code> level and above. You also need to confirm that the systemd journal is configured for persistent storage so logs survive a reboot, and verify that logrotate is managing the main system log files.</p>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task1">
+                <span>Task 1: Examine existing log files and the journal</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="ge-task1">
+                <p><strong>Objective:</strong> Review existing log files and practice basic journalctl queries to understand the current logging configuration.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Step 1.1 — List existing log files</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@servera</span>
+<span class="code-root">[student@servera ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">ls -lh /var/log/messages /var/log/secure /var/log/cron</span>
+<span class="code-output">-rw------- 1 root root  82K Mar 14 08:00 /var/log/messages
+-rw------- 1 root root  14K Mar 14 07:55 /var/log/secure
+-rw------- 1 root root   6K Mar 14 07:01 /var/log/cron</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 1 journalctl queries">
+                    <div class="code-title">Step 1.2 — Practice journalctl queries</div>
+                    <code>
+<span class="code-comment"># Show last 10 entries in the journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -n 10</span>
+
+<span class="code-comment"># Show all errors from the current boot</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -b -p err</span>
+
+<span class="code-comment"># Show sshd messages from the past hour</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl -u sshd --since "-1 hour"</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task2">
+                <span>Task 2: Enable persistent journal storage</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="ge-task2">
+                <p><strong>Objective:</strong> Configure systemd-journald to persist the journal to disk so it survives reboots.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Step 2.1 — Check current storage mode</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">grep Storage /etc/systemd/journald.conf</span>
+<span class="code-output">#Storage=auto</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">ls /var/log/journal 2>/dev/null || echo "Directory does not exist"</span>
+<span class="code-output">Directory does not exist</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 2 persistent storage setup">
+                    <div class="code-title">Step 2.2 — Enable persistent storage</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">mkdir -p /var/log/journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemd-tmpfiles --create --prefix /var/log/journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart systemd-journald</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">ls -lh /var/log/journal/</span>
+<span class="code-output">drwxr-sr-x+ 2 root systemd-journal 60 Mar 14 10:50 abc1234567890abcdef/</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --disk-usage</span>
+<span class="code-output">Archived and active journals take up 8.0M in the file system.</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task3">
+                <span>Task 3: Create a custom rsyslog rule for authentication logs</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="ge-task3">
+                <p><strong>Objective:</strong> Write an rsyslog rule that captures <code class="inline">auth</code> and <code class="inline">authpriv</code> messages at <code class="inline">notice</code> level and above to <code class="inline">/var/log/auth-review.log</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 3 rsyslog configuration">
+                    <div class="code-title">Step 3.1 — Create the custom rsyslog rule</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat > /etc/rsyslog.d/40-auth-review.conf << 'EOF'</span>
+<span class="code-output"># Dedicated authentication review log - notice level and above</span>
+<span class="code-output">auth,authpriv.notice    /var/log/auth-review.log</span>
+<span class="code-output">EOF</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 3 validate and apply">
+                    <div class="code-title">Step 3.2 — Validate syntax and apply</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">rsyslogd -N1</span>
+<span class="code-output">rsyslogd: version 8.2312.0, config validation run (level 1)...
+rsyslogd: End of config validation run. Bye.</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart rsyslog</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p auth.notice "Auth review test: notice level"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">tail /var/log/auth-review.log</span>
+<span class="code-output">Mar 14 10:55:14 servera root: Auth review test: notice level</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 3 verify priority filtering">
+                    <div class="code-title">Step 3.3 — Verify priority filtering works correctly</div>
+                    <code>
+<span class="code-comment"># This should NOT appear (info is below notice)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p auth.info "Auth review test: info level — should not appear"</span>
+
+<span class="code-comment"># This SHOULD appear (err > notice)</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p auth.err "Auth review test: error level"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat /var/log/auth-review.log</span>
+<span class="code-output">Mar 14 10:55:14 servera root: Auth review test: notice level
+Mar 14 10:55:22 servera root: Auth review test: error level</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task4">
+                <span>Task 4: Verify logrotate configuration</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="ge-task4">
+                <p><strong>Objective:</strong> Review the logrotate configuration for system logs and run a dry-run test to confirm it will rotate as expected.</p>
+                <div class="code-block" role="region" aria-label="Task 4 logrotate verification">
+                    <div class="code-title">Step 4.1 — Examine logrotate syslog configuration</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat /etc/logrotate.d/syslog</span>
+<span class="code-output">/var/log/cron
+/var/log/maillog
+/var/log/messages
+/var/log/secure
+/var/log/spooler
+{
+    weekly
+    rotate 4
+    compress
+    sharedscripts
+    postrotate
+        /usr/bin/systemctl reload rsyslog.service > /dev/null 2>/dev/null || true
+    endscript
+}</span>
+                    </code>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 4 logrotate dry run">
+                    <div class="code-title">Step 4.2 — Run a dry-run test</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logrotate -d /etc/logrotate.d/syslog</span>
+<span class="code-output">reading config file /etc/logrotate.d/syslog
+Handling 5 logs
+
+rotating pattern: /var/log/cron  weekly (4 rotations)
+empty log files are rotated, old logs are removed
+considering log /var/log/cron
+  Now: 2026-03-14 11:00
+  Last rotated at 2026-03-09 03:10
+  log does not need rotating (log has been rotated at 2026-03-09...)
+...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task5">
+                <span>Task 5: Add logrotate config for the new auth-review log</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="ge-task5">
+                <p><strong>Objective:</strong> Create a logrotate configuration to manage the new <code class="inline">/var/log/auth-review.log</code> file with a 30-day retention policy.</p>
+                <div class="code-block" role="region" aria-label="Task 5 logrotate config creation">
+                    <div class="code-title">Step 5.1 — Create logrotate config for auth-review.log</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat > /etc/logrotate.d/auth-review << 'EOF'</span>
+<span class="code-output">/var/log/auth-review.log {</span>
+<span class="code-output">    weekly</span>
+<span class="code-output">    rotate 8</span>
+<span class="code-output">    compress</span>
+<span class="code-output">    delaycompress</span>
+<span class="code-output">    missingok</span>
+<span class="code-output">    notifempty</span>
+<span class="code-output">    create 0600 root root</span>
+<span class="code-output">    postrotate</span>
+<span class="code-output">        /usr/bin/systemctl reload rsyslog.service > /dev/null 2>&1 || true</span>
+<span class="code-output">    endscript</span>
+<span class="code-output">}</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Verify with dry run</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logrotate -d /etc/logrotate.d/auth-review</span>
+<span class="code-output">reading config file /etc/logrotate.d/auth-review
+Handling 1 log
+rotating pattern: /var/log/auth-review.log  weekly (8 rotations)
+...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#10003;</span><span>Lab Completion Checklist</span></div>
+            <ul>
+                <li>&#10003; Reviewed existing log files in <code class="inline">/var/log/</code></li>
+                <li>&#10003; Queried the journal with journalctl filters (unit, priority, time)</li>
+                <li>&#10003; Created <code class="inline">/var/log/journal</code> and enabled persistent storage</li>
+                <li>&#10003; Verified journal persists to <code class="inline">/var/log/journal/</code></li>
+                <li>&#10003; Wrote <code class="inline">/etc/rsyslog.d/40-auth-review.conf</code> rule</li>
+                <li>&#10003; Confirmed <code class="inline">auth.notice</code> messages appear in auth-review.log</li>
+                <li>&#10003; Confirmed <code class="inline">auth.info</code> messages do NOT appear in auth-review.log</li>
+                <li>&#10003; Created and dry-run tested logrotate config for auth-review.log</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 10: QUIZ ==================== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of system logging concepts. Select the best answer for each question, then click <strong>Check Answers</strong> to see your score.</p>
+
+        <!-- Q1 -->
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p class="quiz-question-text">1. Which directory stores the systemd journal when persistent storage is enabled?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 1 options">
+                <li class="quiz-option"><label><input type="radio" name="q1" value="a"> <span>/run/log/journal</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q1" value="b"> <span>/var/log/journal</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q1" value="c"> <span>/etc/systemd/journal</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q1" value="d"> <span>/tmp/journal</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p class="quiz-question-text">2. What does the rsyslog selector <code class="inline">*.info;mail.none</code> mean?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 2 options">
+                <li class="quiz-option"><label><input type="radio" name="q2" value="a"> <span>All facilities at exactly info level, plus all mail messages</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q2" value="b"> <span>Only mail messages at info level and above</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q2" value="c"> <span>All facilities at info level and above, excluding all mail messages</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q2" value="d"> <span>All facilities at info level only, excluding mail at info level</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p class="quiz-question-text">3. Which journalctl option shows log messages from the previous system boot?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 3 options">
+                <li class="quiz-option"><label><input type="radio" name="q3" value="a"> <span>journalctl -b -1</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q3" value="b"> <span>journalctl -b 1</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q3" value="c"> <span>journalctl --last-boot</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q3" value="d"> <span>journalctl -b prev</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p class="quiz-question-text">4. A developer wants to send test messages to the syslog facility from a shell script. Which command should they use?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 4 options">
+                <li class="quiz-option"><label><input type="radio" name="q4" value="a"> <span>syslog -p user.info "test message"</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q4" value="b"> <span>rsyslogd -m "test message"</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q4" value="c"> <span>journalctl --send "test message"</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q4" value="d"> <span>logger -p user.info "test message"</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p class="quiz-question-text">5. What is the numeric syslog priority value for the "warning" level?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 5 options">
+                <li class="quiz-option"><label><input type="radio" name="q5" value="a"> <span>3</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q5" value="b"> <span>4</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q5" value="c"> <span>5</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q5" value="d"> <span>6</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p class="quiz-question-text">6. In an rsyslog forwarding rule, what does using <code class="inline">@@</code> (double at-sign) instead of <code class="inline">@</code> signify?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 6 options">
+                <li class="quiz-option"><label><input type="radio" name="q6" value="a"> <span>Forward using UDP transport</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q6" value="b"> <span>Forward to two different remote servers</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q6" value="c"> <span>Forward using TCP transport for reliable delivery</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q6" value="d"> <span>Forward with TLS encryption enabled</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p class="quiz-question-text">7. Which logrotate directive prevents rotation of a log file if it is empty?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 7 options">
+                <li class="quiz-option"><label><input type="radio" name="q7" value="a"> <span>notifempty</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q7" value="b"> <span>missingok</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q7" value="c"> <span>nocompress</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q7" value="d"> <span>ifempty</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p class="quiz-question-text">8. Which file would you create to add custom rsyslog rules without modifying the main configuration file?</p>
+            <ul class="quiz-options" role="radiogroup" aria-label="Question 8 options">
+                <li class="quiz-option"><label><input type="radio" name="q8" value="a"> <span>/etc/rsyslog.conf.d/custom.conf</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q8" value="b"> <span>/var/log/rsyslog/custom.conf</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q8" value="c"> <span>/usr/lib/rsyslog/custom.conf</span></label></li>
+                <li class="quiz-option"><label><input type="radio" name="q8" value="d"> <span>/etc/rsyslog.d/custom.conf</span></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top: 24px;">
+            <button class="quiz-btn" onclick="checkQuiz()" aria-label="Check quiz answers">&#10003; Check Answers</button>
+            <button class="quiz-btn" onclick="resetQuiz()" style="background: var(--rh-gray);" aria-label="Reset quiz">&#8635; Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" role="status" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 11: HANDS-ON LAB ==================== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="lab-heading">Hands-On Lab: Configure a Centralized Log Server</h2>
+    </div>
+    <div class="section-body">
+        <div class="note-box info">
+            <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>Lab Environment</span></div>
+            <p>This lab uses three hosts: <strong>workstation</strong> (your station), <strong>servera.lab.example.com</strong> (log client), and <strong>serverb.lab.example.com</strong> (central log server). All passwords are <code class="inline">redhat</code>.</p>
+        </div>
+
+        <h3>Lab Scenario</h3>
+        <p>Your organization requires that all servers forward their warning-and-above log messages to <strong>serverb</strong> for centralized audit. You must configure serverb as the log server, configure servera as a client, verify message delivery, set up persistent journal storage on servera, and create a logrotate policy for the aggregated logs on serverb.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;</span><span>Warning: Firewall Changes</span></div>
+            <p>This lab modifies firewall rules on serverb to open port 514. Ensure you only make these changes in the lab environment. Opening syslog ports on production systems without access controls is a security risk.</p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1">
+                <span>Lab Task 1: Configure serverb as the central log server</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1">
+                <p><strong>On serverb.lab.example.com:</strong></p>
+                <div class="code-block" role="region" aria-label="Lab task 1 commands">
+                    <div class="code-title">Configure rsyslog to receive TCP connections on serverb</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-root">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Step 1: Create the server rsyslog config</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat > /etc/rsyslog.d/10-central-server.conf << 'EOF'</span>
+<span class="code-output">module(load="imtcp")</span>
+<span class="code-output">input(type="imtcp" port="514")</span>
+<span class="code-output">$template RemoteLogs,"/var/log/remote/%HOSTNAME%/%PROGRAMNAME%.log"</span>
+<span class="code-output">*.warning    ?RemoteLogs</span>
+<span class="code-output">& ~</span>
+<span class="code-output">EOF</span>
+
+<span class="code-comment"># Step 2: Create the remote logs directory</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mkdir -p /var/log/remote</span>
+
+<span class="code-comment"># Step 3: Validate config and restart</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">rsyslogd -N1</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl restart rsyslog</span>
+
+<span class="code-comment"># Step 4: Open firewall for syslog</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --add-port=514/tcp --permanent</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+
+<span class="code-comment"># Step 5: Verify rsyslog is listening</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ss -tlnp | grep :514</span>
+<span class="code-output">LISTEN  0  25  0.0.0.0:514  0.0.0.0:*  users:(("rsyslogd",pid=4501,fd=5))</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2">
+                <span>Lab Task 2: Configure servera to forward logs to serverb</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2">
+                <p><strong>On servera.lab.example.com:</strong></p>
+                <div class="code-block" role="region" aria-label="Lab task 2 commands">
+                    <div class="code-title">Configure rsyslog forwarding on servera</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat > /etc/rsyslog.d/50-forward-serverb.conf << 'EOF'</span>
+<span class="code-output"># Forward warning and above to central log server via TCP</span>
+<span class="code-output">*.warning    @@serverb.lab.example.com:514</span>
+<span class="code-output">EOF</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">rsyslogd -N1 && systemctl restart rsyslog</span>
+<span class="code-output">rsyslogd: End of config validation run. Bye.</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3">
+                <span>Lab Task 3: Test and verify log forwarding</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3">
+                <div class="code-block" role="region" aria-label="Lab task 3 commands">
+                    <div class="code-title">Verify messages arrive on serverb</div>
+                    <code>
+<span class="code-comment"># On servera: send test messages</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p user.warning "Lab test: warning from servera"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p user.err "Lab test: error from servera"</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">logger -p user.info "Lab test: info from servera - should NOT forward"</span>
+
+<span class="code-comment"># On serverb: verify the warning and err messages arrived</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ls /var/log/remote/servera/</span>
+<span class="code-output">root.log</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat /var/log/remote/servera/root.log</span>
+<span class="code-output">Mar 14 11:10:22 servera root: Lab test: warning from servera
+Mar 14 11:10:25 servera root: Lab test: error from servera</span>
+<span class="code-comment"># Confirm the info-level message did NOT arrive</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">grep "info from servera" /var/log/remote/servera/root.log</span>
+<span class="code-output">(no output — correctly filtered)</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4">
+                <span>Lab Task 4: Configure persistent journal storage and set size limits on servera</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4">
+                <div class="code-block" role="region" aria-label="Lab task 4 commands">
+                    <div class="code-title">Configure journal persistence and size limits</div>
+                    <code>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">mkdir -p /var/log/journal</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">cat >> /etc/systemd/journald.conf << 'EOF'</span>
+<span class="code-output">[Journal]</span>
+<span class="code-output">Storage=persistent</span>
+<span class="code-output">SystemMaxUse=200M</span>
+<span class="code-output">MaxRetentionSec=1month</span>
+<span class="code-output">EOF</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart systemd-journald</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --disk-usage</span>
+<span class="code-output">Archived and active journals take up 12.5M in the file system.</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5">
+                <span>Lab Task 5: Create logrotate policy for remote logs on serverb</span>
+                <span class="expandable-icon" aria-hidden="true">&#9654;</span>
+            </button>
+            <div class="expandable-content" id="lab-task5">
+                <div class="code-block" role="region" aria-label="Lab task 5 commands">
+                    <div class="code-title">Create logrotate config for /var/log/remote</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat > /etc/logrotate.d/remote-logs << 'EOF'</span>
+<span class="code-output">/var/log/remote/*/*.log {</span>
+<span class="code-output">    weekly</span>
+<span class="code-output">    rotate 12</span>
+<span class="code-output">    compress</span>
+<span class="code-output">    delaycompress</span>
+<span class="code-output">    missingok</span>
+<span class="code-output">    notifempty</span>
+<span class="code-output">    sharedscripts</span>
+<span class="code-output">    postrotate</span>
+<span class="code-output">        /usr/bin/systemctl reload rsyslog.service > /dev/null 2>&1 || true</span>
+<span class="code-output">    endscript</span>
+<span class="code-output">}</span>
+<span class="code-output">EOF</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">logrotate -d /etc/logrotate.d/remote-logs</span>
+<span class="code-output">reading config file /etc/logrotate.d/remote-logs
+Handling 1 log
+rotating pattern: /var/log/remote/*/*.log  weekly (12 rotations)
+...
+log does not need rotating (log is too small)</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#10003;</span><span>Lab Completion Checklist</span></div>
+            <ul>
+                <li>&#10003; rsyslog configured on serverb to receive TCP on port 514</li>
+                <li>&#10003; Firewall on serverb opened for port 514/tcp</li>
+                <li>&#10003; rsyslog configured on servera to forward *.warning to serverb</li>
+                <li>&#10003; Test warning message appeared in <code class="inline">/var/log/remote/servera/root.log</code></li>
+                <li>&#10003; Test info message did NOT appear in forwarded logs</li>
+                <li>&#10003; Persistent journal storage enabled on servera with 200M limit</li>
+                <li>&#10003; logrotate configured for <code class="inline">/var/log/remote/</code> on serverb with 12-week retention</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+<!-- ==================== SECTION 12: SUMMARY ==================== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">12</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you explored the full RHEL 10 logging stack, from the kernel to persistent storage to centralized collection. These skills are fundamental to system administration and are directly tested on the RHCSA exam.</p>
+
+        <h3>Key Concepts Reviewed</h3>
+        <ul>
+            <li><strong>RHEL 10 uses two complementary logging subsystems:</strong> systemd-journald collects structured binary events; rsyslog routes them to traditional text files under <code class="inline">/var/log/</code>.</li>
+            <li><strong>Syslog messages carry two attributes:</strong> facility (source subsystem) and priority (severity 0&ndash;7). rsyslog uses <code class="inline">facility.priority</code> selectors to route messages.</li>
+            <li><strong>rsyslog configuration</strong> lives in <code class="inline">/etc/rsyslog.conf</code> and <code class="inline">/etc/rsyslog.d/*.conf</code>. Always add custom rules in <code class="inline">/etc/rsyslog.d/</code> and validate with <code class="inline">rsyslogd -N1</code>.</li>
+            <li><strong>journald persistence</strong> requires creating <code class="inline">/var/log/journal</code> or setting <code class="inline">Storage=persistent</code> in <code class="inline">journald.conf</code>; use <code class="inline">--vacuum-size</code> and <code class="inline">--vacuum-time</code> to manage journal size.</li>
+            <li><strong>journalctl</strong> filters by <code class="inline">-u</code> (unit), <code class="inline">-p</code> (priority), <code class="inline">--since/--until</code> (time), <code class="inline">-b</code> (boot), and <code class="inline">-f</code> (follow). Use <code class="inline">-o verbose</code> or <code class="inline">-o json</code> for detailed output.</li>
+            <li><strong>logrotate</strong> automates log file archiving. Key directives: <code class="inline">rotate</code>, <code class="inline">compress</code>, <code class="inline">daily/weekly</code>, <code class="inline">notifempty</code>, <code class="inline">postrotate</code>. Test with <code class="inline">-d</code> (dry run).</li>
+            <li><strong>Remote logging</strong> uses rsyslog input modules (<code class="inline">imtcp</code>/<code class="inline">imudp</code>) on the server and forward rules (<code class="inline">@@host</code> for TCP, <code class="inline">@host</code> for UDP) on clients.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <div class="cmd-ref-grid">
+            <div class="cmd-card">
+                <code>journalctl -u UNIT -p PRIO</code>
+                <p>Query journal filtered by systemd unit and minimum priority</p>
+            </div>
+            <div class="cmd-card">
+                <code>journalctl -b -1</code>
+                <p>Show messages from the previous system boot</p>
+            </div>
+            <div class="cmd-card">
+                <code>journalctl --since "-1 hour" -f</code>
+                <p>Follow journal in real time, starting 1 hour back</p>
+            </div>
+            <div class="cmd-card">
+                <code>journalctl --disk-usage</code>
+                <p>Report total disk space used by journal files</p>
+            </div>
+            <div class="cmd-card">
+                <code>journalctl --vacuum-time=2weeks</code>
+                <p>Delete journal entries older than 2 weeks</p>
+            </div>
+            <div class="cmd-card">
+                <code>journalctl --list-boots</code>
+                <p>List all recorded boot sessions with their IDs and timestamps</p>
+            </div>
+            <div class="cmd-card">
+                <code>logger -p facility.priority "msg"</code>
+                <p>Send a test message to rsyslog at the specified facility and priority</p>
+            </div>
+            <div class="cmd-card">
+                <code>rsyslogd -N1</code>
+                <p>Validate rsyslog configuration syntax without restarting</p>
+            </div>
+            <div class="cmd-card">
+                <code>logrotate -d /etc/logrotate.d/FILE</code>
+                <p>Perform a dry run of a logrotate config (no changes made)</p>
+            </div>
+            <div class="cmd-card">
+                <code>logrotate -f /etc/logrotate.d/FILE</code>
+                <p>Force immediate log rotation, ignoring schedule</p>
+            </div>
+            <div class="cmd-card">
+                <code>systemctl restart rsyslog</code>
+                <p>Apply rsyslog configuration changes</p>
+            </div>
+            <div class="cmd-card">
+                <code>systemctl restart systemd-journald</code>
+                <p>Apply journald configuration changes</p>
+            </div>
+        </div>
+
+        <h3>RHCSA Exam Tips</h3>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important: RHCSA Exam Focus Areas</span></div>
+            <ul>
+                <li>Know how to use <code class="inline">journalctl</code> to filter by unit, priority, and time &mdash; especially <code class="inline">-b</code>, <code class="inline">-p</code>, <code class="inline">-u</code>, and <code class="inline">--since</code></li>
+                <li>Know how to make the journal persistent (creating <code class="inline">/var/log/journal</code>)</li>
+                <li>Know how to write an rsyslog rule and place it in <code class="inline">/etc/rsyslog.d/</code></li>
+                <li>Know the format of the syslog selector: <code class="inline">facility.priority</code>, and what <code class="inline">*.none</code> and <code class="inline">=</code> mean</li>
+                <li>Be able to use <code class="inline">logger</code> to test rsyslog rules and verify log delivery</li>
+            </ul>
+        </div>
+
+        <div class="chapter-nav" aria-label="Chapter navigation">
+            <a href="rh134_chapter4_scheduling_system_tasks.html" class="nav-chapter-btn prev">&#8592; Chapter 4: Scheduling System Tasks</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter6_storage.html" class="nav-chapter-btn next">Chapter 6: Managing Storage &#8594;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer role="contentinfo">
+    <p><strong>RH134 &mdash; Red Hat System Administration II</strong></p>
+    <p>Chapter 5: Analyzing and Storing Logs &bull; RHEL 10 / RHCSA Exam Preparation</p>
+    <p style="font-size: 0.78rem; opacity: 0.7; margin-top: 10px;">
+        Red Hat and RHEL are trademarks of Red Hat, Inc. This educational material is not affiliated with or endorsed by Red Hat, Inc.
+        Content reflects RHEL 10 practices as of 2026.
+    </p>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+'use strict';
+
+/* ==================== TOOLTIP SYSTEM ==================== */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    const MARGIN = 8;
+
+    function getContent(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const el = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        return el ? el.textContent.trim() : '';
+    }
+
+    function showTooltip(term) {
+        const text = getContent(term);
+        if (!text) return;
+        bubble.textContent = text;
+        bubble.style.maxWidth = '300px';
+        bubble.style.opacity = '0';
+        bubble.classList.remove('visible');
+        bubble.removeAttribute('data-dir');
+        bubble.style.left = '';
+        bubble.style.top = '';
+        bubble.style.setProperty('--arrow-x', '50%');
+        bubble.style.setProperty('--arrow-y', '50%');
+        document.body.appendChild(bubble);
+
+        const rect = term.getBoundingClientRect();
+        const bw = Math.min(300, bubble.offsetWidth || 200);
+        const bh = bubble.offsetHeight || 60;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        const spaceAbove = rect.top;
+        const spaceBelow = vh - rect.bottom;
+        const spaceLeft = rect.left;
+        const spaceRight = vw - rect.right;
+
+        let dir = 'below', left, top;
+
+        if (spaceAbove >= bh + MARGIN + 16) {
+            dir = 'above';
+            top = rect.top - bh - 12;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceBelow >= bh + MARGIN + 16) {
+            dir = 'below';
+            top = rect.bottom + 12;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceRight >= bw + MARGIN + 16) {
+            dir = 'right';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.right + 12;
+        } else {
+            dir = 'left';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.left - bw - 12;
+        }
+
+        // Clamp
+        left = Math.max(MARGIN, Math.min(vw - bw - MARGIN, left));
+        top  = Math.max(MARGIN, Math.min(vh - bh - MARGIN, top));
+
+        // Arrow position
+        if (dir === 'above' || dir === 'below') {
+            const termCx = rect.left + rect.width / 2;
+            const arrowX = Math.max(16, Math.min(bw - 16, termCx - left));
+            bubble.style.setProperty('--arrow-x', arrowX + 'px');
+        } else {
+            const termCy = rect.top + rect.height / 2;
+            const arrowY = Math.max(16, Math.min(bh - 16, termCy - top));
+            bubble.style.setProperty('--arrow-y', arrowY + 'px');
+        }
+
+        bubble.setAttribute('data-dir', dir);
+        bubble.style.left = left + 'px';
+        bubble.style.top  = top + 'px';
+        bubble.classList.add('visible');
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+        bubble.removeAttribute('data-dir');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
+    });
+})();
+
+/* ==================== PROGRESS BAR ==================== */
+(function() {
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const container = document.querySelector('.progress-container');
+    const sections = document.querySelectorAll('.content-section');
+    let visibleCount = 0;
+    const total = sections.length;
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.dataset.seen = '1';
+            }
+        });
+        visibleCount = document.querySelectorAll('.content-section[data-seen]').length;
+        const pct = Math.round((visibleCount / total) * 100);
+        fill.style.width = pct + '%';
+        text.textContent = 'Progress: ' + pct + '%';
+        container.setAttribute('aria-valuenow', pct);
+    }, { threshold: 0.15 });
+
+    sections.forEach(s => observer.observe(s));
+})();
+
+/* ==================== SECTION NAV HIGHLIGHTING ==================== */
+(function() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.content-section');
+
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navBtns.forEach(btn => {
+                    const href = btn.getAttribute('href');
+                    if (href === '#' + id) {
+                        btn.classList.add('active');
+                        btn.classList.add('visited');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        });
+    }, { threshold: 0.35 });
+
+    sections.forEach(s => observer.observe(s));
+})();
+
+/* ==================== TAB SYSTEM ==================== */
+(function() {
+    document.querySelectorAll('.tabs-container').forEach(container => {
+        const tabs = container.querySelectorAll('.tab-btn');
+        const panels = container.querySelectorAll('.tab-panel');
+
+        function activateTab(idx) {
+            tabs.forEach((t, i) => {
+                const active = i === idx;
+                t.setAttribute('aria-selected', active ? 'true' : 'false');
+                panels[i].classList.toggle('active', active);
+            });
+        }
+
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('click', () => activateTab(idx));
+            tab.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') { activateTab((idx + 1) % tabs.length); tabs[(idx + 1) % tabs.length].focus(); }
+                if (e.key === 'ArrowLeft')  { activateTab((idx - 1 + tabs.length) % tabs.length); tabs[(idx - 1 + tabs.length) % tabs.length].focus(); }
+                if (e.key === 'Home') { activateTab(0); tabs[0].focus(); }
+                if (e.key === 'End')  { activateTab(tabs.length - 1); tabs[tabs.length - 1].focus(); }
+            });
+        });
+    });
+})();
+
+/* ==================== EXPANDABLE SECTIONS ==================== */
+(function() {
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded ? 'true' : 'false');
+            const contentId = header.getAttribute('aria-controls');
+            const content = document.getElementById(contentId);
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+})();
+
+/* ==================== PRIORITY EXPLORER ==================== */
+(function() {
+    const cells = document.querySelectorAll('#priority-grid .log-cell');
+    const detail = document.getElementById('priority-detail');
+    if (!cells.length || !detail) return;
+
+    cells.forEach(cell => {
+        function activate() {
+            cells.forEach(c => c.classList.remove('selected'));
+            cell.classList.add('selected');
+            const num = cell.dataset.num;
+            const name = cell.dataset.priority;
+            const desc = cell.dataset.desc;
+            const ex = cell.dataset.example;
+            detail.innerHTML =
+                '<strong style="font-family:var(--font-display);">Priority ' + num + ' — ' + name + '</strong><br>' +
+                '<span style="font-family:var(--font-display);font-size:0.85rem;color:var(--rh-gray-dark);">' + desc + '</span><br><br>' +
+                '<span style="font-family:var(--font-display);font-size:0.8rem;color:var(--rh-gray);">Example log entry:</span><br>' +
+                '<code style="font-family:var(--font-mono);font-size:0.8rem;color:var(--rh-teal-dark);">' + ex + '</code>';
+        }
+        cell.addEventListener('click', activate);
+        cell.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
+    });
+})();
+
+/* ==================== JOURNAL SIMULATOR ==================== */
+const JOURNAL_DATA = {
+    sshd: {
+        '0': [
+            { ts: 'Mar 14 08:00:15', h: 'servera', u: 'sshd[1234]', p: 'notice', msg: 'Server listening on 0.0.0.0 port 22.' },
+            { ts: 'Mar 14 08:00:15', h: 'servera', u: 'sshd[1234]', p: 'notice', msg: 'Server listening on :: port 22.' },
+            { ts: 'Mar 14 09:05:22', h: 'servera', u: 'sshd[2891]', p: 'info',   msg: 'Accepted publickey for admin from 192.168.1.5 port 43812 ssh2.' },
+            { ts: 'Mar 14 09:12:44', h: 'servera', u: 'sshd[2892]', p: 'warning',msg: 'Failed password for root from 10.0.0.99 port 22 ssh2.' },
+            { ts: 'Mar 14 09:12:50', h: 'servera', u: 'sshd[2892]', p: 'err',    msg: 'PAM 2 more authentication failures; logname= uid=0 euid=0 tty=ssh ruser= rhost=10.0.0.99.' },
+            { ts: 'Mar 14 10:01:30', h: 'servera', u: 'sshd[3101]', p: 'info',   msg: 'Accepted password for student from 172.25.250.0 port 55100 ssh2.' },
+        ],
+        '-1': [
+            { ts: 'Mar 13 08:00:11', h: 'servera', u: 'sshd[901]',  p: 'notice', msg: 'Server listening on 0.0.0.0 port 22.' },
+            { ts: 'Mar 13 10:30:00', h: 'servera', u: 'sshd[1502]', p: 'info',   msg: 'Accepted publickey for admin from 192.168.1.5 port 44001 ssh2.' },
+            { ts: 'Mar 13 17:55:10', h: 'servera', u: 'sshd[901]',  p: 'notice', msg: 'Received signal 15; terminating.' },
+        ]
+    },
+    httpd: {
+        '0': [
+            { ts: 'Mar 14 08:00:20', h: 'servera', u: 'httpd[1300]', p: 'notice', msg: 'Apache/2.4.62 (Red Hat Enterprise Linux) configured -- resuming normal operations.' },
+            { ts: 'Mar 14 08:00:20', h: 'servera', u: 'httpd[1300]', p: 'info',   msg: 'AH00094: Command line: /usr/sbin/httpd -D FOREGROUND' },
+            { ts: 'Mar 14 09:45:00', h: 'servera', u: 'httpd[1300]', p: 'err',    msg: 'AH01071: Got error "Primary script unknown"' },
+            { ts: 'Mar 14 10:05:00', h: 'servera', u: 'httpd[1300]', p: 'notice', msg: 'caught SIGWINCH, shutting down gracefully' },
+        ],
+        '-1': [
+            { ts: 'Mar 13 08:00:18', h: 'servera', u: 'httpd[1200]', p: 'notice', msg: 'Apache/2.4.62 configured -- resuming normal operations.' },
+        ]
+    },
+    crond: {
+        '0': [
+            { ts: 'Mar 14 08:01:01', h: 'servera', u: 'crond[881]',  p: 'info', msg: '(root) CMD (/usr/lib64/sa/sa1 1 1)' },
+            { ts: 'Mar 14 09:01:01', h: 'servera', u: 'crond[881]',  p: 'info', msg: '(root) CMD (/usr/lib64/sa/sa1 1 1)' },
+            { ts: 'Mar 14 10:01:01', h: 'servera', u: 'crond[881]',  p: 'info', msg: '(root) CMD (/usr/lib64/sa/sa1 1 1)' },
+            { ts: 'Mar 14 10:10:00', h: 'servera', u: 'crond[881]',  p: 'notice', msg: '(backup) CMD (/usr/local/bin/backup.sh) started' },
+            { ts: 'Mar 14 10:11:32', h: 'servera', u: 'crond[1990]', p: 'warning', msg: 'backup.sh: /data/backup: No space left on device' },
+        ],
+        '-1': [
+            { ts: 'Mar 13 08:01:01', h: 'servera', u: 'crond[875]', p: 'info', msg: '(root) CMD (/usr/lib64/sa/sa1 1 1)' },
+        ]
+    },
+    NetworkManager: {
+        '0': [
+            { ts: 'Mar 14 08:00:05', h: 'servera', u: 'NetworkManager[712]', p: 'info', msg: '<info> [1742000405.1234] device (eth0): state change: config -> ip-config (reason "none")' },
+            { ts: 'Mar 14 08:00:06', h: 'servera', u: 'NetworkManager[712]', p: 'info', msg: '<info> [1742000406.5678] device (eth0): state change: ip-config -> activated (reason "none")' },
+            { ts: 'Mar 14 08:00:06', h: 'servera', u: 'NetworkManager[712]', p: 'notice', msg: 'Connectivity is now FULL' },
+        ],
+        '-1': [
+            { ts: 'Mar 13 08:00:04', h: 'servera', u: 'NetworkManager[710]', p: 'info', msg: '<info> device (eth0): state change: config -> ip-config' },
+        ]
+    },
+    firewalld: {
+        '0': [
+            { ts: 'Mar 14 08:00:10', h: 'servera', u: 'firewalld[801]', p: 'notice', msg: 'Started firewalld - dynamic firewall daemon.' },
+            { ts: 'Mar 14 08:00:11', h: 'servera', u: 'firewalld[801]', p: 'info',   msg: 'Reloaded.' },
+        ],
+        '-1': [
+            { ts: 'Mar 13 08:00:09', h: 'servera', u: 'firewalld[798]', p: 'notice', msg: 'Started firewalld - dynamic firewall daemon.' },
+        ]
+    }
+};
+
+const PRIO_NUM = { emerg:0, alert:1, crit:2, err:3, warning:4, notice:5, info:6, debug:7 };
+
+function runJournalSim() {
+    const unit   = document.getElementById('jsim-unit').value;
+    const prio   = document.getElementById('jsim-prio').value;
+    const boot   = document.getElementById('jsim-boot').value;
+    const output = document.getElementById('jsim-output');
+    const cmdEl  = document.getElementById('jsim-cmd');
+
+    // Build command display
+    let cmd = 'journalctl -b ' + boot;
+    if (unit) cmd += ' -u ' + unit;
+    if (prio) cmd += ' -p ' + prio;
+    cmdEl.textContent = '$ ' + cmd;
+
+    // Gather data
+    let rows = [];
+    const sources = unit ? { [unit]: JOURNAL_DATA[unit] } : JOURNAL_DATA;
+    const bootKey = boot;
+
+    Object.entries(sources).forEach(([u, boots]) => {
+        const entries = boots[bootKey] || [];
+        entries.forEach(e => rows.push(e));
+    });
+
+    // Filter by priority
+    if (prio && PRIO_NUM[prio] !== undefined) {
+        const cutoff = PRIO_NUM[prio];
+        rows = rows.filter(r => PRIO_NUM[r.p] <= cutoff);
+    }
+
+    rows.sort((a, b) => a.ts.localeCompare(b.ts));
+
+    if (rows.length === 0) {
+        output.innerHTML = '<span class="j-empty">-- No entries match the selected filters. --</span>';
+        return;
+    }
+
+    const bootLabel = bootKey === '0'
+        ? '-- Logs begin at Mar 14 08:00:00 EDT, end at Mar 14 10:22:10 EDT. --'
+        : '-- Logs begin at Mar 13 08:00:00 EDT, end at Mar 13 17:59:02 EDT. --';
+
+    output.innerHTML = '<span class="j-ts">' + bootLabel + '</span>\n' +
+        rows.map(r => {
+            const cls = PRIO_NUM[r.p] <= 3 ? 'j-err' : (PRIO_NUM[r.p] === 4 ? 'j-warn' : 'j-msg');
+            return '<span class="j-ts">' + r.ts + '</span> <span class="j-host">' + r.h + '</span> <span class="j-unit">' + r.u + '</span>: <span class="' + cls + '">' + r.msg + '</span>';
+        }).join('\n');
+}
+
+/* ==================== QUIZ LOGIC ==================== */
+function checkQuiz() {
+    const questions = document.querySelectorAll('.quiz-question');
+    let correct = 0;
+    let answered = 0;
+
+    questions.forEach((q, i) => {
+        const num = q.dataset.question;
+        const rightAns = q.dataset.correct;
+        const selected = q.querySelector('input[type="radio"]:checked');
+        const feedback = document.getElementById('feedback-' + num);
+
+        if (!selected) return;
+        answered++;
+
+        const userAns = selected.value;
+        const isCorrect = userAns === rightAns;
+
+        q.classList.remove('correct', 'incorrect');
+        q.classList.add(isCorrect ? 'correct' : 'incorrect');
+
+        if (feedback) {
+            feedback.classList.add('show');
+            if (isCorrect) {
+                feedback.className = 'quiz-feedback show correct';
+                feedback.textContent = '✓ Correct!';
+            } else {
+                feedback.className = 'quiz-feedback show incorrect';
+                const correctLabel = q.querySelector('input[value="' + rightAns + '"]');
+                const correctText = correctLabel ? correctLabel.closest('label').textContent.trim() : rightAns;
+                feedback.textContent = '✗ Incorrect. The correct answer is: ' + correctText;
+            }
+            correct += isCorrect ? 1 : 0;
+        }
+    });
+
+    const score = document.getElementById('quiz-score');
+    score.classList.add('show');
+    const total = questions.length;
+    const pct = Math.round((correct / total) * 100);
+    let msg = '';
+    if (pct === 100) msg = ' 🎉 Perfect score!';
+    else if (pct >= 80) msg = ' Great job!';
+    else if (pct >= 60) msg = ' Keep reviewing the material.';
+    else msg = ' Consider re-reading the chapter before moving on.';
+    score.textContent = 'Score: ' + correct + ' / ' + total + ' (' + pct + '%)' + msg;
+}
+
+function resetQuiz() {
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('correct', 'incorrect');
+        q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(f => {
+        f.classList.remove('show', 'correct', 'incorrect');
+        f.textContent = '';
+    });
+    const score = document.getElementById('quiz-score');
+    if (score) { score.classList.remove('show'); score.textContent = ''; }
+}
+
+</script>
+</body>
+</html>
