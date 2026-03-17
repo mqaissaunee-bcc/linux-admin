@@ -49,14 +49,14 @@
         *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
         *:focus:not(:focus-visible) { outline: none; }
         *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
-        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
         .skip-link:focus { top: 10px; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
         @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
 
         /* ==================== HEADER ==================== */
         .main-header {
-            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #AA0000 100%);
+            background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%);
             color: var(--rh-white); padding: 40px 24px 32px;
             text-align: center; position: relative; overflow: hidden;
         }
@@ -80,7 +80,7 @@
         /* ==================== PROGRESS BAR ==================== */
         .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
         .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue-dark), var(--rh-blue)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
         .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
 
         /* ==================== SECTION NAV ==================== */
@@ -88,18 +88,18 @@
         .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
         .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
         .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
-        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
-        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
 
         /* ==================== MAIN CONTENT ==================== */
         main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
         .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
         .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
-        .section-number { background: var(--rh-red); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
         .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
         .section-body { padding: 30px; }
         .section-body p { margin-bottom: 16px; }
-        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-blue-dark); margin: 24px 0 12px; }
         .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
         .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
         .section-body li { margin-bottom: 8px; }
@@ -244,7 +244,9 @@
         /* ==================== CHAPTER NAV ==================== */
         .chapter-nav { display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-top: 30px; }
         .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--rh-white); border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; color: var(--rh-gray-dark); text-decoration: none; transition: all var(--transition-fast); }
-        .nav-chapter-btn:hover { border-color: var(--rh-red); color: var(--rh-red); }
+        .nav-chapter-btn:hover { border-color: var(--rh-blue); color: var(--rh-blue); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
         .nav-chapter-btn.home { background: var(--rh-gray-dark); color: var(--rh-white); border-color: var(--rh-gray-dark); }
         .nav-chapter-btn.home:hover { background: var(--rh-black); border-color: var(--rh-black); }
 
@@ -1790,7 +1792,7 @@ log does not need rotating (log is too small)</span>
         <div class="chapter-nav" aria-label="Chapter navigation">
             <a href="rh134_chapter4_scheduling_system_tasks.html" class="nav-chapter-btn prev">&#8592; Chapter 4: Scheduling System Tasks</a>
             <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
-            <a href="rh134_chapter6_selinux.html" class="nav-chapter-btn next">Chapter 6: Managing Storage &#8594;</a>
+            <a href="rh134_chapter6_selinux.html" class="nav-chapter-btn next">Chapter 6: Managing Security with SELinux &#8594;</a>
         </div>
     </div>
 </section>
