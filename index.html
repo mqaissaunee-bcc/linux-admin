@@ -2290,7 +2290,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">5 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">7 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -2546,6 +2546,118 @@
                             <li>RHEL 10 logging architecture</li>
                             <li>Querying logs with journalctl</li>
                             <li>Centralized remote logging with rsyslog</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 6 Card -->
+                <a href="rh134_chapter6_selinux.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch6-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 6</span>
+                        <h3 class="card-title" id="card-rh134-ch6-title">Managing Security with SELinux</h3>
+                        <p class="card-subtitle">Contexts, booleans, and troubleshooting SELinux</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Enforce mandatory access control using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-selinux6">SELinux</button>
+                                <span class="tooltip-content" id="tooltip-selinux6" role="tooltip">SELinux (Security-Enhanced Linux) implements mandatory access control (MAC) in the Linux kernel. Every process and file is assigned a security context, and policy rules define which contexts may interact with which resources.</span>
+                            </span>.
+                            Learn to manage
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-selinux-ctx">file contexts</button>
+                                <span class="tooltip-content" id="tooltip-selinux-ctx" role="tooltip">SELinux file contexts label every file with a type (e.g., httpd_sys_content_t). Use chcon to change a label temporarily, semanage fcontext to make it persistent, and restorecon to apply the policy default.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-selinux-bool">booleans</button>
+                                <span class="tooltip-content" id="tooltip-selinux-bool" role="tooltip">SELinux booleans are runtime switches that tune policy without rewriting rules. Use getsebool -a to list them and setsebool -P to make a change persistent across reboots.</span>
+                            </span>, and
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-selinux-modes">operating modes</button>
+                                <span class="tooltip-content" id="tooltip-selinux-modes" role="tooltip">SELinux has three modes: Enforcing (policy is enforced and denials logged), Permissive (denials logged but not blocked — useful for troubleshooting), and Disabled (SELinux off entirely). Use getenforce and setenforce to check and change modes.</span>
+                            </span>
+                            to troubleshoot and resolve access denials.
+                        </p>
+                        <ul class="card-topics">
+                            <li>SELinux architecture and operating modes</li>
+                            <li>File context management with semanage</li>
+                            <li>Tuning policy with booleans and audit2allow</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 7 Card -->
+                <a href="rh134_chapter7_archiving.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch7-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 6h-2.18c.07-.31.18-.62.18-.97C18 3.36 16.64 2 15.03 2c-.98 0-1.71.48-2.28 1.14L12 4l-.75-.87C10.68 2.48 9.95 2 8.97 2 7.36 2 6 3.36 6 4.97c0 .35.11.66.18.97H4c-1.11 0-2 .89-2 2v11c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2.03c.74 0 1.03.67 1.03 1.03 0 .74-.61 1-.97 1H13.5l1.5-2.03zM8.97 4c.36 0 .97.26.97 1 0 .36-.29 1.03-1.03 1.03H7.97L9.5 3.97 8.97 4zM20 19H4v-2h16v2zm0-5H4V8h16v6z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 7</span>
+                        <h3 class="card-title" id="card-rh134-ch7-title">Archiving Files</h3>
+                        <p class="card-subtitle">tar archives, compression, and file transfers</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Package and compress files for backup and transfer using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-tar7">tar</button>
+                                <span class="tooltip-content" id="tooltip-tar7" role="tooltip">tar (Tape ARchive) bundles multiple files and directories into a single archive file. Common flags: -c (create), -x (extract), -t (list), -f (filename), -v (verbose). Combine with -z (gzip), -j (bzip2), or -J (xz) for compression.</span>
+                            </span>
+                            with compression algorithms including
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-gzip7">gzip</button>
+                                <span class="tooltip-content" id="tooltip-gzip7" role="tooltip">gzip is the most common Linux compression tool, producing .gz files. It offers a good balance of speed and compression ratio. Use gzip to compress, gunzip to decompress, and zcat to view compressed files without extracting.</span>
+                            </span>,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-bzip27">bzip2</button>
+                                <span class="tooltip-content" id="tooltip-bzip27" role="tooltip">bzip2 produces smaller files than gzip but is slower. It creates .bz2 files. Used with tar via the -j flag. Good for archiving when transfer size matters more than speed.</span>
+                            </span>, and
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-xz7">xz</button>
+                                <span class="tooltip-content" id="tooltip-xz7" role="tooltip">xz offers the highest compression ratio of the common Linux tools at the cost of longer processing time. Produces .xz files and is used with tar via the -J flag. Commonly used for distributing source code and kernel packages.</span>
+                            </span>
+                            to efficiently back up and transfer data across systems.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Creating and extracting tar archives</li>
+                            <li>gzip, bzip2, and xz compression</li>
+                            <li>Transferring files securely with scp and sftp</li>
                         </ul>
                     </div>
                     <div class="card-footer">
@@ -2845,8 +2957,28 @@
                     </div>
                 </div>
 
-                <div class="path-item" role="listitem">
+                <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">27</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Enforce Security with SELinux</h3>
+                        <p class="path-description">
+                            RH134 Chapter 6 covers mandatory access control&mdash;understanding SELinux contexts and modes, managing file labels with semanage and restorecon, tuning policy with booleans, and resolving access denials with audit2allow.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">28</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Archive and Compress Files</h3>
+                        <p class="path-description">
+                            RH134 Chapter 7 teaches file archiving&mdash;creating and extracting tar archives, applying gzip, bzip2, and xz compression, and securely transferring files between systems with scp and sftp.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">29</div>
                     <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
@@ -2940,6 +3072,8 @@
                 <a href="rh134_chapter3_scheduling.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 3</a>
                 <a href="rh134_chapter4_scheduling_system_tasks.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 4</a>
                 <a href="rh134_chapter5_logs.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 5</a>
+                <a href="rh134_chapter6_selinux.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 6</a>
+                <a href="rh134_chapter7_archiving.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 7</a>
             </nav>
         </div>
     </footer>

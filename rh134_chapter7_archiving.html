@@ -1,0 +1,1761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Archiving Files | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 16px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-blue-dark); margin: 24px 0 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
+        .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
+        .section-body li { margin-bottom: 8px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-blue); }
+        .code-title { background: var(--rh-blue-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-prompt { color: #4EC9B0; }
+        .code-root { color: #F44747; }
+        .code-command { color: #FFFFFF; font-weight: 600; }
+        .code-output { color: #9CDCFE; display: block; }
+        .code-comment { color: #6A9955; font-style: italic; display: block; }
+        .code-error { color: #F44747; display: block; }
+        .code-highlight { color: #FFD700; font-weight: 600; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-blue-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; position: relative; }
+        .tooltip-content { display: none; }
+        #tooltip-bubble {
+            position: fixed; z-index: 9999;
+            background: var(--rh-black); color: var(--rh-white);
+            padding: 10px 14px; border-radius: var(--radius-md);
+            font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5;
+            max-width: 280px; pointer-events: none;
+            box-shadow: var(--shadow-lg);
+        }
+        #tooltip-bubble::after {
+            content: ''; position: absolute;
+            border: 6px solid transparent;
+        }
+        #tooltip-bubble.tt-above::after { border-top-color: var(--rh-black); top: 100%; left: var(--arrow-left, 50%); transform: translateX(-50%); }
+        #tooltip-bubble.tt-below::after { border-bottom-color: var(--rh-black); bottom: 100%; left: var(--arrow-left, 50%); transform: translateX(-50%); }
+        #tooltip-bubble.tt-right::after { border-right-color: var(--rh-black); right: 100%; top: var(--arrow-top, 50%); transform: translateY(-50%); }
+        #tooltip-bubble.tt-left::after  { border-left-color: var(--rh-black); left: 100%; top: var(--arrow-top, 50%); transform: translateY(-50%); }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 20px 0; border-left: 4px solid; }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; }
+        .note-box.tip { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.warning .note-box-header { color: #996600; }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note { background: #F0F4FF; border-color: var(--rh-blue); }
+        .note-box.note .note-box-header { color: var(--rh-blue-dark); }
+
+        /* ==================== TABLES ==================== */
+        .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .data-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; }
+        .data-table td { padding: 10px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) td { background: #F8FAFF; }
+        .data-table tr:hover td { background: #EEF4FF; }
+        .data-table code { font-family: var(--font-mono); font-size: 0.85em; color: var(--rh-blue-dark); background: var(--rh-gray-lighter); padding: 1px 5px; border-radius: 3px; }
+
+        /* ==================== EXPANDABLE SECTIONS ==================== */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 12px 0; overflow: hidden; }
+        .expandable-header { width: 100%; background: var(--rh-gray-lighter); border: none; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; color: var(--rh-gray-dark); transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E8FF; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expand-icon { font-size: 0.75rem; transition: transform var(--transition-med); }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; background: var(--rh-white); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; border: 2px solid transparent; }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-q-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; color: var(--rh-gray-dark); }
+        .quiz-options { list-style: none; margin: 0; padding: 0; }
+        .quiz-options li { margin-bottom: 8px; }
+        .quiz-options label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-family: var(--font-display); font-size: 0.9rem; padding: 8px 12px; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .quiz-options label:hover { background: rgba(0,102,204,0.1); }
+        .quiz-options input[type="radio"] { margin-top: 2px; flex-shrink: 0; accent-color: var(--rh-blue); }
+        .quiz-feedback { margin-top: 12px; padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.88rem; display: none; }
+        .quiz-feedback.correct-fb { background: #E6FFE6; color: var(--rh-green-dark); border: 1px solid var(--rh-green); display: block; }
+        .quiz-feedback.incorrect-fb { background: #FFE6E6; color: var(--rh-red-dark); border: 1px solid var(--rh-red); display: block; }
+        .quiz-controls { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .quiz-btn { padding: 10px 24px; border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all var(--transition-fast); }
+        .quiz-btn.primary { background: var(--rh-blue); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-light); color: var(--rh-gray-dark); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-medium); color: var(--rh-white); }
+        #quiz-score { display: none; margin-top: 16px; padding: 14px 20px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1rem; border-left: 4px solid var(--rh-blue); }
+
+        /* ==================== INTERACTIVE SIMULATOR ==================== */
+        .simulator { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 24px; margin: 20px 0; }
+        .simulator h4 { font-family: var(--font-display); font-weight: 700; margin-bottom: 16px; color: var(--rh-blue-dark); }
+        .sim-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; align-items: center; }
+        .sim-controls label { font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-gray-dark); }
+        .sim-controls select, .sim-controls input[type="text"] {
+            padding: 6px 10px; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-sm);
+            font-family: var(--font-mono); font-size: 0.85rem; background: var(--rh-white);
+        }
+        .sim-btn { padding: 7px 18px; background: var(--rh-blue); color: var(--rh-white); border: none; border-radius: var(--radius-sm); font-family: var(--font-display); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: background var(--transition-fast); }
+        .sim-btn:hover { background: var(--rh-blue-dark); }
+        .sim-btn.danger { background: var(--rh-red); }
+        .sim-btn.danger:hover { background: var(--rh-red-dark); }
+        .sim-output { background: #1E1E1E; color: #D4D4D4; padding: 16px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.83rem; line-height: 1.6; min-height: 80px; white-space: pre-wrap; word-break: break-all; }
+        .sim-output .so-prompt { color: #4EC9B0; }
+        .sim-output .so-root { color: #F44747; }
+        .sim-output .so-cmd { color: #FFFFFF; font-weight: 600; }
+        .sim-output .so-out { color: #9CDCFE; }
+        .sim-output .so-err { color: #F44747; }
+        .sim-output .so-comment { color: #6A9955; font-style: italic; }
+
+        /* ==================== COMPRESSION COMPARISON ==================== */
+        .comparison-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 20px 0; }
+        .algo-card { background: var(--rh-white); border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); padding: 18px; text-align: center; transition: all var(--transition-fast); }
+        .algo-card:hover { border-color: var(--rh-blue); box-shadow: var(--shadow-sm); }
+        .algo-card.highlight { border-color: var(--rh-blue); background: #F0F4FF; }
+        .algo-name { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; color: var(--rh-blue-dark); }
+        .algo-ext { font-family: var(--font-mono); font-size: 0.8rem; color: var(--rh-gray); margin-bottom: 12px; }
+        .algo-bar-wrap { background: var(--rh-gray-lighter); border-radius: 4px; height: 10px; margin: 8px 0; overflow: hidden; }
+        .algo-bar { height: 100%; border-radius: 4px; }
+        .algo-bar.speed { background: var(--rh-green); }
+        .algo-bar.ratio { background: var(--rh-blue); }
+        .algo-label { font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); }
+        .algo-stat { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray-dark); margin-top: 8px; }
+
+        /* ==================== OPTION REFERENCE TABLE ==================== */
+        .option-badge { display: inline-block; background: var(--rh-blue-dark); color: var(--rh-white); font-family: var(--font-mono); font-size: 0.8rem; padding: 2px 8px; border-radius: 3px; margin-right: 4px; }
+        .option-badge.alt { background: var(--rh-blue); }
+
+        /* ==================== LAB STYLES ==================== */
+        .lab-task { margin-bottom: 16px; }
+        .lab-objective { background: #F0F4FF; border-left: 4px solid var(--rh-blue); padding: 14px 18px; border-radius: 0 var(--radius-md) var(--radius-md) 0; margin-bottom: 16px; font-family: var(--font-display); font-size: 0.9rem; }
+        .completion-btn { display: block; background: var(--rh-blue); color: var(--rh-white); border: none; padding: 12px 28px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-top: 24px; transition: background var(--transition-fast); }
+        .completion-btn:hover { background: var(--rh-blue-dark); }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--rh-gray-lighter); }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all var(--transition-fast); border: 2px solid var(--rh-gray-light); color: var(--rh-gray-dark); }
+        .nav-chapter-btn:hover { border-color: var(--rh-blue); color: var(--rh-blue); background: #F0F4FF; }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); color: var(--rh-white); }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: var(--rh-black); color: rgba(255,255,255,0.7); padding: 30px 24px; margin-top: 40px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.8; }
+        footer a { color: rgba(255,255,255,0.85); }
+
+        /* ==================== PROGRESS TRACKER ==================== */
+        .objectives-list { list-style: none; padding: 0; margin: 0; }
+        .objectives-list li { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); }
+        .objectives-list li:last-child { border-bottom: none; }
+        .obj-icon { color: var(--rh-blue); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .chapter-nav { flex-direction: column; }
+            .nav-chapter-btn { justify-content: center; }
+            .comparison-grid { grid-template-columns: 1fr; }
+            .sim-controls { flex-direction: column; align-items: flex-start; }
+            .data-table { font-size: 0.8rem; }
+            .data-table th, .data-table td { padding: 8px 10px; }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .completion-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" style="display:none;"></div>
+
+<!-- ==================== HEADER ==================== -->
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F4E6;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Red Hat System Administration II</div>
+        <h1 class="chapter-title">Chapter 7: Archiving Files</h1>
+        <p class="chapter-subtitle">Create, manage, and extract compressed tar archives for backup and transfer</p>
+        <div class="header-meta">
+            <span>&#x23F1; Estimated Time: 2&ndash;3 hours</span>
+            <span>&#x1F4DA; RH134 &bull; Week 14</span>
+            <span>&#x1F3AF; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== PROGRESS BAR ==================== -->
+<div class="progress-container" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter completion"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<!-- ==================== SECTION NAV ==================== -->
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives"   class="nav-btn" aria-label="Learning Objectives">1. Objectives</a></li>
+        <li><a href="#section-intro"        class="nav-btn" aria-label="Introduction to Archives">2. Archives</a></li>
+        <li><a href="#section-tar-basics"   class="nav-btn" aria-label="tar Command Basics">3. tar Basics</a></li>
+        <li><a href="#section-create"       class="nav-btn" aria-label="Creating Archives">4. Creating</a></li>
+        <li><a href="#section-list-extract" class="nav-btn" aria-label="Listing and Extracting">5. List &amp; Extract</a></li>
+        <li><a href="#section-compression"  class="nav-btn" aria-label="Compression Algorithms">6. Compression</a></li>
+        <li><a href="#section-standalone"   class="nav-btn" aria-label="Standalone Compression">7. Standalone Tools</a></li>
+        <li><a href="#section-guided"       class="nav-btn" aria-label="Guided Exercise">8. Guided Exercise</a></li>
+        <li><a href="#section-quiz"         class="nav-btn" aria-label="Knowledge Check Quiz">9. Quiz</a></li>
+        <li><a href="#section-lab"          class="nav-btn" aria-label="Hands-On Lab">10. Lab</a></li>
+        <li><a href="#section-summary"      class="nav-btn" aria-label="Chapter Summary">11. Summary</a></li>
+    </ul>
+</nav>
+
+<!-- ==================== MAIN CONTENT ==================== -->
+<main id="main-content">
+
+<!-- ===== SECTION 1: OBJECTIVES ===== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul class="objectives-list">
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Explain what archive files are and describe common use cases for creating them.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use the <code class="inline">tar</code> command to create archive files from files and directories.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>List the contents of a tar archive without extracting it.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Extract files from both compressed and uncompressed tar archives.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Create compressed archives using the gzip, bzip2, and xz compression algorithms.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Distinguish between the three compression algorithms based on speed and compression ratio.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use standalone compression commands (<code class="inline">gzip</code>, <code class="inline">bzip2</code>, <code class="inline">xz</code>) for individual files.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Verify archive size before extraction using <code class="inline">gzip -l</code> and <code class="inline">xz -l</code>.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Preserve SELinux contexts and extended file attributes in archives.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===== SECTION 2: INTRO TO ARCHIVES ===== -->
+<section id="section-intro" class="content-section" aria-labelledby="intro-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="intro-heading">Introduction to Archives</h2>
+    </div>
+    <div class="section-body">
+        <p>An <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-archive">archive<span class="tooltip-content" id="tt-archive">A single file or device that bundles multiple files together, preserving their structure, metadata, and permissions.</span></span> is a single regular file or device file that contains multiple files and directories. On Linux systems, archiving is the standard mechanism for bundling files before backup, distribution, or transfer.</p>
+
+        <p>Archive files serve two primary purposes in system administration:</p>
+        <ul>
+            <li><strong>Backup:</strong> Collecting files into a single manageable unit that can be stored, versioned, and restored.</li>
+            <li><strong>Transfer:</strong> Simplifying movement of directory trees across a network when other methods such as <code class="inline">rsync</code> are unavailable or overly complex.</li>
+        </ul>
+
+        <p>Archives can be created with or without <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-compression">compression<span class="tooltip-content" id="tt-compression">The process of encoding data using fewer bits to reduce file size, making storage and transfers more efficient.</span></span> to reduce file size. On RHEL 10, the primary archiving tool is the <code class="inline">tar</code> command, which supports multiple embedded compression algorithms.</p>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D8;</span><span>Historical Context: zip vs. tar</span></div>
+            <p>The original <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-zip">zip<span class="tooltip-content" id="tt-zip">A file format and utility (PKZIP) that both archives and compresses files; widely used on Windows and supported on RHEL via the zip and unzip commands.</span></span> utility uses the PKZIP algorithm (Phil Katz's ZIP for MS-DOS). It remains available on RHEL 10 via the <code class="inline">zip</code> and <code class="inline">unzip</code> commands. However, Linux administrators overwhelmingly prefer <code class="inline">tar</code> with gzip, bzip2, or xz compression because these algorithms generally achieve better compression ratios, and <code class="inline">tar</code> preserves Linux file metadata (ownership, permissions, symbolic links, SELinux contexts) more faithfully than the zip format.</p>
+        </div>
+
+        <h3>When to Use Archives vs. Other Methods</h3>
+        <p>Understanding when archiving is the right tool helps you choose efficiently:</p>
+        <ul>
+            <li><strong>Use <code class="inline">tar</code></strong> when you need to preserve complete directory trees with permissions, when working with backup jobs, or when packaging software for distribution.</li>
+            <li><strong>Use <code class="inline">rsync</code></strong> for incremental synchronization of live directories between systems — rsync is more efficient for ongoing syncs because it only transfers changed files.</li>
+            <li><strong>Use <code class="inline">scp</code> or <code class="inline">sftp</code></strong> for quick one-off file copies between systems where directory preservation matters less.</li>
+            <li><strong>Use <code class="inline">cp -a</code></strong> for local copies where you want to preserve all file attributes without creating an archive bundle.</li>
+        </ul>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Archive First, Then Transfer</span></div>
+            <p>When transferring a large directory over a network, first create a compressed tar archive, then transfer the single archive file. This reduces transfer overhead and ensures the entire directory arrives atomically (all-or-nothing), making it easier to verify the transfer was complete.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 3: TAR BASICS ===== -->
+<section id="section-tar-basics" class="content-section" aria-labelledby="tar-basics-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="tar-basics-heading">The tar Command: Options and Syntax</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tar">tar<span class="tooltip-content" id="tt-tar">Tape Archive utility. The standard Linux command for creating, listing, and extracting archive files. Predates most modern compression tools and originated for writing to tape drives.</span></span> (Tape Archive) utility is the common command on Linux for creating, managing, and extracting archives. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tarfile">tar archive<span class="tooltip-content" id="tt-tarfile">A file created by the tar command containing a structured sequence of file metadata and data blocks, with an index allowing individual file extraction.</span></span> is a structured sequence of file metadata and data with an internal index, allowing individual files to be extracted without processing the entire archive.</p>
+
+        <h3>Required Action Options</h3>
+        <p>Every <code class="inline">tar</code> invocation requires exactly one action option:</p>
+
+        <table class="data-table" aria-label="tar action options">
+            <thead>
+                <tr>
+                    <th>Short Option</th>
+                    <th>Long Option</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>-c</code></td>
+                    <td><code>--create</code></td>
+                    <td>Create a new archive file</td>
+                </tr>
+                <tr>
+                    <td><code>-t</code></td>
+                    <td><code>--list</code></td>
+                    <td>List the contents of an archive without extracting</td>
+                </tr>
+                <tr>
+                    <td><code>-x</code></td>
+                    <td><code>--extract</code></td>
+                    <td>Extract files from an archive</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Common General Options</h3>
+        <table class="data-table" aria-label="tar general options">
+            <thead>
+                <tr><th>Short</th><th>Long</th><th>Purpose</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>-v</code></td><td><code>--verbose</code></td><td>Display each file as it is archived or extracted</td></tr>
+                <tr><td><code>-f</code></td><td><code>--file</code></td><td>Specify the archive file name (must be followed by the file name)</td></tr>
+                <tr><td><code>-p</code></td><td><code>--preserve-permissions</code></td><td>Restore original file permissions on extraction</td></tr>
+                <tr><td></td><td><code>--xattrs</code></td><td>Store and restore extended file attributes</td></tr>
+                <tr><td></td><td><code>--selinux</code></td><td>Store and restore SELinux file contexts</td></tr>
+                <tr><td></td><td><code>--acls</code></td><td>Store and restore POSIX Access Control Lists</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Compression Options</h3>
+        <table class="data-table" aria-label="tar compression options">
+            <thead>
+                <tr><th>Short</th><th>Long</th><th>Algorithm</th><th>Resulting Extension</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>-a</code></td><td><code>--auto-compress</code></td><td>Auto-detect from filename suffix</td><td>depends on suffix</td></tr>
+                <tr><td><code>-z</code></td><td><code>--gzip</code></td><td>gzip compression</td><td><code>.tar.gz</code></td></tr>
+                <tr><td><code>-j</code></td><td><code>--bzip2</code></td><td>bzip2 compression</td><td><code>.tar.bz2</code></td></tr>
+                <tr><td><code>-J</code></td><td><code>--xz</code></td><td>xz compression</td><td><code>.tar.xz</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D8;</span><span>Legacy Option Style</span></div>
+            <p>The <code class="inline">tar</code> command supports a legacy option style that omits the leading dash (<code class="inline">-</code>), such as <code class="inline">tar cvf archive.tar .</code> instead of <code class="inline">tar -cvf archive.tar .</code> You may encounter this in older scripts or documentation. The behavior is identical, but Red Hat recommends using the standard short-option or long-option style for consistency and readability.</p>
+        </div>
+
+        <h3>General Syntax Pattern</h3>
+        <div class="code-block" role="region" aria-label="tar syntax pattern">
+            <div class="code-title">tar Command Syntax</div>
+            <code>
+<span class="code-comment"># Create: tar -c[options]f ARCHIVE_NAME SOURCE [SOURCE...]</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -czf backup.tar.gz /source/directory</span>
+
+<span class="code-comment"># List: tar -t[options]f ARCHIVE_NAME</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -tf backup.tar.gz</span>
+
+<span class="code-comment"># Extract: tar -x[options]f ARCHIVE_NAME [-C DESTINATION]</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -xf backup.tar.gz -C /destination/</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: -f Must Come Last in Option Groups</span></div>
+            <p>When combining options (e.g., <code class="inline">-czf</code>), the <code class="inline">-f</code> flag must be last because it takes the archive filename as its immediate argument. Writing <code class="inline">tar -cfz backup.tar.gz</code> will fail because tar tries to use <code class="inline">z</code> as the filename. Always write <code class="inline">tar -czf archive.tar.gz</code>.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 4: CREATING ARCHIVES ===== -->
+<section id="section-create" class="content-section" aria-labelledby="create-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="create-heading">Creating Archives</h2>
+    </div>
+    <div class="section-body">
+        <p>To create an archive with <code class="inline">tar</code>, use the <code class="inline">-c</code> (create) and <code class="inline">-f</code> (file) options, specifying the archive filename as the first argument, followed by the files and directories to include.</p>
+
+        <h3>Absolute vs. Relative Path Names</h3>
+        <p>The <code class="inline">tar</code> command recognizes both <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-abspath">absolute path names<span class="tooltip-content" id="tt-abspath">A path starting with / that specifies a file location from the root of the filesystem, e.g. /etc/hosts.</span></span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-relpath">relative path names<span class="tooltip-content" id="tt-relpath">A path that specifies a file location relative to the current working directory, e.g. etc/hosts or ./etc/hosts.</span></span>. By default, tar <strong>strips the leading forward slash</strong> (<code class="inline">/</code>) from absolute paths, storing files internally with relative path names.</p>
+
+        <p>This is an important safety feature. When you later extract the archive, the files are extracted relative to your current directory rather than overwriting the original absolute-path locations. For example, <code class="inline">/etc/hosts</code> is stored as <code class="inline">etc/hosts</code> and extracted to <code class="inline">./etc/hosts</code> in your current directory.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Why Path Stripping Matters</span></div>
+            <p>If tar did not strip the leading slash, extracting an archive containing <code class="inline">/etc/passwd</code> would overwrite the live system's password file. The stripping behavior protects administrators from accidental overwrites. The warning message <code class="inline">tar: Removing leading '/' from member names</code> is normal and expected when archiving absolute paths.</p>
+        </div>
+
+        <h3>Creating a Basic Archive (User Files)</h3>
+        <div class="code-block" role="region" aria-label="Creating a basic tar archive">
+            <div class="code-title">Create Archive from Individual Files</div>
+            <code>
+<span class="code-comment"># Create mybackup.tar containing three log files</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -cf mybackup.tar myapp1.log myapp2.log myapp3.log</span>
+
+<span class="code-comment"># The -v (verbose) flag shows each file as it is added</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -cvf mybackup.tar myapp1.log myapp2.log myapp3.log</span>
+<span class="code-output">myapp1.log</span>
+<span class="code-output">myapp2.log</span>
+<span class="code-output">myapp3.log</span>
+            </code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D8;</span><span>Overwrite Behavior</span></div>
+            <p>If a file with the same name as the requested archive already exists in the target directory, the <code class="inline">tar</code> command overwrites it without prompting. Always verify your archive name before running the command, especially in automated scripts.</p>
+        </div>
+
+        <h3>Creating a System Archive (Root Required)</h3>
+        <p>Creating an archive of system directories such as <code class="inline">/etc</code> requires root privileges because only privileged users can read all files in those directories. An unprivileged user can attempt to archive <code class="inline">/etc</code>, but the resulting archive will silently exclude any files the user lacks permission to read.</p>
+
+        <div class="code-block" role="region" aria-label="Creating an archive of /etc as root">
+            <div class="code-title">Archive /etc as Root</div>
+            <code>
+<span class="code-comment"># Root creates a complete archive of /etc</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -cf /root/etc-backup.tar /etc</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Verify the archive was created and check its size</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">ls -lh /root/etc-backup.tar</span>
+<span class="code-output">-rw-r--r--. 1 root root 12M Mar 16 10:22 /root/etc-backup.tar</span>
+            </code>
+        </div>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important: Extended Attributes Are Not Preserved by Default</span></div>
+            <p>By default, <code class="inline">tar</code> does <strong>not</strong> preserve extended file attributes. This means:</p>
+            <ul>
+                <li><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-acl">ACLs<span class="tooltip-content" id="tt-acl">Access Control Lists — extended permission rules attached to files that go beyond the standard owner/group/other permission model.</span></span> are lost unless you use <code class="inline">--acls</code></li>
+                <li><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux-ctx">SELinux file contexts<span class="tooltip-content" id="tt-selinux-ctx">Labels attached to files that the SELinux mandatory access control system uses to determine what processes can access them.</span></span> are lost unless you use <code class="inline">--selinux</code></li>
+                <li>Other <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-xattr">extended attributes<span class="tooltip-content" id="tt-xattr">Arbitrary key-value metadata attached to files beyond standard permissions, used by SELinux, ACLs, and other subsystems.</span></span> are lost unless you use <code class="inline">--xattrs</code></li>
+            </ul>
+            <p>For system backups on RHEL 10, always include all three flags:</p>
+            <pre style="background:#FFF0F0;padding:8px;border-radius:4px;font-family:var(--font-mono);font-size:0.85rem;margin-top:8px;">tar -cf /root/etc-backup.tar --xattrs --selinux --acls /etc</pre>
+        </div>
+
+        <h3>Interactive Archive Builder Simulator</h3>
+        <p>Use this interactive simulator to build tar create commands and see how different options affect the resulting command. Observe how the command changes as you add options.</p>
+
+        <div class="simulator" id="tar-create-sim">
+            <h4>&#x1F6E0; tar Create Command Builder</h4>
+            <div class="sim-controls">
+                <label for="sim-dest">Archive name:</label>
+                <input type="text" id="sim-dest" value="backup.tar" style="width:160px;" aria-label="Archive filename">
+
+                <label for="sim-source">Source path:</label>
+                <input type="text" id="sim-source" value="/etc" style="width:140px;" aria-label="Source path">
+
+                <label for="sim-compress">Compression:</label>
+                <select id="sim-compress" aria-label="Compression algorithm">
+                    <option value="">None (.tar)</option>
+                    <option value="z">gzip (.tar.gz)</option>
+                    <option value="j">bzip2 (.tar.bz2)</option>
+                    <option value="J">xz (.tar.xz)</option>
+                </select>
+            </div>
+            <div class="sim-controls">
+                <label><input type="checkbox" id="sim-verbose" aria-label="Verbose output"> -v verbose</label>
+                <label><input type="checkbox" id="sim-preserve" aria-label="Preserve permissions"> -p preserve permissions</label>
+                <label><input type="checkbox" id="sim-selinux" aria-label="SELinux contexts"> --selinux</label>
+                <label><input type="checkbox" id="sim-xattrs" aria-label="Extended attributes"> --xattrs</label>
+                <label><input type="checkbox" id="sim-acls" aria-label="POSIX ACLs"> --acls</label>
+            </div>
+            <div class="sim-controls">
+                <button class="sim-btn" id="sim-build-btn" aria-label="Build tar command">Build Command</button>
+            </div>
+            <div class="sim-output" id="sim-output" aria-live="polite" aria-label="Generated tar command">
+<span class="so-comment"># Configure options above, then click "Build Command"</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 5: LIST AND EXTRACT ===== -->
+<section id="section-list-extract" class="content-section" aria-labelledby="list-extract-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="list-extract-heading">Listing and Extracting Archives</h2>
+    </div>
+    <div class="section-body">
+        <h3>Listing Archive Contents</h3>
+        <p>Use the <code class="inline">-t</code> (list) option to display the contents of an archive without extracting anything. This is a safe, non-destructive operation that helps you verify an archive's contents before restoration.</p>
+
+        <div class="code-block" role="region" aria-label="Listing archive contents">
+            <div class="code-title">List Archive Contents with -t</div>
+            <code>
+<span class="code-comment"># List contents of an uncompressed archive</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/etc.tar</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">etc/crypttab</span>
+<span class="code-output">etc/mtab</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-comment"># -v gives a long listing format (like ls -l)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tvf /root/etc.tar</span>
+<span class="code-output">drwxr-xr-x root/root          0 2025-03-01 08:00 etc/</span>
+<span class="code-output">-rw-r--r-- root/root        653 2025-03-01 07:45 etc/fstab</span>
+<span class="code-output">-rw-r--r-- root/root          0 2025-01-10 12:00 etc/crypttab</span>
+<span class="code-output">...output omitted...</span>
+            </code>
+        </div>
+
+        <p>Notice that the paths are listed with relative syntax (<code class="inline">etc/fstab</code> rather than <code class="inline">/etc/fstab</code>) because the leading slash was stripped when the archive was created.</p>
+
+        <h3>Extracting Archive Contents</h3>
+        <p>Use the <code class="inline">-x</code> (extract) option to restore files from an archive. Best practice is to extract into an <strong>empty or dedicated directory</strong> to avoid overwriting existing files.</p>
+
+        <div class="code-block" role="region" aria-label="Extracting archive contents">
+            <div class="code-title">Extract to a Dedicated Directory</div>
+            <code>
+<span class="code-comment"># Step 1: Create destination directory</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">mkdir /root/etcbackup</span>
+
+<span class="code-comment"># Step 2: Verify contents before extracting (optional but recommended)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/etc.tar | head -5</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">etc/crypttab</span>
+<span class="code-output">etc/mtab</span>
+<span class="code-output">etc/hostname</span>
+
+<span class="code-comment"># Step 3: Change to destination and extract</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">cd /root/etcbackup</span>
+<span class="code-root">[root@host etcbackup]#</span> <span class="code-command">tar -xf /root/etc.tar</span>
+
+<span class="code-comment"># Step 4: Verify extraction</span>
+<span class="code-root">[root@host etcbackup]#</span> <span class="code-command">ls</span>
+<span class="code-output">etc</span>
+            </code>
+        </div>
+
+        <h3>Extracting to a Specific Directory with -C</h3>
+        <p>Instead of changing directories first, you can use the <code class="inline">-C</code> option to specify the destination directory directly. This is the preferred method in scripts.</p>
+
+        <div class="code-block" role="region" aria-label="Extracting to specific directory">
+            <div class="code-title">Extract with -C (Recommended in Scripts)</div>
+            <code>
+<span class="code-comment"># Extract directly to /root/etcbackup without cd'ing first</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etc.tar -C /root/etcbackup/</span>
+
+<span class="code-comment"># Extract with verbose output to see every file</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xvf /root/etc.tar -C /root/etcbackup/</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">etc/crypttab</span>
+<span class="code-output">...output omitted...</span>
+            </code>
+        </div>
+
+        <h3>Preserving Permissions on Extraction</h3>
+        <p>When extracting files, the system's <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-umask">umask<span class="tooltip-content" id="tt-umask">A value that masks (removes) certain permission bits from newly created files. For example, umask 022 results in files created with 644 permissions.</span></span> is applied to each extracted file's permissions by default. To restore the exact original permissions instead, use the <code class="inline">-p</code> (preserve-permissions) option. For the root user, <code class="inline">-p</code> is enabled by default.</p>
+
+        <div class="code-block" role="region" aria-label="Extracting with permission preservation">
+            <div class="code-title">Preserve Original Permissions on Extract</div>
+            <code>
+<span class="code-comment"># Regular user extracts with original permissions preserved</span>
+<span class="code-prompt">[student@workstation ~/scripts]$</span> <span class="code-command">tar -xpf /home/student/myscripts.tar</span>
+
+<span class="code-comment"># Root user: -p is already the default behavior</span>
+<span class="code-root">[root@host etcbackup]#</span> <span class="code-command">tar -xpf /root/etc.tar -C /root/etcbackup/</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Ownership on Extraction</span></div>
+            <p>When the <strong>root user</strong> extracts an archive, extracted files preserve the original user and group ownership from the archive. When a <strong>regular user</strong> extracts an archive, that user becomes the owner of all extracted files, regardless of what ownership is stored in the archive. This is a security feature preventing non-root users from creating files owned by other users.</p>
+        </div>
+
+        <h3>Extracting Only Specific Files</h3>
+        <p>You can extract individual files from an archive by appending the member names to the extract command. Use the exact path as stored in the archive (as shown by <code class="inline">-t</code>).</p>
+
+        <div class="code-block" role="region" aria-label="Extracting specific files">
+            <div class="code-title">Extract Specific Files from an Archive</div>
+            <code>
+<span class="code-comment"># Extract only etc/hosts from the archive</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etc.tar etc/hosts</span>
+
+<span class="code-comment"># Extract multiple specific files</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etc.tar etc/hosts etc/resolv.conf</span>
+
+<span class="code-comment"># Extract using a wildcard pattern (note: requires --wildcards)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etc.tar --wildcards 'etc/ssh/*'</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 6: COMPRESSION ALGORITHMS ===== -->
+<section id="section-compression" class="content-section" aria-labelledby="compression-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="compression-heading">Compression Algorithms</h2>
+    </div>
+    <div class="section-body">
+        <p>The <code class="inline">tar</code> command supports three primary compression methods. Each makes a different trade-off between <strong>compression speed</strong> (how fast the archive is created) and <strong>compression ratio</strong> (how small the resulting file is). Understanding these trade-offs helps you choose the right algorithm for each use case.</p>
+
+        <h3>Algorithm Comparison</h3>
+
+        <div class="comparison-grid" role="list" aria-label="Compression algorithm comparison">
+            <div class="algo-card" role="listitem">
+                <div class="algo-name">gzip</div>
+                <div class="algo-ext">.tar.gz &nbsp;|&nbsp; flag: -z</div>
+                <div class="algo-label">Speed</div>
+                <div class="algo-bar-wrap"><div class="algo-bar speed" style="width:90%" role="img" aria-label="Speed: very fast"></div></div>
+                <div class="algo-label">Compression Ratio</div>
+                <div class="algo-bar-wrap"><div class="algo-bar ratio" style="width:55%" role="img" aria-label="Compression ratio: moderate"></div></div>
+                <div class="algo-stat">&#x26A1; Fastest &bull; Widest compatibility</div>
+            </div>
+            <div class="algo-card" role="listitem">
+                <div class="algo-name">bzip2</div>
+                <div class="algo-ext">.tar.bz2 &nbsp;|&nbsp; flag: -j</div>
+                <div class="algo-label">Speed</div>
+                <div class="algo-bar-wrap"><div class="algo-bar speed" style="width:45%" role="img" aria-label="Speed: moderate"></div></div>
+                <div class="algo-label">Compression Ratio</div>
+                <div class="algo-bar-wrap"><div class="algo-bar ratio" style="width:70%" role="img" aria-label="Compression ratio: good"></div></div>
+                <div class="algo-stat">&#x1F4CA; Smaller archives &bull; Slower</div>
+            </div>
+            <div class="algo-card highlight" role="listitem">
+                <div class="algo-name">xz</div>
+                <div class="algo-ext">.tar.xz &nbsp;|&nbsp; flag: -J</div>
+                <div class="algo-label">Speed</div>
+                <div class="algo-bar-wrap"><div class="algo-bar speed" style="width:25%" role="img" aria-label="Speed: slowest"></div></div>
+                <div class="algo-label">Compression Ratio</div>
+                <div class="algo-bar-wrap"><div class="algo-bar ratio" style="width:90%" role="img" aria-label="Compression ratio: best"></div></div>
+                <div class="algo-stat">&#x1F3C6; Best ratio &bull; Slowest &bull; Recommended for distribution</div>
+            </div>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D8;</span><span>When Compression Doesn't Help</span></div>
+            <p>The effectiveness of any compression algorithm depends entirely on the type of data being compressed. <strong>Already-compressed files</strong> — such as JPEG images, MP3 audio, RPM packages, or ZIP files — typically see little to no additional size reduction, regardless of which algorithm you choose. Attempting to compress them may even increase file size slightly. Plain text files, source code, and log files, by contrast, compress very well.</p>
+        </div>
+
+        <h3>Creating Compressed Archives</h3>
+
+        <div class="code-block" role="region" aria-label="Creating compressed archives with all three algorithms">
+            <div class="code-title">Compressed Archive Creation Examples</div>
+            <code>
+<span class="code-comment"># gzip compression — fastest, use for quick backups or interactive use</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -czf /root/etcbackup.tar.gz /etc</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># bzip2 compression — smaller files, moderate speed</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -cjf /root/logbackup.tar.bz2 /var/log</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># xz compression — best ratio, use for archival/distribution</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -cJf /root/sshconfig.tar.xz /etc/ssh</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Compare resulting file sizes</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">ls -lh /root/*.tar.*</span>
+<span class="code-output">-rw-r--r--. 1 root root 3.1M /root/etcbackup.tar.gz</span>
+<span class="code-output">-rw-r--r--. 1 root root 2.6M /root/logbackup.tar.bz2</span>
+<span class="code-output">-rw-r--r--. 1 root root 1.8M /root/sshconfig.tar.xz</span>
+            </code>
+        </div>
+
+        <h3>Listing Compressed Archive Contents</h3>
+        <p>After creating a compressed archive, you can still use <code class="inline">tar -tf</code> to list its contents. You do <strong>not</strong> need to specify the compression algorithm when listing — tar reads the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-magic">file header<span class="tooltip-content" id="tt-magic">The first few bytes of a file that identify its format (also called "magic bytes"). The tar command reads these to auto-detect compression type.</span></span> to auto-detect the compression type.</p>
+
+        <div class="code-block" role="region" aria-label="Listing compressed archive">
+            <div class="code-title">List Compressed Archive — No Compression Flag Needed</div>
+            <code>
+<span class="code-comment"># tar auto-detects compression from the file header</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/etcbackup.tar.gz</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">etc/crypttab</span>
+<span class="code-output">etc/mtab</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-comment"># Same command works identically for bzip2 and xz</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/sshconfig.tar.xz</span>
+<span class="code-output">etc/ssh/</span>
+<span class="code-output">etc/ssh/ssh_config</span>
+<span class="code-output">etc/ssh/sshd_config</span>
+<span class="code-output">...output omitted...</span>
+            </code>
+        </div>
+
+        <h3>Extracting Compressed Archives</h3>
+        <p>Similarly, extracting compressed archives requires no compression flag. The <code class="inline">tar -xf</code> command auto-detects the compression algorithm from the file header. If you specify an <em>incorrect</em> compression flag, tar reports an error.</p>
+
+        <div class="code-block" role="region" aria-label="Extracting compressed archives">
+            <div class="code-title">Extract Compressed Archives</div>
+            <code>
+<span class="code-comment"># Correct: auto-detect compression (no flag needed)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etcbackup.tar.gz -C /root/etcbackup/</span>
+
+<span class="code-comment"># ERROR: Specifying wrong compression type causes failure</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xzf /root/etcbackup.tar.xz</span>
+<span class="code-error">gzip: stdin: not in gzip format</span>
+<span class="code-error">tar: Child returned status 1</span>
+<span class="code-error">tar: Error is not recoverable: exiting now</span>
+
+<span class="code-comment"># Best practice: always use -xf without compression flag</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xvf /root/etcbackup.tar.gz -C /root/etcbackup/</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">...output omitted...</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 7: STANDALONE COMPRESSION TOOLS ===== -->
+<section id="section-standalone" class="content-section" aria-labelledby="standalone-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="standalone-heading">Standalone Compression Tools</h2>
+    </div>
+    <div class="section-body">
+        <p>The gzip, bzip2, and xz algorithms are also available as standalone commands that compress or decompress <strong>individual files</strong> without creating a tar archive. These tools are useful when you need to compress a single large file, such as a database dump or a single log file.</p>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important: Standalone Tools Cannot Archive Directories</span></div>
+            <p>The standalone compression commands (<code class="inline">gzip</code>, <code class="inline">bzip2</code>, <code class="inline">xz</code>) can only compress <strong>individual files</strong>. They cannot create a single compressed file from a directory containing multiple files. To compress an entire directory, you must first use <code class="inline">tar</code> to bundle it into a single archive file, then (optionally) compress that archive.</p>
+        </div>
+
+        <h3>Compressing Individual Files</h3>
+        <div class="code-block" role="region" aria-label="Standalone compression commands">
+            <div class="code-title">Standalone gzip, bzip2, and xz Usage</div>
+            <code>
+<span class="code-comment"># gzip: compresses file.log in place, creating file.log.gz</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">gzip largefile.log</span>
+<span class="code-comment"># Original file is replaced by largefile.log.gz</span>
+
+<span class="code-comment"># bzip2: creates largefile.log.bz2, removes original</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bzip2 largefile.log</span>
+
+<span class="code-comment"># xz: creates largefile.log.xz, removes original</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">xz largefile.log</span>
+
+<span class="code-comment"># Use -k (keep) to retain the original file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">gzip -k largefile.log</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls</span>
+<span class="code-output">largefile.log  largefile.log.gz</span>
+            </code>
+        </div>
+
+        <h3>Decompressing Files</h3>
+        <p>Each compression tool has a corresponding decompression command. You can also use the <code class="inline">-d</code> (decompress) flag with the original tool.</p>
+
+        <div class="code-block" role="region" aria-label="Standalone decompression commands">
+            <div class="code-title">Decompression Commands</div>
+            <code>
+<span class="code-comment"># gunzip decompresses a .gz file (equivalent to gzip -d)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">gunzip largefile.log.gz</span>
+
+<span class="code-comment"># bunzip2 decompresses a .bz2 file (equivalent to bzip2 -d)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">bunzip2 largefile.log.bz2</span>
+
+<span class="code-comment"># unxz decompresses a .xz file (equivalent to xz -d)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">unxz largefile.log.xz</span>
+
+<span class="code-comment"># Decompress a compressed tar archive without extracting (rarely needed)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">gunzip etc-backup.tar.gz</span>
+<span class="code-comment"># Leaves etc-backup.tar (uncompressed, contents intact)</span>
+            </code>
+        </div>
+
+        <h3>Checking Archive Size Before Extraction</h3>
+        <p>Before extracting a large archive, it is good practice to verify the <strong>uncompressed size</strong> to ensure you have sufficient disk space. The <code class="inline">gzip -l</code> and <code class="inline">xz -l</code> options report this without extracting anything.</p>
+
+        <div class="code-block" role="region" aria-label="Checking compressed file sizes">
+            <div class="code-title">Check Uncompressed Size Before Extraction</div>
+            <code>
+<span class="code-comment"># gzip -l shows compressed and uncompressed sizes</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">gzip -l file.tar.gz</span>
+<span class="code-output">  compressed uncompressed  ratio uncompressed_name</span>
+<span class="code-output">   221603125    303841280  27.1% file.tar</span>
+
+<span class="code-comment"># xz -l shows detailed compression information</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">xz -l file.tar.xz</span>
+<span class="code-output">Strms  Blocks   Compressed Uncompressed  Ratio  Check   Filename</span>
+<span class="code-output">    1       1   195.7 MiB    289.8 MiB  0.675  CRC64   file.xz</span>
+
+<span class="code-comment"># Before extracting, verify enough free space exists</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">df -h /root</span>
+<span class="code-output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="code-output">/dev/sda1        50G   12G   38G  24% /</span>
+            </code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: bzip2 -l is Not Available</span></div>
+            <p>Unlike <code class="inline">gzip</code> and <code class="inline">xz</code>, the <code class="inline">bzip2</code> command does not have a <code class="inline">-l</code> (list) option to show the uncompressed size without decompressing. For bzip2 archives, you can estimate size based on typical compression ratios, or decompress to a temporary location to check.</p>
+        </div>
+
+        <h3>Compression Tool Reference Summary</h3>
+        <table class="data-table" aria-label="Compression tools reference">
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Compress</th>
+                    <th>Decompress</th>
+                    <th>Extension</th>
+                    <th>View Size</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>gzip</td>
+                    <td><code>gzip file</code></td>
+                    <td><code>gunzip file.gz</code></td>
+                    <td><code>.gz</code></td>
+                    <td><code>gzip -l file.gz</code></td>
+                </tr>
+                <tr>
+                    <td>bzip2</td>
+                    <td><code>bzip2 file</code></td>
+                    <td><code>bunzip2 file.bz2</code></td>
+                    <td><code>.bz2</code></td>
+                    <td>Not available</td>
+                </tr>
+                <tr>
+                    <td>xz</td>
+                    <td><code>xz file</code></td>
+                    <td><code>unxz file.xz</code></td>
+                    <td><code>.xz</code></td>
+                    <td><code>xz -l file.xz</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ===== SECTION 8: GUIDED EXERCISE ===== -->
+<section id="section-guided" class="content-section" aria-labelledby="guided-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="guided-heading">Guided Exercise: Manage Compressed Tar Archives</h2>
+    </div>
+    <div class="section-body">
+        <p>In this guided exercise, you will create, inspect, and extract compressed archives using the <code class="inline">tar</code> command on a RHEL 10 system. You will work as both a regular user and as root to understand how ownership and permissions are handled differently in each context.</p>
+
+        <div class="lab-objective">
+            <strong>&#x1F3AF; Exercise Goal:</strong> Create compressed tar archives of system and user directories using gzip, bzip2, and xz compression. List and extract their contents, and verify archive integrity.
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task1">
+                <span>Task 1 &mdash; Create an Uncompressed Archive of User Scripts</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="ge-task1" class="expandable-content">
+                <p>Log in to the workstation as <code class="inline">student</code>. Create several sample script files, then bundle them into an uncompressed tar archive.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Task 1: Create Sample Files and Archive</div>
+                    <code>
+<span class="code-comment"># Create a directory and some sample scripts to archive</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">mkdir ~/scripts</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo '#!/bin/bash' > ~/scripts/backup.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo '#!/bin/bash' > ~/scripts/cleanup.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">echo '#!/bin/bash' > ~/scripts/monitor.sh</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">chmod +x ~/scripts/*.sh</span>
+
+<span class="code-comment"># Create an uncompressed archive of the scripts directory</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">tar -cvf ~/myscripts.tar ~/scripts</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+<span class="code-output">home/student/scripts/</span>
+<span class="code-output">home/student/scripts/backup.sh</span>
+<span class="code-output">home/student/scripts/cleanup.sh</span>
+<span class="code-output">home/student/scripts/monitor.sh</span>
+
+<span class="code-comment"># Verify archive was created</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ls -lh myscripts.tar</span>
+<span class="code-output">-rw-rw-r--. 1 student student 10K Mar 16 10:30 myscripts.tar</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task2">
+                <span>Task 2 &mdash; Create Compressed Archives of System Directories</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="ge-task2" class="expandable-content">
+                <p>Switch to root and create compressed backups of <code class="inline">/etc</code> and <code class="inline">/var/log</code> using all three compression algorithms. Compare the resulting file sizes.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2: Create Compressed System Backups</div>
+                    <code>
+<span class="code-comment"># Switch to root</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Create gzip-compressed backup of /etc</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -czf /root/etc-backup.tar.gz /etc</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Create bzip2-compressed backup of /var/log</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -cjf /root/logs-backup.tar.bz2 /var/log</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Create xz-compressed backup of /etc/ssh</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -cJf /root/ssh-backup.tar.xz /etc/ssh</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Compare archive sizes</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">ls -lh /root/*.tar.*</span>
+<span class="code-output">-rw-r--r--. 1 root root 3.1M Mar 16 10:35 /root/etc-backup.tar.gz</span>
+<span class="code-output">-rw-r--r--. 1 root root 2.4M Mar 16 10:36 /root/logs-backup.tar.bz2</span>
+<span class="code-output">-rw-r--r--. 1 root root  84K Mar 16 10:37 /root/ssh-backup.tar.xz</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task3">
+                <span>Task 3 &mdash; List and Verify Archive Contents</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="ge-task3" class="expandable-content">
+                <p>Use the <code class="inline">-t</code> option to list the contents of each archive. Verify that paths are stored relative (without leading slash) and check file counts.</p>
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Task 3: Inspect Archive Contents</div>
+                    <code>
+<span class="code-comment"># List top-level entries in the gzip archive (pipe through head)</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/etc-backup.tar.gz | head -10</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">etc/crypttab</span>
+<span class="code-output">etc/mtab</span>
+<span class="code-output">etc/resolv.conf</span>
+<span class="code-output">etc/hostname</span>
+
+<span class="code-comment"># Count total files in the archive</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tf /root/etc-backup.tar.gz | wc -l</span>
+<span class="code-output">1247</span>
+
+<span class="code-comment"># Verbose listing shows permissions, owner, size, date</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -tvf /root/ssh-backup.tar.xz</span>
+<span class="code-output">drwx--x--x root/root         0 2025-03-01 etc/ssh/</span>
+<span class="code-output">-rw-r--r-- root/root      2375 2025-01-15 etc/ssh/ssh_config</span>
+<span class="code-output">-rw------- root/root      3650 2025-01-15 etc/ssh/sshd_config</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task4">
+                <span>Task 4 &mdash; Extract Archives to Restore Files</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="ge-task4" class="expandable-content">
+                <p>Create a restore directory and extract the SSH configuration archive to it. Then simulate restoring a single file from the larger etc backup.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Task 4: Extract and Restore Files</div>
+                    <code>
+<span class="code-comment"># Create a dedicated restore directory</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">mkdir /root/restore</span>
+
+<span class="code-comment"># Extract SSH backup to restore directory</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xvf /root/ssh-backup.tar.xz -C /root/restore/</span>
+<span class="code-output">etc/ssh/</span>
+<span class="code-output">etc/ssh/ssh_config</span>
+<span class="code-output">etc/ssh/sshd_config</span>
+<span class="code-output">etc/ssh/moduli</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-comment"># Verify the restored directory structure</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">ls -la /root/restore/etc/ssh/</span>
+<span class="code-output">total 612</span>
+<span class="code-output">drwx--x--x. 2 root root   4096 Jan 15 12:00 .</span>
+<span class="code-output">-rw-r--r--. 1 root root   2375 Jan 15 12:00 ssh_config</span>
+<span class="code-output">-rw-------. 1 root root   3650 Jan 15 12:00 sshd_config</span>
+
+<span class="code-comment"># Extract a single specific file from the etc backup</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">tar -xf /root/etc-backup.tar.gz -C /root/restore/ etc/hosts</span>
+
+<span class="code-comment"># Verify the single file was extracted</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">cat /root/restore/etc/hosts</span>
+<span class="code-output">127.0.0.1   localhost localhost.localdomain</span>
+<span class="code-output">192.168.1.10 workstation.lab.example.com workstation</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ge-task5">
+                <span>Task 5 &mdash; Use gzip -l to Check Sizes Before Extraction</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="ge-task5" class="expandable-content">
+                <p>Before extracting a large archive, verify the uncompressed size to ensure adequate disk space is available on the target filesystem.</p>
+                <div class="code-block" role="region" aria-label="Task 5 commands">
+                    <div class="code-title">Task 5: Verify Space Requirements</div>
+                    <code>
+<span class="code-comment"># Check how large the etc backup will be when extracted</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">gzip -l /root/etc-backup.tar.gz</span>
+<span class="code-output">  compressed uncompressed  ratio uncompressed_name</span>
+<span class="code-output">     3198361     12042240  73.4% /root/etc-backup.tar</span>
+
+<span class="code-comment"># Check available disk space on target filesystem</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">df -h /root</span>
+<span class="code-output">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="code-output">/dev/sda1        50G  8.2G 41.8G  17% /</span>
+
+<span class="code-comment"># 41.8G available vs 12M needed — safe to extract</span>
+<span class="code-comment"># Use xz -l for .xz archives</span>
+<span class="code-root">[root@host ~]#</span> <span class="code-command">xz -l /root/ssh-backup.tar.xz</span>
+<span class="code-output">Strms  Blocks  Compressed  Uncompressed  Ratio  Check  Filename</span>
+<span class="code-output">    1       1     83.6 KiB     410.5 KiB  0.204  CRC64  ssh-backup.tar.xz</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 9: QUIZ ===== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of file archiving concepts. Select the best answer for each question, then click <strong>Check Answers</strong> to see your score.</p>
+
+        <!-- Q1 -->
+        <div class="quiz-question" data-question="1">
+            <p class="quiz-q-text">1. Which <code>tar</code> option combination creates a new gzip-compressed archive verbosely?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q1" value="a"> (a) <code>tar -xzf archive.tar.gz</code></label></li>
+                <li><label><input type="radio" name="q1" value="b"> (b) <code>tar -czf archive.tar.gz /source</code></label></li>
+                <li><label><input type="radio" name="q1" value="c"> (c) <code>tar -tzf archive.tar.gz</code></label></li>
+                <li><label><input type="radio" name="q1" value="d"> (d) <code>tar -cjf archive.tar.gz /source</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2">
+            <p class="quiz-q-text">2. When creating a tar archive of <code>/etc</code>, the warning <em>"tar: Removing leading '/' from member names"</em> appears. What does this indicate?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q2" value="a"> (a) The archive creation failed and must be restarted.</label></li>
+                <li><label><input type="radio" name="q2" value="b"> (b) tar is storing paths relative to root for safe extraction, which is normal behavior.</label></li>
+                <li><label><input type="radio" name="q2" value="c"> (c) The <code>/etc</code> directory was empty and no files were archived.</label></li>
+                <li><label><input type="radio" name="q2" value="d"> (d) The current user lacked permission to read some files in <code>/etc</code>.</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3">
+            <p class="quiz-q-text">3. Which compression algorithm provides the best compression ratio but is the slowest?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q3" value="a"> (a) gzip</label></li>
+                <li><label><input type="radio" name="q3" value="b"> (b) bzip2</label></li>
+                <li><label><input type="radio" name="q3" value="c"> (c) xz</label></li>
+                <li><label><input type="radio" name="q3" value="d"> (d) zip</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4">
+            <p class="quiz-q-text">4. A regular user extracts an archive that was created by root and contains files owned by <code>root:root</code>. What will the extracted files' ownership be?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q4" value="a"> (a) The files will be owned by <code>root:root</code>, as stored in the archive.</label></li>
+                <li><label><input type="radio" name="q4" value="b"> (b) The files will be owned by the regular user who performed the extraction.</label></li>
+                <li><label><input type="radio" name="q4" value="c"> (c) The extraction will fail with a permission denied error.</label></li>
+                <li><label><input type="radio" name="q4" value="d"> (d) The files will have no owner (numeric UID only).</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-question" data-question="5">
+            <p class="quiz-q-text">5. You need to check the uncompressed size of a <code>.tar.gz</code> file before extracting. Which command achieves this?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q5" value="a"> (a) <code>tar -tf archive.tar.gz | wc -c</code></label></li>
+                <li><label><input type="radio" name="q5" value="b"> (b) <code>gzip -l archive.tar.gz</code></label></li>
+                <li><label><input type="radio" name="q5" value="c"> (c) <code>gunzip --info archive.tar.gz</code></label></li>
+                <li><label><input type="radio" name="q5" value="d"> (d) <code>file -s archive.tar.gz</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-question" data-question="6">
+            <p class="quiz-q-text">6. Which <code>tar</code> option must you include to preserve SELinux file contexts in an archive?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q6" value="a"> (a) <code>-p</code></label></li>
+                <li><label><input type="radio" name="q6" value="b"> (b) <code>--preserve-permissions</code></label></li>
+                <li><label><input type="radio" name="q6" value="c"> (c) <code>--selinux</code></label></li>
+                <li><label><input type="radio" name="q6" value="d"> (d) <code>--acls</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-question" data-question="7">
+            <p class="quiz-q-text">7. An administrator runs <code>tar -xzf /root/data.tar.xz</code>. What will happen?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q7" value="a"> (a) The archive will be extracted successfully using xz auto-detection.</label></li>
+                <li><label><input type="radio" name="q7" value="b"> (b) tar will report an error because the <code>-z</code> flag specifies gzip but the file uses xz compression.</label></li>
+                <li><label><input type="radio" name="q7" value="c"> (c) tar will automatically ignore the <code>-z</code> flag and use xz instead.</label></li>
+                <li><label><input type="radio" name="q7" value="d"> (d) The file will be partially extracted until the compression mismatch is encountered.</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-question" data-question="8">
+            <p class="quiz-q-text">8. A JPEG image collection is compressed with xz. A colleague says the resulting file is slightly larger than the original collection. Why?</p>
+            <ul class="quiz-options">
+                <li><label><input type="radio" name="q8" value="a"> (a) xz is only effective on text files and should not be used on binary data.</label></li>
+                <li><label><input type="radio" name="q8" value="b"> (b) xz was not installed correctly on the system.</label></li>
+                <li><label><input type="radio" name="q8" value="c"> (c) JPEG images are already compressed; attempting to compress them again adds archive overhead with negligible size reduction.</label></li>
+                <li><label><input type="radio" name="q8" value="d"> (d) The archive must be corrupt; compression always reduces file size.</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div class="quiz-controls">
+            <button class="quiz-btn primary" id="check-answers">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz">Reset Quiz</button>
+        </div>
+        <div id="quiz-score" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ===== SECTION 10: HANDS-ON LAB ===== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="lab-heading">Hands-On Lab: Archiving Files</h2>
+    </div>
+    <div class="section-body">
+        <div class="lab-objective">
+            <strong>&#x1F3AF; Lab Overview:</strong> In this lab you will create, inspect, and extract compressed tar archives. You will practice all three compression algorithms, verify archive integrity, and restore files from archives to specific directories.
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D8;</span><span>Lab Environment</span></div>
+            <p>Use your RHEL 10 lab system. Log in as <code class="inline">student</code> with password <code class="inline">student</code>. Use <code class="inline">sudo -i</code> when root privileges are required. The lab workstation hostname is <code class="inline">workstation</code>.</p>
+        </div>
+
+        <div class="expandable lab-task">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1">
+                <span>Lab Task 1 &mdash; Create a gzip-Compressed Archive of /etc</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task1" class="expandable-content">
+                <p><strong>Objective:</strong> As root, create a gzip-compressed archive of <code class="inline">/etc</code> that preserves SELinux contexts and extended attributes. Verify the archive was created.</p>
+                <ol>
+                    <li>Open a terminal and switch to root with <code class="inline">sudo -i</code>.</li>
+                    <li>Create the archive using <code class="inline">tar</code> with gzip compression, <code class="inline">--selinux</code>, and <code class="inline">--xattrs</code>.</li>
+                    <li>Verify the archive was created and note its size.</li>
+                    <li>Use <code class="inline">gzip -l</code> to check the uncompressed size.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Lab Task 1 solution">
+                    <div class="code-title">Lab Task 1: Solution</div>
+                    <code>
+<span class="code-comment"># Switch to root</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Create gzip-compressed archive with SELinux + xattrs preservation</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">tar -czf /root/etc-full-backup.tar.gz --selinux --xattrs --acls /etc</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Verify archive size on disk</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">ls -lh /root/etc-full-backup.tar.gz</span>
+<span class="code-output">-rw-r--r--. 1 root root 3.2M Mar 16 11:00 /root/etc-full-backup.tar.gz</span>
+
+<span class="code-comment"># Check uncompressed size before potential extraction</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">gzip -l /root/etc-full-backup.tar.gz</span>
+<span class="code-output">  compressed uncompressed  ratio uncompressed_name</span>
+<span class="code-output">     3254220     12042240  73.0% /root/etc-full-backup.tar</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable lab-task">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2">
+                <span>Lab Task 2 &mdash; Create an xz-Compressed Archive and List Contents</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task2" class="expandable-content">
+                <p><strong>Objective:</strong> Create an xz-compressed archive of <code class="inline">/etc/ssh</code>. List the archive contents verbosely to verify ownership and permissions are preserved.</p>
+                <ol>
+                    <li>Create the xz-compressed archive of <code class="inline">/etc/ssh</code>.</li>
+                    <li>Use <code class="inline">tar -tvf</code> to list the contents with full detail.</li>
+                    <li>Use <code class="inline">xz -l</code> to display the uncompressed size statistics.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Lab Task 2 solution">
+                    <div class="code-title">Lab Task 2: Solution</div>
+                    <code>
+<span class="code-comment"># Create xz-compressed archive of /etc/ssh</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">tar -cJf /root/ssh-config.tar.xz /etc/ssh</span>
+<span class="code-output">tar: Removing leading '/' from member names</span>
+
+<span class="code-comment"># Verbose list to verify permissions and ownership are stored</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">tar -tvf /root/ssh-config.tar.xz</span>
+<span class="code-output">drwx--x--x root/root    0 2025-01-15 12:00 etc/ssh/</span>
+<span class="code-output">-rw-r--r-- root/root 2375 2025-01-15 12:00 etc/ssh/ssh_config</span>
+<span class="code-output">-rw------- root/root 3650 2025-01-15 12:00 etc/ssh/sshd_config</span>
+<span class="code-output">-rw-r----- root/root  672 2025-01-15 12:00 etc/ssh/moduli</span>
+
+<span class="code-comment"># Use xz -l to show uncompressed statistics</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">xz -l /root/ssh-config.tar.xz</span>
+<span class="code-output">Strms  Blocks  Compressed  Uncompressed  Ratio  Check  Filename</span>
+<span class="code-output">    1       1    85.4 KiB     412.0 KiB  0.207  CRC64  ssh-config.tar.xz</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable lab-task">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3">
+                <span>Lab Task 3 &mdash; Extract Specific Files from a Compressed Archive</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task3" class="expandable-content">
+                <p><strong>Objective:</strong> Restore only the <code class="inline">sshd_config</code> file from your xz archive to a temporary restore directory. Verify that the restored file matches the original.</p>
+                <ol>
+                    <li>Create a restore directory at <code class="inline">/root/ssh-restore</code>.</li>
+                    <li>Extract only <code class="inline">etc/ssh/sshd_config</code> from the archive to the restore directory.</li>
+                    <li>Compare the restored file with the live system file using <code class="inline">diff</code>.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Lab Task 3 solution">
+                    <div class="code-title">Lab Task 3: Solution</div>
+                    <code>
+<span class="code-comment"># Create restore destination</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">mkdir /root/ssh-restore</span>
+
+<span class="code-comment"># Extract only sshd_config (use the path as stored in the archive)</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">tar -xf /root/ssh-config.tar.xz -C /root/ssh-restore/ etc/ssh/sshd_config</span>
+
+<span class="code-comment"># Verify the file was extracted</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">ls -l /root/ssh-restore/etc/ssh/</span>
+<span class="code-output">-rw-------. 1 root root 3650 Jan 15 12:00 sshd_config</span>
+
+<span class="code-comment"># Compare restored file with live system version (should be identical)</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">diff /root/ssh-restore/etc/ssh/sshd_config /etc/ssh/sshd_config</span>
+<span class="code-comment"># No output = files are identical</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable lab-task">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4">
+                <span>Lab Task 4 &mdash; Use bzip2 to Compress a Large Log File</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task4" class="expandable-content">
+                <p><strong>Objective:</strong> Use the standalone <code class="inline">bzip2</code> command to compress a large log file. Then decompress it with <code class="inline">bunzip2</code> and verify the contents are intact.</p>
+                <ol>
+                    <li>Copy <code class="inline">/var/log/messages</code> to your home directory.</li>
+                    <li>Compress the copy using <code class="inline">bzip2</code>.</li>
+                    <li>Note the original and compressed sizes.</li>
+                    <li>Decompress with <code class="inline">bunzip2</code> and verify using <code class="inline">diff</code>.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Lab Task 4 solution">
+                    <div class="code-title">Lab Task 4: Solution</div>
+                    <code>
+<span class="code-comment"># Copy messages log to home directory</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">cp /var/log/messages /root/messages-copy</span>
+
+<span class="code-comment"># Note original size</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">ls -lh /root/messages-copy</span>
+<span class="code-output">-rw-r--r--. 1 root root 2.4M Mar 16 11:15 messages-copy</span>
+
+<span class="code-comment"># Compress with bzip2 (original file is replaced)</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">bzip2 /root/messages-copy</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">ls -lh /root/messages-copy.bz2</span>
+<span class="code-output">-rw-r--r--. 1 root root 312K Mar 16 11:15 messages-copy.bz2</span>
+
+<span class="code-comment"># Good compression: 2.4M -> 312K (87% reduction for text logs)</span>
+
+<span class="code-comment"># Decompress with bunzip2</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">bunzip2 /root/messages-copy.bz2</span>
+
+<span class="code-comment"># Verify restored file matches original</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">diff /root/messages-copy /var/log/messages</span>
+<span class="code-comment"># No output = files are identical</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable lab-task">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5">
+                <span>Lab Task 5 &mdash; Create a Full System Backup Script (Challenge)</span>
+                <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div id="lab-task5" class="expandable-content">
+                <p><strong>Objective:</strong> Write a small bash script that creates a timestamped, xz-compressed backup of <code class="inline">/etc</code> and <code class="inline">/home</code>, saves it to <code class="inline">/backup</code>, and exits with code 0 on success or 1 on failure.</p>
+                <div class="code-block" role="region" aria-label="Lab Task 5 solution">
+                    <div class="code-title">Lab Task 5: Backup Script Solution</div>
+                    <code>
+<span class="code-comment"># Create /backup directory</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">mkdir -p /backup</span>
+
+<span class="code-comment"># Create the backup script</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">cat > /usr/local/bin/sysbackup.sh << 'EOF'</span>
+<span class="code-output">#!/bin/bash</span>
+<span class="code-output"># sysbackup.sh - System backup script</span>
+<span class="code-output">TIMESTAMP=$(date +%Y%m%d-%H%M%S)</span>
+<span class="code-output">BACKUP_DIR="/backup"</span>
+<span class="code-output">ARCHIVE="${BACKUP_DIR}/sysbackup-${TIMESTAMP}.tar.xz"</span>
+<span class="code-output">mkdir -p "${BACKUP_DIR}"</span>
+<span class="code-output">tar -cJf "${ARCHIVE}" --selinux --xattrs --acls /etc /home 2>/dev/null</span>
+<span class="code-output">if [ $? -eq 0 ]; then</span>
+<span class="code-output">    echo "Backup created: ${ARCHIVE}"</span>
+<span class="code-output">    xz -l "${ARCHIVE}"</span>
+<span class="code-output">    exit 0</span>
+<span class="code-output">else</span>
+<span class="code-output">    echo "ERROR: Backup failed." >&amp;2</span>
+<span class="code-output">    exit 1</span>
+<span class="code-output">fi</span>
+<span class="code-output">EOF</span>
+
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">chmod +x /usr/local/bin/sysbackup.sh</span>
+<span class="code-root">[root@workstation ~]#</span> <span class="code-command">/usr/local/bin/sysbackup.sh</span>
+<span class="code-output">Backup created: /backup/sysbackup-20260316-110500.tar.xz</span>
+<span class="code-output">Strms  Blocks  Compressed  Uncompressed  Ratio  Check  Filename</span>
+<span class="code-output">    1       1    8.4 MiB     42.1 MiB    0.200  CRC64  sysbackup-20260316-110500.tar.xz</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <button class="completion-btn" id="lab-complete-btn" aria-label="Mark lab as complete">
+            &#x2705; Mark Lab Complete
+        </button>
+        <div id="lab-complete-msg" style="display:none; margin-top:14px; padding:14px; background:#E6FFE6; border-radius:var(--radius-md); font-family:var(--font-display); color:var(--rh-green-dark); border:1px solid var(--rh-green);">
+            &#x1F3C6; Excellent work! You have completed the Archiving Files hands-on lab. You are ready to apply these skills to the RHCSA exam.
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 11: SUMMARY ===== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned how to archive and compress files using the tools available in RHEL 10. These skills are foundational for system administration tasks such as backup, disaster recovery, and software packaging.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li>An <strong>archive</strong> bundles multiple files and directories into a single file, preserving metadata, permissions, and directory structure.</li>
+            <li>The <strong><code class="inline">tar</code> utility</strong> is the standard Linux tool for creating, listing, and extracting archives. It accepts both absolute and relative paths, and strips the leading <code class="inline">/</code> from absolute paths for safety.</li>
+            <li>Extraction should always be done into a <strong>dedicated empty directory</strong> to avoid overwriting live system files.</li>
+            <li><strong>Extended attributes</strong> (SELinux contexts, ACLs) are not preserved by default; use <code class="inline">--selinux</code>, <code class="inline">--acls</code>, and <code class="inline">--xattrs</code> for complete system backups.</li>
+            <li>The three primary compression algorithms — <strong>gzip</strong>, <strong>bzip2</strong>, and <strong>xz</strong> — trade off speed against compression ratio. gzip is fastest; xz achieves the best ratio.</li>
+            <li>When extracting, <strong>no compression flag is needed</strong> — tar auto-detects the algorithm from the file header. Specifying the wrong flag causes an error.</li>
+            <li><strong>Standalone tools</strong> (<code class="inline">gzip</code>, <code class="inline">bzip2</code>, <code class="inline">xz</code>) compress individual files and cannot bundle directories; always use <code class="inline">tar</code> for multi-file archives.</li>
+            <li>Use <code class="inline">gzip -l</code> or <code class="inline">xz -l</code> to <strong>check uncompressed size</strong> before extraction to avoid running out of disk space.</li>
+        </ul>
+
+        <h3>Command Quick Reference</h3>
+        <table class="data-table" aria-label="Chapter command reference">
+            <thead>
+                <tr><th>Task</th><th>Command</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Create uncompressed archive</td><td><code>tar -cf archive.tar /source</code></td></tr>
+                <tr><td>Create gzip archive</td><td><code>tar -czf archive.tar.gz /source</code></td></tr>
+                <tr><td>Create bzip2 archive</td><td><code>tar -cjf archive.tar.bz2 /source</code></td></tr>
+                <tr><td>Create xz archive</td><td><code>tar -cJf archive.tar.xz /source</code></td></tr>
+                <tr><td>Create archive with all attributes</td><td><code>tar -czf archive.tar.gz --selinux --xattrs --acls /source</code></td></tr>
+                <tr><td>List archive contents</td><td><code>tar -tf archive.tar.gz</code></td></tr>
+                <tr><td>List with verbose (permissions)</td><td><code>tar -tvf archive.tar.gz</code></td></tr>
+                <tr><td>Extract archive</td><td><code>tar -xf archive.tar.gz -C /destination/</code></td></tr>
+                <tr><td>Extract with permissions preserved</td><td><code>tar -xpf archive.tar.gz -C /destination/</code></td></tr>
+                <tr><td>Extract single file</td><td><code>tar -xf archive.tar.gz path/to/file</code></td></tr>
+                <tr><td>Check gzip archive size</td><td><code>gzip -l archive.tar.gz</code></td></tr>
+                <tr><td>Check xz archive size</td><td><code>xz -l archive.tar.xz</code></td></tr>
+                <tr><td>Compress single file (gzip)</td><td><code>gzip filename</code></td></tr>
+                <tr><td>Decompress .gz file</td><td><code>gunzip filename.gz</code></td></tr>
+                <tr><td>Decompress .bz2 file</td><td><code>bunzip2 filename.bz2</code></td></tr>
+                <tr><td>Decompress .xz file</td><td><code>unxz filename.xz</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav">
+            <a href="rh134_chapter6_logs.html" class="nav-chapter-btn prev">&#x2190; Chapter 6: Managing System Logs</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter8_filesystems.html" class="nav-chapter-btn next">Chapter 8: Managing File Systems &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ==================== FOOTER ==================== -->
+<footer role="contentinfo">
+    <p>RH134 Red Hat System Administration II &bull; Chapter 7: Archiving Files</p>
+    <p>Based on Red Hat Enterprise Linux 10 &bull; Targeting RHCSA Exam (EX200)</p>
+    <p>&copy; 2026 Course Materials. Red Hat&reg; and RHEL&reg; are registered trademarks of Red Hat, Inc.</p>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+(function() {
+    'use strict';
+
+    // ==================== TOOLTIP SYSTEM ====================
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTooltip = null;
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        if (!contentEl) return;
+
+        bubble.textContent = contentEl.textContent;
+        bubble.style.display = 'block';
+        bubble.className = '';
+
+        const rect = term.getBoundingClientRect();
+        const bw = bubble.offsetWidth || 280;
+        const bh = bubble.offsetHeight || 60;
+        const margin = 8;
+        const arrowSize = 12;
+
+        const spaceAbove = rect.top;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceLeft = rect.left;
+        const spaceRight = window.innerWidth - rect.right;
+
+        let top, left, dir;
+
+        if (spaceAbove >= bh + arrowSize + margin) {
+            dir = 'tt-above';
+            top = rect.top - bh - arrowSize;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceBelow >= bh + arrowSize + margin) {
+            dir = 'tt-below';
+            top = rect.bottom + arrowSize;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceRight >= bw + arrowSize + margin) {
+            dir = 'tt-right';
+            left = rect.right + arrowSize;
+            top = rect.top + rect.height / 2 - bh / 2;
+        } else {
+            dir = 'tt-left';
+            left = rect.left - bw - arrowSize;
+            top = rect.top + rect.height / 2 - bh / 2;
+        }
+
+        // Clamp to viewport
+        left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+        top  = Math.max(margin, Math.min(top,  window.innerHeight - bh - margin));
+
+        // Position arrow relative to bubble
+        if (dir === 'tt-above' || dir === 'tt-below') {
+            const arrowLeft = Math.min(Math.max(rect.left + rect.width/2 - left, 16), bw - 16);
+            bubble.style.setProperty('--arrow-left', arrowLeft + 'px');
+        } else {
+            const arrowTop = Math.min(Math.max(rect.top + rect.height/2 - top, 12), bh - 12);
+            bubble.style.setProperty('--arrow-top', arrowTop + 'px');
+        }
+
+        bubble.style.left = left + 'px';
+        bubble.style.top  = top  + 'px';
+        bubble.classList.add(dir);
+        activeTooltip = term;
+    }
+
+    function hideTooltip() {
+        bubble.style.display = 'none';
+        bubble.className = '';
+        activeTooltip = null;
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { hideTooltip(); term.blur(); }
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activeTooltip === term ? hideTooltip() : showTooltip(term); }
+        });
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && activeTooltip) hideTooltip(); });
+
+    // ==================== SCROLL PROGRESS ====================
+    const sections = document.querySelectorAll('.content-section');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const visitedSections = new Set();
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) visitedSections.add(entry.target.id);
+        });
+        const pct = Math.round((visitedSections.size / sections.length) * 100);
+        progressFill.style.width = pct + '%';
+        progressFill.setAttribute('aria-valuenow', pct);
+        progressText.textContent = pct + '% complete';
+    }, { threshold: 0.3 });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ==================== ACTIVE NAV ====================
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                navBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('href') === '#' + entry.target.id) btn.classList.add('active');
+                    else if (visitedSections.has(btn.getAttribute('href').slice(1))) btn.classList.add('visited');
+                });
+            }
+        });
+    }, { threshold: 0.4 });
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ==================== EXPANDABLE SECTIONS ====================
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const content = document.getElementById(header.getAttribute('aria-controls'));
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+
+    // ==================== TAR CREATE SIMULATOR ====================
+    function buildTarCommand() {
+        let dest = document.getElementById('sim-dest').value.trim() || 'backup.tar';
+        const source = document.getElementById('sim-source').value.trim() || '/etc';
+        const compress = document.getElementById('sim-compress').value;
+        const verbose  = document.getElementById('sim-verbose').checked;
+        const preserve = document.getElementById('sim-preserve').checked;
+        const selinux  = document.getElementById('sim-selinux').checked;
+        const xattrs   = document.getElementById('sim-xattrs').checked;
+        const acls     = document.getElementById('sim-acls').checked;
+
+        // Update filename extension based on compression
+        if (compress === 'z' && !dest.endsWith('.tar.gz'))  dest = dest.replace(/\.tar(\.\w+)?$/, '') + '.tar.gz';
+        if (compress === 'j' && !dest.endsWith('.tar.bz2')) dest = dest.replace(/\.tar(\.\w+)?$/, '') + '.tar.bz2';
+        if (compress === 'J' && !dest.endsWith('.tar.xz'))  dest = dest.replace(/\.tar(\.\w+)?$/, '') + '.tar.xz';
+        if (!compress && !dest.endsWith('.tar'))            dest = dest.replace(/\.tar(\.\w+)?$/, '') + '.tar';
+
+        let flags = '-c';
+        if (verbose)  flags += 'v';
+        if (compress) flags += compress;
+        if (preserve) flags += 'p';
+        flags += 'f';
+
+        let extras = '';
+        if (selinux) extras += ' --selinux';
+        if (xattrs)  extras += ' --xattrs';
+        if (acls)    extras += ' --acls';
+
+        const isRoot = source.startsWith('/etc') || source.startsWith('/var') || source.startsWith('/root');
+        const prompt = isRoot ? '<span class="so-root">[root@host ~]#</span>' : '<span class="so-prompt">[student@workstation ~]$</span>';
+        const cmd = `tar ${flags} ${dest}${extras} ${source}`;
+
+        let output = `${prompt} <span class="so-cmd">${cmd}</span>\n`;
+        if (source.startsWith('/')) output += `<span class="so-out">tar: Removing leading \'/' from member names</span>\n`;
+        if (verbose) {
+            const parts = source.replace(/^\//, '').split('/');
+            output += `<span class="so-out">${source.replace(/^\//, '')}/</span>\n`;
+            output += `<span class="so-out">${source.replace(/^\//, '')}/file1.conf</span>\n`;
+            output += `<span class="so-out">${source.replace(/^\//, '')}/file2.conf</span>\n`;
+            output += `<span class="so-out">...output omitted...</span>\n`;
+        }
+        output += `\n<span class="so-comment"># Archive created: ${dest}</span>`;
+        document.getElementById('sim-output').innerHTML = output;
+    }
+
+    document.getElementById('sim-build-btn').addEventListener('click', buildTarCommand);
+    ['sim-dest','sim-source','sim-compress','sim-verbose','sim-preserve','sim-selinux','sim-xattrs','sim-acls'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(el.tagName === 'SELECT' || el.type === 'text' ? 'input' : 'change', buildTarCommand);
+    });
+
+    // ==================== QUIZ ====================
+    const quizAnswers = {
+        1: { correct: 'b', explanation: 'The <code>-c</code> flag creates an archive, <code>-z</code> adds gzip compression, and <code>-f</code> specifies the filename. Option (a) is for extracting, (c) for listing, and (d) uses bzip2 compression instead of gzip.' },
+        2: { correct: 'b', explanation: 'This message is entirely normal. By default, tar strips the leading slash from absolute paths so that extracted files are placed relative to the current directory rather than overwriting the live filesystem.' },
+        3: { correct: 'c', explanation: 'The xz algorithm provides the best compression ratio of the three (gzip, bzip2, xz) but is also the slowest. gzip is fastest, and bzip2 is in between for both speed and ratio.' },
+        4: { correct: 'b', explanation: 'When a regular (non-root) user extracts an archive, the extracted files are owned by that user — regardless of ownership stored in the archive. This is a security feature that prevents privilege escalation through archive extraction.' },
+        5: { correct: 'b', explanation: '<code>gzip -l</code> reports the compressed size, uncompressed size, and compression ratio without extracting the file. This is the correct way to check available space requirements before extracting a .tar.gz archive.' },
+        6: { correct: 'c', explanation: 'The <code>--selinux</code> option tells tar to store and restore SELinux file contexts. The <code>-p</code> option preserves standard Unix permissions, and <code>--acls</code> handles POSIX ACLs (which are different from SELinux contexts).' },
+        7: { correct: 'b', explanation: 'Specifying <code>-z</code> (gzip) for a file that is actually xz-compressed causes tar to fail with an error: <em>gzip: stdin: not in gzip format</em>. The safest practice is to omit the compression flag (<code>tar -xf</code>) and let tar auto-detect.' },
+        8: { correct: 'c', explanation: 'JPEG files are already compressed using their own lossy algorithm. Applying a second compression pass (gzip, bzip2, or xz) finds little additional redundancy to remove. The slight size increase comes from the overhead of the tar archive and xz headers.' }
+    };
+
+    document.getElementById('check-answers').addEventListener('click', () => {
+        let score = 0;
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            const qNum = parseInt(q.getAttribute('data-question'));
+            const selected = q.querySelector('input[type="radio"]:checked');
+            const feedback = document.getElementById('feedback-' + qNum);
+            q.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('correct-fb', 'incorrect-fb');
+            feedback.innerHTML = '';
+            if (!selected) {
+                feedback.innerHTML = '&#x26A0; Please select an answer.';
+                feedback.style.display = 'block';
+                feedback.style.color = 'var(--rh-gold)';
+                feedback.style.background = '#FFFBF0';
+                return;
+            }
+            const isCorrect = selected.value === quizAnswers[qNum].correct;
+            if (isCorrect) {
+                score++;
+                q.classList.add('correct');
+                feedback.innerHTML = '&#x2714; Correct! ' + quizAnswers[qNum].explanation;
+                feedback.classList.add('correct-fb');
+            } else {
+                q.classList.add('incorrect');
+                feedback.innerHTML = '&#x2718; Incorrect. The correct answer is (' + quizAnswers[qNum].correct.toUpperCase() + '). ' + quizAnswers[qNum].explanation;
+                feedback.classList.add('incorrect-fb');
+            }
+        });
+        const total = Object.keys(quizAnswers).length;
+        const scoreEl = document.getElementById('quiz-score');
+        scoreEl.style.display = 'block';
+        scoreEl.innerHTML = 'Score: <strong>' + score + ' / ' + total + '</strong> &mdash; ' + (score === total ? '&#x1F3C6; Perfect score!' : score >= Math.ceil(total * 0.75) ? '&#x1F44D; Good job!' : '&#x1F4DA; Review the sections above and try again.');
+    });
+
+    document.getElementById('reset-quiz').addEventListener('click', () => {
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            q.classList.remove('correct', 'incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            const qNum = q.getAttribute('data-question');
+            const fb = document.getElementById('feedback-' + qNum);
+            fb.innerHTML = '';
+            fb.className = 'quiz-feedback';
+            fb.style.display = '';
+            fb.style.color = '';
+            fb.style.background = '';
+        });
+        const scoreEl = document.getElementById('quiz-score');
+        scoreEl.style.display = 'none';
+        scoreEl.innerHTML = '';
+    });
+
+    // ==================== LAB COMPLETION ====================
+    document.getElementById('lab-complete-btn').addEventListener('click', () => {
+        document.getElementById('lab-complete-msg').style.display = 'block';
+        document.getElementById('lab-complete-btn').style.display = 'none';
+    });
+
+})();
+</script>
+</body>
+</html>
