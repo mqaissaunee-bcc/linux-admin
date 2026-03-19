@@ -7,8 +7,9 @@
     <style>
         /* ==================== CSS VARIABLES ==================== */
         :root {
-            --rh-red: #CC0000;          --rh-red-dark: #990000;
-            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            /* RH134 uses blue as its primary accent instead of red */
+            --rh-red: #0066CC;          --rh-red-dark: #003366;
+            --rh-red-light: #3399FF;    --rh-black: #1A1A1A;
             --rh-gray-dark: #333333;    --rh-gray: #666666;
             --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
             --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
@@ -49,14 +50,14 @@
         *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
         *:focus:not(:focus-visible) { outline: none; }
         *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
-        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-red); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
         .skip-link:focus { top: 10px; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
         @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
 
         /* ==================== HEADER ==================== */
         .main-header {
-            background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%);
+            background: linear-gradient(135deg, var(--rh-red-dark) 0%, var(--rh-red) 60%, #004FA3 100%);
             color: var(--rh-white);
             padding: 40px 24px 32px;
             text-align: center;
@@ -103,7 +104,7 @@
             max-width: var(--content-width); margin: 0 auto; overflow: hidden;
         }
         .progress-bar-fill {
-            height: 100%; background: linear-gradient(90deg, var(--rh-blue-dark), var(--rh-blue));
+            height: 100%; background: linear-gradient(90deg, var(--rh-red), var(--rh-red-light));
             border-radius: 10px; width: 0%; transition: width 0.4s ease;
         }
         .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
@@ -122,8 +123,8 @@
             transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap;
         }
         .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
-        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
-        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+        .nav-btn.active { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-btn.visited { color: var(--rh-red-dark); border-color: var(--rh-gray-light); }
 
         /* ==================== MAIN CONTENT ==================== */
         main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
@@ -145,7 +146,7 @@
         .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
         .section-body { padding: 30px; }
         .section-body p { margin-bottom: 16px; }
-        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-blue-dark); margin: 24px 0 12px; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.15rem; color: var(--rh-red-dark); margin: 24px 0 12px; }
         .section-body h4 { font-family: var(--font-display); font-size: 1rem; color: var(--rh-gray-dark); margin: 20px 0 10px; }
         .section-body ul, .section-body ol { margin: 12px 0 16px 24px; }
         .section-body li { margin-bottom: 8px; }
@@ -179,67 +180,15 @@
         }
 
         /* ==================== TOOLTIPS ==================== */
-        /* Terms are styled inline; the actual tooltip bubble is a single
-           global #tooltip-bubble element positioned with JS using fixed coords,
-           so it can never be clipped by overflow:hidden ancestors.            */
-        .tooltip-term {
-            color: var(--rh-blue);
-            text-decoration: underline dotted var(--rh-blue);
-            text-underline-offset: 3px;
-            cursor: help;
-            font-weight: 600;
-        }
-        /* Hide the inline tooltip-content from layout/screen — text is read
-           by JS and shown in the global bubble instead */
-        .tooltip-content {
-            display: none !important;
-        }
-        /* ---- Global tooltip bubble (injected by JS into <body>) ---- */
-        #tooltip-bubble {
-            position: fixed;
-            z-index: 99999;
-            background: var(--rh-gray-dark);
-            color: var(--rh-white);
-            padding: 11px 15px;
-            border-radius: var(--radius-md);
-            font-family: var(--font-display);
-            font-size: 0.82rem;
-            font-weight: 400;
-            line-height: 1.5;
-            max-width: 300px;
-            width: max-content;
-            box-shadow: var(--shadow-lg);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s ease;
-        }
+        .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
+        .tooltip-content { display: none !important; }
+        #tooltip-bubble { position: fixed; z-index: 99999; background: var(--rh-gray-dark); color: var(--rh-white); padding: 11px 15px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; font-weight: 400; line-height: 1.5; max-width: 300px; width: max-content; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity 0.15s ease; }
         #tooltip-bubble.visible { opacity: 1; }
-        /* Arrow pseudo-element — direction set via data-dir attribute */
-        #tooltip-bubble::after {
-            content: '';
-            position: absolute;
-            border: 8px solid transparent;
-        }
-        #tooltip-bubble[data-dir="above"]::after {
-            top: 100%; left: var(--arrow-x, 50%);
-            transform: translateX(-50%);
-            border-top-color: var(--rh-gray-dark);
-        }
-        #tooltip-bubble[data-dir="below"]::after {
-            bottom: 100%; left: var(--arrow-x, 50%);
-            transform: translateX(-50%);
-            border-bottom-color: var(--rh-gray-dark);
-        }
-        #tooltip-bubble[data-dir="left"]::after {
-            left: 100%; top: var(--arrow-y, 50%);
-            transform: translateY(-50%);
-            border-left-color: var(--rh-gray-dark);
-        }
-        #tooltip-bubble[data-dir="right"]::after {
-            right: 100%; top: var(--arrow-y, 50%);
-            transform: translateY(-50%);
-            border-right-color: var(--rh-gray-dark);
-        }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 8px solid transparent; }
+        #tooltip-bubble[data-dir="above"]::after { top: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="below"]::after { bottom: 100%; left: var(--arrow-x, 50%); transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="left"]::after { left: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble[data-dir="right"]::after { right: 100%; top: var(--arrow-y, 50%); transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
 
         /* ==================== NOTE BOXES ==================== */
         .note-box {
@@ -355,7 +304,7 @@
         .lab-scenario h4 { font-family: var(--font-display); color: var(--rh-green-dark); margin-bottom: 8px; }
         .checklist { list-style: none; margin: 0 0 0 0; }
         .checklist li { padding: 6px 0; font-family: var(--font-display); display: flex; align-items: flex-start; gap: 10px; }
-        .checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 900; flex-shrink: 0; }
+        .checklist li::before { content: '&#10003;'; color: var(--rh-green); font-weight: 900; flex-shrink: 0; }
 
         /* ==================== INTERACTIVE SIMULATOR ==================== */
         .simulator {
@@ -451,8 +400,8 @@
         .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
         .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
         .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
-        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
-        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
+        .nav-chapter-btn.next { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .nav-chapter-btn.next:hover { background: var(--rh-red-dark); border-color: var(--rh-red-dark); }
 
         /* ==================== FOOTER ==================== */
         footer {
@@ -541,13 +490,13 @@
         <div class="section-body">
             <p>After completing this chapter, you will be able to:</p>
             <ul>
-                <li>Write and execute basic Bash shell scripts using proper structure and the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shebang">shebang<span class="tooltip-content" id="tt-shebang" role="tooltip">The first line of a script that specifies the interpreter to use. For Bash scripts, it is #!/bin/bash, telling the kernel to execute the file using the Bash shell.</span></span> line</li>
+                <li>Write and execute basic Bash shell scripts using proper structure and the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shebang">shebang</span> line</li>
                 <li>Use shell variables, positional parameters, and special variables to create flexible scripts</li>
-                <li>Apply <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-conditional">conditional statements<span class="tooltip-content" id="tt-conditional" role="tooltip">Programming constructs (if/elif/else, case) that execute different code blocks based on whether conditions evaluate to true or false.</span></span> using <code class="inline">if/elif/else</code> and <code class="inline">case</code> to control script flow</li>
+                <li>Apply <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-conditional">conditional statements</span> using <code class="inline">if/elif/else</code> and <code class="inline">case</code> to control script flow</li>
                 <li>Implement loops (<code class="inline">for</code>, <code class="inline">while</code>, <code class="inline">until</code>) to iterate over data and automate repetitive tasks</li>
-                <li>Create reusable <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-function">shell functions<span class="tooltip-content" id="tt-function" role="tooltip">Named blocks of reusable code within a shell script. Functions help organize scripts, reduce repetition, and improve maintainability.</span></span> to organize and modularize script logic</li>
+                <li>Create reusable <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-function">shell functions</span> to organize and modularize script logic</li>
                 <li>Handle script errors and exit codes to build reliable automation</li>
-                <li>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-regex">regular expressions<span class="tooltip-content" id="tt-regex" role="tooltip">Patterns used to match and manipulate text strings. Used extensively with tools like grep, sed, and awk in shell scripts.</span></span> and string manipulation within scripts</li>
+                <li>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-regex">regular expressions</span> and string manipulation within scripts</li>
             </ul>
 
             <div class="concept-grid">
@@ -583,7 +532,7 @@
             <h2 id="scripting-intro-heading">Introduction to Shell Scripting</h2>
         </div>
         <div class="section-body">
-            <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellscript">shell script<span class="tooltip-content" id="tt-shellscript" role="tooltip">A text file containing a sequence of shell commands. When executed, the shell reads and runs each command in order, enabling automation of complex tasks.</span></span> is simply a text file containing a sequence of commands that the shell can execute. Instead of typing each command individually, you write them into a file once and run the file whenever you need that sequence. This is the foundation of Linux automation.</p>
+            <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellscript">shell script</span> is simply a text file containing a sequence of commands that the shell can execute. Instead of typing each command individually, you write them into a file once and run the file whenever you need that sequence. This is the foundation of Linux automation.</p>
 
             <h3>Why Use Shell Scripts?</h3>
             <p>The power of shell scripting lies in its ability to combine three capabilities:</p>
@@ -639,7 +588,7 @@ find <span class="code-variable">$LOG_DIR</span> -name <span class="code-string"
                 </div>
                 <div id="tab-comments" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-comments">
                     <h4>Comments in Shell Scripts</h4>
-                    <p>Lines beginning with <code class="inline">#</code> (except the shebang) are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-comment">comments<span class="tooltip-content" id="tt-comment" role="tooltip">Text in a script ignored by the interpreter. Comments explain what the code does and are essential for maintainability.</span></span>. Comments are ignored by the shell but are essential for humans. Always include a header comment block and inline comments for complex logic.</p>
+                    <p>Lines beginning with <code class="inline">#</code> (except the shebang) are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-comment">comments</span>. Comments are ignored by the shell but are essential for humans. Always include a header comment block and inline comments for complex logic.</p>
                     <div class="code-block">
                         <code><span class="code-comment">#!/bin/bash</span>
 <span class="code-comment"># ============================================================</span>
@@ -654,7 +603,7 @@ THRESHOLD=<span class="code-string">${1:-90}</span>  <span class="code-comment">
                 </div>
                 <div id="tab-permissions" class="tab-panel" role="tabpanel" aria-labelledby="tbtn-permissions">
                     <h4>Making Scripts Executable</h4>
-                    <p>A script file must have <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-execperm">execute permission<span class="tooltip-content" id="tt-execperm" role="tooltip">A file permission bit that allows a file to be run as a program. Set with chmod +x filename or chmod 755 filename.</span></span> to run directly. Use <code class="inline">chmod</code> to add this permission.</p>
+                    <p>A script file must have <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-execperm">execute permission</span> to run directly. Use <code class="inline">chmod</code> to add this permission.</p>
                     <div class="code-block">
                         <code><span class="code-comment"># Create the script</span>
 <span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">vim backup_logs.sh</span>
@@ -699,7 +648,7 @@ THRESHOLD=<span class="code-string">${1:-90}</span>  <span class="code-comment">
             </div>
 
             <h3>Exit Codes and Error Handling</h3>
-            <p>Every command and script exits with a numeric <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-exitcode">exit code<span class="tooltip-content" id="tt-exitcode" role="tooltip">An integer returned by a command or script upon completion. Exit code 0 means success; any non-zero value indicates failure. Accessible via the special variable $?.</span></span> (also called a return status). This is fundamental to reliable scripting.</p>
+            <p>Every command and script exits with a numeric <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-exitcode">exit code</span> (also called a return status). This is fundamental to reliable scripting.</p>
 
             <div class="code-block" role="region" aria-label="Exit codes example">
                 <div class="code-title">Working with Exit Codes</div>
@@ -742,7 +691,7 @@ THRESHOLD=<span class="code-string">${1:-90}</span>  <span class="code-comment">
             <h2 id="variables-heading">Variables, Parameters, and Quoting</h2>
         </div>
         <div class="section-body">
-            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-variable">Variables<span class="tooltip-content" id="tt-variable" role="tooltip">Named storage locations in memory that hold values used by your script. Variables make scripts flexible and reusable by separating data from logic.</span></span> are named containers that store values your script can use and modify. Mastering variables &mdash; including their scope, quoting, and special types &mdash; is essential to writing effective scripts.</p>
+            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-variable">Variables</span> are named containers that store values your script can use and modify. Mastering variables &mdash; including their scope, quoting, and special types &mdash; is essential to writing effective scripts.</p>
 
             <h3>Declaring and Using Variables</h3>
             <p>In Bash, variable names are case-sensitive and conventionally written in uppercase for constants and lowercase for local variables. There is no space around the <code class="inline">=</code> sign.</p>
@@ -803,7 +752,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>Positional Parameters and Special Variables</h3>
-            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-posparams">Positional parameters<span class="tooltip-content" id="tt-posparams" role="tooltip">Variables automatically set by the shell when a script is called with arguments. $1 holds the first argument, $2 the second, and so on up to $9 (use ${10} for more).</span></span> allow scripts to accept input from the command line, making them flexible and reusable.</p>
+            <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-posparams">Positional parameters</span> allow scripts to accept input from the command line, making them flexible and reusable.</p>
 
             <div class="code-block" role="region" aria-label="Special variables example">
                 <div class="code-title">Special Variables Reference</div>
@@ -821,7 +770,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>Variable Expansion and Default Values</h3>
-            <p>Bash provides powerful <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-paramexpand">parameter expansion<span class="tooltip-content" id="tt-paramexpand" role="tooltip">Advanced variable manipulation syntax using ${} that can provide defaults, test for empty values, extract substrings, and perform substitutions.</span></span> syntax for common operations on variables:</p>
+            <p>Bash provides powerful <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-paramexpand">parameter expansion</span> syntax for common operations on variables:</p>
 
             <div class="code-block" role="region" aria-label="Parameter expansion examples">
                 <div class="code-title">Parameter Expansion Patterns</div>
@@ -928,7 +877,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>Test Conditions</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-testcmd">test command<span class="tooltip-content" id="tt-testcmd" role="tooltip">A shell builtin that evaluates conditions and returns exit code 0 (true) or 1 (false). Can be written as [ ] or [[ ]] brackets.</span></span> evaluates expressions and returns exit code 0 for true or 1 for false:</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-testcmd">test command</span> evaluates expressions and returns exit code 0 for true or 1 for false:</p>
 
             <div class="tabs" aria-label="Test condition categories">
                 <div class="tab-buttons" role="tablist">
@@ -1028,7 +977,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>The case Statement</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-case">case statement<span class="tooltip-content" id="tt-case" role="tooltip">A multi-branch conditional that matches a value against a series of patterns. More readable than long if/elif chains when testing one variable against many values.</span></span> is ideal when you need to test a single variable against multiple patterns. It is cleaner than a long chain of <code class="inline">elif</code> statements.</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-case">case statement</span> is ideal when you need to test a single variable against multiple patterns. It is cleaner than a long chain of <code class="inline">elif</code> statements.</p>
 
             <div class="code-block" role="region" aria-label="case statement example">
                 <div class="code-title">case Statement Syntax and Example</div>
@@ -1078,7 +1027,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             <p>Loops are one of the most powerful constructs in scripting. They allow you to repeat an action many times &mdash; across a list of servers, files, users, or any collection of data. Without loops, you would need to write the same commands manually for each item.</p>
 
             <h3>The for Loop</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-for">for loop<span class="tooltip-content" id="tt-for" role="tooltip">Iterates over a fixed list of items (or a range), executing the loop body once for each item. The current item is assigned to the loop variable on each iteration.</span></span> iterates over a list, executing commands for each item. This is the most commonly used loop in system administration scripts.</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-for">for loop</span> iterates over a list, executing commands for each item. This is the most commonly used loop in system administration scripts.</p>
 
             <div class="code-block" role="region" aria-label="for loop examples">
                 <div class="code-title">for Loop Patterns</div>
@@ -1112,7 +1061,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>The while Loop</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-while">while loop<span class="tooltip-content" id="tt-while" role="tooltip">Repeatedly executes a block of commands as long as a condition remains true. Used when you don't know in advance how many iterations are needed.</span></span> continues executing as long as its condition is true. It's ideal for polling, counting, and reading input.</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-while">while loop</span> continues executing as long as its condition is true. It's ideal for polling, counting, and reading input.</p>
 
             <div class="code-block" role="region" aria-label="while loop examples">
                 <div class="code-title">while Loop Examples</div>
@@ -1151,7 +1100,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             </div>
 
             <h3>The until Loop</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-until">until loop<span class="tooltip-content" id="tt-until" role="tooltip">The logical opposite of while: it executes commands until a condition becomes true (i.e., while the condition is false). Useful for "keep trying until it succeeds" patterns.</span></span> is the logical inverse of <code class="inline">while</code> &mdash; it loops until a condition becomes true:</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-until">until loop</span> is the logical inverse of <code class="inline">while</code> &mdash; it loops until a condition becomes true:</p>
 
             <div class="code-block" role="region" aria-label="until loop example">
                 <div class="code-title">until Loop</div>
@@ -1232,7 +1181,7 @@ ls -l <span class="code-variable">$FILENAME</span>      <span class="code-commen
             <h2 id="functions-heading">Shell Functions</h2>
         </div>
         <div class="section-body">
-            <p>As scripts grow in complexity, functions become essential. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellfunc">shell function<span class="tooltip-content" id="tt-shellfunc" role="tooltip">A named block of commands within a script that can be called by name, optionally accepting arguments. Functions improve code organization, reusability, and readability.</span></span> is a named block of code that you can call by name from anywhere in a script. Functions eliminate repetition, improve readability, and make testing easier.</p>
+            <p>As scripts grow in complexity, functions become essential. A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-shellfunc">shell function</span> is a named block of code that you can call by name from anywhere in a script. Functions eliminate repetition, improve readability, and make testing easier.</p>
 
             <h3>Defining and Calling Functions</h3>
             <div class="code-block" role="region" aria-label="Function definition syntax">
@@ -1291,7 +1240,7 @@ get_disk_usage() {
             </div>
 
             <h3>Local Variables and Variable Scope</h3>
-            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-local">local keyword<span class="tooltip-content" id="tt-local" role="tooltip">Declares a variable that exists only within the function where it is defined. Local variables prevent functions from accidentally modifying global script variables.</span></span> creates variables that only exist inside the function. Without <code class="inline">local</code>, variables are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-global">global<span class="tooltip-content" id="tt-global" role="tooltip">Variables visible throughout the entire script and any functions it calls. Changes to global variables inside functions affect the whole script.</span></span> by default and could interfere with the rest of the script.</p>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-local">local keyword</span> creates variables that only exist inside the function. Without <code class="inline">local</code>, variables are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-global">global</span> by default and could interfere with the rest of the script.</p>
 
             <div class="code-block" role="region" aria-label="Local vs global variable example">
                 <div class="code-title">Variable Scope: Local vs Global</div>
@@ -1927,11 +1876,33 @@ set +x     <span class="code-comment"># Turn OFF tracing</span>
 
             <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
                 <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
-                <a href="rh134_chapter2_regex.html" class="nav-chapter-btn next">Chapter 2: Regular Expressions &#8594;</a>
+                <a href="rh134_chapter2_regular_expressions.html" class="nav-chapter-btn next">Chapter 2: Regular Expressions &#8594;</a>
             </div>
         </div>
     </section>
 
+
+<!-- Tooltip content definitions (hidden, read by JS) -->
+<div id="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
+<span class="tooltip-content" id="tt-shebang" role="tooltip">The first line of a script that specifies the interpreter to use. For Bash scripts, it is #!/bin/bash, telling the kernel to execute the file using the Bash shell.</span>
+<span class="tooltip-content" id="tt-conditional" role="tooltip">Programming constructs (if/elif/else, case) that execute different code blocks based on whether conditions evaluate to true or false.</span>
+<span class="tooltip-content" id="tt-function" role="tooltip">Named blocks of reusable code within a shell script. Functions help organize scripts, reduce repetition, and improve maintainability.</span>
+<span class="tooltip-content" id="tt-regex" role="tooltip">Patterns used to match and manipulate text strings. Used extensively with tools like grep, sed, and awk in shell scripts.</span>
+<span class="tooltip-content" id="tt-shellscript" role="tooltip">A text file containing a sequence of shell commands. When executed, the shell reads and runs each command in order, enabling automation of complex tasks.</span>
+<span class="tooltip-content" id="tt-comment" role="tooltip">Text in a script ignored by the interpreter. Comments explain what the code does and are essential for maintainability.</span>
+<span class="tooltip-content" id="tt-execperm" role="tooltip">A file permission bit that allows a file to be run as a program. Set with chmod +x filename or chmod 755 filename.</span>
+<span class="tooltip-content" id="tt-exitcode" role="tooltip">An integer returned by a command or script upon completion. Exit code 0 means success; any non-zero value indicates failure. Accessible via the special variable $?.</span>
+<span class="tooltip-content" id="tt-variable" role="tooltip">Named storage locations in memory that hold values used by your script. Variables make scripts flexible and reusable by separating data from logic.</span>
+<span class="tooltip-content" id="tt-posparams" role="tooltip">Variables automatically set by the shell when a script is called with arguments. $1 holds the first argument, $2 the second, and so on up to $9 (use ${10} for more).</span>
+<span class="tooltip-content" id="tt-paramexpand" role="tooltip">Advanced variable manipulation syntax using ${} that can provide defaults, test for empty values, extract substrings, and perform substitutions.</span>
+<span class="tooltip-content" id="tt-testcmd" role="tooltip">A shell builtin that evaluates conditions and returns exit code 0 (true) or 1 (false). Can be written as [ ] or [[ ]] brackets.</span>
+<span class="tooltip-content" id="tt-case" role="tooltip">A multi-branch conditional that matches a value against a series of patterns. More readable than long if/elif chains when testing one variable against many values.</span>
+<span class="tooltip-content" id="tt-for" role="tooltip">Iterates over a fixed list of items (or a range), executing the loop body once for each item. The current item is assigned to the loop variable on each iteration.</span>
+<span class="tooltip-content" id="tt-while" role="tooltip">Repeatedly executes a block of commands as long as a condition remains true. Used when you don't know in advance how many iterations are needed.</span>
+<span class="tooltip-content" id="tt-until" role="tooltip">The logical opposite of while: it executes commands until a condition becomes true (i.e., while the condition is false). Useful for "keep trying until it succeeds" patterns.</span>
+<span class="tooltip-content" id="tt-shellfunc" role="tooltip">A named block of commands within a script that can be called by name, optionally accepting arguments. Functions improve code organization, reusability, and readability.</span>
+<span class="tooltip-content" id="tt-local" role="tooltip">Declares a variable that exists only within the function where it is defined. Local variables prevent functions from accidentally modifying global script variables.</span>
+<span class="tooltip-content" id="tt-global" role="tooltip">Variables visible throughout the entire script and any functions it calls. Changes to global variables inside functions affect the whole script.</span>
 </main>
 
 <!-- Footer -->
@@ -1984,134 +1955,95 @@ const navObserver = new IntersectionObserver((entries) => {
 
 sections.forEach(s => navObserver.observe(s));
 
-/* ==================== TOOLTIP SYSTEM (fixed-position bubble) ==================== */
-/*
- * A single #tooltip-bubble div is appended to <body> and repositioned
- * on every show event using getBoundingClientRect() + viewport math.
- * Because it uses position:fixed on the body, it can never be clipped
- * by overflow:hidden on any ancestor element.
- *
- * Algorithm:
- *  1. Measure the term's viewport rect.
- *  2. Try to place the bubble ABOVE the term (preferred).
- *  3. If not enough room above, try BELOW.
- *  4. If not enough room below, try RIGHT, then LEFT.
- *  5. After picking a side, clamp horizontally (or vertically for
- *     left/right bubbles) so the bubble never exits the viewport.
- *  6. Position the arrow caret to always point at the term.
- */
-const BUBBLE_GAP   = 10;   // px gap between term and bubble
-const BUBBLE_PAD   = 8;    // px minimum margin from viewport edge
-const BUBBLE_ARROW = 16;   // arrow height (border trick = 8px * 2)
+/* ==================== TOOLTIP SYSTEM ==================== */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTimer = null;
 
-// Create the global bubble element
-const bubble = document.createElement('div');
-bubble.id = 'tooltip-bubble';
-bubble.setAttribute('role', 'tooltip');
-bubble.setAttribute('aria-hidden', 'true');
-document.body.appendChild(bubble);
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        if (!contentEl) return;
+        const text = contentEl.textContent.trim();
+        if (!text) return;
 
-let hideTimer = null;
+        clearTimeout(activeTimer);
+        bubble.textContent = text;
+        bubble.removeAttribute('data-dir');
+        bubble.style.cssText = '';
+        bubble.setAttribute('aria-hidden', 'false');
 
-function showTooltip(term) {
-    clearTimeout(hideTimer);
+        const r = term.getBoundingClientRect();
+        const bw = Math.min(300, window.innerWidth - 24);
+        bubble.style.maxWidth = bw + 'px';
 
-    // Get text from the hidden .tooltip-content span
-    const src = term.querySelector('.tooltip-content');
-    if (!src) return;
-    bubble.textContent = src.textContent.trim();
+        // Determine placement
+        const spaceAbove = r.top;
+        const spaceBelow = window.innerHeight - r.bottom;
+        let dir;
 
-    // Must briefly make bubble visible (but still opacity:0) to measure it
-    bubble.style.opacity = '0';
-    bubble.style.visibility = 'visible';
-    bubble.style.maxWidth = '300px';
-    bubble.style.width   = 'max-content';
+        if (spaceAbove >= 130) dir = 'above';
+        else if (spaceBelow >= 130) dir = 'below';
+        else if (window.innerWidth - r.right >= 310) dir = 'right';
+        else dir = 'left';
 
-    // Force layout so we can measure
-    bubble.style.top  = '-9999px';
-    bubble.style.left = '-9999px';
+        bubble.setAttribute('data-dir', dir);
+        bubble.classList.add('visible');
 
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const tr = term.getBoundingClientRect();          // term rect
-    const bw = Math.min(bubble.offsetWidth,  300);    // bubble width (capped)
-    const bh = bubble.offsetHeight;                   // bubble height
+        // Position bubble
+        requestAnimationFrame(() => {
+            const bh = bubble.offsetHeight;
+            const bwActual = bubble.offsetWidth;
+            let top, left;
 
-    // Constrain bubble width to viewport
-    bubble.style.maxWidth = Math.min(300, vw - BUBBLE_PAD * 2) + 'px';
+            if (dir === 'above') {
+                top = r.top - bh - 12;
+                left = r.left + r.width / 2 - bwActual / 2;
+            } else if (dir === 'below') {
+                top = r.bottom + 12;
+                left = r.left + r.width / 2 - bwActual / 2;
+            } else if (dir === 'right') {
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.right + 12;
+            } else {
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.left - bwActual - 12;
+            }
 
-    let top, left, dir, arrowX, arrowY;
+            // Clamp to viewport
+            const pad = 8;
+            left = Math.max(pad, Math.min(left, window.innerWidth - bwActual - pad));
+            top = Math.max(pad, Math.min(top, window.innerHeight - bh - pad));
 
-    const spaceAbove = tr.top;
-    const spaceBelow = vh - tr.bottom;
-    const spaceLeft  = tr.left;
-    const spaceRight = vw - tr.right;
+            bubble.style.left = left + 'px';
+            bubble.style.top = top + 'px';
 
-    if (spaceAbove >= bh + BUBBLE_GAP + BUBBLE_PAD) {
-        // ---- ABOVE ----
-        dir  = 'above';
-        top  = tr.top - bh - BUBBLE_GAP;
-        left = tr.left + tr.width / 2 - bw / 2;  // centred on term
-        // Clamp horizontally
-        left = Math.max(BUBBLE_PAD, Math.min(left, vw - bw - BUBBLE_PAD));
-        // Arrow X: point at term centre, expressed as % of bubble width
-        arrowX = (tr.left + tr.width / 2 - left);
-        arrowX = Math.max(16, Math.min(arrowX, bw - 16)); // keep within bubble
-        bubble.style.setProperty('--arrow-x', arrowX + 'px');
-
-    } else if (spaceBelow >= bh + BUBBLE_GAP + BUBBLE_PAD) {
-        // ---- BELOW ----
-        dir  = 'below';
-        top  = tr.bottom + BUBBLE_GAP;
-        left = tr.left + tr.width / 2 - bw / 2;
-        left = Math.max(BUBBLE_PAD, Math.min(left, vw - bw - BUBBLE_PAD));
-        arrowX = (tr.left + tr.width / 2 - left);
-        arrowX = Math.max(16, Math.min(arrowX, bw - 16));
-        bubble.style.setProperty('--arrow-x', arrowX + 'px');
-
-    } else if (spaceRight >= bw + BUBBLE_GAP + BUBBLE_PAD) {
-        // ---- RIGHT ----
-        dir  = 'right';
-        left = tr.right + BUBBLE_GAP;
-        top  = tr.top + tr.height / 2 - bh / 2;
-        top  = Math.max(BUBBLE_PAD, Math.min(top, vh - bh - BUBBLE_PAD));
-        arrowY = (tr.top + tr.height / 2 - top);
-        arrowY = Math.max(16, Math.min(arrowY, bh - 16));
-        bubble.style.setProperty('--arrow-y', arrowY + 'px');
-
-    } else {
-        // ---- LEFT (fallback) ----
-        dir  = 'left';
-        left = tr.left - bw - BUBBLE_GAP;
-        left = Math.max(BUBBLE_PAD, left);           // clamp to viewport
-        top  = tr.top + tr.height / 2 - bh / 2;
-        top  = Math.max(BUBBLE_PAD, Math.min(top, vh - bh - BUBBLE_PAD));
-        arrowY = (tr.top + tr.height / 2 - top);
-        arrowY = Math.max(16, Math.min(arrowY, bh - 16));
-        bubble.style.setProperty('--arrow-y', arrowY + 'px');
+            // Arrow offset
+            if (dir === 'above' || dir === 'below') {
+                const arrowX = r.left + r.width / 2 - left;
+                const clamped = Math.max(16, Math.min(arrowX, bwActual - 16));
+                bubble.style.setProperty('--arrow-x', clamped + 'px');
+            }
+        });
     }
 
-    bubble.setAttribute('data-dir', dir);
-    bubble.style.top        = top  + 'px';
-    bubble.style.left       = left + 'px';
-    bubble.style.visibility = 'visible';
-    bubble.classList.add('visible');
-}
+    function hideTooltip() {
+        activeTimer = setTimeout(() => {
+            bubble.classList.remove('visible');
+            bubble.setAttribute('aria-hidden', 'true');
+        }, 100);
+    }
 
-function hideTooltip() {
-    bubble.classList.remove('visible');
-    hideTimer = setTimeout(() => {
-        bubble.style.visibility = 'hidden';
-    }, 160);
-}
-
-document.querySelectorAll('.tooltip-term').forEach(term => {
-    term.addEventListener('mouseenter', () => showTooltip(term));
-    term.addEventListener('focus',      () => showTooltip(term));
-    term.addEventListener('mouseleave', hideTooltip);
-    term.addEventListener('blur',       hideTooltip);
-    term.addEventListener('keydown',    e => { if (e.key === 'Escape') { hideTooltip(); term.blur(); } });
-});
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { hideTooltip(); term.blur(); }
+        });
+    });
+})();
 
 /* ==================== TAB SYSTEM ==================== */
 document.querySelectorAll('.tab-buttons').forEach(tabBar => {
