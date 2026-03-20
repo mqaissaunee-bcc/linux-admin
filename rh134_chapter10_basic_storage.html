@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: Managing Basic Storage | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; font-weight: 600; }
+        .code-output { color: #CBD5E0; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-block code .code-prompt, .code-block code .code-command,
+        .code-block code .code-output, .code-block code .code-comment { display: inline; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 2px dotted var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { display: none; position: fixed; z-index: 9999; background: var(--rh-gray-dark); color: var(--rh-white); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; padding: 10px 14px; border-radius: var(--radius-md); max-width: 280px; box-shadow: var(--shadow-lg); pointer-events: none; }
+        #tooltip-bubble.visible { display: block; }
+        #tooltip-bubble::after { content: ''; position: absolute; width: 0; height: 0; }
+        #tooltip-bubble.tip-above::after { bottom: -7px; left: 50%; transform: translateX(-50%); border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-below::after { top: -7px; left: 50%; transform: translateX(-50%); border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { top: 50%; left: -7px; transform: translateY(-50%); border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-right: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { top: 50%; right: -7px; transform: translateY(-50%); border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 7px solid var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-light); flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--rh-gray); transition: all var(--transition-fast); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue); border-bottom-color: var(--rh-blue); background: var(--rh-gray-lighter); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin-bottom: 12px; overflow: hidden; }
+        .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; cursor: pointer; background: var(--rh-gray-lighter); font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue); color: var(--rh-white); }
+        .expandable-icon { font-size: 0.8rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* QUIZ */
+        .quiz-question { margin-bottom: 24px; padding: 20px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); border-left: 4px solid var(--rh-blue); }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: #E8F0FF; }
+        .quiz-option input { margin-top: 3px; flex-shrink: 0; }
+        .quiz-option label { cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; min-height: 1.2rem; }
+        .quiz-question.correct { border-left-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-left-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin-right: 12px; margin-top: 8px; }
+        .quiz-btn.primary { background: var(--rh-blue); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-light); color: var(--rh-black); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-medium); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-top: 16px; padding: 14px 20px; background: var(--rh-blue-dark); color: var(--rh-white); border-radius: var(--radius-md); display: none; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-family: var(--font-display); font-size: 0.9rem; }
+        .comparison-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-weight: 700; }
+        .comparison-table td { padding: 10px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .comparison-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .comparison-table tr:hover td { background: #E8F0FF; }
+
+        /* STORAGE VISUAL DIAGRAM */
+        .disk-diagram { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin: 1.2rem 0; font-family: var(--font-display); }
+        .disk-diagram-title { font-weight: 700; font-size: 0.9rem; text-align: center; margin-bottom: 12px; color: var(--rh-gray-dark); }
+        .disk-bar { display: flex; height: 50px; border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--rh-gray-light); margin-bottom: 10px; }
+        .disk-segment { display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: var(--rh-white); text-align: center; padding: 4px; }
+        .disk-segment.mbr-boot { background: var(--rh-gray-medium); width: 3%; color: var(--rh-black); }
+        .disk-segment.partition { background: var(--rh-blue); }
+        .disk-segment.extended { background: #3355AA; }
+        .disk-segment.logical { background: var(--rh-blue-light); }
+        .disk-segment.free { background: var(--rh-gray-light); color: var(--rh-gray-dark); flex: 1; }
+        .disk-segment.gpt-header { background: var(--rh-teal-dark); width: 3%; font-size: 0.65rem; }
+        .disk-segment.gpt-backup { background: var(--rh-teal); width: 3%; font-size: 0.65rem; }
+        .disk-labels { display: flex; gap: 12px; flex-wrap: wrap; }
+        .disk-label { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; }
+        .disk-label-swatch { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+
+        /* INTERACTIVE SIMULATOR */
+        .simulator { background: #0D1117; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-lg); }
+        .sim-toolbar { background: #1C2128; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #30363D; }
+        .sim-dots { display: flex; gap: 6px; }
+        .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .sim-dot.red { background: #FF5F57; }
+        .sim-dot.yellow { background: #FEBC2E; }
+        .sim-dot.green { background: #28C840; }
+        .sim-title { font-family: var(--font-display); font-size: 0.8rem; color: #8B949E; margin-left: 8px; }
+        .sim-output { padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; color: #C9D1D9; min-height: 120px; max-height: 240px; overflow-y: auto; line-height: 1.6; white-space: pre-wrap; }
+        .sim-input-row { display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: #161B22; border-top: 1px solid #30363D; }
+        .sim-prompt { color: #28C840; font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+        .sim-input { flex: 1; background: none; border: none; color: #C9D1D9; font-family: var(--font-mono); font-size: 0.85rem; outline: none; }
+        .sim-commands { display: flex; gap: 8px; padding: 8px 16px; background: #0D1117; flex-wrap: wrap; border-top: 1px solid #30363D; }
+        .sim-cmd-btn { background: #21262D; border: 1px solid #30363D; color: #8B949E; font-family: var(--font-mono); font-size: 0.78rem; padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); }
+        .sim-cmd-btn:hover { background: #30363D; color: #C9D1D9; }
+
+        /* SWAP TABLE */
+        .swap-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-family: var(--font-display); font-size: 0.88rem; }
+        .swap-table th { background: var(--rh-teal-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; }
+        .swap-table td { padding: 9px 14px; border-bottom: 1px solid var(--rh-gray-lighter); }
+        .swap-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+
+        /* COMMAND REFERENCE */
+        .cmd-ref { font-family: var(--font-display); }
+        .cmd-ref-item { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); align-items: start; }
+        .cmd-ref-item:last-child { border-bottom: none; }
+        .cmd-ref-item:nth-child(even) { background: var(--rh-gray-lighter); }
+        .cmd-name { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--rh-blue-dark); background: #EEF4FF; padding: 2px 8px; border-radius: var(--radius-sm); display: inline-block; }
+        .cmd-desc { font-size: 0.88rem; color: var(--rh-gray-dark); }
+
+        /* LAB CHECKLIST */
+        .lab-checklist { list-style: none; margin: 1rem 0; }
+        .lab-checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-family: var(--font-display); font-size: 0.9rem; border-bottom: 1px solid var(--rh-gray-lighter); }
+        .lab-checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+        .nav-chapter-btn { padding: 12px 24px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-blue); border-color: var(--rh-blue); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-blue); color: var(--rh-white); }
+        .nav-chapter-btn.home { background: var(--rh-gray-dark); color: var(--rh-white); border-color: var(--rh-gray-dark); }
+        .nav-chapter-btn.home:hover { background: var(--rh-black); }
+        .nav-chapter-btn.next { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue-dark); }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.8; margin-top: 40px; }
+        footer a { color: var(--rh-blue-light); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* BADGE */
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; }
+        .badge-blue { background: #DBEAFE; color: var(--rh-blue-dark); }
+        .badge-green { background: #DCFCE7; color: var(--rh-green-dark); }
+        .badge-orange { background: #FFEDD5; color: #9A3412; }
+
+        /* FSTAB VISUAL */
+        .fstab-fields { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin: 1rem 0; font-family: var(--font-mono); font-size: 0.75rem; }
+        .fstab-field { padding: 10px 6px; text-align: center; border-radius: var(--radius-sm); font-weight: 700; }
+        .fstab-label { padding: 6px; text-align: center; font-family: var(--font-display); font-size: 0.7rem; color: var(--rh-gray); }
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .fstab-fields { grid-template-columns: repeat(3, 1fr); }
+            .cmd-ref-item { grid-template-columns: 1fr; }
+            main { padding: 16px; }
+        }
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header role="banner" class="main-header">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#128190;</span>
+        <span class="course-tag">RH134 &bull; RHEL 10</span>
+        <h1 class="chapter-title">Chapter 10: Managing Basic Storage</h1>
+        <p class="chapter-subtitle">Create partitions, file systems, and swap spaces from the command line</p>
+        <div class="header-meta">
+            <span><span aria-hidden="true">&#128337;</span> 2&ndash;3 hours</span>
+            <span><span aria-hidden="true">&#127891;</span> RH134 &mdash; System Administration II</span>
+            <span><span aria-hidden="true">&#9989;</span> RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text" aria-live="polite">Section 1 of 8</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="section-objectives">1. Objectives</a></li>
+        <li><a href="#section-partitioning" class="nav-btn" data-section="section-partitioning">2. Disk Partitioning</a></li>
+        <li><a href="#section-parted" class="nav-btn" data-section="section-parted">3. Managing Partitions</a></li>
+        <li><a href="#section-filesystems" class="nav-btn" data-section="section-filesystems">4. File Systems</a></li>
+        <li><a href="#section-mounting" class="nav-btn" data-section="section-mounting">5. Mounting &amp; fstab</a></li>
+        <li><a href="#section-swap" class="nav-btn" data-section="section-swap">6. Swap Space</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="section-quiz">7. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="section-lab">8. Lab</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ============================================================
+     SECTION 1: LEARNING OBJECTIVES
+     ============================================================ -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Explain the difference between <strong>MBR</strong> and <strong>GPT</strong> partitioning schemes and when to use each.</li>
+            <li>Use the <code>parted</code> command to create, display, and delete disk partitions on both MBR and GPT disks.</li>
+            <li>Format partitions with the <strong>XFS</strong> and <strong>ext4</strong> file systems using <code>mkfs</code> commands.</li>
+            <li>Manually mount file systems using the <code>mount</code> command and verify mounts.</li>
+            <li>Persistently mount file systems by adding entries to <code>/etc/fstab</code>, using UUIDs for device identification.</li>
+            <li>Explain the role of swap space and calculate appropriate swap sizes for a given system.</li>
+            <li>Create and initialize swap partitions using <code>parted</code> and <code>mkswap</code>.</li>
+            <li>Activate and deactivate swap spaces using <code>swapon</code> and <code>swapoff</code>, and persist them via <code>/etc/fstab</code>.</li>
+            <li>Set swap space priorities to control the order in which the kernel uses multiple swap areas.</li>
+        </ul>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>RHCSA Exam Relevance</span></div>
+            <p>Storage management is a heavily tested area on the RHCSA exam. You must be able to add a partition, create a file system, mount it persistently, and manage swap space. These tasks are performed entirely from the command line with no GUI tools available.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2: DISK PARTITIONING
+     ============================================================ -->
+<section id="section-partitioning" class="content-section" aria-labelledby="partitioning-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="partitioning-heading">Disk Partitioning Concepts</h2>
+    </div>
+    <div class="section-body">
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-disk-partitioning">Disk partitioning</span><span class="tooltip-content" id="tt-disk-partitioning">The process of dividing a physical disk drive into multiple independent logical storage units, each treated by the OS as a separate device.</span> divides a hard drive into multiple logical storage areas. Administrators use partitions to organize storage based on different requirements.</p>
+
+        <h3>Why Partition Disks?</h3>
+        <ul>
+            <li>Limit available space to specific applications or users, preventing runaway writes from filling the entire disk.</li>
+            <li>Separate operating system and program files from user data for easier management and backup.</li>
+            <li>Create a dedicated area for <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-swap-area">swap space</span><span class="tooltip-content" id="tt-swap-area">Disk space used as an extension of RAM. When physical memory is full, the kernel moves inactive memory pages to swap to free up RAM for active processes.</span>.</li>
+            <li>Limit disk space usage to improve performance of diagnostic tools and backup imaging.</li>
+        </ul>
+
+        <h3>MBR vs. GPT Partitioning Schemes</h3>
+        <p>On x86 systems, the two primary partitioning schemes are <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mbr">Master Boot Record (MBR)</span><span class="tooltip-content" id="tt-mbr">A legacy partitioning scheme stored in the first 512 bytes of a disk. Supports up to 4 primary partitions and disk sizes up to 2 TiB.</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-gpt">GUID Partition Table (GPT)</span><span class="tooltip-content" id="tt-gpt">The modern partitioning standard used with UEFI firmware. Supports up to 128 partitions, disk sizes up to 8 ZiB, and provides redundant partition tables for fault tolerance.</span>.</p>
+
+        <div class="tabs-container" role="tablist" aria-label="Partition scheme comparison">
+            <div class="tab-list">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-mbr" id="tab-mbr-btn">MBR (Legacy BIOS)</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-gpt" id="tab-gpt-btn">GPT (Modern UEFI)</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-compare" id="tab-compare-btn">Comparison</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-mbr" role="tabpanel" aria-labelledby="tab-mbr-btn">
+                <p>The <strong>Master Boot Record (MBR)</strong> partitioning scheme is the standard for systems running <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bios">BIOS firmware</span><span class="tooltip-content" id="tt-bios">Basic Input/Output System — legacy firmware that initializes hardware at boot time. Being replaced by UEFI in modern systems.</span>.</p>
+                <ul>
+                    <li>Maximum of <strong>4 primary partitions</strong> (or 3 primary + 1 extended)</li>
+                    <li>Extended partition acts as a container for multiple <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logical-part">logical partitions</span><span class="tooltip-content" id="tt-logical-part">Partitions created inside an extended partition on an MBR disk. Linux can number them from sdb5 onward, allowing more than 4 partitions.</span></li>
+                    <li>Up to 15 total partitions (3 primary + 1 extended + 11 logical)</li>
+                    <li>Maximum disk and partition size: <strong>2 TiB</strong> (32-bit addressing)</li>
+                    <li>Single partition table — no redundancy</li>
+                </ul>
+                <div class="disk-diagram" role="img" aria-label="MBR disk layout diagram showing MBR boot sector, three primary partitions sdb1 through sdb3, and an extended partition containing logical partitions sdb5 and sdb6">
+                    <div class="disk-diagram-title">MBR Layout &mdash; /dev/sdb</div>
+                    <div class="disk-bar">
+                        <div class="disk-segment mbr-boot" style="color:#333;font-size:0.6rem;">MBR</div>
+                        <div class="disk-segment partition" style="width:22%;">sdb1<br><small>primary</small></div>
+                        <div class="disk-segment partition" style="width:16%;background:#2255BB;">sdb2<br><small>primary</small></div>
+                        <div class="disk-segment partition" style="width:16%;background:#1144AA;">sdb3<br><small>primary</small></div>
+                        <div class="disk-segment extended" style="flex:1;">
+                            <span>Extended sdb4 &mdash; contains: sdb5 &nbsp; sdb6 &nbsp; [unused]</span>
+                        </div>
+                    </div>
+                    <div class="disk-labels">
+                        <div class="disk-label"><div class="disk-label-swatch" style="background:var(--rh-blue);"></div> Primary partition</div>
+                        <div class="disk-label"><div class="disk-label-swatch" style="background:#3355AA;"></div> Extended (container)</div>
+                    </div>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>MBR Limitation</span></div>
+                    <p>The 2 TiB size limit is now commonly encountered with modern storage. If your disk exceeds 2 TiB, you <strong>must</strong> use GPT. MBR is considered a legacy scheme.</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-gpt" role="tabpanel" aria-labelledby="tab-gpt-btn">
+                <p>The <strong>GUID Partition Table (GPT)</strong> is the modern standard for systems running <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-uefi">UEFI firmware</span><span class="tooltip-content" id="tt-uefi">Unified Extensible Firmware Interface — modern replacement for BIOS. Provides faster boot, larger disk support, and a standardized interface between the OS and firmware.</span>. It addresses all of the MBR limitations.</p>
+                <ul>
+                    <li>Maximum of <strong>128 partitions</strong> (no primary/extended distinction)</li>
+                    <li>Each partition gets a unique <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-guid">GUID</span><span class="tooltip-content" id="tt-guid">Globally Unique Identifier — a 128-bit number used to uniquely identify disks and partitions in GPT. Eliminates naming collisions across systems.</span> identifier</li>
+                    <li>Supports disks and partitions up to <strong>8 ZiB</strong> (64-bit addressing)</li>
+                    <li><strong>Redundant partition tables</strong>: primary at the start of the disk, backup at the end</li>
+                    <li>Uses a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-checksum">checksum</span><span class="tooltip-content" id="tt-checksum">A calculated value used to detect data corruption. GPT stores checksums of both the partition table header and partition entries to detect errors.</span> to detect errors in the GPT header and partition table</li>
+                    <li>Required for disks larger than 2 TiB</li>
+                </ul>
+                <div class="disk-diagram" role="img" aria-label="GPT disk layout showing primary GPT header, three data partitions, free space, and backup GPT header at the end of the disk">
+                    <div class="disk-diagram-title">GPT Layout &mdash; /dev/sdb</div>
+                    <div class="disk-bar">
+                        <div class="disk-segment gpt-header">GPT<br>Hdr</div>
+                        <div class="disk-segment partition" style="width:22%;">sdb1<br><small>userdata</small></div>
+                        <div class="disk-segment partition" style="width:16%;background:#2255BB;">sdb2<br><small>backup</small></div>
+                        <div class="disk-segment partition" style="width:14%;background:#009999;">sdb3<br><small>swap1</small></div>
+                        <div class="disk-segment free">Unallocated Space</div>
+                        <div class="disk-segment gpt-backup">GPT<br>Bkp</div>
+                    </div>
+                    <div class="disk-labels">
+                        <div class="disk-label"><div class="disk-label-swatch" style="background:var(--rh-blue);"></div> GPT partition</div>
+                        <div class="disk-label"><div class="disk-label-swatch" style="background:var(--rh-teal-dark);"></div> GPT headers</div>
+                        <div class="disk-label"><div class="disk-label-swatch" style="background:var(--rh-gray-light);"></div> Free space</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-compare" role="tabpanel" aria-labelledby="tab-compare-btn">
+                <table class="comparison-table" aria-label="Comparison of MBR and GPT partitioning schemes">
+                    <thead>
+                        <tr><th scope="col">Feature</th><th scope="col">MBR</th><th scope="col">GPT</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Firmware Type</td><td>BIOS (legacy)</td><td>UEFI (modern)</td></tr>
+                        <tr><td>Max Partitions</td><td>4 primary (15 with extended/logical)</td><td>128 partitions</td></tr>
+                        <tr><td>Max Disk Size</td><td>2 TiB</td><td>8 ZiB</td></tr>
+                        <tr><td>Partition Naming</td><td>Type-based (primary, extended, logical)</td><td>Name-based (user-defined string)</td></tr>
+                        <tr><td>Redundancy</td><td>Single partition table</td><td>Primary + backup table + checksums</td></tr>
+                        <tr><td>Unique IDs</td><td>No (uses disk/partition numbers)</td><td>Yes (GUID per partition)</td></tr>
+                        <tr><td>Red Hat Recommended</td><td>Legacy systems only</td><td><span class="badge badge-green">Preferred</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3: MANAGING PARTITIONS WITH parted
+     ============================================================ -->
+<section id="section-parted" class="content-section" aria-labelledby="parted-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="parted-heading">Managing Partitions with <code>parted</code></h2>
+    </div>
+    <div class="section-body">
+        <p>Red Hat Enterprise Linux provides the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-parted"><code>parted</code> command</span><span class="tooltip-content" id="tt-parted">The standard command-line partition editor in RHEL. It supports both MBR and GPT schemes and can be used interactively or with single non-interactive commands.</span> as the standard partition editor. It supports both MBR and GPT schemes and takes a disk device name as its first argument.</p>
+
+        <h3>Viewing the Partition Table</h3>
+        <p>The <code>print</code> subcommand displays the partition table for a disk. You can pass it non-interactively:</p>
+
+        <div class="code-block" role="region" aria-label="parted print example">
+            <div class="code-title">View partition table</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sda print</span>
+<span class="code-output">Model: QEMU QEMU HARDDISK (scsi)
+Disk /dev/sda: 53.7GB
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags:
+
+Number  Start    End      Size     Type     File system  Flags
+ 1      1049kB   10.7GB   10.7GB   primary  xfs          boot
+ 2      10.7GB   53.7GB   42.9GB   primary  xfs</span></code>
+        </div>
+
+        <p>To use <code>parted</code> interactively, run it with just the device name. Use <code>quit</code> to exit:</p>
+
+        <div class="code-block" role="region" aria-label="parted interactive session">
+            <div class="code-title">Interactive parted session</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sda</span>
+<span class="code-output">GNU Parted 3.6
+Using /dev/sda
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+(parted) print
+...output...
+(parted) quit
+[root@host ~]#</span></code>
+        </div>
+
+        <p>By default, <code>parted</code> displays sizes in powers of 10 (MB, GB). Change units with the <code>unit</code> parameter (<code>s</code> for sectors, <code>MiB</code>/<code>GiB</code> for binary, <code>MB</code>/<code>GB</code> for decimal).</p>
+
+        <h3>Writing a Disk Label on a New Disk</h3>
+        <p>Before creating partitions on a new disk, write a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-disk-label">disk label</span><span class="tooltip-content" id="tt-disk-label">A data structure written at the beginning of a disk that identifies the partitioning scheme in use (MBR or GPT). Also called the partition table type.</span> to indicate which partitioning scheme to use.</p>
+
+        <div class="code-block" role="region" aria-label="Writing disk labels">
+            <div class="code-title">Create MBR or GPT disk label</div>
+            <code><span class="code-comment"># Write an MBR (msdos) disk label</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mklabel msdos</span>
+
+<span class="code-comment"># Write a GPT disk label (preferred)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mklabel gpt</span></code>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Warning: Data Destructive</span></div>
+            <p>The <code>mklabel</code> subcommand wipes the existing partition table. Any data stored in existing partitions becomes inaccessible if partition boundaries move. <strong>Always verify the device name before running this command.</strong></p>
+        </div>
+
+        <h3>Creating MBR Partitions</h3>
+        <p>Use <code>mkpart</code> to create a new partition. For MBR disks, you specify a <em>partition type</em> (primary, extended, or logical).</p>
+
+        <div class="code-block" role="region" aria-label="Creating an MBR partition interactively">
+            <div class="code-title">Create MBR partition (interactive)</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb</span>
+<span class="code-output">(parted) mkpart
+Partition type? primary/extended? <span class="code-command">primary</span>
+File system type? [ext2]? <span class="code-command">xfs</span>
+Start? <span class="code-command">2048s</span>
+End? <span class="code-command">1000MB</span>
+(parted) quit
+Information: You may need to update /etc/fstab.</span>
+
+<span class="code-comment"># Run udevadm to register the new partition device file</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+
+        <p>As an alternative, create the partition in a single non-interactive command:</p>
+        <div class="code-block" role="region" aria-label="Non-interactive MBR partition creation">
+            <div class="code-title">Non-interactive MBR partition creation</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mkpart primary xfs 2048s 1000MB</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Partition Alignment</span></div>
+            <p>Starting a partition at sector <strong>2048</strong> (1 MiB from the disk start) is the standard alignment for most modern disks. This ensures the partition is aligned with the disk's physical block size for optimal performance. The <code>parted</code> command warns you if the start position causes misalignment.</p>
+        </div>
+
+        <h3>Creating GPT Partitions</h3>
+        <p>GPT partitions work similarly, but instead of a partition type, you specify a <em>partition name</em> (a descriptive label).</p>
+
+        <div class="code-block" role="region" aria-label="Creating a GPT partition">
+            <div class="code-title">Create GPT partition (interactive and non-interactive)</div>
+            <code><span class="code-comment"># Interactive approach</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb</span>
+<span class="code-output">(parted) mkpart
+Partition name? []? <span class="code-command">userdata</span>
+File system type? [ext2]? <span class="code-command">xfs</span>
+Start? <span class="code-command">2048s</span>
+End? <span class="code-command">1000MB</span>
+(parted) quit</span>
+
+<span class="code-comment"># Non-interactive equivalent</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mkpart userdata xfs 2048s 1000MB</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+
+        <h3>Deleting Partitions</h3>
+        <p>Use the <code>rm</code> subcommand followed by the partition number. This works for both MBR and GPT schemes.</p>
+
+        <div class="code-block" role="region" aria-label="Deleting a partition">
+            <div class="code-title">Delete partition number 1</div>
+            <code><span class="code-comment"># Interactive</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb</span>
+<span class="code-output">(parted) print       &lt;-- identify the partition number first
+(parted) rm 1
+(parted) quit</span>
+
+<span class="code-comment"># Non-interactive</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb rm 1</span></code>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Immediate Effect</span></div>
+            <p>The <code>rm</code> subcommand <strong>immediately</strong> removes the partition from the partition table on disk. There is no confirmation prompt. Always run <code>print</code> first to confirm you have the correct partition number.</p>
+        </div>
+
+        <!-- Interactive Partition Simulator -->
+        <h3>Practice: Partition Command Simulator</h3>
+        <p>Try common <code>parted</code> subcommands in this interactive simulator. Type a command or click a button below.</p>
+
+        <div class="simulator" role="region" aria-label="Interactive parted command simulator">
+            <div class="sim-toolbar">
+                <div class="sim-dots" aria-hidden="true">
+                    <div class="sim-dot red"></div>
+                    <div class="sim-dot yellow"></div>
+                    <div class="sim-dot green"></div>
+                </div>
+                <span class="sim-title">root@serverb: parted simulator</span>
+            </div>
+            <div class="sim-output" id="sim-output" aria-live="polite" aria-label="Simulator output">Welcome to the parted simulator!
+Type a command or click a button below.
+Type 'help' to see available commands.
+[root@serverb ~]# </div>
+            <div class="sim-input-row">
+                <span class="sim-prompt" aria-hidden="true">[root@serverb ~]#</span>
+                <input type="text" class="sim-input" id="sim-input" aria-label="Enter parted command" placeholder="e.g.: parted /dev/sdb print" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="sim-commands" aria-label="Quick command buttons">
+                <button class="sim-cmd-btn" data-cmd="parted /dev/sdb print">parted print</button>
+                <button class="sim-cmd-btn" data-cmd="parted /dev/sdb mklabel gpt">mklabel gpt</button>
+                <button class="sim-cmd-btn" data-cmd="parted /dev/sdb mkpart backup xfs 2048s 2GB">mkpart backup</button>
+                <button class="sim-cmd-btn" data-cmd="udevadm settle">udevadm settle</button>
+                <button class="sim-cmd-btn" data-cmd="lsblk">lsblk</button>
+                <button class="sim-cmd-btn" data-cmd="help">help</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4: CREATING FILE SYSTEMS
+     ============================================================ -->
+<section id="section-filesystems" class="content-section" aria-labelledby="fs-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="fs-heading">Creating File Systems</h2>
+    </div>
+    <div class="section-body">
+        <p>After creating a partition, the next step is to add a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-filesystem">file system</span><span class="tooltip-content" id="tt-filesystem">A method for organizing and storing files on a storage device. The file system defines how data is laid out on disk, how files are named, and how metadata like permissions and timestamps are stored.</span> to it. The file system defines how data is organized on disk. Without a file system, a partition is just raw disk space.</p>
+
+        <h3>XFS &mdash; The Recommended Default</h3>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-xfs">XFS</span><span class="tooltip-content" id="tt-xfs">A high-performance 64-bit journaling file system developed by Silicon Graphics. It is the default and recommended file system for RHEL 10, known for scalability with large files and parallel I/O.</span> is the default and recommended file system for RHEL 10. It is a high-performance, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journaling">journaling</span><span class="tooltip-content" id="tt-journaling">A file system feature that records changes in a transaction log (journal) before applying them to the main file system. This allows recovery after a crash without a full disk scan.</span> file system that handles large files and parallel I/O efficiently. Use <code>mkfs.xfs</code> to format a partition:</p>
+
+        <div class="code-block" role="region" aria-label="mkfs.xfs example">
+            <div class="code-title">Format partition with XFS</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkfs.xfs /dev/sdb1</span>
+<span class="code-output">meta-data=/dev/sdb1        isize=512    agcount=4, agsize=60992 blks
+         =                 sectsz=512   attr=2, projid32bit=1
+         =                 crc=1        finobt=1, sparse=1, rmapbt=1
+         =                 reflink=1    bigtime=1 inobtcount=1 nrext64=1
+         =                 exchange=0
+data     =                 bsize=4096   blocks=243968, imaxpct=25
+         =                 sunit=0      swidth=0 blks
+naming   =version 2        bsize=4096   ascii-ci=0, ftype=1, parent=0
+log      =internal log     bsize=4096   blocks=1566, version=2
+         =                 sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none             extsz=4096   blocks=0, rtextents=0
+Discarding blocks...Done.</span></code>
+        </div>
+
+        <h3>ext4 &mdash; The Extended File System</h3>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ext4">ext4</span><span class="tooltip-content" id="tt-ext4">The fourth extended file system. A journaling file system widely used on Linux systems. Supports volumes up to 1 EiB and files up to 16 TiB. Generally compatible with ext2/ext3 tools.</span> is a widely-used Linux journaling file system. While XFS is the default in RHEL 10, ext4 remains supported. Use <code>mkfs.ext4</code> to format:</p>
+
+        <div class="code-block" role="region" aria-label="mkfs.ext4 example">
+            <div class="code-title">Format partition with ext4</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkfs.ext4 /dev/sdb1</span></code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip: Generic mkfs</span></div>
+            <p>The <code>mkfs</code> command is a front-end that calls the appropriate format command. <code>mkfs -t xfs</code> and <code>mkfs.xfs</code> are equivalent. The <code>mkfs.xfs</code> form is more commonly used in practice.</p>
+        </div>
+
+        <table class="comparison-table" aria-label="XFS vs ext4 comparison">
+            <thead>
+                <tr><th scope="col">Feature</th><th scope="col">XFS</th><th scope="col">ext4</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>RHEL 10 Default</td><td><span class="badge badge-green">Yes</span></td><td>No</td></tr>
+                <tr><td>Max Volume Size</td><td>8 EiB</td><td>1 EiB</td></tr>
+                <tr><td>Max File Size</td><td>8 EiB</td><td>16 TiB</td></tr>
+                <tr><td>Journaling</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Can Grow Online</td><td>Yes (<code>xfs_growfs</code>)</td><td>Yes (<code>resize2fs</code>)</td></tr>
+                <tr><td>Can Shrink Online</td><td>No</td><td>No (must unmount)</td></tr>
+                <tr><td>fsck at Boot</td><td>Not needed (set to 0)</td><td>Yes (set to 1 or 2)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5: MOUNTING FILE SYSTEMS & /etc/fstab
+     ============================================================ -->
+<section id="section-mounting" class="content-section" aria-labelledby="mount-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="mount-heading">Mounting File Systems &amp; /etc/fstab</h2>
+    </div>
+    <div class="section-body">
+
+        <h3>Manual Mounting</h3>
+        <p>Use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mount">mount command</span><span class="tooltip-content" id="tt-mount">Attaches a formatted file system to a directory in the Linux directory hierarchy. Once mounted, files on the device are accessible at that directory path.</span> to attach a formatted partition to a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mountpoint">mount point</span><span class="tooltip-content" id="tt-mountpoint">A directory in the existing file system hierarchy where a new file system is attached. The directory must already exist before mounting.</span> directory:</p>
+
+        <div class="code-block" role="region" aria-label="mount command example">
+            <div class="code-title">Manual mount and verification</div>
+            <code><span class="code-comment"># Mount /dev/sdb1 to /mnt</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount /dev/sdb1 /mnt</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount | grep sdb1</span>
+<span class="code-output">/dev/sdb1 on /mnt type xfs (rw,relatime,seclabel,attr2,inode64,logbufs=8,logbsize=32k,noquota)</span></code>
+        </div>
+
+        <p>Manual mounts are temporary &mdash; they disappear on reboot. To make a mount persist across reboots, add it to <code>/etc/fstab</code>.</p>
+
+        <h3>Persistent Mounts with /etc/fstab</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fstab"><code>/etc/fstab</code> file</span><span class="tooltip-content" id="tt-fstab">The file system table. A configuration file that lists all file systems to mount at system boot. Each line describes one file system with device, mount point, type, options, dump flag, and fsck order.</span> lists file systems to mount automatically at boot. Each line has six whitespace-separated fields.</p>
+
+        <div class="code-block" role="region" aria-label="Example /etc/fstab content">
+            <div class="code-title">Example /etc/fstab entries</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">cat /etc/fstab</span>
+<span class="code-output">UUID=a8063676-44dd-409a-b584-68be2c9f5570  /        xfs  defaults  0 0
+UUID=7a20315d-ed8b-4e75-a5b6-24ff9e1f9838  /dbdata  xfs  defaults  0 0</span></code>
+        </div>
+
+        <h4>The Six Fields of /etc/fstab</h4>
+        <div class="fstab-fields" role="table" aria-label="fstab fields">
+            <div class="fstab-field" style="background:#DBEAFE;color:#1E3A8A;">UUID=...</div>
+            <div class="fstab-field" style="background:#DCF5E7;color:#14532D;">/mount/point</div>
+            <div class="fstab-field" style="background:#FEF3C7;color:#78350F;">xfs</div>
+            <div class="fstab-field" style="background:#FCE7F3;color:#831843;">defaults</div>
+            <div class="fstab-field" style="background:#EDE9FE;color:#4C1D95;">0</div>
+            <div class="fstab-field" style="background:#FFE4E6;color:#9F1239;">0</div>
+            <div class="fstab-label" style="background:#DBEAFE;">Field 1: Device<br>(UUID or /dev/...)</div>
+            <div class="fstab-label" style="background:#DCF5E7;">Field 2: Mount Point<br>(directory path)</div>
+            <div class="fstab-label" style="background:#FEF3C7;">Field 3: FS Type<br>(xfs, ext4, swap)</div>
+            <div class="fstab-label" style="background:#FCE7F3;">Field 4: Options<br>(defaults, ro, etc.)</div>
+            <div class="fstab-label" style="background:#EDE9FE;">Field 5: Dump Flag<br>(0 = no backup)</div>
+            <div class="fstab-label" style="background:#FFE4E6;">Field 6: fsck Order<br>(0 = skip)</div>
+        </div>
+
+        <p>Each field explained:</p>
+        <ul>
+            <li><strong>Field 1 (Device):</strong> Use the partition <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-uuid">UUID</span><span class="tooltip-content" id="tt-uuid">Universally Unique Identifier &mdash; a 128-bit value assigned to a file system when it is created and stored in the superblock. Unlike device names, UUIDs never change even if disks are reordered.</span>. Red Hat recommends UUIDs because device names like <code>/dev/sdb1</code> can change if disks are reordered or a cloud provider changes storage.</li>
+            <li><strong>Field 2 (Mount Point):</strong> The directory where the file system is mounted. Must already exist.</li>
+            <li><strong>Field 3 (FS Type):</strong> The file system type (<code>xfs</code>, <code>ext4</code>, <code>swap</code>, etc.).</li>
+            <li><strong>Field 4 (Options):</strong> Mount options. <code>defaults</code> enables the standard set of options (rw, suid, dev, exec, auto, nouser, async).</li>
+            <li><strong>Field 5 (Dump):</strong> Used by the legacy <code>dump</code> backup tool. Set to <code>0</code> for most systems.</li>
+            <li><strong>Field 6 (fsck order):</strong> For XFS, set to <code>0</code> (XFS does not use <code>fsck</code>). For ext4, use <code>1</code> for root and <code>2</code> for others.</li>
+        </ul>
+
+        <h3>Finding the UUID</h3>
+        <p>Use <code>lsblk --fs</code> to display UUIDs for all block devices:</p>
+
+        <div class="code-block" role="region" aria-label="lsblk --fs example">
+            <div class="code-title">List block device UUIDs</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">lsblk --fs</span>
+<span class="code-output">NAME   FSTYPE  FSVER  LABEL  UUID                                  FSAVAIL FSUSE% MOUNTPOINTS
+sda
+&#9500;sda1
+&#9500;sda2   xfs            boot   49dd...75fdf                          312M    37%    /boot
+&#9492;sda3   xfs            root   8a90...cedda                          4.8G    48%    /
+sdb
+&#9492;sdb1   xfs                   d85f5387-9791-400a-9a74-f637e7ee68aa</span></code>
+        </div>
+
+        <h3>Applying fstab Changes</h3>
+        <p>After editing <code>/etc/fstab</code>, run <code>systemctl daemon-reload</code> so systemd registers the new configuration. You can then mount using only the mount point (systemd resolves the rest):</p>
+
+        <div class="code-block" role="region" aria-label="Applying fstab and testing">
+            <div class="code-title">Apply fstab and test mount</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount /backup</span>
+<span class="code-comment"># systemd resolves /backup via /etc/fstab</span></code>
+        </div>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Critical: Validate Before Rebooting</span></div>
+            <p>An incorrect <code>/etc/fstab</code> entry can render the system unbootable. Always verify new entries with <code>mount -a</code> (mount all fstab entries) and check for errors before rebooting. Alternatively, use <code>findmnt --verify</code> to parse and validate the file.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6: MANAGING SWAP SPACE
+     ============================================================ -->
+<section id="section-swap" class="content-section" aria-labelledby="swap-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="swap-heading">Managing Swap Space</h2>
+    </div>
+    <div class="section-body">
+
+        <h3>What Is Swap Space?</h3>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-swap">swap space</span><span class="tooltip-content" id="tt-swap">Disk space managed by the Linux kernel's memory management subsystem. Used to hold inactive memory pages when physical RAM is under pressure. System virtual memory = RAM + swap.</span> is an area of disk under the control of the Linux kernel memory management subsystem. The kernel uses swap to supplement system RAM by holding inactive memory pages on disk.</p>
+
+        <p>When memory usage exceeds a defined limit, the kernel scans RAM for idle pages assigned to processes, writes them to swap, and reassigns that RAM to active processes. If a program needs a page currently in swap, the kernel swaps out another idle page to make room, then recalls the needed page.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Swap is Slow</span></div>
+            <p>Swap space is on disk &mdash; dramatically slower than RAM. While swap prevents out-of-memory crashes, excessive swapping (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-thrashing">thrashing</span><span class="tooltip-content" id="tt-thrashing">A condition where a system spends more time swapping pages in and out of memory than doing useful work. Indicates the system has insufficient RAM for its workload.</span>) severely degrades performance. Swap augments RAM but does not replace it &mdash; if your system constantly swaps, add more RAM.</p>
+        </div>
+
+        <h3>Swap Space Sizing</h3>
+        <p>Red Hat provides guidance for sizing swap space based on total system RAM:</p>
+
+        <table class="swap-table" aria-label="Red Hat swap space sizing recommendations">
+            <thead>
+                <tr>
+                    <th scope="col">Total RAM</th>
+                    <th scope="col">Recommended Swap</th>
+                    <th scope="col">Swap for Hibernation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>2 GB or less</td><td>Twice the RAM</td><td>Three times the RAM</td></tr>
+                <tr><td>2 GB &ndash; 8 GB</td><td>Same as RAM</td><td>Twice the RAM</td></tr>
+                <tr><td>8 GB &ndash; 64 GB</td><td>At least 4 GB</td><td>1.5 times the RAM</td></tr>
+                <tr><td>More than 64 GB</td><td>At least 4 GB</td><td>Hibernation not recommended</td></tr>
+            </tbody>
+        </table>
+
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-hibernation">Hibernation</span><span class="tooltip-content" id="tt-hibernation">A power-saving feature on laptops and desktops that writes the entire RAM contents to swap space before powering off. On resume, the kernel restores RAM from swap, avoiding a full boot.</span> saves RAM contents to swap before powering off. For systems that hibernate, swap must be larger than RAM.</p>
+
+        <h3>Creating Swap Space</h3>
+        <p>Creating swap space involves two steps: creating a partition with the <code>linux-swap</code> type, then formatting it with <code>mkswap</code>.</p>
+
+        <h4>Step 1: Create a swap partition</h4>
+        <div class="code-block" role="region" aria-label="Creating a swap partition">
+            <div class="code-title">Create swap partition on /dev/sdb</div>
+            <code><span class="code-comment"># Create a 256 MB swap partition named "swap1"</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mkpart swap1 linux-swap 1001MB 1257MB</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+
+        <h4>Step 2: Format with mkswap</h4>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mkswap"><code>mkswap</code> command</span><span class="tooltip-content" id="tt-mkswap">Formats a partition as swap space by writing a swap signature block at the beginning. Unlike file systems, most of the partition is left unformatted for the kernel to manage as memory pages.</span> applies a swap signature to the partition, enabling the kernel to use it as swap:</p>
+
+        <div class="code-block" role="region" aria-label="mkswap example">
+            <div class="code-title">Format partition as swap</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkswap /dev/sdb2</span>
+<span class="code-output">Setting up swapspace version 1, size = 244 MiB (255848448 bytes)
+no label, UUID=39e2667a-9458-42fe-9665-c5c854605881</span></code>
+        </div>
+
+        <h3>Activating and Deactivating Swap</h3>
+        <p>Use <code>swapon</code> to activate swap space and <code>swapoff</code> to deactivate it. These changes are temporary &mdash; they do not survive a reboot.</p>
+
+        <div class="code-block" role="region" aria-label="swapon and swapoff examples">
+            <div class="code-title">Activate, verify, and deactivate swap</div>
+            <code><span class="code-comment"># Activate a swap partition</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapon /dev/sdb2</span>
+
+<span class="code-comment"># Verify swap spaces and usage</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapon --show</span>
+<span class="code-output">NAME       TYPE       SIZE   USED PRIO
+/dev/sdb2  partition  244M    0B   -2</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">free</span>
+<span class="code-output">              total     used      free   shared  buff/cache  available
+Mem:        1873036   135044   1536040    16748      201952    1575680
+Swap:        249852        0    249852</span>
+
+<span class="code-comment"># Deactivate swap (moves pages back to RAM if possible)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapoff /dev/sdb2</span></code>
+        </div>
+
+        <h3>Persistent Swap in /etc/fstab</h3>
+        <p>To activate swap automatically at boot, add an entry to <code>/etc/fstab</code>. Use the UUID from the <code>mkswap</code> output, and use <code>swap</code> as both the mount point placeholder and file system type:</p>
+
+        <div class="code-block" role="region" aria-label="fstab swap entry">
+            <div class="code-title">Swap entry in /etc/fstab</div>
+            <code><span class="code-comment"># Format: UUID  swap  swap  options  dump  fsck</span>
+<span class="code-output">UUID=39e2667a-9458-42fe-9665-c5c854605881  swap  swap  defaults  0 0</span>
+
+<span class="code-comment"># After editing fstab, reload systemd</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span></code>
+        </div>
+
+        <h3>Swap Space Priorities</h3>
+        <p>When multiple swap spaces exist, the kernel uses them in priority order &mdash; highest priority first. If two swap spaces share the same priority, the kernel writes to them in a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-round-robin">round-robin</span><span class="tooltip-content" id="tt-round-robin">A scheduling method that distributes work evenly across multiple resources by cycling through them in order. Useful for load balancing swap across multiple disks.</span> fashion.</p>
+
+        <p>Set the priority with the <code>pri=N</code> option in <code>/etc/fstab</code>. The default priority is <code>-2</code>. Higher numbers mean higher priority.</p>
+
+        <div class="code-block" role="region" aria-label="Swap priority in fstab">
+            <div class="code-title">Three swap spaces with different priorities</div>
+            <code><span class="code-comment"># This swap has default priority (-2) &mdash; used last</span>
+<span class="code-output">UUID=af30cbb0-3866-466a-825a-58889a49ef33  swap  swap  defaults   0 0</span>
+<span class="code-comment"># Priority 4 &mdash; used second</span>
+<span class="code-output">UUID=39e2667a-9458-42fe-9665-c5c854605881  swap  swap  pri=4      0 0</span>
+<span class="code-comment"># Priority 10 &mdash; used first (highest priority)</span>
+<span class="code-output">UUID=fbd7fa60-b781-44a8-961b-37ac3ef572bf  swap  swap  pri=10     0 0</span></code>
+        </div>
+
+        <p>Verify priorities with <code>swapon --show</code>:</p>
+        <div class="code-block" role="region" aria-label="Viewing swap priorities">
+            <div class="code-title">View active swap spaces and priorities</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapon --show</span>
+<span class="code-output">NAME       TYPE       SIZE   USED  PRIO
+/dev/sdb2  partition  489M    0B    10
+/dev/sdb3  partition  488M    0B    20</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 7: QUIZ
+     ============================================================ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of basic storage management. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div id="quiz-container">
+            <!-- Q1 -->
+            <div class="quiz-question" data-question="1" data-correct="b">
+                <p>1. Which partitioning scheme supports up to 128 partitions and is used with UEFI firmware?</p>
+                <div class="quiz-option"><input type="radio" name="q1" id="q1a" value="a"><label for="q1a">a) MBR (Master Boot Record)</label></div>
+                <div class="quiz-option"><input type="radio" name="q1" id="q1b" value="b"><label for="q1b">b) GPT (GUID Partition Table)</label></div>
+                <div class="quiz-option"><input type="radio" name="q1" id="q1c" value="c"><label for="q1c">c) LVM (Logical Volume Manager)</label></div>
+                <div class="quiz-option"><input type="radio" name="q1" id="q1d" value="d"><label for="q1d">d) RAID (Redundant Array of Independent Disks)</label></div>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="quiz-question" data-question="2" data-correct="c">
+                <p>2. After creating a new partition with <code>parted</code>, which command should you run so the operating system detects the new partition and creates the device file?</p>
+                <div class="quiz-option"><input type="radio" name="q2" id="q2a" value="a"><label for="q2a">a) <code>systemctl daemon-reload</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q2" id="q2b" value="b"><label for="q2b">b) <code>partprobe</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q2" id="q2c" value="c"><label for="q2c">c) <code>udevadm settle</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q2" id="q2d" value="d"><label for="q2d">d) <code>mount -a</code></label></div>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="quiz-question" data-question="3" data-correct="a">
+                <p>3. What is the default and recommended file system for RHEL 10?</p>
+                <div class="quiz-option"><input type="radio" name="q3" id="q3a" value="a"><label for="q3a">a) XFS</label></div>
+                <div class="quiz-option"><input type="radio" name="q3" id="q3b" value="b"><label for="q3b">b) ext4</label></div>
+                <div class="quiz-option"><input type="radio" name="q3" id="q3c" value="c"><label for="q3c">c) btrfs</label></div>
+                <div class="quiz-option"><input type="radio" name="q3" id="q3d" value="d"><label for="q3d">d) NTFS</label></div>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="quiz-question" data-question="4" data-correct="d">
+                <p>4. Red Hat recommends using a UUID rather than a device name (e.g., <code>/dev/sdb1</code>) in <code>/etc/fstab</code>. Why?</p>
+                <div class="quiz-option"><input type="radio" name="q4" id="q4a" value="a"><label for="q4a">a) UUIDs are shorter and easier to type.</label></div>
+                <div class="quiz-option"><input type="radio" name="q4" id="q4b" value="b"><label for="q4b">b) Device names require root privileges to read.</label></div>
+                <div class="quiz-option"><input type="radio" name="q4" id="q4c" value="c"><label for="q4c">c) UUIDs allow larger file systems.</label></div>
+                <div class="quiz-option"><input type="radio" name="q4" id="q4d" value="d"><label for="q4d">d) Device names can change if disks are reordered, but UUIDs remain constant.</label></div>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="quiz-question" data-question="5" data-correct="b">
+                <p>5. A system has 12 GB of RAM. According to Red Hat swap space guidelines, what is the minimum recommended swap size?</p>
+                <div class="quiz-option"><input type="radio" name="q5" id="q5a" value="a"><label for="q5a">a) 12 GB (same as RAM)</label></div>
+                <div class="quiz-option"><input type="radio" name="q5" id="q5b" value="b"><label for="q5b">b) 4 GB (minimum for 8&ndash;64 GB RAM)</label></div>
+                <div class="quiz-option"><input type="radio" name="q5" id="q5c" value="c"><label for="q5c">c) 24 GB (twice the RAM)</label></div>
+                <div class="quiz-option"><input type="radio" name="q5" id="q5d" value="d"><label for="q5d">d) 2 GB (fixed default)</label></div>
+                <div class="quiz-feedback" id="feedback-5"></div>
+            </div>
+
+            <!-- Q6 -->
+            <div class="quiz-question" data-question="6" data-correct="c">
+                <p>6. Which command formats a partition as swap space?</p>
+                <div class="quiz-option"><input type="radio" name="q6" id="q6a" value="a"><label for="q6a">a) <code>swapon /dev/sdb2</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q6" id="q6b" value="b"><label for="q6b">b) <code>mkfs.swap /dev/sdb2</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q6" id="q6c" value="c"><label for="q6c">c) <code>mkswap /dev/sdb2</code></label></div>
+                <div class="quiz-option"><input type="radio" name="q6" id="q6d" value="d"><label for="q6d">d) <code>parted /dev/sdb mkswap 2</code></label></div>
+                <div class="quiz-feedback" id="feedback-6"></div>
+            </div>
+
+            <!-- Q7 -->
+            <div class="quiz-question" data-question="7" data-correct="a">
+                <p>7. You have two swap partitions. You want the kernel to use <code>/dev/sdb3</code> first. What <code>/etc/fstab</code> option should you add to <code>/dev/sdb3</code>'s entry?</p>
+                <div class="quiz-option"><input type="radio" name="q7" id="q7a" value="a"><label for="q7a">a) <code>pri=10</code> on sdb3 and <code>pri=5</code> (or lower) on sdb2</label></div>
+                <div class="quiz-option"><input type="radio" name="q7" id="q7b" value="b"><label for="q7b">b) <code>first</code> option on sdb3's entry</label></div>
+                <div class="quiz-option"><input type="radio" name="q7" id="q7c" value="c"><label for="q7c">c) List sdb3's entry before sdb2 in fstab</label></div>
+                <div class="quiz-option"><input type="radio" name="q7" id="q7d" value="d"><label for="q7d">d) <code>priority=high</code> on sdb3</label></div>
+                <div class="quiz-feedback" id="feedback-7"></div>
+            </div>
+
+            <!-- Q8 -->
+            <div class="quiz-question" data-question="8" data-correct="d">
+                <p>8. What should the fsck order field (field 6) be set to in <code>/etc/fstab</code> for an XFS file system?</p>
+                <div class="quiz-option"><input type="radio" name="q8" id="q8a" value="a"><label for="q8a">a) 1 (check first at boot)</label></div>
+                <div class="quiz-option"><input type="radio" name="q8" id="q8b" value="b"><label for="q8b">b) 2 (check after root file system)</label></div>
+                <div class="quiz-option"><input type="radio" name="q8" id="q8c" value="c"><label for="q8c">c) 3 (check last)</label></div>
+                <div class="quiz-option"><input type="radio" name="q8" id="q8d" value="d"><label for="q8d">d) 0 (skip fsck &mdash; XFS uses its own journal recovery)</label></div>
+                <div class="quiz-feedback" id="feedback-8"></div>
+            </div>
+        </div>
+
+        <div>
+            <button class="quiz-btn primary" id="check-answers-btn" onclick="checkAnswers()">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz-btn" onclick="resetQuiz()">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 8: HANDS-ON LAB
+     ============================================================ -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="lab-heading">Hands-On Lab: Manage Basic Storage</h2>
+    </div>
+    <div class="section-body">
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Lab Environment</span></div>
+            <p>This lab is performed on <strong>serverb.lab.example.com</strong> from the <strong>workstation</strong> machine. The serverb machine has unused disks (<code>/dev/sdb</code>, <code>/dev/sdc</code>, <code>/dev/sdd</code>) available for partitioning. Run the setup command before starting.</p>
+        </div>
+
+        <p><strong>Objectives:</strong> Create GPT partitions on <code>/dev/sdb</code>, format one with XFS and mount it persistently, then create two swap partitions with priority-based activation.</p>
+
+        <div class="code-block" role="region" aria-label="Lab setup command">
+            <div class="code-title">Lab setup</div>
+            <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab start storage-review</span></code>
+        </div>
+
+        <!-- Task 1 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task1-content" id="task1-header">
+                <span>Task 1: Create a GPT Partition Named "backup" (2 GB, XFS type)</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="task1-content" role="region" aria-labelledby="task1-header">
+                <p><strong>Objective:</strong> On <code>/dev/sdb</code>, create a GPT disk label and then a 2 GB partition named <code>backup</code> with the XFS file-system type label.</p>
+
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Task 1 solution</div>
+                    <code><span class="code-comment"># SSH to serverb and become root</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Verify /dev/sdb is available and has no label</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lsblk</span>
+<span class="code-output">sdb  8:16  0  5G  0  disk</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb print</span>
+<span class="code-output">Error: /dev/sdb: unrecognised disk label
+Partition Table: unknown</span>
+
+<span class="code-comment"># Write a GPT disk label</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mklabel gpt</span>
+
+<span class="code-comment"># Create the backup partition (2048s start, 2GB end)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart backup xfs 2048s 2GB</span>
+<span class="code-output">Information: You may need to update /etc/fstab.</span>
+
+<span class="code-comment"># Confirm partition was created</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb print</span>
+<span class="code-output">Number  Start    End     Size    File system  Name    Flags
+ 1      1049kB   2000MB  1999MB               backup</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task2-content" id="task2-header">
+                <span>Task 2: Format with XFS and Mount Persistently on /backup</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="task2-content" role="region" aria-labelledby="task2-header">
+                <p><strong>Objective:</strong> Format <code>/dev/sdb1</code> with XFS, create the <code>/backup</code> directory, find the UUID, add an <code>/etc/fstab</code> entry, then mount and verify.</p>
+
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2 solution</div>
+                    <code><span class="code-comment"># Format the partition with XFS</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkfs.xfs /dev/sdb1</span>
+<span class="code-output">...output omitted...
+Discarding blocks...Done.</span>
+
+<span class="code-comment"># Create the mount point directory</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkdir /backup</span>
+
+<span class="code-comment"># Retrieve the UUID of the new partition</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lsblk --fs /dev/sdb1</span>
+<span class="code-output">NAME  FSTYPE FSVER LABEL UUID
+sdb1  xfs          d85f5387-9791-400a-9a74-f637e7ee68aa</span>
+
+<span class="code-comment"># Add entry to /etc/fstab (use YOUR UUID from above)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">echo "UUID=d85f5387-9791-400a-9a74-f637e7ee68aa  /backup  xfs  defaults  0 0" >> /etc/fstab</span>
+
+<span class="code-comment"># Reload systemd to register the new fstab entry</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># Mount using the fstab entry</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount /backup</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount | grep /backup</span>
+<span class="code-output">/dev/sdb1 on /backup type xfs (rw,relatime,seclabel,attr2,inode64,noquota)</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task3-content" id="task3-header">
+                <span>Task 3: Create Two Swap Partitions (swap1 and swap2, 512 MB each)</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="task3-content" role="region" aria-labelledby="task3-header">
+                <p><strong>Objective:</strong> Add two 512 MB swap partitions (<code>swap1</code> and <code>swap2</code>) to <code>/dev/sdb</code> starting after the existing <code>backup</code> partition (ends at 2000 MB).</p>
+
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Task 3 solution</div>
+                    <code><span class="code-comment"># Check existing partition layout</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb print</span>
+<span class="code-output">Number  Start    End     Size    Name
+ 1      1049kB   2000MB  1999MB  backup</span>
+
+<span class="code-comment"># Create swap1 (2000MB to 2512MB = 512MB)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart swap1 linux-swap 2000M 2512M</span>
+
+<span class="code-comment"># Create swap2 (2512MB to 3024MB = 512MB)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart swap2 linux-swap 2512M 3024M</span>
+
+<span class="code-comment"># Verify the partition table</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb print</span>
+<span class="code-output">Number  Start    End     Size    Name    Flags
+ 1      1049kB   2000MB  1999MB  backup
+ 2      2000MB   2512MB  513MB   swap1   swap
+ 3      2512MB   3024MB  512MB   swap2   swap</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task4-content" id="task4-header">
+                <span>Task 4: Initialize Swap Spaces and Activate with Priority (swap2 preferred)</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="task4-content" role="region" aria-labelledby="task4-header">
+                <p><strong>Objective:</strong> Format both swap partitions with <code>mkswap</code>, add them to <code>/etc/fstab</code> with <code>swap2</code> having a higher priority, then activate them and verify.</p>
+
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Task 4 solution</div>
+                    <code><span class="code-comment"># Initialize swap1 partition</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkswap /dev/sdb2</span>
+<span class="code-output">Setting up swapspace version 1, size = 489 MiB
+no label, UUID=54a08491-2722-4145-911c-317c6919e53d</span>
+
+<span class="code-comment"># Initialize swap2 partition</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkswap /dev/sdb3</span>
+<span class="code-output">Setting up swapspace version 1, size = 488 MiB
+no label, UUID=353fe8ca-1276-4443-935e-e1ae87039aef</span>
+
+<span class="code-comment"># Add swap entries to /etc/fstab
+# swap2 gets higher priority (pri=20) so it is used first</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">echo "UUID=54a08491-2722-4145-911c-317c6919e53d  swap  swap  pri=10  0 0" >> /etc/fstab</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">echo "UUID=353fe8ca-1276-4443-935e-e1ae87039aef  swap  swap  pri=20  0 0" >> /etc/fstab</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># Activate all swap spaces listed in fstab</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">swapon -a</span>
+
+<span class="code-comment"># Verify both are active with correct priorities</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">swapon --show</span>
+<span class="code-output">NAME       TYPE       SIZE  USED PRIO
+/dev/sdb2  partition  489M   0B   10
+/dev/sdb3  partition  488M   0B   20</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 5 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task5-content" id="task5-header">
+                <span>Task 5: Reboot and Verify Persistent Mounts</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="task5-content" role="region" aria-labelledby="task5-header">
+                <p><strong>Objective:</strong> Reboot <code>serverb</code> and confirm that the <code>/backup</code> file system mounts automatically and that both swap spaces activate on boot.</p>
+
+                <div class="code-block" role="region" aria-label="Task 5 commands">
+                    <div class="code-title">Task 5 solution</div>
+                    <code><span class="code-comment"># Reboot serverb</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl reboot</span>
+<span class="code-output">Connection to serverb closed by remote host.</span>
+
+<span class="code-comment"># Wait for serverb to boot, then reconnect</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+
+<span class="code-comment"># Verify /backup is mounted</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">mount | grep /backup</span>
+<span class="code-output">/dev/sdb1 on /backup type xfs (rw,relatime,seclabel,attr2,inode64,noquota)</span>
+
+<span class="code-comment"># Verify both swap spaces are active</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">swapon --show</span>
+<span class="code-output">NAME       TYPE       SIZE  USED PRIO
+/dev/sdb2  partition  489M   0B   10
+/dev/sdb3  partition  488M   0B   20</span></code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="lab-checklist" aria-label="Lab completion checklist">
+            <li>GPT disk label written to <code>/dev/sdb</code></li>
+            <li><code>backup</code> partition created (approx. 2 GB, XFS type label)</li>
+            <li><code>/dev/sdb1</code> formatted with XFS file system</li>
+            <li><code>/backup</code> directory created as mount point</li>
+            <li>UUID-based entry added to <code>/etc/fstab</code> for <code>/backup</code></li>
+            <li><code>swap1</code> and <code>swap2</code> partitions created (512 MB each)</li>
+            <li>Both swap partitions formatted with <code>mkswap</code></li>
+            <li>Swap entries with <code>pri=10</code> and <code>pri=20</code> added to <code>/etc/fstab</code></li>
+            <li>After reboot: <code>/backup</code> auto-mounted, both swap spaces active</li>
+        </ul>
+
+        <div class="code-block" role="region" aria-label="Lab grading command">
+            <div class="code-title">Grade and finish the lab</div>
+            <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade storage-review</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish storage-review</span></code>
+        </div>
+
+        <h3>Chapter Summary</h3>
+        <p>In this chapter, you learned to manage local storage devices from the command line:</p>
+        <ul>
+            <li><strong>MBR vs. GPT:</strong> MBR is for legacy BIOS systems (max 4 primary, 2 TiB). GPT is for UEFI systems (max 128 partitions, 8 ZiB), with redundant tables and checksums.</li>
+            <li><strong><code>parted</code>:</strong> The standard RHEL partition editor. Supports both schemes with interactive and non-interactive modes.</li>
+            <li><strong>XFS:</strong> The default and recommended RHEL 10 file system. Use <code>mkfs.xfs</code> to format.</li>
+            <li><strong>Mounting:</strong> Use <code>mount</code> for temporary mounts. Add UUID-based entries to <code>/etc/fstab</code> for persistent mounts. Run <code>systemctl daemon-reload</code> after editing fstab.</li>
+            <li><strong>Swap:</strong> Disk space used as virtual memory extension. Size based on RAM. Create with <code>parted</code>, format with <code>mkswap</code>, activate with <code>swapon</code>. Set priorities with <code>pri=N</code> in fstab.</li>
+        </ul>
+
+        <h3>Command Quick Reference</h3>
+        <div class="cmd-ref" role="table" aria-label="Chapter 10 command reference">
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">parted /dev/sdb print</div><div class="cmd-desc" role="cell">Display partition table for a disk</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">parted /dev/sdb mklabel gpt</div><div class="cmd-desc" role="cell">Write a GPT disk label (wipes existing table)</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">parted /dev/sdb mkpart NAME FS START END</div><div class="cmd-desc" role="cell">Create a new partition</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">parted /dev/sdb rm N</div><div class="cmd-desc" role="cell">Delete partition number N</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">udevadm settle</div><div class="cmd-desc" role="cell">Wait for kernel to detect new partition devices</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">mkfs.xfs /dev/sdbN</div><div class="cmd-desc" role="cell">Format partition with XFS file system</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">mkfs.ext4 /dev/sdbN</div><div class="cmd-desc" role="cell">Format partition with ext4 file system</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">mount /dev/sdbN /mountpoint</div><div class="cmd-desc" role="cell">Manually mount a file system</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">lsblk --fs</div><div class="cmd-desc" role="cell">List block devices with UUIDs and mount points</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">systemctl daemon-reload</div><div class="cmd-desc" role="cell">Reload systemd after editing /etc/fstab</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">findmnt --verify</div><div class="cmd-desc" role="cell">Validate /etc/fstab entries before rebooting</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">mkswap /dev/sdbN</div><div class="cmd-desc" role="cell">Initialize a partition as swap space</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">swapon /dev/sdbN</div><div class="cmd-desc" role="cell">Activate a swap partition</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">swapon --show</div><div class="cmd-desc" role="cell">Display active swap spaces and priorities</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">swapoff /dev/sdbN</div><div class="cmd-desc" role="cell">Deactivate a swap space</div></div>
+            <div class="cmd-ref-item" role="row"><div class="cmd-name" role="cell">free</div><div class="cmd-desc" role="cell">Display RAM and swap usage summary</div></div>
+        </div>
+    </div>
+
+    <!-- Chapter Navigation -->
+    <div class="section-body" style="border-top: 1px solid var(--rh-gray-lighter); padding-top: 20px;">
+        <div class="chapter-nav">
+            <a href="rh134_chapter9_managing_logical_volumes.html" class="nav-chapter-btn prev">&larr; Chapter 9: Managing Logical Volumes</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter11_advanced_storage.html" class="nav-chapter-btn next">Chapter 11: Advanced Storage &rarr;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <p><strong>RH134 &mdash; Red Hat System Administration II</strong></p>
+    <p>Chapter 10: Managing Basic Storage &bull; RHEL 10</p>
+    <p>Red Hat and Red Hat Enterprise Linux are trademarks or registered trademarks of Red Hat, Inc. or its subsidiaries in the United States and other countries.</p>
+    <p>&copy; 2025 Course Materials. For educational use only.</p>
+</footer>
+
+<script>
+/* ============================================================
+   TOOLTIP SYSTEM (aria-describedby pattern)
+   ============================================================ */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    let currentTerm = null;
+
+    function getTooltipContent(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        return ttId ? document.getElementById(ttId) : null;
+    }
+
+    function showTooltip(term) {
+        const contentEl = getTooltipContent(term);
+        if (!contentEl) return;
+        const text = contentEl.textContent.trim();
+        if (!text) return;
+        currentTerm = term;
+        bubble.textContent = text;
+        bubble.classList.remove('tip-above','tip-below','tip-left','tip-right');
+        bubble.style.cssText = '';
+        bubble.classList.add('visible');
+
+        requestAnimationFrame(function() {
+            const bw = bubble.offsetWidth;
+            const bh = bubble.offsetHeight;
+            const rect = term.getBoundingClientRect();
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const margin = 8;
+
+            let top, left, tipClass;
+
+            if (rect.top - bh - 12 >= margin) {
+                tipClass = 'tip-above';
+                top = rect.top - bh - 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if (rect.bottom + bh + 12 <= vh - margin) {
+                tipClass = 'tip-below';
+                top = rect.bottom + 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if (rect.right + bw + 12 <= vw - margin) {
+                tipClass = 'tip-right';
+                left = rect.right + 12;
+                top = rect.top + (rect.height / 2) - (bh / 2);
+            } else {
+                tipClass = 'tip-left';
+                left = rect.left - bw - 12;
+                top = rect.top + (rect.height / 2) - (bh / 2);
+            }
+
+            // Clamp to viewport
+            left = Math.max(margin, Math.min(left, vw - bw - margin));
+            top  = Math.max(margin, Math.min(top,  vh - bh - margin));
+
+            bubble.style.left = left + 'px';
+            bubble.style.top  = top  + 'px';
+            bubble.classList.add(tipClass);
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+        bubble.style.cssText = '';
+        currentTerm = null;
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        term.addEventListener('mouseenter', function() { showTooltip(term); });
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus',      function() { showTooltip(term); });
+        term.addEventListener('blur',       hideTooltip);
+        term.addEventListener('keydown',    function(e) { if (e.key === 'Escape') hideTooltip(); });
+    });
+
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') hideTooltip(); });
+    document.addEventListener('scroll',  hideTooltip, { passive: true });
+})();
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+(function() {
+    const sections = document.querySelectorAll('.content-section');
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const total = sections.length;
+    let maxSeen = 0;
+
+    const obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                const idx = Array.from(sections).indexOf(entry.target) + 1;
+                if (idx > maxSeen) maxSeen = idx;
+                const pct = Math.round((maxSeen / total) * 100);
+                fill.style.width = pct + '%';
+                fill.setAttribute('aria-valuenow', pct);
+                text.textContent = 'Section ' + maxSeen + ' of ' + total;
+            }
+        });
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   ACTIVE NAV HIGHLIGHTING
+   ============================================================ */
+(function() {
+    const sections = document.querySelectorAll('.content-section');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    const obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                navBtns.forEach(function(btn) { btn.classList.remove('active'); });
+                const id = entry.target.id;
+                const active = document.querySelector('.nav-btn[data-section="' + id + '"]');
+                if (active) active.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   TABS
+   ============================================================ */
+(function() {
+    document.querySelectorAll('.tabs-container').forEach(function(container) {
+        const btns = container.querySelectorAll('.tab-btn');
+        const panels = container.querySelectorAll('.tab-panel');
+
+        function activate(btn) {
+            btns.forEach(function(b) { b.setAttribute('aria-selected','false'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+            btn.setAttribute('aria-selected','true');
+            document.getElementById(btn.getAttribute('aria-controls')).classList.add('active');
+        }
+
+        btns.forEach(function(btn, i) {
+            btn.addEventListener('click', function() { activate(btn); });
+            btn.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') { activate(btns[(i+1) % btns.length]); btns[(i+1) % btns.length].focus(); }
+                if (e.key === 'ArrowLeft')  { activate(btns[(i-1+btns.length) % btns.length]); btns[(i-1+btns.length) % btns.length].focus(); }
+            });
+        });
+    });
+})();
+
+/* ============================================================
+   EXPANDABLE SECTIONS
+   ============================================================ */
+(function() {
+    document.querySelectorAll('.expandable-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const content = document.getElementById(header.getAttribute('aria-controls'));
+            content.classList.toggle('show', !expanded);
+        });
+    });
+})();
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+window.checkAnswers = function() {
+    const questions = document.querySelectorAll('.quiz-question');
+    let correct = 0;
+    questions.forEach(function(q) {
+        const qNum = q.dataset.question;
+        const rightAnswer = q.dataset.correct;
+        const selected = q.querySelector('input[name="q' + qNum + '"]:checked');
+        const feedback = document.getElementById('feedback-' + qNum);
+        q.classList.remove('correct','incorrect');
+        if (selected) {
+            if (selected.value === rightAnswer) {
+                q.classList.add('correct');
+                feedback.innerHTML = '<span style="color:var(--rh-green)">&#10003; Correct!</span>';
+                correct++;
+            } else {
+                q.classList.add('incorrect');
+                const rightLabel = q.querySelector('input[value="' + rightAnswer + '"]');
+                const rightText = rightLabel ? rightLabel.parentElement.querySelector('label').textContent : '';
+                feedback.innerHTML = '<span style="color:var(--rh-red)">&#10007; Incorrect. Correct answer: ' + rightText + '</span>';
+            }
+        } else {
+            feedback.innerHTML = '<span style="color:var(--rh-gold)">&#9888; No answer selected.</span>';
+        }
+    });
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'block';
+    scoreEl.textContent = 'Score: ' + correct + ' / ' + questions.length + ' correct (' + Math.round((correct/questions.length)*100) + '%)';
+};
+
+window.resetQuiz = function() {
+    document.querySelectorAll('.quiz-question').forEach(function(q) {
+        q.classList.remove('correct','incorrect');
+        const qNum = q.dataset.question;
+        document.querySelectorAll('input[name="q' + qNum + '"]').forEach(function(r) { r.checked = false; });
+        document.getElementById('feedback-' + qNum).innerHTML = '';
+    });
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'none';
+    scoreEl.textContent = '';
+};
+
+/* ============================================================
+   PARTED SIMULATOR
+   ============================================================ */
+(function() {
+    const output = document.getElementById('sim-output');
+    const input  = document.getElementById('sim-input');
+
+    // Simulated disk state
+    var simState = {
+        diskLabel: null,  // null, 'gpt', 'msdos'
+        partitions: [],
+        diskSize: '5369MB'
+    };
+
+    var simDB = {
+        'lsblk': function() {
+            return 'NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS\nsda    8:0    0  10G  0 disk\n\u251C\u2500sda1  8:1    0   1M  0 part\n\u251C\u2500sda2  8:2    0 200M  0 part /boot/efi\n\u2514\u2500sda3  8:3    0  9.8G  0 part /\nsdb    8:16   0   5G  0 disk' +
+                (simState.partitions.length > 0 ? '\n' + simState.partitions.map(function(p, i) {
+                    return '\u2514\u2500sdb' + (i+1) + '   8:' + (17+i) + '   0  ' + p.size + '  0 part';
+                }).join('\n') : '');
+        },
+        'parted /dev/sdb print': function() {
+            if (!simState.diskLabel) return 'Error: /dev/sdb: unrecognised disk label\nModel: QEMU QEMU HARDDISK (scsi)\nDisk /dev/sdb: ' + simState.diskSize + '\nSector size (logical/physical): 512B/512B\nPartition Table: unknown\nDisk Flags:';
+            var header = 'Model: QEMU QEMU HARDDISK (scsi)\nDisk /dev/sdb: ' + simState.diskSize + '\nSector size (logical/physical): 512B/512B\nPartition Table: ' + simState.diskLabel + '\nDisk Flags:\n';
+            if (simState.partitions.length === 0) return header + 'Number  Start    End      Size     File system  Name     Flags\n(no partitions)';
+            var rows = 'Number  Start    End      Size     File system  Name     Flags\n';
+            simState.partitions.forEach(function(p, i) {
+                rows += ' ' + (i+1) + '      ' + p.start.padEnd(9) + p.end.padEnd(9) + p.size.padEnd(9) + (p.fs||'').padEnd(13) + (p.name||'').padEnd(9) + (p.flags||'') + '\n';
+            });
+            return header + rows;
+        },
+        'parted /dev/sdb mklabel gpt': function() {
+            simState.diskLabel = 'gpt';
+            simState.partitions = [];
+            return 'Information: You may need to update /etc/fstab.';
+        },
+        'parted /dev/sdb mklabel msdos': function() {
+            simState.diskLabel = 'msdos';
+            simState.partitions = [];
+            return 'Information: You may need to update /etc/fstab.';
+        },
+        'parted /dev/sdb mkpart backup xfs 2048s 2GB': function() {
+            if (!simState.diskLabel) return 'Error: /dev/sdb: unrecognised disk label';
+            simState.partitions.push({ name:'backup', fs:'xfs', start:'1049kB', end:'2000MB', size:'1999MB', flags:'' });
+            return 'Information: You may need to update /etc/fstab.';
+        },
+        'udevadm settle': function() { return ''; },
+        'help': function() {
+            return 'Available commands:\n  parted /dev/sdb print       - display partition table\n  parted /dev/sdb mklabel gpt - write GPT label\n  parted /dev/sdb mklabel msdos - write MBR label\n  parted /dev/sdb mkpart backup xfs 2048s 2GB - create backup partition\n  udevadm settle              - wait for device registration\n  lsblk                       - list block devices\n  clear                       - clear the terminal';
+        },
+        'clear': function() { output.textContent = '[root@serverb ~]# '; return null; }
+    };
+
+    function runCmd(cmd) {
+        cmd = cmd.trim();
+        if (!cmd) return;
+        output.textContent += cmd + '\n';
+
+        var fn = simDB[cmd];
+        var result;
+        if (fn) {
+            result = fn();
+        } else if (cmd.startsWith('parted ') && cmd.includes('rm ')) {
+            var parts = cmd.split(' ');
+            var num = parseInt(parts[parts.length-1]);
+            if (!isNaN(num) && num >= 1 && num <= simState.partitions.length) {
+                simState.partitions.splice(num-1, 1);
+                result = 'Information: You may need to update /etc/fstab.';
+            } else {
+                result = 'Error: Partition ' + num + ' not found.';
+            }
+        } else {
+            result = 'bash: ' + cmd.split(' ')[0] + ': command not found (try "help" for available commands)';
+        }
+
+        if (result !== null) {
+            if (result) output.textContent += result + '\n';
+            output.textContent += '[root@serverb ~]# ';
+        }
+        output.scrollTop = output.scrollHeight;
+    }
+
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            runCmd(input.value);
+            input.value = '';
+        }
+    });
+
+    document.querySelectorAll('.sim-cmd-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            input.value = btn.dataset.cmd;
+            runCmd(input.value);
+            input.value = '';
+            input.focus();
+        });
+    });
+})();
+</script>
+</body>
+</html>
