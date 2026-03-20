@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 9: Tuning System Performance | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI','Helvetica Neue',Arial,sans-serif;
+            --font-body: Georgia,'Times New Roman',serif;
+            --font-mono: 'Consolas','Monaco','Courier New',monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px; --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg,var(--rh-gray-lighter) 0%,var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position:absolute; top:-100px; left:50%; transform:translateX(-50%); background:var(--rh-blue-dark); color:var(--rh-white); padding:12px 24px; text-decoration:none; font-family:var(--font-display); font-weight:600; border-radius:var(--radius-md); z-index:10000; transition:top var(--transition-fast); }
+        .skip-link:focus { top:10px; }
+        @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; } }
+        @media (prefers-contrast:high) { :root { --rh-gray-light:#888; --shadow-md:0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background:linear-gradient(135deg,var(--rh-blue-dark) 0%,var(--rh-blue) 60%,#0055AA 100%); color:var(--rh-white); padding:40px 24px 32px; text-align:center; position:relative; overflow:hidden; }
+        .main-header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(45deg,transparent,transparent 35px,rgba(255,255,255,0.03) 35px,rgba(255,255,255,0.03) 70px); }
+        .header-content { position:relative; z-index:1; max-width:var(--content-width); margin:0 auto; }
+        .header-logo { font-size:2.5rem; margin-bottom:12px; display:block; }
+        .course-tag { display:inline-block; background:rgba(255,255,255,0.2); padding:6px 18px; border-radius:20px; font-family:var(--font-display); font-size:0.85rem; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:16px; }
+        .chapter-title { font-family:var(--font-display); font-size:clamp(1.8rem,4vw,2.6rem); font-weight:700; margin-bottom:8px; }
+        .chapter-subtitle { font-family:var(--font-display); font-size:clamp(1rem,2vw,1.2rem); font-weight:300; opacity:0.9; margin-bottom:16px; }
+        .header-meta { display:flex; gap:20px; justify-content:center; flex-wrap:wrap; font-family:var(--font-display); font-size:0.85rem; opacity:0.85; }
+        .header-meta span { display:flex; align-items:center; gap:6px; }
+
+        /* PROGRESS */
+        .progress-container { background:var(--rh-white); padding:10px 24px; box-shadow:var(--shadow-sm); position:sticky; top:0; z-index:100; border-bottom:2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background:var(--rh-gray-lighter); border-radius:10px; height:8px; max-width:var(--content-width); margin:0 auto; overflow:hidden; }
+        .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--rh-blue),var(--rh-blue-light)); border-radius:10px; width:0%; transition:width 0.4s ease; }
+        .progress-text { text-align:center; font-family:var(--font-display); font-size:0.75rem; color:var(--rh-gray); margin-top:4px; }
+
+        /* NAV */
+        .section-nav { background:var(--rh-white); padding:12px 24px; box-shadow:var(--shadow-sm); border-bottom:1px solid var(--rh-gray-lighter); overflow-x:auto; }
+        .nav-list { display:flex; gap:6px; max-width:var(--content-width); margin:0 auto; list-style:none; flex-wrap:wrap; justify-content:center; }
+        .nav-btn { display:inline-block; padding:6px 12px; font-family:var(--font-display); font-size:0.78rem; font-weight:500; color:var(--rh-gray); text-decoration:none; border-radius:var(--radius-sm); transition:all var(--transition-fast); border:1px solid transparent; white-space:nowrap; }
+        .nav-btn:hover { background:var(--rh-gray-lighter); color:var(--rh-black); }
+        .nav-btn.active { background:var(--rh-blue); color:var(--rh-white); border-color:var(--rh-blue); }
+        .nav-btn.visited { color:var(--rh-blue-dark); border-color:var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width:var(--content-width); margin:0 auto; padding:24px; }
+        .content-section { background:var(--rh-white); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); margin-bottom:30px; overflow:hidden; }
+        .section-header { background:linear-gradient(135deg,var(--rh-gray-dark),var(--rh-black)); color:var(--rh-white); padding:20px 30px; display:flex; align-items:center; gap:16px; }
+        .section-number { background:var(--rh-blue); color:var(--rh-white); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:1.1rem; flex-shrink:0; }
+        .section-header h2 { font-family:var(--font-display); font-size:1.3rem; font-weight:600; }
+        .section-body { padding:30px; }
+        .section-body p { margin-bottom:1.1rem; }
+        .section-body h3 { font-family:var(--font-display); font-size:1.1rem; font-weight:700; color:var(--rh-blue-dark); margin:1.5rem 0 0.7rem; }
+        .section-body h4 { font-family:var(--font-display); font-size:1rem; font-weight:700; color:var(--rh-gray-dark); margin:1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { padding-left:1.5rem; margin-bottom:1rem; }
+        .section-body li { margin-bottom:0.4rem; }
+
+        /* OBJECTIVES */
+        .objectives-list { list-style:none; padding:0; }
+        .objectives-list li { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--rh-gray-lighter); }
+        .objectives-list li:last-child { border-bottom:none; }
+        .obj-icon { color:var(--rh-blue); font-size:1.1rem; flex-shrink:0; margin-top:2px; }
+
+        /* CODE BLOCKS */
+        .code-block { background:#1a1a2e; border-radius:var(--radius-md); margin:1.2rem 0; overflow:hidden; box-shadow:var(--shadow-sm); }
+        .code-title { background:#16213e; color:#a0a8c0; padding:8px 16px; font-family:var(--font-display); font-size:0.78rem; font-weight:600; letter-spacing:0.5px; border-bottom:1px solid #0f3460; }
+        .code-block code { display:block; padding:16px; font-family:var(--font-mono); font-size:0.875rem; line-height:1.6; overflow-x:auto; }
+        .code-prompt { color:#5af78e; }
+        .code-root { color:#ff6e67; }
+        .code-command { color:#cdd6f4; font-weight:600; }
+        .code-output { color:#a6adc8; display:block; }
+        .code-comment { color:#6272a4; font-style:italic; display:block; }
+        .code-highlight { color:#f1fa8c; }
+        .code-key { color:#bd93f9; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius:var(--radius-md); padding:0; margin:1.2rem 0; overflow:hidden; box-shadow:var(--shadow-sm); }
+        .note-box-header { display:flex; align-items:center; gap:8px; padding:10px 16px; font-family:var(--font-display); font-weight:700; font-size:0.9rem; }
+        .note-box p { padding:12px 16px 14px; margin:0; font-size:0.95rem; }
+        .note-box.tip { border-left:4px solid var(--rh-green); }
+        .note-box.tip .note-box-header { background:#f0f9f0; color:var(--rh-green-dark); }
+        .note-box.tip p { background:#f8fcf8; }
+        .note-box.warning { border-left:4px solid var(--rh-gold); }
+        .note-box.warning .note-box-header { background:#fdf8ed; color:#7a5c00; }
+        .note-box.warning p { background:#fefcf5; }
+        .note-box.important { border-left:4px solid var(--rh-red); }
+        .note-box.important .note-box-header { background:#fdf0f0; color:var(--rh-red-dark); }
+        .note-box.important p { background:#fdf8f8; }
+        .note-box.note { border-left:4px solid var(--rh-blue); }
+        .note-box.note .note-box-header { background:#f0f4ff; color:var(--rh-blue-dark); }
+        .note-box.note p { background:#f8faff; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color:var(--rh-blue); border-bottom:1px dotted var(--rh-blue); cursor:help; position:relative; }
+        .tooltip-content { display:none; }
+        #tooltip-bubble { position:fixed; background:var(--rh-blue-dark); color:var(--rh-white); padding:10px 14px; border-radius:var(--radius-md); font-family:var(--font-display); font-size:0.82rem; line-height:1.5; max-width:280px; z-index:9999; box-shadow:var(--shadow-lg); pointer-events:none; opacity:0; transition:opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity:1; }
+        #tooltip-bubble::after { content:''; position:absolute; border:6px solid transparent; }
+        #tooltip-bubble.tt-above::after { border-top-color:var(--rh-blue-dark); top:100%; left:50%; transform:translateX(-50%); }
+        #tooltip-bubble.tt-below::after { border-bottom-color:var(--rh-blue-dark); bottom:100%; left:50%; transform:translateX(-50%); }
+        #tooltip-bubble.tt-left::after { border-left-color:var(--rh-blue-dark); left:100%; top:50%; transform:translateY(-50%); }
+        #tooltip-bubble.tt-right::after { border-right-color:var(--rh-blue-dark); right:100%; top:50%; transform:translateY(-50%); }
+
+        /* TABS */
+        .tabs-container { margin:1.2rem 0; }
+        .tab-list { display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--rh-gray-lighter); }
+        .tab-btn { padding:10px 18px; font-family:var(--font-display); font-size:0.85rem; font-weight:600; color:var(--rh-gray); background:transparent; border:none; border-bottom:3px solid transparent; cursor:pointer; transition:all var(--transition-fast); margin-bottom:-2px; border-radius:var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { color:var(--rh-blue); background:var(--rh-gray-lighter); }
+        .tab-btn[aria-selected="true"] { color:var(--rh-blue-dark); border-bottom-color:var(--rh-blue); background:var(--rh-white); }
+        .tab-panel { display:none; padding:20px 0; }
+        .tab-panel.active { display:block; }
+
+        /* EXPANDABLE */
+        .expandable { border:1px solid var(--rh-gray-light); border-radius:var(--radius-md); margin-bottom:10px; overflow:hidden; }
+        .expandable-header { display:flex; align-items:center; justify-content:space-between; padding:14px 20px; background:var(--rh-gray-lighter); cursor:pointer; font-family:var(--font-display); font-weight:600; font-size:0.95rem; border:none; width:100%; text-align:left; transition:background var(--transition-fast); }
+        .expandable-header:hover { background:#e0e0e0; }
+        .expandable-header[aria-expanded="true"] { background:var(--rh-blue-dark); color:var(--rh-white); }
+        .expand-icon { font-size:0.75rem; transition:transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform:rotate(180deg); }
+        .expandable-content { display:none; padding:20px; border-top:1px solid var(--rh-gray-light); }
+        .expandable-content.show { display:block; }
+
+        /* QUIZ */
+        .quiz-question { background:var(--rh-gray-lighter); border-radius:var(--radius-md); padding:20px; margin-bottom:16px; border:2px solid transparent; transition:border-color var(--transition-fast); }
+        .quiz-question.correct { border-color:var(--rh-green); background:#f0f9f0; }
+        .quiz-question.incorrect { border-color:var(--rh-red); background:#fdf0f0; }
+        .quiz-q-text { font-family:var(--font-display); font-weight:600; margin-bottom:12px; font-size:0.95rem; }
+        .quiz-options { list-style:none; padding:0; display:flex; flex-direction:column; gap:8px; }
+        .quiz-option { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--rh-white); border-radius:var(--radius-sm); cursor:pointer; border:1px solid var(--rh-gray-light); transition:background var(--transition-fast); }
+        .quiz-option:hover { background:#eef4ff; }
+        .quiz-option input[type="radio"] { accent-color:var(--rh-blue); width:16px; height:16px; flex-shrink:0; }
+        .quiz-option label { cursor:pointer; font-size:0.9rem; }
+        .quiz-feedback { margin-top:10px; font-family:var(--font-display); font-size:0.88rem; padding:8px 12px; border-radius:var(--radius-sm); display:none; }
+        .quiz-feedback.show { display:block; }
+        .quiz-feedback.correct { background:#e8f5e9; color:var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background:#ffebee; color:var(--rh-red-dark); }
+        .quiz-actions { display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; }
+        .quiz-btn { padding:12px 24px; font-family:var(--font-display); font-size:0.9rem; font-weight:600; border:none; border-radius:var(--radius-md); cursor:pointer; transition:all var(--transition-fast); }
+        .quiz-btn.primary { background:var(--rh-blue); color:var(--rh-white); }
+        .quiz-btn.primary:hover { background:var(--rh-blue-dark); }
+        .quiz-btn.secondary { background:var(--rh-gray-lighter); color:var(--rh-gray-dark); border:1px solid var(--rh-gray-light); }
+        .quiz-btn.secondary:hover { background:var(--rh-gray-light); }
+        .quiz-score { font-family:var(--font-display); font-weight:700; font-size:1.1rem; margin-top:16px; padding:14px; background:var(--rh-blue-dark); color:var(--rh-white); border-radius:var(--radius-md); display:none; text-align:center; }
+        .quiz-score.show { display:block; }
+
+        /* NICE VALUE SLIDER */
+        .nice-explorer { background:var(--rh-gray-lighter); border-radius:var(--radius-md); padding:24px; margin:1.2rem 0; }
+        .nice-explorer h4 { font-family:var(--font-display); font-weight:700; color:var(--rh-blue-dark); margin-bottom:16px; font-size:1rem; }
+        .nice-slider-row { display:flex; align-items:center; gap:16px; margin-bottom:16px; flex-wrap:wrap; }
+        .nice-slider-row label { font-family:var(--font-display); font-size:0.9rem; font-weight:600; min-width:120px; }
+        #nice-slider { flex:1; min-width:200px; accent-color:var(--rh-blue); }
+        .nice-slider-val { font-family:var(--font-mono); font-size:1.1rem; font-weight:700; min-width:40px; text-align:center; }
+        .nice-results { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-top:12px; }
+        .nice-card { background:var(--rh-white); border-radius:var(--radius-md); padding:14px; text-align:center; border:2px solid var(--rh-gray-light); transition:border-color var(--transition-fast); }
+        .nice-card .nc-label { font-family:var(--font-display); font-size:0.8rem; color:var(--rh-gray); margin-bottom:6px; }
+        .nice-card .nc-value { font-family:var(--font-mono); font-size:1.3rem; font-weight:700; }
+        .nice-bar-wrap { height:16px; background:var(--rh-gray-light); border-radius:8px; overflow:hidden; margin-top:6px; }
+        .nice-bar-fill { height:100%; border-radius:8px; transition:width 0.3s ease, background 0.3s ease; }
+        .nice-desc { font-family:var(--font-display); font-size:0.88rem; background:var(--rh-white); border-radius:var(--radius-md); padding:12px 16px; border-left:4px solid var(--rh-blue); margin-top:12px; }
+
+        /* PROFILE CARDS */
+        .profile-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin:1.2rem 0; }
+        .profile-card { background:var(--rh-gray-lighter); border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--rh-blue); cursor:pointer; transition:all var(--transition-fast); border:2px solid transparent; }
+        .profile-card:hover { box-shadow:var(--shadow-md); border-color:var(--rh-blue); }
+        .profile-card.selected { border-color:var(--rh-blue); background:#eef4ff; }
+        .profile-card .pname { font-family:var(--font-mono); font-size:0.9rem; font-weight:700; color:var(--rh-blue-dark); margin-bottom:6px; }
+        .profile-card .pdesc { font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray-dark); }
+        .profile-card .pcategory { display:inline-block; font-family:var(--font-display); font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:2px 8px; border-radius:10px; margin-bottom:6px; }
+        .pcategory.perf { background:#e8f5e9; color:var(--rh-green-dark); }
+        .pcategory.power { background:#fff8e6; color:#7a5c00; }
+        .pcategory.general { background:#f0f4ff; color:var(--rh-blue-dark); }
+        .pcategory.cloud { background:#eef4ff; color:var(--rh-blue-dark); }
+        .pcategory.virt { background:#fff0f0; color:var(--rh-red-dark); }
+
+        /* PRIORITY DIAGRAM */
+        .priority-diagram { overflow-x:auto; margin:1.2rem 0; }
+        .prio-scale { display:flex; align-items:stretch; min-width:600px; border-radius:var(--radius-md); overflow:hidden; box-shadow:var(--shadow-sm); }
+        .prio-seg { flex:1; padding:10px 6px; text-align:center; font-family:var(--font-mono); font-size:0.75rem; line-height:1.3; }
+        .prio-seg .seg-label { font-weight:700; font-size:0.8rem; margin-bottom:4px; }
+        .prio-seg.rt { background:#ffebee; color:var(--rh-red-dark); border-right:3px solid var(--rh-red); }
+        .prio-seg.nice-hi { background:#e8f5e9; color:var(--rh-green-dark); }
+        .prio-seg.nice-mid { background:#fff8e6; color:#7a5c00; }
+        .prio-seg.nice-lo { background:#ffebee; color:var(--rh-red-dark); }
+        .prio-axis { display:flex; min-width:600px; margin-top:4px; justify-content:space-between; font-family:var(--font-display); font-size:0.75rem; color:var(--rh-gray); padding:0 4px; }
+
+        /* TUNED-ADM CMD CARD */
+        .cmd-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; margin:1.2rem 0; }
+        .cmd-card { background:var(--rh-gray-lighter); border-radius:var(--radius-md); padding:16px; border-left:4px solid var(--rh-blue); }
+        .cmd-card .cmd-name { font-family:var(--font-mono); font-size:0.9rem; font-weight:700; color:var(--rh-blue-dark); margin-bottom:6px; }
+        .cmd-card .cmd-desc { font-family:var(--font-display); font-size:0.84rem; color:var(--rh-gray-dark); }
+
+        /* SUMMARY TABLE */
+        .summary-table { width:100%; border-collapse:collapse; margin:1.2rem 0; font-size:0.88rem; }
+        .summary-table th { background:var(--rh-blue-dark); color:var(--rh-white); padding:10px 14px; font-family:var(--font-display); font-weight:600; text-align:left; }
+        .summary-table td { padding:9px 14px; border-bottom:1px solid var(--rh-gray-lighter); vertical-align:top; font-family:var(--font-display); }
+        .summary-table tr:nth-child(even) td { background:var(--rh-gray-lighter); }
+        .summary-table td:first-child { font-family:var(--font-mono); font-weight:700; color:var(--rh-blue-dark); white-space:nowrap; }
+
+        /* LAB CHECKLIST */
+        .lab-checklist { list-style:none; padding:0; margin-top:16px; }
+        .lab-checklist li { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--rh-gray-lighter); font-family:var(--font-display); font-size:0.9rem; }
+        .lab-checklist li::before { content:"\2713"; color:var(--rh-green); font-weight:700; font-size:1rem; flex-shrink:0; }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display:flex; gap:12px; margin-top:30px; flex-wrap:wrap; justify-content:center; }
+        .nav-chapter-btn { padding:12px 24px; font-family:var(--font-display); font-size:0.9rem; font-weight:600; text-decoration:none; border-radius:var(--radius-md); transition:all var(--transition-fast); border:2px solid; }
+        .nav-chapter-btn.prev { color:var(--rh-blue-dark); border-color:var(--rh-blue); background:var(--rh-white); }
+        .nav-chapter-btn.prev:hover { background:var(--rh-blue); color:var(--rh-white); }
+        .nav-chapter-btn.home { color:var(--rh-white); border-color:var(--rh-gray-dark); background:var(--rh-gray-dark); }
+        .nav-chapter-btn.home:hover { background:var(--rh-black); }
+        .nav-chapter-btn.next { color:var(--rh-white); border-color:var(--rh-blue); background:var(--rh-blue); }
+        .nav-chapter-btn.next:hover { background:var(--rh-blue-dark); border-color:var(--rh-blue-dark); }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width:100%; border-collapse:collapse; margin:1.2rem 0; font-size:0.9rem; }
+        .comparison-table th { background:var(--rh-blue-dark); color:var(--rh-white); padding:12px 16px; font-family:var(--font-display); font-weight:600; text-align:left; }
+        .comparison-table td { padding:10px 16px; border-bottom:1px solid var(--rh-gray-lighter); vertical-align:top; }
+        .comparison-table tr:nth-child(even) td { background:var(--rh-gray-lighter); }
+        .comparison-table td:first-child { font-family:var(--font-mono); font-weight:700; color:var(--rh-blue-dark); }
+
+        /* FOOTER */
+        footer { background:var(--rh-black); color:var(--rh-gray-light); padding:30px 24px; text-align:center; font-family:var(--font-display); font-size:0.82rem; margin-top:40px; }
+        footer p { margin-bottom:6px; }
+
+        /* RESPONSIVE */
+        @media (max-width:768px) { .section-body { padding:20px; } .chapter-nav { flex-direction:column; } .nav-chapter-btn { text-align:center; } .cmd-grid,.profile-grid,.nice-results { grid-template-columns:1fr; } .prio-scale,.prio-axis { min-width:400px; } }
+
+        /* PRINT */
+        @media print {
+            .section-nav,.progress-container,.quiz-btn,.chapter-nav { display:none; }
+            .content-section { break-inside:avoid; box-shadow:none; border:1px solid var(--rh-gray-light); }
+            .expandable-content { display:block !important; }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F3A9;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 9: Tuning System Performance</h1>
+        <p class="chapter-subtitle">Optimize RHEL systems with TuneD profiles and control CPU scheduling via nice values</p>
+        <div class="header-meta">
+            <span>&#x1F4DA; Red Hat System Administration II</span>
+            <span>&#x23F1; ~2&ndash;3 Hours</span>
+            <span>&#x1F4BB; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-label="Chapter progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <p class="progress-text" id="progress-text">Progress: 0%</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="objectives">1. Objectives</a></li>
+        <li><a href="#section-tuned" class="nav-btn" data-section="tuned">2. TuneD Overview</a></li>
+        <li><a href="#section-profiles" class="nav-btn" data-section="profiles">3. Tuning Profiles</a></li>
+        <li><a href="#section-tuned-adm" class="nav-btn" data-section="tuned-adm">4. tuned-adm</a></li>
+        <li><a href="#section-webconsole" class="nav-btn" data-section="webconsole">5. Web Console</a></li>
+        <li><a href="#section-scheduling" class="nav-btn" data-section="scheduling">6. Process Scheduling</a></li>
+        <li><a href="#section-nice" class="nav-btn" data-section="nice">7. Nice Values</a></li>
+        <li><a href="#section-guided1" class="nav-btn" data-section="guided1">8. Guided Ex. 1</a></li>
+        <li><a href="#section-guided2" class="nav-btn" data-section="guided2">9. Guided Ex. 2</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="quiz">10. Knowledge Check</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="lab">11. Hands-On Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="summary">12. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ===== SECTION 1: OBJECTIVES ===== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul class="objectives-list">
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Explain how the <strong>TuneD</strong> daemon optimizes system performance by applying static and dynamic tuning profiles.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>List and describe the built-in tuning profiles distributed with RHEL 10.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use the <code>tuned-adm</code> command to query, switch, recommend, and verify tuning profiles from the command line.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Manage tuning profiles through the RHEL web console (Cockpit).</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Explain the Linux process scheduler, preemptive multitasking, scheduling policies, and the EEVDF algorithm introduced in RHEL 10.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use <strong>nice values</strong> to influence the CPU scheduling priority of processes.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Start processes with a specific nice value using <code>nice</code>, and change the priority of running processes with <code>renice</code>.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Inspect process priorities using the <code>top</code> and <code>ps</code> commands.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===== SECTION 2: TUNED OVERVIEW ===== -->
+<section id="section-tuned" class="content-section" aria-labelledby="tuned-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="tuned-heading">TuneD: The System Tuning Daemon</h2>
+    </div>
+    <div class="section-body">
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tuned">TuneD</span> is the primary performance-tuning tool in Red Hat Enterprise Linux. Rather than requiring administrators to manually adjust dozens of kernel parameters, TuneD bundles optimal settings into named <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-profiles">tuning profiles</span> that can be applied with a single command. It runs continuously as a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-daemon">daemon</span> in the background and applies settings automatically at boot.</p>
+        <span class="tooltip-content" id="tt-tuned">A Linux daemon that simplifies system performance tuning by applying predefined profiles of kernel parameters and system settings optimized for specific workloads, from desktops to high-performance servers.</span>
+        <span class="tooltip-content" id="tt-profiles">Named collections of kernel parameters, sysctl settings, and I/O tuning values bundled together for a specific workload type. Switching profiles applies all included settings at once.</span>
+        <span class="tooltip-content" id="tt-daemon">A background process that runs continuously and performs system services without direct interaction. TuneD runs as a systemd service and applies tuning settings on start and when profiles are switched.</span>
+
+        <h3>Static Tuning (Default)</h3>
+        <p>In RHEL 10, TuneD defaults to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-static">static tuning</span>. When the TuneD service starts — which happens on every boot since TuneD is enabled by default — it reads the active profile and applies all its settings immediately. Those settings remain constant regardless of what the system is doing, providing a stable, predictable performance baseline.</p>
+        <span class="tooltip-content" id="tt-static">A TuneD operating mode that applies kernel parameters once (at service start or profile switch) and holds them constant. The default mode in RHEL. Provides predictable, stable tuning without ongoing overhead.</span>
+
+        <h3>Dynamic Tuning (Optional)</h3>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-dynamic">Dynamic tuning</span> allows TuneD to continuously monitor system activity and adjust settings in real time as workloads change. It is <strong>disabled by default</strong> to ensure predictability. Dynamic tuning uses two types of plug-ins:</p>
+        <span class="tooltip-content" id="tt-dynamic">An optional TuneD mode that uses monitor plug-ins to gather real-time metrics (CPU load, disk I/O, network) and tuning plug-ins to adjust settings dynamically as workloads change. Disabled by default in RHEL.</span>
+        <ul>
+            <li><strong>Monitor plug-ins</strong> &mdash; gather real-time data such as CPU load, disk I/O, and network traffic.</li>
+            <li><strong>Tuning plug-ins</strong> &mdash; use that data to make adjustments. For example, the <code>net</code> plug-in can dynamically change the interface speed based on usage.</li>
+        </ul>
+        <p>To enable dynamic tuning, set <code>dynamic_tuning = 1</code> in <code>/etc/tuned/tuned-main.conf</code>. The <code>update_interval</code> variable (in seconds) controls how frequently TuneD checks and adjusts settings.</p>
+
+        <div class="code-block" role="region" aria-label="tuned-main.conf dynamic tuning settings">
+            <div class="code-title">/etc/tuned/tuned-main.conf — enabling dynamic tuning</div>
+            <code>
+<span class="code-comment"># Dynamically tune devices; if disabled only static tuning will be used.</span>
+<span class="code-highlight">dynamic_tuning = 1</span>
+<span class="code-comment">...</span>
+<span class="code-comment"># Update interval for dynamic tunings (in seconds).</span>
+<span class="code-comment"># Must be a multiple of sleep_interval.</span>
+<span class="code-highlight">update_interval = 10</span>
+            </code>
+        </div>
+
+        <h3>Installing and Enabling TuneD</h3>
+        <p>TuneD is preinstalled in RHEL 10. If it is ever missing, install and enable it as follows:</p>
+
+        <div class="code-block" role="region" aria-label="Installing and enabling TuneD">
+            <div class="code-title">Install and enable the TuneD service</div>
+            <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">dnf install tuned</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now tuned</span>
+<span class="code-output">Created symlink /etc/systemd/system/multi-user.target.wants/tuned.service</span>
+<span class="code-output">  → /usr/lib/systemd/system/tuned.service.</span>
+            </code>
+        </div>
+
+        <h3>Profile Storage Locations</h3>
+        <p>TuneD stores profiles in two separate directories, which are important to understand when you need to customize settings:</p>
+
+        <table class="comparison-table" aria-label="TuneD profile storage locations">
+            <thead><tr><th scope="col">Directory</th><th scope="col">Purpose</th><th scope="col">Editable?</th></tr></thead>
+            <tbody>
+                <tr><td>/usr/lib/tuned/profiles/</td><td>Preinstalled system (factory) profiles shipped with RHEL</td><td>No — never edit directly</td></tr>
+                <tr><td>/etc/tuned/profiles/</td><td>Custom / administrator-created profiles; takes precedence over system profiles with the same name</td><td>Yes</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Customizing Profiles</span></div>
+            <p>To customize a built-in profile, copy its directory from <code>/usr/lib/tuned/profiles/</code> to <code>/etc/tuned/profiles/</code> and modify the copy. The <code>include</code> directive in <code>tuned.conf</code> supports <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-inheritance">profile inheritance</span>, so you can inherit all settings from a parent profile and override only the parameters you need.</p>
+            <span class="tooltip-content" id="tt-inheritance">A TuneD feature where a child profile uses the include directive to inherit all settings from a parent profile, then adds or overrides specific parameters. Allows creating specialized profiles without starting from scratch.</span>
+        </div>
+
+        <h3>Inside a Profile: tuned.conf</h3>
+        <p>Each profile directory contains a <code>tuned.conf</code> file that defines the settings. Sections correspond to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-plugins">tuning plug-ins</span>. The <code>[main]</code> section holds the summary and optional <code>include</code> directive. The <code>[sysctl]</code> section applies kernel parameters via the <code>sysctl</code> mechanism.</p>
+        <span class="tooltip-content" id="tt-plugins">Named modules in TuneD that handle specific subsystems. Examples: [sysctl] adjusts kernel parameters, [vm] tunes virtual memory, [disk] sets I/O scheduler options, [net] handles network settings.</span>
+
+        <div class="code-block" role="region" aria-label="Example tuned.conf for virtual-guest profile">
+            <div class="code-title">/usr/lib/tuned/profiles/virtual-guest/tuned.conf</div>
+            <code>
+<span class="code-comment">#</span>
+<span class="code-comment"># tuned configuration</span>
+<span class="code-comment">#</span>
+<span class="code-key">[main]</span>
+<span class="code-output">summary=Optimize for running inside a virtual guest</span>
+<span class="code-output">include=throughput-performance</span>
+
+<span class="code-key">[vm]</span>
+<span class="code-comment"># Start writeback at 30% dirty ratio (system default is 20%)</span>
+<span class="code-output">dirty_ratio = 30</span>
+
+<span class="code-key">[sysctl]</span>
+<span class="code-comment"># Keep swapping low — filesystem I/O is usually more efficient than swap</span>
+<span class="code-output">vm.swappiness = 30</span>
+            </code>
+        </div>
+
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-swappiness"><code>vm.swappiness</code></span> parameter controls how aggressively the kernel moves process memory to swap space. Values range from 0 (prefer physical memory) to 100 (aggressively swap). You can check the current value with:</p>
+        <span class="tooltip-content" id="tt-swappiness">A kernel parameter (0-100) that controls the balance between using physical RAM and swap space. Lower values reduce swapping; the virtual-guest profile sets it to 30 to favor memory over swap.</span>
+
+        <div class="code-block" role="region" aria-label="Checking vm.swappiness">
+            <div class="code-title">Inspect the current vm.swappiness value</div>
+            <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">sysctl vm.swappiness</span>
+<span class="code-output">vm.swappiness = 30</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 3: PROFILES ===== -->
+<section id="section-profiles" class="content-section" aria-labelledby="profiles-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="profiles-heading">Built-In Tuning Profiles</h2>
+    </div>
+    <div class="section-body">
+        <p>RHEL 10 ships with a comprehensive set of tuning profiles organized into two broad categories: <strong>power-saving</strong> profiles and <strong>performance-boosting</strong> profiles. Click any profile card below to highlight it and read its description.</p>
+
+        <div class="profile-grid" id="profile-grid" role="list" aria-label="Available tuning profiles">
+
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="accelerator-performance">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">accelerator-performance</div>
+                <div class="pdesc">Throughput performance tuning with disabled higher-latency CPU sleep states (C-states). Best for accelerator workloads.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="aws">
+                <span class="pcategory cloud">Cloud</span>
+                <div class="pname">aws</div>
+                <div class="pdesc">Optimized for Amazon Web Services EC2 instances. Adjusts settings for cloud-virtualized hardware.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="balanced">
+                <span class="pcategory general">General</span>
+                <div class="pname">balanced</div>
+                <div class="pdesc">A general, non-specialized profile that balances performance and power efficiency. Good default for mixed workloads.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="balanced-battery">
+                <span class="pcategory power">Power</span>
+                <div class="pname">balanced-battery</div>
+                <div class="pdesc">A balanced profile biased toward power savings; useful for laptops or battery-powered systems.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="desktop">
+                <span class="pcategory general">General</span>
+                <div class="pname">desktop</div>
+                <div class="pdesc">Optimized for interactive desktop use, prioritizing responsiveness for GUI applications.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="hpc-compute">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">hpc-compute</div>
+                <div class="pdesc">Optimized for High-Performance Computing (HPC) workloads requiring maximum sustained CPU throughput.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="intel-sst">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">intel-sst</div>
+                <div class="pdesc">Configures Intel Speed Select Base Frequency (SST-BF) to run priority cores at a higher guaranteed frequency.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="latency-performance">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">latency-performance</div>
+                <div class="pdesc">Optimized for deterministic, low-latency performance at the cost of increased power consumption. Disables CPU power-saving states.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="network-latency">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">network-latency</div>
+                <div class="pdesc">Focuses on low-latency network performance. Inherits from latency-performance and adds network-specific tuning.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="network-throughput">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">network-throughput</div>
+                <div class="pdesc">Maximizes streaming network throughput. Generally needed only on older CPUs or 40 Gbps+ networks.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="optimize-serial-console">
+                <span class="pcategory general">General</span>
+                <div class="pname">optimize-serial-console</div>
+                <div class="pdesc">Tuned for serial console use. Optimizes kernel output and console response for embedded or headless systems.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="powersave">
+                <span class="pcategory power">Power</span>
+                <div class="pname">powersave</div>
+                <div class="pdesc">Minimizes power consumption by aggressively using CPU power-saving states and reducing disk/network activity.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="throughput-performance">
+                <span class="pcategory perf">Performance</span>
+                <div class="pname">throughput-performance</div>
+                <div class="pdesc">Broadly applicable high-throughput profile for common server workloads. Disables power management to maximize throughput.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="virtual-guest">
+                <span class="pcategory virt">Virtualization</span>
+                <div class="pname">virtual-guest</div>
+                <div class="pdesc">Optimized for running inside a virtual machine. Reduces memory pressure and swapping for guest VMs.</div>
+            </div>
+            <div class="profile-card" role="listitem" tabindex="0" data-profile="virtual-host">
+                <span class="pcategory virt">Virtualization</span>
+                <div class="pname">virtual-host</div>
+                <div class="pdesc">Optimized for a KVM hypervisor host. Improves performance for running and managing virtual machine guests.</div>
+            </div>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Let TuneD Recommend</span></div>
+            <p>Not sure which profile to use? Run <code>tuned-adm recommend</code> and TuneD will analyze your system hardware (physical vs. virtual, server vs. desktop) and suggest the best profile automatically. RHEL also uses this mechanism to choose the default profile during installation.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 4: TUNED-ADM ===== -->
+<section id="section-tuned-adm" class="content-section" aria-labelledby="tuned-adm-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="tuned-adm-heading">Managing Profiles with tuned-adm</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tuned-adm"><code>tuned-adm</code></span> command is the primary CLI tool for interacting with the TuneD daemon. It covers everything from querying the current profile to recommending, switching, verifying, and deactivating profiles.</p>
+        <span class="tooltip-content" id="tt-tuned-adm">The command-line administration tool for TuneD. Used to list available profiles, query and switch the active profile, request a recommendation, verify current settings, and turn off all TuneD tuning.</span>
+
+        <div class="tabs-container" id="tuned-adm-tabs">
+            <div class="tab-list" role="tablist" aria-label="tuned-adm subcommands">
+                <button class="tab-btn" role="tab" aria-selected="true"  aria-controls="tab-query"    id="btn-query">Query</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-switch"   id="btn-switch">Switch</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-info"     id="btn-info">Info</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-recommend" id="btn-recommend">Recommend</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-off"      id="btn-off">Deactivate</button>
+            </div>
+
+            <div id="tab-query" class="tab-panel active" role="tabpanel" aria-labelledby="btn-query">
+                <p>Use <code>tuned-adm active</code> to see which profile is currently applied, and <code>tuned-adm list</code> to see every available profile (both system and custom).</p>
+                <div class="code-block" role="region" aria-label="tuned-adm active and list">
+                    <div class="code-title">Query the active profile and list all profiles</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm active</span>
+<span class="code-output">Current active profile: throughput-performance</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm list</span>
+<span class="code-output">Available profiles:</span>
+<span class="code-output"> - accelerator-performance  - Throughput performance based tuning...</span>
+<span class="code-output"> - aws                      - Optimize for aws ec2 instances</span>
+<span class="code-output"> - balanced                 - General non-specialized tuned profile</span>
+<span class="code-output"> - balanced-battery         - Balanced profile biased towards power savings...</span>
+<span class="code-output"> - desktop                  - Optimize for the desktop use-case</span>
+<span class="code-output"> ...output omitted...</span>
+<span class="code-output">Current active profile: throughput-performance</span>
+                    </code>
+                </div>
+                <p>The <code>tuned-adm verify</code> subcommand confirms that the system settings currently match what the active profile specifies. Useful after a manual <code>sysctl</code> change that may have drifted from the profile.</p>
+                <div class="code-block" role="region" aria-label="tuned-adm verify">
+                    <div class="code-title">Verify that current settings match the active profile</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm verify</span>
+<span class="code-output">Verification succeeded, current system settings match the preset profile</span>
+<span class="code-output">See TuneD log file ('/var/log/tuned/tuned.log') for details</span>
+                    </code>
+                </div>
+            </div>
+
+            <div id="tab-switch" class="tab-panel" role="tabpanel" aria-labelledby="btn-switch">
+                <p>Switch the active profile persistently with <code>tuned-adm profile &lt;name&gt;</code>. The change survives reboots because TuneD applies the active profile on every start.</p>
+                <div class="code-block" role="region" aria-label="tuned-adm profile switch">
+                    <div class="code-title">Switch to the virtual-guest profile</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm profile virtual-guest</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm active</span>
+<span class="code-output">Current active profile: virtual-guest</span>
+                    </code>
+                </div>
+                <div class="note-box important">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Profile Switch is Persistent</span></div>
+                    <p>Unlike a manual <code>sysctl</code> change (which resets on reboot), switching profiles with <code>tuned-adm profile</code> is <strong>persistent</strong>. TuneD re-applies the profile at every boot, so there is no need to edit <code>/etc/sysctl.conf</code> for settings covered by TuneD.</p>
+                </div>
+            </div>
+
+            <div id="tab-info" class="tab-panel" role="tabpanel" aria-labelledby="btn-info">
+                <p><code>tuned-adm profile_info</code> displays the name and summary of the currently active profile. Specify a profile name as an argument to get information on any profile without switching to it.</p>
+                <div class="code-block" role="region" aria-label="tuned-adm profile_info">
+                    <div class="code-title">Display information for a specific profile</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm profile_info network-latency</span>
+<span class="code-output">Profile name:</span>
+<span class="code-output">network-latency</span>
+<span class="code-output">Profile summary:</span>
+<span class="code-output">Optimize for deterministic performance at the cost of increased power</span>
+<span class="code-output">consumption, focused on low latency network performance</span>
+<span class="code-output">...output omitted...</span>
+                    </code>
+                </div>
+            </div>
+
+            <div id="tab-recommend" class="tab-panel" role="tabpanel" aria-labelledby="btn-recommend">
+                <p><code>tuned-adm recommend</code> analyzes system characteristics (is it a VM? a server? desktop?) and suggests the most appropriate profile. RHEL uses this mechanism to set the default profile at installation time.</p>
+                <div class="code-block" role="region" aria-label="tuned-adm recommend">
+                    <div class="code-title">Ask TuneD to recommend a profile</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm recommend</span>
+<span class="code-output">virtual-guest</span>
+                    </code>
+                </div>
+                <p>On a bare-metal server, this might return <code>throughput-performance</code>. On a desktop, it might return <code>balanced</code>. The recommendation is system-specific.</p>
+            </div>
+
+            <div id="tab-off" class="tab-panel" role="tabpanel" aria-labelledby="btn-off">
+                <p><code>tuned-adm off</code> deactivates TuneD entirely, reverting all settings applied by the active profile. Use this to troubleshoot whether TuneD is causing unexpected behavior.</p>
+                <div class="code-block" role="region" aria-label="tuned-adm off">
+                    <div class="code-title">Deactivate all TuneD settings</div>
+                    <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm off</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">tuned-adm active</span>
+<span class="code-output">No current active profile.</span>
+                    </code>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>TuneD Off Is Not Persistent</span></div>
+                    <p>Running <code>tuned-adm off</code> only stops TuneD for the current session. On the next boot, if the TuneD service is still enabled, it will re-apply whatever profile was last set. To prevent TuneD from applying any settings at boot, disable the service with <code>systemctl disable tuned</code>.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Quick Command Reference</h3>
+        <div class="cmd-grid">
+            <div class="cmd-card"><div class="cmd-name">tuned-adm active</div><div class="cmd-desc">Show the currently active tuning profile.</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm list</div><div class="cmd-desc">List all available profiles (system and custom).</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm profile &lt;name&gt;</div><div class="cmd-desc">Switch to a different profile (persistent).</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm profile_info [name]</div><div class="cmd-desc">Display name and summary for active or named profile.</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm recommend</div><div class="cmd-desc">Get an auto-recommendation based on system characteristics.</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm verify</div><div class="cmd-desc">Verify that current settings match the active profile.</div></div>
+            <div class="cmd-card"><div class="cmd-name">tuned-adm off</div><div class="cmd-desc">Deactivate all TuneD settings (current session only).</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 5: WEB CONSOLE ===== -->
+<section id="section-webconsole" class="content-section" aria-labelledby="webconsole-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="webconsole-heading">Managing Profiles with the Web Console</h2>
+    </div>
+    <div class="section-body">
+        <p>RHEL 10 includes the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cockpit">Cockpit web console</span>, which provides a browser-based GUI for managing TuneD profiles without needing the command line. Starting with RHEL 10, Cockpit is preinstalled.</p>
+        <span class="tooltip-content" id="tt-cockpit">A web-based graphical interface for Red Hat Enterprise Linux administration. Accessible at https://hostname:9090, it provides system monitoring, journal viewing, storage management, and TuneD profile control.</span>
+
+        <h3>Installing and Enabling the Web Console</h3>
+        <div class="code-block" role="region" aria-label="Cockpit installation and setup">
+            <div class="code-title">Install and enable Cockpit (if not already present)</div>
+            <code>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">dnf install cockpit</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now cockpit.socket</span>
+<span class="code-output">Created symlink '/etc/systemd/system/sockets.target.wants/cockpit.socket'</span>
+<span class="code-output">  → '/usr/lib/systemd/system/cockpit.socket'.</span>
+<span class="code-comment"># If using a custom firewall, allow the cockpit service:</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --add-service=cockpit --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+            </code>
+        </div>
+
+        <h3>Accessing and Using the Web Console</h3>
+        <p>Navigate to <code>https://<em>hostname</em>:9090</code> in a web browser and log in with your system credentials. Cockpit uses a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-self-signed">self-signed TLS certificate</span> by default &mdash; you can safely dismiss the browser's certificate warning.</p>
+        <span class="tooltip-content" id="tt-self-signed">A TLS certificate signed by its own private key rather than a trusted commercial Certificate Authority. Provides encryption but not identity verification. Web browsers display a warning for self-signed certificates.</span>
+
+        <p>To manage TuneD profiles in Cockpit:</p>
+        <ol>
+            <li>Log in and click <strong>Turn on administrative access</strong> (or <strong>Limited access</strong>) and enter your password to escalate privileges.</li>
+            <li>Click <strong>Overview</strong> in the left navigation bar. The <strong>Performance profile</strong> field shows the current active profile.</li>
+            <li>Click the active profile link to open the <strong>Change performance profile</strong> dialog.</li>
+            <li>Scroll through the profile list, click the desired profile, then click <strong>Change profile</strong>.</li>
+            <li>Return to the <strong>Overview</strong> page and confirm the <strong>Performance profile</strong> field now shows the new profile.</li>
+        </ol>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Cockpit and tuned-adm are synchronized</span></div>
+            <p>Changing a TuneD profile via the web console has exactly the same effect as running <code>tuned-adm profile &lt;name&gt;</code> from the command line. Both methods are persistent, and changes made in one place are immediately visible in the other.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 6: PROCESS SCHEDULING ===== -->
+<section id="section-scheduling" class="content-section" aria-labelledby="scheduling-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="scheduling-heading">Process Scheduling in Linux</h2>
+    </div>
+    <div class="section-body">
+        <p>Even the most powerful multi-core servers can run more processes than they have CPU cores. The Linux <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-scheduler">process scheduler</span> is the kernel component responsible for deciding which processes run, when, and for how long &mdash; efficiently distributing CPU time across all runnable tasks.</p>
+        <span class="tooltip-content" id="tt-scheduler">The part of the Linux kernel that allocates CPU time to threads. It uses scheduling policies and process priorities to determine the order in which threads run, ensuring fairness and responsiveness.</span>
+
+        <h3>Preemptive Multitasking</h3>
+        <p>The Linux kernel uses <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-preemption">preemption</span> to prevent any single process from monopolizing CPU time. The scheduler forcibly interrupts a running process after its <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-timeslice">time slice</span> expires and dispatches the next runnable thread. On modern multi-core CPUs, multiple threads run simultaneously across cores, but the fundamental preemption principle still applies to ensure fairness.</p>
+        <span class="tooltip-content" id="tt-preemption">The scheduler's ability to forcibly interrupt a running process and switch to a different one, even if the running process hasn't voluntarily yielded. This prevents CPU monopolization.</span>
+        <span class="tooltip-content" id="tt-timeslice">A short interval of CPU time allocated to a process before the scheduler can preempt it and run another process. The EEVDF scheduler in RHEL 10 calculates this based on the process's virtual deadline and weight.</span>
+
+        <h3>Scheduling Policies</h3>
+        <p>The Linux kernel supports several <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sched-policy">scheduling policies</span>, each designed for different types of workloads:</p>
+        <span class="tooltip-content" id="tt-sched-policy">A set of rules the kernel scheduler uses to determine how a process competes for CPU time. Different policies suit different needs: normal interactive use, deterministic real-time responses, or batch processing.</span>
+
+        <table class="comparison-table" aria-label="Linux scheduling policies">
+            <thead><tr><th scope="col">Policy</th><th scope="col">Alias</th><th scope="col">Use Case</th><th scope="col">Nice Values?</th></tr></thead>
+            <tbody>
+                <tr><td>SCHED_NORMAL</td><td>SCHED_OTHER</td><td>Standard time-sharing for most user processes. Default policy.</td><td>Yes</td></tr>
+                <tr><td>SCHED_FIFO</td><td>(FF)</td><td>Real-time first-in, first-out. Runs until it yields or is preempted by a higher-priority RT task.</td><td>No</td></tr>
+                <tr><td>SCHED_RR</td><td>(RR)</td><td>Real-time round-robin. Like SCHED_FIFO but with a time slice so equal-priority RT tasks share the CPU.</td><td>No</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Nice Values Only Affect SCHED_NORMAL</span></div>
+            <p>Nice values only influence processes under the <code>SCHED_NORMAL</code> policy. Real-time processes (<code>SCHED_FIFO</code>, <code>SCHED_RR</code>) belong to a higher-priority scheduling class and <em>always</em> preempt normal processes, regardless of how low a normal process's nice value is set.</p>
+        </div>
+
+        <h3>EEVDF: The New Scheduler in RHEL 10</h3>
+        <p>Starting in RHEL 10, the algorithm implementing <code>SCHED_NORMAL</code> is the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-eevdf">Earliest Eligible Virtual Deadline First (EEVDF)</span> scheduler, replacing the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cfs">Completely Fair Scheduler (CFS)</span> from earlier RHEL versions.</p>
+        <span class="tooltip-content" id="tt-eevdf">Earliest Eligible Virtual Deadline First — the scheduling algorithm used for SCHED_NORMAL processes in RHEL 10. Each task is assigned a virtual deadline based on how much CPU time it is owed and its nice-value weight. The task with the earliest eligible deadline runs next.</span>
+        <span class="tooltip-content" id="tt-cfs">Completely Fair Scheduler — the predecessor to EEVDF in earlier Linux kernels. Used a red-black tree ordered by virtual runtime to maintain CPU fairness. EEVDF extends this with explicit deadline calculations for better latency.</span>
+
+        <p>EEVDF assigns each task an <em>eligible virtual deadline</em> based on two factors: how much CPU time the task is still owed, and the task's <em>weight</em> (derived from its nice value). The scheduler always picks the runnable task with the earliest eligible deadline. Compared to CFS, EEVDF offers better latency handling and responsiveness because deadline calculations are integrated directly into the scheduling decision.</p>
+
+        <p>Nice values influence scheduling under EEVDF by adjusting a process's <em>weight</em>: a lower nice value (e.g., &minus;10) gives a higher weight, which results in an earlier virtual deadline, so the process runs sooner and more often. A higher nice value (e.g., +10) gives a lower weight, resulting in a later deadline and less frequent scheduling.</p>
+    </div>
+</section>
+
+<!-- ===== SECTION 7: NICE VALUES ===== -->
+<section id="section-nice" class="content-section" aria-labelledby="nice-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="nice-heading">Influencing Priority with Nice Values</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nice">nice value</span> is a user-visible parameter that adjusts how willing a process is to share CPU time with others. The scale runs from <strong>&minus;20</strong> (least nice, highest priority) to <strong>+19</strong> (most nice, lowest priority), with a default of <strong>0</strong>. A process with a lower nice value demands a larger share of CPU time; a process with a higher nice value voluntarily yields more.</p>
+        <span class="tooltip-content" id="tt-nice">A per-process integer from -20 (highest priority) to +19 (lowest priority) that influences how much CPU time the EEVDF scheduler allocates to the process. Default is 0. Only privileged users can decrease (raise priority) a nice value.</span>
+
+        <h3>Interactive Nice Value Explorer</h3>
+        <p>Drag the slider below to see how a nice value maps to scheduling priority, the <code>top</code> PR column value, and the share of CPU time relative to a default process.</p>
+
+        <div class="nice-explorer" role="region" aria-label="Nice value explorer">
+            <h4>Nice Value Explorer</h4>
+            <div class="nice-slider-row">
+                <label for="nice-slider">Nice value:</label>
+                <input type="range" id="nice-slider" min="-20" max="19" value="0" step="1" aria-label="Select nice value" aria-valuemin="-20" aria-valuemax="19" aria-valuenow="0" />
+                <span class="nice-slider-val" id="nice-display">0</span>
+            </div>
+            <div class="nice-results">
+                <div class="nice-card">
+                    <div class="nc-label">Nice Value (NI)</div>
+                    <div class="nc-value" id="nc-ni">0</div>
+                    <div class="nice-bar-wrap"><div class="nice-bar-fill" id="nc-ni-bar" style="width:50%;background:var(--rh-purple)"></div></div>
+                </div>
+                <div class="nice-card">
+                    <div class="nc-label">top PR Column</div>
+                    <div class="nc-value" id="nc-pr">20</div>
+                    <div class="nice-bar-wrap"><div class="nice-bar-fill" id="nc-pr-bar" style="width:50%;background:var(--rh-blue)"></div></div>
+                </div>
+                <div class="nice-card">
+                    <div class="nc-label">Scheduling Weight</div>
+                    <div class="nc-value" id="nc-weight">1024</div>
+                    <div class="nice-bar-wrap"><div class="nice-bar-fill" id="nc-wt-bar" style="width:50%;background:var(--rh-green)"></div></div>
+                </div>
+                <div class="nice-card">
+                    <div class="nc-label">Priority Class</div>
+                    <div class="nc-value" id="nc-class" style="font-size:0.9rem;">Default</div>
+                    <div class="nice-bar-wrap"><div class="nice-bar-fill" id="nc-cl-bar" style="width:50%;background:var(--rh-gold)"></div></div>
+                </div>
+            </div>
+            <div class="nice-desc" id="nice-desc">At the default nice value of 0, a process competes equally with other default-priority processes. The EEVDF scheduler assigns it a standard weight and virtual deadline.</div>
+        </div>
+
+        <h3>Permission Rules</h3>
+        <p>There is an important asymmetry in who can modify nice values:</p>
+        <ul>
+            <li><strong>Privileged users (root)</strong> can decrease a process's nice value (increase priority) or set any value from &minus;20 to +19 for any process.</li>
+            <li><strong>Unprivileged users</strong> can only <em>increase</em> the nice value of their own processes (lower priority). They cannot decrease a nice value once raised, and cannot modify another user's processes.</li>
+        </ul>
+
+        <h3>Inspecting Process Priorities with top</h3>
+        <p>The <code>top</code> command shows two scheduling-related columns: <strong>PR</strong> (the scheduler's calculated priority) and <strong>NI</strong> (the nice value). For <code>SCHED_NORMAL</code> processes, <code>PR = 20 + nice_value</code>. Real-time processes show negative PR values.</p>
+
+        <div class="code-block" role="region" aria-label="top command output showing NI and PR columns">
+            <div class="code-title">top command — NI and PR columns</div>
+            <code>
+<span class="code-comment"># Press q to quit top; press R to renice a process interactively</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">top</span>
+<span class="code-output">top - 13:27:06 up 3 min, 3 users, load average: 0.45, 0.49, 0.22</span>
+<span class="code-output">Tasks: 250 total,   1 running, 249 sleeping,   0 stopped,   0 zombie</span>
+<span class="code-output">%Cpu(s):  0.0 us,  4.3 sy,  0.0 ni, 95.7 id,  0.0 wa,  0.0 hi,  0.0 si</span>
+<span class="code-output">MiB Mem :  5662.9 total,  4358.2 free,  1041.5 used,   511.4 buff/cache</span>
+<span class="code-output"></span>
+<span class="code-output">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND</span>
+<span class="code-highlight"> 4201 student   30  10  232212   2912   2400 R 100.0   0.1   8:08.03 sha1sum</span>
+<span class="code-highlight"> 4203 student   39  19  232212   2992   2480 R  90.9   0.1   8:03.72 sha1sum</span>
+<span class="code-output"> 4163 student   20   0  232212   2904   2392 R  81.8   0.1   8:37.92 sha1sum</span>
+<span class="code-output"> 2189 student   20   0  232016   4944   2896 R   8.3   0.1   0:00.02 top</span>
+<span class="code-output">    1 root      20   0   49516  41284  10312 S   0.0   0.7   0:02.11 systemd</span>
+<span class="code-comment"># PR = 20 + NI for SCHED_NORMAL: nice 10 → PR 30; nice 19 → PR 39</span>
+            </code>
+        </div>
+
+        <h3>Inspecting Process Priorities with ps</h3>
+        <p>The <code>ps</code> command provides a static snapshot. Use <code>-o</code> to select specific columns including <code>pid</code>, <code>priority</code> (PRI), <code>nice</code> (NI), <code>cls</code> (scheduling class), and <code>pcpu</code> (CPU usage).</p>
+
+        <div class="code-block" role="region" aria-label="ps command showing scheduling info">
+            <div class="code-title">ps — view scheduling class, priority, and nice values</div>
+            <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,priority,nice,cls,pcpu,comm -C sha1sum</span>
+<span class="code-output">  PID PRI  NI CLS %CPU COMMAND</span>
+<span class="code-output"> 2176  20   0  TS 99.2 sha1sum</span>
+<span class="code-output"> 2183  30  10  TS 99.1 sha1sum</span>
+<span class="code-output"> 2185 -11   - RR 99.3 sha1sum</span>
+<span class="code-comment"># CLS: TS=SCHED_NORMAL, RR=real-time round-robin; NI shows dash for RT processes</span>
+            </code>
+        </div>
+
+        <p>Sort all processes by nice value to find the highest- and lowest-priority processes on the system:</p>
+
+        <div class="code-block" role="region" aria-label="ps sorted by nice value">
+            <div class="code-title">Sort all processes by nice value (descending)</div>
+            <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -eo pid,priority,nice,cls,pcpu,comm --sort=-nice | head</span>
+<span class="code-output">  PID PRI  NI CLS %CPU COMMAND</span>
+<span class="code-output">   60  39  19  TS  0.0 khugepaged</span>
+<span class="code-output"> 2185  39  19  TS 99.2 sha1sum</span>
+<span class="code-output"> 2183  30  10  TS 99.4 sha1sum</span>
+<span class="code-output">   59  25   5  TS  0.0 ksmd</span>
+<span class="code-output">  895  21   1  TS  0.0 rtkit-daemon</span>
+<span class="code-output">    1  20   0  TS  0.2 systemd</span>
+            </code>
+        </div>
+
+        <h3>Starting a Process with a Nice Value: nice</h3>
+        <p>By default, a process inherits its parent's nice value (usually 0 from the shell). Use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nice-cmd"><code>nice</code></span> command to start a new process with a specific nice value. Without <code>-n</code>, <code>nice</code> uses a default of <strong>10</strong>.</p>
+        <span class="tooltip-content" id="tt-nice-cmd">A command that starts a new process with a specified nice value. Usage: nice -n VALUE COMMAND. Without -n, nice uses the default value of 10. Privileged users can set values from -20 to +19; unprivileged users can only set 0 to +19.</span>
+
+        <div class="code-block" role="region" aria-label="Using nice to start processes">
+            <div class="code-title">Start processes with specific nice values</div>
+            <code>
+<span class="code-comment"># Start with default nice 0 (inherits from shell)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sha1sum /dev/zero &amp;</span>
+<span class="code-output">[1] 2794</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,nice,comm -C sha1sum</span>
+<span class="code-output">  PID  NI COMMAND</span>
+<span class="code-output"> 2794   0 sha1sum</span>
+
+<span class="code-comment"># Start with nice default of 10 (no -n flag)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">nice sha1sum /dev/zero &amp;</span>
+<span class="code-output">[2] 2810</span>
+
+<span class="code-comment"># Start with explicit nice value of 15</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">nice -n 15 sha1sum /dev/zero &amp;</span>
+<span class="code-output">[3] 2814</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,nice,comm -C sha1sum</span>
+<span class="code-output">  PID  NI COMMAND</span>
+<span class="code-output"> 2794   0 sha1sum</span>
+<span class="code-output"> 2810  10 sha1sum</span>
+<span class="code-output"> 2814  15 sha1sum</span>
+            </code>
+        </div>
+
+        <h3>Changing the Nice Value of a Running Process: renice</h3>
+        <p>Use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-renice"><code>renice</code></span> command to adjust the nice value of an already-running process, identified by its <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pid">PID</span>.</p>
+        <span class="tooltip-content" id="tt-renice">A command that changes the nice value of a running process. Usage: renice -n VALUE PID. Unprivileged users can only increase (worsen priority) their own processes; decreasing nice values requires root.</span>
+        <span class="tooltip-content" id="tt-pid">Process IDentifier — a unique integer assigned by the kernel to every running process. Used to identify processes in commands like kill, renice, and ps.</span>
+
+        <div class="code-block" role="region" aria-label="renice command example">
+            <div class="code-title">Change the nice value of a running process</div>
+            <code>
+<span class="code-comment"># Increase nice value to 19 (lower priority — any user can do this)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">renice -n 19 3033</span>
+<span class="code-output">3033 (process ID) old priority 10, new priority 19</span>
+
+<span class="code-comment"># Attempt to lower nice value back — FAILS for unprivileged users</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">renice -n 10 3033</span>
+<span class="code-output">renice: failed to set priority for 3033 (process ID): Permission denied</span>
+
+<span class="code-comment"># Privileged users can freely lower nice values</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">renice -n -5 3033</span>
+<span class="code-output">3033 (process ID) old priority 19, new priority -5</span>
+            </code>
+        </div>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Terminate CPU-Intensive Test Processes</span></div>
+            <p>When running CPU-intensive background processes (like <code>sha1sum /dev/zero</code>) for testing, always terminate them afterward to prevent resource exhaustion. Use <code>pkill sha1sum</code> or bring each job to the foreground with <code>fg</code> and press Ctrl+C.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Killing test processes">
+            <div class="code-title">Terminate all sha1sum test processes</div>
+            <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">pkill sha1sum</span>
+<span class="code-output">[1]   Terminated    sha1sum /dev/zero</span>
+<span class="code-output">[2]-  Terminated    nice sha1sum /dev/zero</span>
+<span class="code-output">[3]+  Terminated    nice -n 15 sha1sum /dev/zero</span>
+            </code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4DD;</span><span>Renicing with top</span></div>
+            <p>You can also change nice values interactively inside <code>top</code>. While <code>top</code> is running, press <kbd>R</kbd> to enter the renice mode. You will be prompted to enter the PID and the new nice value. This requires the same privilege rules as <code>renice</code>.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 8: GUIDED EXERCISE 1 ===== -->
+<section id="section-guided1" class="content-section" aria-labelledby="guided1-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="guided1-heading">Guided Exercise: Set a Tuning Profile</h2>
+    </div>
+    <div class="section-body">
+        <p>In this exercise, you use <code>tuned-adm</code> to inspect, switch, and verify TuneD profiles on <code>serverb</code>.</p>
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Lab Environment</span></div>
+            <p>Start on <code>workstation</code> as the <code>student</code> user. Use <strong>student</strong> as the password for all accounts.</p>
+        </div>
+
+        <div class="expandable" id="gex1-s1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-s1-content"><span>Step 1: SSH to serverb and verify TuneD is installed and active</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex1-s1-content">
+                <div class="code-block" role="region" aria-label="Step 1">
+                    <div class="code-title">Connect to serverb and check TuneD status</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">dnf list tuned</span>
+<span class="code-output">Installed Packages</span>
+<span class="code-output">tuned.noarch   2.25.1-1.el10   @System</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">systemctl is-active tuned</span>
+<span class="code-output">active</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-s2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-s2-content"><span>Step 2: List available profiles and identify the active one</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex1-s2-content">
+                <div class="code-block" role="region" aria-label="Step 2">
+                    <div class="code-title">List profiles and check active</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">tuned-adm list</span>
+<span class="code-output">Available profiles:</span>
+<span class="code-output"> - accelerator-performance  - Throughput performance based tuning...</span>
+<span class="code-output"> - aws                      - Optimize for aws ec2 instances</span>
+<span class="code-output"> - balanced                 - General non-specialized tuned profile</span>
+<span class="code-output"> ...output omitted...</span>
+<span class="code-output">Current active profile: virtual-guest</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-s3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-s3-content"><span>Step 3: Switch to the balanced profile</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex1-s3-content">
+                <div class="code-block" role="region" aria-label="Step 3">
+                    <div class="code-title">Apply the balanced profile</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tuned-adm profile balanced</span>
+<span class="code-output">[sudo] password for student: student</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">tuned-adm active</span>
+<span class="code-output">Current active profile: balanced</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-s4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-s4-content"><span>Step 4: View profile information and verify settings</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex1-s4-content">
+                <div class="code-block" role="region" aria-label="Step 4">
+                    <div class="code-title">Inspect the balanced profile and verify</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tuned-adm profile_info</span>
+<span class="code-output">Profile name:</span>
+<span class="code-output">balanced</span>
+<span class="code-output">Profile summary:</span>
+<span class="code-output">General non-specialized tuned profile</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tuned-adm verify</span>
+<span class="code-output">Verification succeeded, current system settings match the preset profile</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-s5">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-s5-content"><span>Step 5: Ask TuneD for a recommendation</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex1-s5-content">
+                <div class="code-block" role="region" aria-label="Step 5">
+                    <div class="code-title">Get TuneD's profile recommendation</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">tuned-adm recommend</span>
+<span class="code-output">virtual-guest</span>
+<span class="code-comment"># TuneD detected this system is a VM and recommends virtual-guest.</span>
+<span class="code-comment"># The balanced profile we set overrides this recommendation.</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 9: GUIDED EXERCISE 2 ===== -->
+<section id="section-guided2" class="content-section" aria-labelledby="guided2-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="guided2-heading">Guided Exercise: Influence Process Scheduling</h2>
+    </div>
+    <div class="section-body">
+        <p>In this exercise, you start CPU-intensive processes with specific nice values, inspect their priorities, and adjust them using <code>renice</code>.</p>
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>CPU-Intensive Commands Ahead</span></div>
+            <p>The commands below run <code>sha1sum /dev/zero</code> in the background, which consumes 100% of a CPU core. Always terminate these processes at the end of the exercise.</p>
+        </div>
+
+        <div class="expandable" id="gex2-s1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-s1-content"><span>Step 1: Start background processes with different nice values</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex2-s1-content">
+                <div class="code-block" role="region" aria-label="Step 1">
+                    <div class="code-title">Launch three sha1sum processes at different priorities</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sha1sum /dev/zero &amp;</span>
+<span class="code-output">[1] 2794</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">nice sha1sum /dev/zero &amp;</span>
+<span class="code-output">[2] 2810</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">nice -n 15 sha1sum /dev/zero &amp;</span>
+<span class="code-output">[3] 2814</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,nice,comm -C sha1sum</span>
+<span class="code-output">  PID  NI COMMAND</span>
+<span class="code-output"> 2794   0 sha1sum</span>
+<span class="code-output"> 2810  10 sha1sum</span>
+<span class="code-output"> 2814  15 sha1sum</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-s2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-s2-content"><span>Step 2: Inspect priorities with top</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex2-s2-content">
+                <p>Run <code>top</code> and observe the PR and NI columns for the sha1sum processes. Press <kbd>q</kbd> to exit.</p>
+                <div class="code-block" role="region" aria-label="Step 2">
+                    <div class="code-title">Observe NI and PR in top output</div>
+                    <code>
+<span class="code-comment"># With nice=0: PR=20; with nice=10: PR=30; with nice=15: PR=35</span>
+<span class="code-output">  PID USER      PR  NI    VIRT    RES    SHR S %CPU  COMMAND</span>
+<span class="code-output"> 2794 student   20   0  232212   2904   2392 R 99.2  sha1sum</span>
+<span class="code-output"> 2810 student   30  10  232212   2912   2400 R 90.1  sha1sum</span>
+<span class="code-output"> 2814 student   35  15  232212   2988   2476 R 80.5  sha1sum</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-s3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-s3-content"><span>Step 3: Renice a running process (and observe permission restriction)</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex2-s3-content">
+                <div class="code-block" role="region" aria-label="Step 3">
+                    <div class="code-title">Adjust nice value and observe permission rules</div>
+                    <code>
+<span class="code-comment"># Increase nice value to 19 — any user can do this to their own processes</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">renice -n 19 2794</span>
+<span class="code-output">2794 (process ID) old priority 0, new priority 19</span>
+
+<span class="code-comment"># Try to lower it back — permission denied for unprivileged users</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">renice -n 0 2794</span>
+<span class="code-output">renice: failed to set priority for 2794 (process ID): Permission denied</span>
+
+<span class="code-comment"># Root can lower it</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo renice -n 0 2794</span>
+<span class="code-output">2794 (process ID) old priority 19, new priority 0</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-s4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-s4-content"><span>Step 4: Clean up — terminate all test processes</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="gex2-s4-content">
+                <div class="code-block" role="region" aria-label="Step 4">
+                    <div class="code-title">Terminate all sha1sum background jobs</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">pkill sha1sum</span>
+<span class="code-output">[1]   Terminated    sha1sum /dev/zero</span>
+<span class="code-output">[2]-  Terminated    nice sha1sum /dev/zero</span>
+<span class="code-output">[3]+  Terminated    nice -n 15 sha1sum /dev/zero</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECTION 10: KNOWLEDGE CHECK ===== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="quiz-heading">Knowledge Check</h2>
+    </div>
+    <div class="section-body">
+        <p>Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p class="quiz-q-text">1. What is the default operating mode for TuneD in RHEL 10?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q1" id="q1a" value="a" /><label for="q1a">a) Dynamic tuning</label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1b" value="b" /><label for="q1b">b) Static tuning</label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1c" value="c" /><label for="q1c">c) Hybrid tuning</label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1d" value="d" /><label for="q1d">d) Manual tuning (TuneD is disabled by default)</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p class="quiz-q-text">2. Which command shows the currently active TuneD profile?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q2" id="q2a" value="a" /><label for="q2a">a) <code>tuned-adm list</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2b" value="b" /><label for="q2b">b) <code>tuned-adm show</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2c" value="c" /><label for="q2c">c) <code>tuned-adm active</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2d" value="d" /><label for="q2d">d) <code>systemctl status tuned</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p class="quiz-q-text">3. Where should you store custom or modified TuneD profiles to avoid losing them on package updates?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q3" id="q3a" value="a" /><label for="q3a">a) <code>/etc/tuned/profiles/</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3b" value="b" /><label for="q3b">b) <code>/usr/lib/tuned/profiles/</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3c" value="c" /><label for="q3c">c) <code>/var/lib/tuned/profiles/</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3d" value="d" /><label for="q3d">d) <code>/run/tuned/profiles/</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p class="quiz-q-text">4. A process has a nice value of 5. What is its PR (priority) value shown in <code>top</code>?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q4" id="q4a" value="a" /><label for="q4a">a) 5</label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4b" value="b" /><label for="q4b">b) 15</label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4c" value="c" /><label for="q4c">c) 20</label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4d" value="d" /><label for="q4d">d) 25</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p class="quiz-q-text">5. An unprivileged user sets the nice value of their process to 15. They then try to lower it to 10. What happens?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q5" id="q5a" value="a" /><label for="q5a">a) The change succeeds because the user owns the process</label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5b" value="b" /><label for="q5b">b) The change fails with "Permission denied" — unprivileged users cannot decrease nice values</label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5c" value="c" /><label for="q5c">c) The change succeeds but only if the new nice value is still positive</label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5d" value="d" /><label for="q5d">d) The process is terminated automatically</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p class="quiz-q-text">6. Which scheduling algorithm implements <code>SCHED_NORMAL</code> in RHEL 10 (replacing CFS)?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q6" id="q6a" value="a" /><label for="q6a">a) SCHED_FIFO</label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6b" value="b" /><label for="q6b">b) Completely Fair Scheduler (CFS)</label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6c" value="c" /><label for="q6c">c) Earliest Eligible Virtual Deadline First (EEVDF)</label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6d" value="d" /><label for="q6d">d) Round Robin (SCHED_RR)</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p class="quiz-q-text">7. Which command starts a process with a nice value of &minus;5?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q7" id="q7a" value="a" /><label for="q7a">a) <code>nice -n -5 mycommand</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7b" value="b" /><label for="q7b">b) <code>nice --priority -5 mycommand</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7c" value="c" /><label for="q7c">c) <code>renice -n -5 mycommand</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7d" value="d" /><label for="q7d">d) <code>nice -5 mycommand</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p class="quiz-q-text">8. The <code>tuned-adm recommend</code> command on a KVM virtual machine is most likely to suggest which profile?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q8" id="q8a" value="a" /><label for="q8a">a) throughput-performance</label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8b" value="b" /><label for="q8b">b) balanced</label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8c" value="c" /><label for="q8c">c) latency-performance</label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8d" value="d" /><label for="q8d">d) virtual-guest</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div class="quiz-actions">
+            <button class="quiz-btn primary" id="check-quiz">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" role="status" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ===== SECTION 11: HANDS-ON LAB ===== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="lab-heading">Hands-On Lab: Tune System Performance</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Scenario:</strong> The <code>serverb</code> system has two CPU-intensive processes running at elevated priorities. You must switch the tuning profile to <code>balanced</code>, then use <code>renice</code> to lower both processes' nice values to 10 to free up CPU time for other workloads.</p>
+
+        <div class="code-block" role="region" aria-label="Lab setup command">
+            <div class="code-title">Initialize the lab environment on workstation</div>
+            <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab start tuning-review</span>
+            </code>
+        </div>
+
+        <div class="expandable" id="lab-t1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-t1-content"><span>Task 1: SSH to serverb, verify TuneD, and switch to the balanced profile</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="lab-t1-content">
+                <p><strong>Objective:</strong> Connect to <code>serverb</code>, confirm TuneD is installed and active, and change the active profile to <code>balanced</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 1 solution">
+                    <div class="code-title">Connect and apply the balanced profile</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">dnf list tuned</span>
+<span class="code-output">Installed Packages</span>
+<span class="code-output">tuned.noarch   2.25.1-1.el10   @System</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">systemctl is-active tuned</span>
+<span class="code-output">active</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">tuned-adm list</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">Current active profile: virtual-guest</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tuned-adm profile balanced</span>
+<span class="code-output">[sudo] password for student: student</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo tuned-adm profile_info</span>
+<span class="code-output">Profile name:</span>
+<span class="code-output">balanced</span>
+<span class="code-output">...output omitted...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-t2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-t2-content"><span>Task 2: Identify the top two CPU consumers and their current nice values</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="lab-t2-content">
+                <p><strong>Objective:</strong> Use <code>ps aux --sort=pcpu</code> to find the two most CPU-intensive processes, then check their current nice values and note their PIDs.</p>
+                <div class="code-block" role="region" aria-label="Task 2 solution">
+                    <div class="code-title">Find top CPU consumers and their nice values</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps aux --sort=pcpu</span>
+<span class="code-output">USER       PID  %CPU  %MEM    VSZ   RSS TTY  STAT START  TIME COMMAND</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">root      1079  98.5   0.1 225340  2300 ?    RN  06:25 4:29 sha1sum /dev/zero</span>
+<span class="code-output">root      1095  99.0   0.1 225340  2232 ?    R&lt;  06:25 4:30 md5sum /dev/zero</span>
+<span class="code-comment"># Note the PIDs (1079 and 1095 in this example — yours may differ)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,pcpu,nice,comm $(pgrep sha1sum;pgrep md5sum)</span>
+<span class="code-output">  PID  %CPU  NI COMMAND</span>
+<span class="code-output"> 1079  98.8   2 sha1sum</span>
+<span class="code-output"> 1095  99.1  -2 md5sum</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-t3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-t3-content"><span>Task 3: Adjust both processes' nice values to 10</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="lab-t3-content">
+                <p><strong>Objective:</strong> Use <code>sudo renice</code> to set both processes to nice value 10, then verify the change.</p>
+                <div class="code-block" role="region" aria-label="Task 3 solution">
+                    <div class="code-title">Renice both processes to 10 and verify</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo renice -n 10 1079 1095</span>
+<span class="code-output">[sudo] password for student: student</span>
+<span class="code-output">1079 (process ID) old priority 2, new priority 10</span>
+<span class="code-output">1095 (process ID) old priority -2, new priority 10</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ps -o pid,pcpu,nice,comm $(pgrep sha1sum;pgrep md5sum)</span>
+<span class="code-output">  PID  %CPU  NI COMMAND</span>
+<span class="code-output"> 1079  98.9  10 sha1sum</span>
+<span class="code-output"> 1095  99.2  10 md5sum</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-t4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-t4-content"><span>Task 4: Return to workstation, grade, and finish the lab</span><span class="expand-icon" aria-hidden="true">&#9660;</span></button>
+            <div class="expandable-content" id="lab-t4-content">
+                <div class="code-block" role="region" aria-label="Task 4 solution">
+                    <div class="code-title">Exit serverb, grade, and clean up</div>
+                    <code>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+<span class="code-output">Connection to serverb closed.</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade tuning-review</span>
+<span class="code-output">...Grading output omitted...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish tuning-review</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="lab-checklist" aria-label="Lab completion checklist">
+            <li>Connected to serverb via SSH as the student user</li>
+            <li>Verified tuned package is installed and the tuned service is active</li>
+            <li>Listed available profiles and identified the current active profile</li>
+            <li>Switched the active profile to <code>balanced</code> using <code>sudo tuned-adm profile balanced</code></li>
+            <li>Confirmed the active profile is <code>balanced</code> with <code>tuned-adm profile_info</code></li>
+            <li>Used <code>ps aux --sort=pcpu</code> to identify the two most CPU-intensive processes</li>
+            <li>Checked current nice values with <code>ps -o pid,pcpu,nice,comm</code></li>
+            <li>Used <code>sudo renice -n 10 &lt;PID1&gt; &lt;PID2&gt;</code> to set both processes to nice 10</li>
+            <li>Verified the new nice values are 10 for both processes</li>
+            <li>Returned to workstation and ran <code>lab grade tuning-review</code> successfully</li>
+            <li>Ran <code>lab finish tuning-review</code> to clean up resources</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ===== SECTION 12: SUMMARY ===== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">12</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>This chapter covered two independent mechanisms for tuning system performance in RHEL 10: the TuneD profile system for system-wide kernel parameter tuning, and nice values for influencing individual process CPU scheduling.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li><strong>TuneD</strong> applies predefined sets of kernel parameters via named profiles. Static tuning (the default) applies settings on service start and holds them constant. Dynamic tuning continuously adjusts settings based on real-time monitoring.</li>
+            <li>RHEL 10 ships with 15 built-in profiles covering power saving, general use, high performance, networking, and virtualization workloads.</li>
+            <li>Custom profiles live in <code>/etc/tuned/profiles/</code> and can inherit from system profiles using the <code>include</code> directive. Never edit <code>/usr/lib/tuned/profiles/</code> directly.</li>
+            <li><strong><code>tuned-adm</code></strong> is the CLI tool for all TuneD operations: <code>active</code>, <code>list</code>, <code>profile</code>, <code>profile_info</code>, <code>recommend</code>, <code>verify</code>, and <code>off</code>.</li>
+            <li>The <strong>EEVDF scheduler</strong> (new in RHEL 10, replacing CFS) implements <code>SCHED_NORMAL</code>. It assigns eligible virtual deadlines to tasks based on their weight and owed CPU time.</li>
+            <li>Nice values (&minus;20 to +19, default 0) influence a process's weight in the EEVDF scheduler. Lower nice = higher weight = earlier deadline = more CPU time.</li>
+            <li>Only privileged users can <em>decrease</em> nice values. Unprivileged users can only <em>increase</em> the nice values of their own processes.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="summary-table" aria-label="Chapter 9 command reference">
+            <thead><tr><th scope="col">Command</th><th scope="col">Purpose</th><th scope="col">Example</th></tr></thead>
+            <tbody>
+                <tr><td>tuned-adm active</td><td>Show the currently active profile</td><td><code>tuned-adm active</code></td></tr>
+                <tr><td>tuned-adm list</td><td>List all available profiles</td><td><code>tuned-adm list</code></td></tr>
+                <tr><td>tuned-adm profile &lt;name&gt;</td><td>Switch to a profile (persistent)</td><td><code>tuned-adm profile balanced</code></td></tr>
+                <tr><td>tuned-adm profile_info [name]</td><td>Display profile name and summary</td><td><code>tuned-adm profile_info</code></td></tr>
+                <tr><td>tuned-adm recommend</td><td>Get auto-recommended profile</td><td><code>tuned-adm recommend</code></td></tr>
+                <tr><td>tuned-adm verify</td><td>Verify settings match active profile</td><td><code>tuned-adm verify</code></td></tr>
+                <tr><td>tuned-adm off</td><td>Deactivate all TuneD settings</td><td><code>tuned-adm off</code></td></tr>
+                <tr><td>nice -n &lt;val&gt; cmd</td><td>Start a process with a specific nice value</td><td><code>nice -n 15 sha1sum /dev/zero</code></td></tr>
+                <tr><td>renice -n &lt;val&gt; &lt;pid&gt;</td><td>Change nice value of running process</td><td><code>sudo renice -n 10 1079 1095</code></td></tr>
+                <tr><td>ps -o pid,nice,cls,comm -C cmd</td><td>View scheduling info for named processes</td><td><code>ps -o pid,nice,comm -C sha1sum</code></td></tr>
+                <tr><td>ps aux --sort=pcpu</td><td>Sort all processes by CPU usage</td><td><code>ps aux --sort=pcpu | tail</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav" aria-label="Chapter navigation">
+            <a href="rh134_chapter8_transferring_files.html" class="nav-chapter-btn prev">&#x2190; Chapter 8: Transferring Files</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter10_acl.html" class="nav-chapter-btn next">Chapter 10: Controlling Access with ACLs &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <p><strong>Red Hat System Administration II (RH134)</strong> &bull; Chapter 9: Tuning System Performance</p>
+    <p>RHEL 10 &bull; RHCSA Exam Preparation</p>
+    <p>&copy; 2025 Course Materials. Red Hat&reg; and RHEL&reg; are trademarks of Red Hat, Inc.</p>
+</footer>
+
+<script>
+// ==================== PROGRESS BAR ====================
+(function(){
+    const sections=document.querySelectorAll('.content-section');
+    const fill=document.getElementById('progress-fill');
+    const txt=document.getElementById('progress-text');
+    const bar=document.getElementById('progress-bar');
+    const visited=new Set();
+    new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting)visited.add(e.target.id);});
+        const pct=Math.round((visited.size/sections.length)*100);
+        fill.style.width=pct+'%';
+        txt.textContent='Progress: '+pct+'%';
+        bar.setAttribute('aria-valuenow',pct);
+    },{threshold:0.25}).observe instanceof Function && (()=>{
+        const obs=new IntersectionObserver(entries=>{
+            entries.forEach(e=>{if(e.isIntersecting)visited.add(e.target.id);});
+            const pct=Math.round((visited.size/sections.length)*100);
+            fill.style.width=pct+'%';
+            txt.textContent='Progress: '+pct+'%';
+            bar.setAttribute('aria-valuenow',pct);
+        },{threshold:0.25});
+        sections.forEach(s=>obs.observe(s));
+    })();
+    const obs=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting)visited.add(e.target.id);});
+        const pct=Math.round((visited.size/sections.length)*100);
+        fill.style.width=pct+'%';
+        txt.textContent='Progress: '+pct+'%';
+        bar.setAttribute('aria-valuenow',pct);
+    },{threshold:0.25});
+    sections.forEach(s=>obs.observe(s));
+})();
+
+// ==================== ACTIVE NAV ====================
+(function(){
+    const btns=document.querySelectorAll('.nav-btn');
+    const sections=document.querySelectorAll('.content-section');
+    const obs=new IntersectionObserver(entries=>{
+        entries.forEach(e=>{
+            const id=e.target.id.replace('section-','');
+            const btn=document.querySelector('.nav-btn[data-section="'+id+'"]');
+            if(!btn)return;
+            if(e.isIntersecting){btns.forEach(b=>b.classList.remove('active'));btn.classList.add('active','visited');}
+        });
+    },{threshold:0.4});
+    sections.forEach(s=>obs.observe(s));
+})();
+
+// ==================== TOOLTIPS ====================
+(function(){
+    const bubble=document.getElementById('tooltip-bubble');
+    function show(term){
+        const id=term.getAttribute('aria-describedby');
+        const el=id?document.getElementById(id):null;
+        if(!el)return;
+        bubble.textContent=el.textContent.trim();
+        bubble.classList.remove('tt-above','tt-below','tt-left','tt-right');
+        bubble.style.cssText='';
+        bubble.classList.add('visible');
+        requestAnimationFrame(()=>{
+            const r=term.getBoundingClientRect();
+            const bw=bubble.offsetWidth, bh=bubble.offsetHeight, m=8;
+            let top,left;
+            if(r.top>=bh+12){bubble.classList.add('tt-above');top=r.top-bh-10;left=r.left+r.width/2-bw/2;}
+            else if(window.innerHeight-r.bottom>=bh+12){bubble.classList.add('tt-below');top=r.bottom+10;left=r.left+r.width/2-bw/2;}
+            else if(window.innerWidth-r.right>=bw+12){bubble.classList.add('tt-right');top=r.top+r.height/2-bh/2;left=r.right+10;}
+            else{bubble.classList.add('tt-left');top=r.top+r.height/2-bh/2;left=r.left-bw-10;}
+            bubble.style.left=Math.max(m,Math.min(left,window.innerWidth-bw-m))+'px';
+            bubble.style.top=Math.max(m,Math.min(top,window.innerHeight-bh-m))+'px';
+        });
+    }
+    function hide(){bubble.classList.remove('visible');}
+    document.querySelectorAll('.tooltip-term').forEach(t=>{
+        t.addEventListener('mouseenter',()=>show(t));
+        t.addEventListener('mouseleave',hide);
+        t.addEventListener('focus',()=>show(t));
+        t.addEventListener('blur',hide);
+        t.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
+    });
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
+})();
+
+// ==================== TABS ====================
+(function(){
+    document.querySelectorAll('.tabs-container').forEach(container=>{
+        const tabs=container.querySelectorAll('.tab-btn');
+        const panels=container.querySelectorAll('.tab-panel');
+        function activate(i){
+            tabs.forEach((t,j)=>{t.setAttribute('aria-selected',i===j);panels[j].classList.toggle('active',i===j);});
+        }
+        tabs.forEach((tab,i)=>{
+            tab.addEventListener('click',()=>activate(i));
+            tab.addEventListener('keydown',e=>{
+                if(e.key==='ArrowRight'){e.preventDefault();const n=(i+1)%tabs.length;activate(n);tabs[n].focus();}
+                if(e.key==='ArrowLeft'){e.preventDefault();const n=(i-1+tabs.length)%tabs.length;activate(n);tabs[n].focus();}
+            });
+        });
+    });
+})();
+
+// ==================== EXPANDABLES ====================
+(function(){
+    document.querySelectorAll('.expandable-header').forEach(h=>{
+        h.addEventListener('click',()=>{
+            const open=h.getAttribute('aria-expanded')==='true';
+            h.setAttribute('aria-expanded',!open);
+            const c=document.getElementById(h.getAttribute('aria-controls'));
+            if(c)c.classList.toggle('show',!open);
+        });
+        h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();h.click();}});
+    });
+})();
+
+// ==================== QUIZ ====================
+(function(){
+    const checkBtn=document.getElementById('check-quiz');
+    const resetBtn=document.getElementById('reset-quiz');
+    const scoreDiv=document.getElementById('quiz-score');
+    checkBtn.addEventListener('click',()=>{
+        let correct=0;
+        document.querySelectorAll('.quiz-question').forEach(q=>{
+            const n=q.dataset.question, ans=q.dataset.correct;
+            const sel=q.querySelector('input[name="q'+n+'"]:checked');
+            const fb=document.getElementById('feedback-'+n);
+            q.classList.remove('correct','incorrect');
+            fb.classList.remove('show','correct','incorrect');
+            if(!sel){fb.textContent='Please select an answer.';fb.classList.add('show','incorrect');return;}
+            if(sel.value===ans){correct++;q.classList.add('correct');fb.textContent='\u2713 Correct!';fb.classList.add('show','correct');}
+            else{
+                q.classList.add('incorrect');
+                const cl=q.querySelector('input[value="'+ans+'"]');
+                fb.textContent='\u2717 Incorrect. Correct answer: '+(cl?cl.parentElement.textContent.trim():'');
+                fb.classList.add('show','incorrect');
+            }
+        });
+        const total=document.querySelectorAll('.quiz-question').length;
+        scoreDiv.textContent='Score: '+correct+' / '+total+' correct';
+        scoreDiv.classList.add('show');
+    });
+    resetBtn.addEventListener('click',()=>{
+        document.querySelectorAll('.quiz-question').forEach(q=>{
+            q.classList.remove('correct','incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r=>r.checked=false);
+            const fb=document.getElementById('feedback-'+q.dataset.question);
+            fb.classList.remove('show','correct','incorrect');fb.textContent='';
+        });
+        scoreDiv.classList.remove('show');scoreDiv.textContent='';
+    });
+})();
+
+// ==================== PROFILE CARDS ====================
+(function(){
+    document.querySelectorAll('.profile-card').forEach(card=>{
+        function toggle(){document.querySelectorAll('.profile-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');}
+        card.addEventListener('click',toggle);
+        card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+    });
+})();
+
+// ==================== NICE VALUE EXPLORER ====================
+(function(){
+    const slider=document.getElementById('nice-slider');
+    const display=document.getElementById('nice-display');
+    const ncNI=document.getElementById('nc-ni');
+    const ncPR=document.getElementById('nc-pr');
+    const ncWT=document.getElementById('nc-weight');
+    const ncCL=document.getElementById('nc-class');
+    const ncNIBar=document.getElementById('nc-ni-bar');
+    const ncPRBar=document.getElementById('nc-pr-bar');
+    const ncWTBar=document.getElementById('nc-wt-bar');
+    const ncCLBar=document.getElementById('nc-cl-bar');
+    const desc=document.getElementById('nice-desc');
+
+    // Approximate EEVDF weight table (based on prio_to_weight array)
+    const weights=[88761,71755,56483,46273,36291,29154,23254,18705,14949,11916,
+                   9548,7620,6100,4904,3906,3121,2501,1991,1586,1277,
+                   1024,820,655,526,423,335,272,215,172,137,110,87,70,56,45,36,29,23,18,15];
+
+    function update(){
+        const v=parseInt(slider.value);
+        display.textContent=v;
+        slider.setAttribute('aria-valuenow',v);
+        const pr=20+v;
+        const wIdx=v+20; // index into weights array (nice -20 = index 0)
+        const w=weights[wIdx]||1024;
+
+        ncNI.textContent=v;
+        ncPR.textContent=pr;
+        ncWT.textContent=w.toLocaleString();
+
+        // Nice bar: -20 maps to 0% width (highest prio shown on left), 19 maps to 100%
+        const niPct=((v+20)/39)*100;
+        ncNIBar.style.width=niPct+'%';
+        ncNIBar.style.background=v<0?'var(--rh-red)':v===0?'var(--rh-blue)':'var(--rh-blue-light)';
+
+        // PR bar
+        const prPct=((pr)/39)*100;
+        ncPRBar.style.width=prPct+'%';
+        ncPRBar.style.background='var(--rh-blue)';
+
+        // Weight bar (log scale)
+        const maxW=88761, minW=15;
+        const logPct=(1-(Math.log(w)-Math.log(minW))/(Math.log(maxW)-Math.log(minW)))*100;
+        ncWTBar.style.width=(100-logPct)+'%';
+        ncWTBar.style.background=v<0?'var(--rh-green)':v===0?'var(--rh-gold)':'var(--rh-gray-medium)';
+
+        // Class description and color
+        let cls, clsColor, clsPct, descText;
+        if(v<=-10){cls='High Priority';clsColor='var(--rh-red)';clsPct=90;descText='At nice '+v+', this process has high scheduler weight ('+w.toLocaleString()+'). It receives a proportionally larger share of CPU time. Only privileged (root) users can set nice values this low.';}
+        else if(v<0){cls='Elevated';clsColor='var(--rh-orange)';clsPct=70;descText='Nice '+v+' gives this process slightly above-default priority. It competes more aggressively for CPU time than default processes. Requires root to set.';}
+        else if(v===0){cls='Default';clsColor='var(--rh-blue)';clsPct=50;descText='At the default nice value of 0, this process competes equally with other default-priority processes. The EEVDF scheduler assigns it the baseline weight of 1,024.';}
+        else if(v<=10){cls='Lowered';clsColor='var(--rh-blue)';clsPct=35;descText='Nice '+v+' reduces this process\'s priority slightly. It yields more CPU time to default and higher-priority processes. Any user can set a higher (more polite) nice value on their own processes.';}
+        else{cls='Background';clsColor='var(--rh-teal)';clsPct=15;descText='At nice '+v+', this process is very "nice" — it receives minimal CPU time and yields heavily to everything else. Ideal for background batch jobs that should not impact interactive performance.';}
+
+        ncCL.textContent=cls;
+        ncCLBar.style.width=clsPct+'%';
+        ncCLBar.style.background=clsColor;
+        desc.textContent=descText;
+        desc.style.borderLeftColor=clsColor;
+    }
+
+    slider.addEventListener('input',update);
+    update();
+})();
+</script>
+</body>
+</html>
