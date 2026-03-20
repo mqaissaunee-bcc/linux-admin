@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Transferring Files | RH134</title>
+    <style>
+        /* ==================== CSS VARIABLES ==================== */
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%);
+            color: var(--rh-black);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        /* ==================== ACCESSIBILITY ==================== */
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* ==================== HEADER ==================== */
+        .main-header {
+            background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%);
+            color: var(--rh-white); padding: 40px 24px 32px;
+            text-align: center; position: relative; overflow: hidden;
+        }
+        .main-header::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px);
+        }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag {
+            display: inline-block; background: rgba(255,255,255,0.2);
+            padding: 6px 18px; border-radius: 20px;
+            font-family: var(--font-display); font-size: 0.85rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* ==================== SECTION NAV ==================== */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* ==================== MAIN CONTENT ==================== */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1.1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); margin: 1.5rem 0 0.7rem; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 700; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* ==================== OBJECTIVES ==================== */
+        .objectives-list { list-style: none; padding: 0; }
+        .objectives-list li { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--rh-gray-lighter); }
+        .objectives-list li:last-child { border-bottom: none; }
+        .obj-icon { color: var(--rh-blue); font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+
+        /* ==================== CODE BLOCKS ==================== */
+        .code-block { background: #1a1a2e; border-radius: var(--radius-md); margin: 1.2rem 0; overflow: hidden; box-shadow: var(--shadow-sm); }
+        .code-title { background: #16213e; color: #a0a8c0; padding: 8px 16px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; border-bottom: 1px solid #0f3460; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.6; overflow-x: auto; }
+        .code-prompt { color: #5af78e; }
+        .code-root-prompt { color: #ff6e67; }
+        .code-command { color: #cdd6f4; font-weight: 600; }
+        .code-output { color: #a6adc8; display: block; margin-left: 0; }
+        .code-comment { color: #6272a4; font-style: italic; display: block; }
+        .code-highlight { color: #f1fa8c; }
+        .code-sftp { color: #bd93f9; }
+
+        /* ==================== NOTE BOXES ==================== */
+        .note-box { border-radius: var(--radius-md); padding: 0; margin: 1.2rem 0; overflow: hidden; box-shadow: var(--shadow-sm); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; }
+        .note-box p { padding: 12px 16px 14px; margin: 0; font-size: 0.95rem; }
+        .note-box.tip { border-left: 4px solid var(--rh-green); }
+        .note-box.tip .note-box-header { background: #f0f9f0; color: var(--rh-green-dark); }
+        .note-box.tip p { background: #f8fcf8; }
+        .note-box.warning { border-left: 4px solid var(--rh-gold); }
+        .note-box.warning .note-box-header { background: #fdf8ed; color: #7a5c00; }
+        .note-box.warning p { background: #fefcf5; }
+        .note-box.important { border-left: 4px solid var(--rh-red); }
+        .note-box.important .note-box-header { background: #fdf0f0; color: var(--rh-red-dark); }
+        .note-box.important p { background: #fdf8f8; }
+
+        /* ==================== TOOLTIPS ==================== */
+        .tooltip-term {
+            color: var(--rh-blue);
+            border-bottom: 1px dotted var(--rh-blue);
+            cursor: help;
+            position: relative;
+        }
+        .tooltip-content {
+            display: none;
+        }
+        #tooltip-bubble {
+            position: fixed;
+            background: var(--rh-blue-dark);
+            color: var(--rh-white);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-display);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            max-width: 280px;
+            z-index: 9999;
+            box-shadow: var(--shadow-lg);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after {
+            content: '';
+            position: absolute;
+            border: 6px solid transparent;
+        }
+        #tooltip-bubble.tt-above::after { border-top-color: var(--rh-blue-dark); top: 100%; left: 50%; transform: translateX(-50%); }
+        #tooltip-bubble.tt-below::after { border-bottom-color: var(--rh-blue-dark); bottom: 100%; left: 50%; transform: translateX(-50%); }
+        #tooltip-bubble.tt-left::after { border-left-color: var(--rh-blue-dark); left: 100%; top: 50%; transform: translateY(-50%); }
+        #tooltip-bubble.tt-right::after { border-right-color: var(--rh-blue-dark); right: 100%; top: 50%; transform: translateY(-50%); }
+
+        /* ==================== TABS ==================== */
+        .tabs-container { margin: 1.2rem 0; }
+        .tab-list { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 2px solid var(--rh-gray-lighter); margin-bottom: 0; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-gray); background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all var(--transition-fast); margin-bottom: -2px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { color: var(--rh-blue); background: var(--rh-gray-lighter); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue); background: var(--rh-white); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* ==================== EXPANDABLE ==================== */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin-bottom: 10px; overflow: hidden; }
+        .expandable-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #e0e0e0; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expand-icon { font-size: 0.75rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #f0f9f0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #fdf0f0; }
+        .quiz-q-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; }
+        .quiz-options { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+        .quiz-option { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--rh-white); border-radius: var(--radius-sm); cursor: pointer; border: 1px solid var(--rh-gray-light); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: #eef4ff; }
+        .quiz-option input[type="radio"] { accent-color: var(--rh-blue); width: 16px; height: 16px; flex-shrink: 0; }
+        .quiz-option label { cursor: pointer; font-size: 0.9rem; }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.88rem; padding: 8px 12px; border-radius: var(--radius-sm); display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #e8f5e9; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background: #ffebee; color: var(--rh-red-dark); }
+        .quiz-actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+        .quiz-btn { padding: 12px 24px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); }
+        .quiz-btn.primary { background: var(--rh-blue); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 1px solid var(--rh-gray-light); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-light); }
+        .quiz-score { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; margin-top: 16px; padding: 14px; background: var(--rh-blue-dark); color: var(--rh-white); border-radius: var(--radius-md); display: none; text-align: center; }
+        .quiz-score.show { display: block; }
+
+        /* ==================== COMMAND CARDS ==================== */
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 1.2rem 0; }
+        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px; border-left: 4px solid var(--rh-blue); }
+        .cmd-card .cmd-name { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; color: var(--rh-blue-dark); margin-bottom: 6px; }
+        .cmd-card .cmd-desc { font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray-dark); }
+
+        /* ==================== COMPARISON TABLE ==================== */
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+        .comparison-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 16px; font-family: var(--font-display); font-weight: 600; text-align: left; }
+        .comparison-table td { padding: 10px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .comparison-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .comparison-table tr:hover td { background: #eef4ff; }
+        .comparison-table td:first-child { font-family: var(--font-mono); font-weight: 700; color: var(--rh-blue-dark); white-space: nowrap; }
+        @media (max-width: 600px) {
+            .comparison-table { font-size: 0.8rem; }
+            .comparison-table th, .comparison-table td { padding: 8px 10px; }
+        }
+
+        /* ==================== SFTP SIMULATOR ==================== */
+        .simulator-wrap { background: #1a1a2e; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); margin: 1.2rem 0; }
+        .sim-title-bar { background: #16213e; color: #a0a8c0; padding: 8px 16px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #0f3460; }
+        .sim-dots { display: flex; gap: 6px; }
+        .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .sim-dot.red { background: #ff5f56; }
+        .sim-dot.yellow { background: #ffbd2e; }
+        .sim-dot.green { background: #27c93f; }
+        .sim-output { font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; padding: 16px; min-height: 200px; max-height: 320px; overflow-y: auto; color: #cdd6f4; }
+        .sim-output .sim-prompt { color: #bd93f9; }
+        .sim-output .sim-success { color: #5af78e; }
+        .sim-output .sim-error { color: #ff6e67; }
+        .sim-output .sim-info { color: #8be9fd; }
+        .sim-input-row { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid #0f3460; background: #16213e; }
+        .sim-input-row label { color: #bd93f9; font-family: var(--font-mono); font-size: 0.85rem; white-space: nowrap; }
+        .sim-input { flex: 1; background: transparent; border: none; color: #cdd6f4; font-family: var(--font-mono); font-size: 0.85rem; outline: none; }
+        .sim-run-btn { background: var(--rh-blue); color: var(--rh-white); border: none; border-radius: var(--radius-sm); padding: 6px 14px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .sim-run-btn:hover { background: var(--rh-blue-dark); }
+        .sim-help-row { padding: 8px 16px 12px; background: #16213e; }
+        .sim-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .sim-chip { background: #0f3460; color: #a0a8c0; border: 1px solid #1a4080; border-radius: 20px; padding: 3px 10px; font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; transition: background var(--transition-fast); }
+        .sim-chip:hover { background: #1a4080; color: var(--rh-white); }
+
+        /* ==================== SLASH VISUAL ==================== */
+        .slash-visual { display: flex; gap: 0; margin: 1.2rem 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+        .slash-col { flex: 1; padding: 18px; }
+        .slash-col.with-slash { background: #fff8e6; border: 2px solid var(--rh-gold); }
+        .slash-col.without-slash { background: #f0f8ff; border: 2px solid var(--rh-blue); }
+        .slash-col h4 { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; }
+        .slash-col.with-slash h4 { color: #7a5c00; }
+        .slash-col.without-slash h4 { color: var(--rh-blue-dark); }
+        .slash-divider { width: 4px; background: var(--rh-gray-light); }
+        @media (max-width: 600px) { .slash-visual { flex-direction: column; } .slash-divider { width: 100%; height: 4px; } }
+
+        /* ==================== CHAPTER NAV ==================== */
+        .chapter-nav { display: flex; gap: 12px; margin-top: 30px; flex-wrap: wrap; justify-content: center; }
+        .nav-chapter-btn { padding: 12px 24px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { color: var(--rh-blue-dark); border-color: var(--rh-blue); background: var(--rh-white); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-blue); color: var(--rh-white); }
+        .nav-chapter-btn.home { color: var(--rh-white); border-color: var(--rh-gray-dark); background: var(--rh-gray-dark); }
+        .nav-chapter-btn.home:hover { background: var(--rh-black); }
+        .nav-chapter-btn.next { color: var(--rh-white); border-color: var(--rh-blue); background: var(--rh-blue); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+
+        /* ==================== SUMMARY TABLE ==================== */
+        .summary-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.88rem; }
+        .summary-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; font-family: var(--font-display); font-weight: 600; text-align: left; }
+        .summary-table td { padding: 9px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; font-family: var(--font-display); }
+        .summary-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .summary-table td:first-child { font-family: var(--font-mono); font-weight: 700; color: var(--rh-blue-dark); white-space: nowrap; }
+
+        /* ==================== LAB CHECKLIST ==================== */
+        .lab-checklist { list-style: none; padding: 0; margin-top: 16px; }
+        .lab-checklist li { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.9rem; }
+        .lab-checklist li::before { content: "\2713"; color: var(--rh-green); font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+
+        /* ==================== FOOTER ==================== */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; margin-top: 40px; }
+        footer p { margin-bottom: 6px; }
+        footer a { color: var(--rh-blue-light); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .chapter-nav { flex-direction: column; }
+            .nav-chapter-btn { text-align: center; }
+            .cmd-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ==================== PRINT ==================== */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .sim-input-row, .sim-help-row, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+            .expandable-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F3A9;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 8: Transferring Files</h1>
+        <p class="chapter-subtitle">Securely copy and synchronize files between systems using SFTP, SCP, and rsync</p>
+        <div class="header-meta">
+            <span>&#x1F4DA; Red Hat System Administration II</span>
+            <span>&#x23F1; ~2&ndash;3 Hours</span>
+            <span>&#x1F4BB; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-label="Chapter progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <p class="progress-text" id="progress-text">Progress: 0%</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="objectives">1. Objectives</a></li>
+        <li><a href="#section-sftp" class="nav-btn" data-section="sftp">2. SFTP</a></li>
+        <li><a href="#section-scp" class="nav-btn" data-section="scp">3. SCP</a></li>
+        <li><a href="#section-rsync" class="nav-btn" data-section="rsync">4. rsync</a></li>
+        <li><a href="#section-trailing-slash" class="nav-btn" data-section="trailing-slash">5. Trailing Slash</a></li>
+        <li><a href="#section-guided-ex1" class="nav-btn" data-section="guided-ex1">6. Guided Exercise 1</a></li>
+        <li><a href="#section-guided-ex2" class="nav-btn" data-section="guided-ex2">7. Guided Exercise 2</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="quiz">8. Knowledge Check</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="lab">9. Hands-On Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="summary">10. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul class="objectives-list">
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use the <code>sftp</code> command to interactively upload and download files to and from a remote SSH server.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use the <code>scp</code> command to transfer files between local and remote systems using SFTP (as of RHEL 10).</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Use the <code>rsync</code> command to efficiently and securely synchronize file trees between a local and a remote system.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Understand <code>rsync</code> archive mode options and how they preserve file attributes.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Correctly apply trailing-slash behavior with <code>rsync</code> to control whether a directory itself or only its contents are synchronized.</li>
+            <li><span class="obj-icon" aria-hidden="true">&#x2713;</span>Perform a dry run of <code>rsync</code> to preview changes before committing them.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 2: SFTP ==================== -->
+<section id="section-sftp" class="content-section" aria-labelledby="sftp-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="sftp-heading">Transferring Files with SFTP</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-openssh">OpenSSH</span> suite is best known for the <code>ssh</code> command, which opens an encrypted remote shell. But the suite also includes tools for secure file transfer. The most important of these is the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sftp">SFTP</span> subsystem, accessed through the <code>sftp</code> command.</p>
+        <span class="tooltip-content" id="tt-openssh">A freely available implementation of the SSH (Secure Shell) protocol. It provides encrypted remote login, remote command execution, and file transfer utilities like sftp and scp.</span>
+        <span class="tooltip-content" id="tt-sftp">Secure File Transfer Program. A subsystem of SSH that provides file transfer and management capabilities over an encrypted channel. Unlike FTP, SFTP encrypts both commands and data.</span>
+
+        <p>SFTP provides an <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-interactive-session">interactive session</span> with its own set of commands for navigating and manipulating files on both the local and remote system — all within a single encrypted connection.</p>
+        <span class="tooltip-content" id="tt-interactive-session">A terminal mode where you type commands and receive responses one at a time, rather than specifying all instructions upfront. The sftp prompt (sftp&gt;) indicates you are in an interactive session.</span>
+
+        <h3>Opening an SFTP Session</h3>
+        <p>To start an SFTP session, provide the remote user and hostname using the format <code>user@host</code>. If you omit the username, SFTP uses your current local username.</p>
+
+        <div class="code-block" role="region" aria-label="Opening an SFTP session">
+            <div class="code-title">Opening an interactive SFTP session</div>
+            <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sftp remoteuser@remotehost</span>
+<span class="code-output">remoteuser@remotehost's password: <em>password</em></span>
+<span class="code-output">Connected to remotehost.</span>
+<span class="code-sftp">sftp&gt;</span>
+            </code>
+        </div>
+
+        <h3>Navigating in SFTP</h3>
+        <p>Once inside the SFTP session, familiar shell commands work on the <em>remote</em> system. To run the equivalent command on your <em>local</em> system, prefix it with the letter <code>l</code> (lowercase L).</p>
+
+        <div class="tabs-container" id="sftp-nav-tabs">
+            <div class="tab-list" role="tablist" aria-label="SFTP navigation commands">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="sftp-tab-remote" id="sftp-tab-remote-btn">Remote Commands</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="sftp-tab-local" id="sftp-tab-local-btn">Local Equivalents</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="sftp-tab-all" id="sftp-tab-all-btn">Quick Reference</button>
+            </div>
+            <div id="sftp-tab-remote" class="tab-panel active" role="tabpanel" aria-labelledby="sftp-tab-remote-btn">
+                <div class="cmd-grid">
+                    <div class="cmd-card"><div class="cmd-name">pwd</div><div class="cmd-desc">Print current working directory on the <strong>remote</strong> host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">ls</div><div class="cmd-desc">List files in the current remote directory.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">cd <em>path</em></div><div class="cmd-desc">Change directory on the remote host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">mkdir <em>dir</em></div><div class="cmd-desc">Create a new directory on the remote host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">rmdir <em>dir</em></div><div class="cmd-desc">Remove an empty directory on the remote host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">rm <em>file</em></div><div class="cmd-desc">Delete a file on the remote host.</div></div>
+                </div>
+            </div>
+            <div id="sftp-tab-local" class="tab-panel" role="tabpanel" aria-labelledby="sftp-tab-local-btn">
+                <div class="cmd-grid">
+                    <div class="cmd-card"><div class="cmd-name">lpwd</div><div class="cmd-desc">Print current working directory on the <strong>local</strong> host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">lls</div><div class="cmd-desc">List files in the current local directory.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">lcd <em>path</em></div><div class="cmd-desc">Change directory on the local host.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">lmkdir <em>dir</em></div><div class="cmd-desc">Create a directory on the local host.</div></div>
+                </div>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: The &ldquo;l&rdquo; prefix</span></div>
+                    <p>Think of the <code>l</code> prefix as standing for &ldquo;local.&rdquo; When in doubt, try prefixing any remote command with <code>l</code> to see if a local equivalent exists.</p>
+                </div>
+            </div>
+            <div id="sftp-tab-all" class="tab-panel" role="tabpanel" aria-labelledby="sftp-tab-all-btn">
+                <div class="cmd-grid">
+                    <div class="cmd-card"><div class="cmd-name">put <em>localfile</em></div><div class="cmd-desc">Upload a file <strong>to</strong> the remote system.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">get <em>remotefile</em></div><div class="cmd-desc">Download a file <strong>from</strong> the remote system.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">put -r <em>dir</em></div><div class="cmd-desc">Recursively upload an entire directory tree.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">get -r <em>dir</em></div><div class="cmd-desc">Recursively download an entire directory tree.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">help</div><div class="cmd-desc">List all available SFTP commands.</div></div>
+                    <div class="cmd-card"><div class="cmd-name">exit / bye</div><div class="cmd-desc">Close the SFTP session and return to the local shell.</div></div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Uploading Files with put</h3>
+        <p>The <code>put</code> command transfers a file from your local machine to the remote host. The following example creates a directory on the remote host, navigates into it, and uploads the local <code>/etc/hosts</code> file.</p>
+
+        <div class="code-block" role="region" aria-label="Uploading a file with SFTP put">
+            <div class="code-title">Uploading /etc/hosts to a remote directory</div>
+            <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">mkdir hostbackup</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">cd hostbackup</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">put /etc/hosts</span>
+<span class="code-output">Uploading /etc/hosts to /home/remoteuser/hostbackup/hosts</span>
+<span class="code-output">/etc/hosts                    100%  227   0.2KB/s   00:00</span>
+            </code>
+        </div>
+
+        <p>To upload an entire directory tree recursively, add the <code>-r</code> flag:</p>
+        <div class="code-block" role="region" aria-label="Recursive upload with SFTP">
+            <div class="code-title">Recursively uploading a directory</div>
+            <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">put -r directory</span>
+<span class="code-output">Uploading directory/ to /home/remoteuser/directory</span>
+<span class="code-output">Entering directory/</span>
+<span class="code-output">file1                         100%    0   0.0KB/s   00:00</span>
+<span class="code-output">file2                         100%    0   0.0KB/s   00:00</span>
+            </code>
+        </div>
+
+        <h3>Downloading Files with get</h3>
+        <p>The <code>get</code> command downloads a file from the remote host to your current local directory.</p>
+
+        <div class="code-block" role="region" aria-label="Downloading a file with SFTP get">
+            <div class="code-title">Downloading /etc/dnf/dnf.conf from the remote host</div>
+            <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">get /etc/dnf/dnf.conf</span>
+<span class="code-output">Fetching /etc/dnf/dnf.conf to dnf.conf</span>
+<span class="code-output">/etc/dnf/dnf.conf             100%  813   0.8KB/s   00:00</span>
+            </code>
+        </div>
+
+        <h3>Non-Interactive (Single-Command) Download</h3>
+        <p>You can download a single file from a remote host in one command line, without opening an interactive session. Specify the remote file path after the <code>host:</code> separator. Note that this <em>non-interactive</em> syntax only works for downloads — you cannot push files to a remote host this way.</p>
+
+        <div class="code-block" role="region" aria-label="Non-interactive SFTP download">
+            <div class="code-title">Downloading a single file without opening an interactive session</div>
+            <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sftp remoteuser@remotehost:/home/remoteuser/remotefile</span>
+<span class="code-output">Connected to remotehost.</span>
+<span class="code-output">Fetching /home/remoteuser/remotefile to remotefile</span>
+<span class="code-output">remotefile                    100%    0  15.7KB/s   00:00</span>
+            </code>
+        </div>
+
+        <h3>Try the SFTP Simulator</h3>
+        <p>Practice SFTP commands in this browser-based simulator. Type a command or click one of the shortcut chips below the input, then press Run or Enter.</p>
+
+        <div class="simulator-wrap" role="region" aria-label="SFTP command simulator">
+            <div class="sim-title-bar">
+                <div class="sim-dots" aria-hidden="true"><div class="sim-dot red"></div><div class="sim-dot yellow"></div><div class="sim-dot green"></div></div>
+                <span>SFTP Simulator &mdash; remoteuser@serverb</span>
+            </div>
+            <div class="sim-output" id="sftp-sim-output" aria-live="polite" aria-label="Simulator output"></div>
+            <div class="sim-input-row">
+                <label for="sftp-sim-input">sftp&gt;</label>
+                <input type="text" id="sftp-sim-input" class="sim-input" placeholder="Type an sftp command..." autocomplete="off" aria-label="SFTP command input" />
+                <button class="sim-run-btn" id="sftp-sim-run" aria-label="Run command">Run</button>
+            </div>
+            <div class="sim-help-row">
+                <div class="sim-chips" role="list" aria-label="Quick command shortcuts">
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="pwd">pwd</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="lpwd">lpwd</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="ls">ls</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="lls">lls</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="mkdir reports">mkdir reports</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="put /etc/hosts">put /etc/hosts</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="get /etc/dnf/dnf.conf">get /etc/dnf/dnf.conf</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="help">help</span>
+                    <span role="listitem" class="sim-chip" tabindex="0" data-cmd="exit">exit</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 3: SCP ==================== -->
+<section id="section-scp" class="content-section" aria-labelledby="scp-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="scp-heading">Transferring Files with SCP</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-scp">Secure Copy Protocol (SCP)</span>, accessed via the <code>scp</code> command, provides a quick, non-interactive way to copy files between a local and a remote system. Unlike <code>sftp</code>, you specify everything &mdash; source, destination, options &mdash; on a single command line.</p>
+        <span class="tooltip-content" id="tt-scp">Secure Copy Protocol. A command-line tool for copying files between hosts using SSH for authentication and encryption. Starting in RHEL 10, the scp command uses the SFTP protocol for transport.</span>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>RHEL 10 Change: scp Now Uses SFTP</span></div>
+            <p>Starting in RHEL 10, the <code>scp</code> command uses <strong>SFTP</strong> to transfer files by default. The legacy SCP protocol had a code injection vulnerability (<a href="https://access.redhat.com/security/cve/CVE-2020-15778" target="_blank" rel="noopener">CVE-2020-15778</a>). Red Hat recommends you do <strong>not</strong> use the <code>-O</code> flag to revert to the old protocol. Additionally, if the file <code>/etc/ssh/disable_scp</code> exists on a system, the <code>-O</code> option is completely disabled.</p>
+        </div>
+
+        <h3>Syntax</h3>
+        <p>The <code>scp</code> command follows the same <code>user@host:path</code> convention used by <code>sftp</code>. You can use this format for either the source or the destination. If you omit the username, <code>scp</code> uses your current local username.</p>
+
+        <h3>Copying Files to a Remote Host</h3>
+        <p>Specify one or more local source files followed by the remote destination. The colon (<code>:</code>) after the hostname signals that this is a remote path.</p>
+
+        <div class="code-block" role="region" aria-label="Copying multiple files to a remote host with scp">
+            <div class="code-title">Copying two local files to a remote directory</div>
+            <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">scp /etc/dnf/dnf.conf /etc/hosts remoteuser@remotehost:/home/remoteuser</span>
+<span class="code-output">remoteuser@remotehost's password: <em>password</em></span>
+<span class="code-output">dnf.conf                      100%  813   0.8KB/s   00:00</span>
+<span class="code-output">hosts                         100%  227   0.2KB/s   00:00</span>
+            </code>
+        </div>
+
+        <h3>Copying Files from a Remote Host</h3>
+        <p>Reverse the source and destination arguments to pull a file from a remote system to your local machine.</p>
+
+        <div class="code-block" role="region" aria-label="Copying a file from a remote host with scp">
+            <div class="code-title">Copying /etc/hostname from a remote host to local ~/</div>
+            <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">scp remoteuser@remotehost:/etc/hostname /home/user</span>
+<span class="code-output">remoteuser@remotehost's password: <em>password</em></span>
+<span class="code-output">hostname                      100%   12   0.0KB/s   00:00</span>
+            </code>
+        </div>
+
+        <h3>SCP vs. SFTP: When to Use Each</h3>
+        <table class="comparison-table" aria-label="Comparison of SCP and SFTP">
+            <thead>
+                <tr><th scope="col">Feature</th><th scope="col">sftp</th><th scope="col">scp</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Mode</td><td>Interactive session</td><td>Non-interactive, single command</td></tr>
+                <tr><td>Best for</td><td>Browsing, multiple operations</td><td>Quick one-off transfers</td></tr>
+                <tr><td>Recursive copy</td><td><code>put -r</code> / <code>get -r</code></td><td><code>-r</code> flag</td></tr>
+                <tr><td>Underlying protocol (RHEL 10)</td><td>SFTP</td><td>SFTP (changed from SCP)</td></tr>
+                <tr><td>Scripting friendliness</td><td>Limited</td><td>Good (pipeline-friendly)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ==================== SECTION 4: RSYNC ==================== -->
+<section id="section-rsync" class="content-section" aria-labelledby="rsync-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="rsync-heading">Synchronizing Content with rsync</h2>
+    </div>
+    <div class="section-body">
+        <p>While <code>sftp</code> and <code>scp</code> copy entire files every time you run them, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsync">rsync</span> is smarter. It compares the source and destination and transfers only the <em>differences</em>. This makes subsequent synchronizations far faster, particularly over slow or metered network connections.</p>
+        <span class="tooltip-content" id="tt-rsync">A fast, versatile file-copying tool that uses a delta-transfer algorithm to minimize data transfer. It can sync files locally or over an SSH connection, preserving permissions, timestamps, and ownership.</span>
+
+        <p>Because <code>rsync</code> uses <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-delta-transfer">delta-transfer</span>, an initial sync takes about the same time as a plain copy. But subsequent syncs &mdash; after a few files have changed &mdash; transfer only what changed, dramatically reducing bandwidth and time.</p>
+        <span class="tooltip-content" id="tt-delta-transfer">An algorithm that identifies and transmits only the portions of a file that have changed since the last transfer, rather than sending the entire file again.</span>
+
+        <h3>Core Syntax</h3>
+        <p>The general format mirrors <code>scp</code> and <code>sftp</code> &mdash; use <code>user@host:path</code> for remote locations. Either the source or destination can be remote, but not both.</p>
+
+        <div class="code-block" role="region" aria-label="rsync syntax example">
+            <div class="code-title">rsync basic syntax</div>
+            <code>
+<span class="code-comment"># Push: local source → remote destination</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av /var/log hosta:/tmp</span>
+
+<span class="code-comment"># Pull: remote source → local destination</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av hosta:/var/log /tmp</span>
+
+<span class="code-comment"># Local-to-local sync</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo rsync -av /var/log /tmp</span>
+            </code>
+        </div>
+
+        <h3>The Dry Run: Always Preview First</h3>
+        <p>Before running a potentially destructive <code>rsync</code> command, use the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-dry-run"><code>-n</code> (dry run)</span> option. This shows exactly what <em>would</em> happen without actually making any changes.</p>
+        <span class="tooltip-content" id="tt-dry-run">A simulation mode (rsync -n) that reports what the command would do without modifying any files. Essential for verifying that the correct files will be synced before committing.</span>
+
+        <div class="code-block" role="region" aria-label="rsync dry run example">
+            <div class="code-title">Previewing changes with a dry run</div>
+            <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -avn /var/log hosta:/tmp</span>
+<span class="code-output">sending incremental file list</span>
+<span class="code-output">log/</span>
+<span class="code-output">log/boot.log</span>
+<span class="code-output">log/dnf.log</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">sent 1,254 bytes  received 20 bytes  2,548.00 bytes/sec</span>
+<span class="code-comment"># No files were actually transferred — this was a simulation</span>
+            </code>
+        </div>
+
+        <h3>Archive Mode (-a): Preserving Everything</h3>
+        <p>The <code>-a</code> flag enables <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-archive-mode">archive mode</span>, the most common way to use <code>rsync</code> for backups and replication. It is a shorthand for a set of options that together preserve the most important file attributes.</p>
+        <span class="tooltip-content" id="tt-archive-mode">An rsync flag (-a) equivalent to -rlptgoD: recursive, symbolic links, permissions, timestamps, group ownership, owner, and device files. It ensures the destination mirrors the source as faithfully as possible.</span>
+
+        <table class="comparison-table" aria-label="Archive mode component options">
+            <thead>
+                <tr><th scope="col">Option</th><th scope="col">Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>-r, --recursive</td><td>Synchronize the entire directory tree recursively.</td></tr>
+                <tr><td>-l, --links</td><td>Preserve symbolic links as symbolic links.</td></tr>
+                <tr><td>-p, --perms</td><td>Preserve file permissions.</td></tr>
+                <tr><td>-t, --times</td><td>Preserve modification timestamps.</td></tr>
+                <tr><td>-g, --group</td><td>Preserve group ownership.</td></tr>
+                <tr><td>-o, --owner</td><td>Preserve the file owner (requires root).</td></tr>
+                <tr><td>-D, --devices</td><td>Preserve device files.</td></tr>
+            </tbody>
+        </table>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip: Extended Attributes</span></div>
+            <p>Archive mode does not automatically preserve <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-acl">ACLs</span> or <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux-ctx">SELinux file contexts</span>. Add <code>-A</code> (preserve ACLs) and <code>-X</code> (preserve SELinux contexts) when you need full fidelity. Hard links also require the separate <code>-H</code> flag, as preserving them can significantly increase sync time.</p>
+            <span class="tooltip-content" id="tt-acl">Access Control List. A more granular permission system than standard UNIX permissions that allows you to grant read/write/execute rights to specific users or groups beyond the owner/group/other model.</span>
+            <span class="tooltip-content" id="tt-selinux-ctx">A label attached to every file and process by SELinux that determines what operations are permitted. Preserving these labels is critical when syncing files that will be used in their original security context.</span>
+        </div>
+
+        <h3>Ownership and Root Privileges</h3>
+        <p>To preserve file <em>ownership</em> on the destination, you must have root privileges. For a remote destination, authenticate as root. For a local destination, run <code>rsync</code> with <code>sudo</code>.</p>
+
+        <div class="code-block" role="region" aria-label="rsync with full archive mode">
+            <div class="code-title">Full archive sync: pushing /var/log to a remote host</div>
+            <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av /var/log hosta:/tmp</span>
+<span class="code-output">root@hosta's password: <em>password</em></span>
+<span class="code-output">receiving incremental file list</span>
+<span class="code-output">log/</span>
+<span class="code-output">log/README</span>
+<span class="code-output">log/boot.log</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">sent 9,783 bytes  received 290,576 bytes  85,816.86 bytes/sec</span>
+<span class="code-output">total size is 11,585,690  speedup is 38.57</span>
+            </code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="rsync pulling from remote">
+            <div class="code-title">Full archive sync: pulling /var/log from a remote host</div>
+            <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av hosta:/var/log /tmp</span>
+<span class="code-output">root@hosta's password: <em>password</em></span>
+<span class="code-output">receiving incremental file list</span>
+<span class="code-output">log/boot.log</span>
+<span class="code-output">log/dnf.librepo.log</span>
+<span class="code-output">log/dnf.log</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">sent 9,783 bytes  received 290,576 bytes  85,816.86 bytes/sec</span>
+<span class="code-output">total size is 11,585,690  speedup is 38.57</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 5: TRAILING SLASH ==================== -->
+<section id="section-trailing-slash" class="content-section" aria-labelledby="trailing-slash-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="trailing-slash-heading">The Trailing Slash Rule</h2>
+    </div>
+    <div class="section-body">
+        <p>One of the most common sources of confusion with <code>rsync</code> is the meaning of a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-trailing-slash">trailing slash</span> on the source directory. Getting this wrong can result in an extra layer of nested directories at the destination, or missing files entirely.</p>
+        <span class="tooltip-content" id="tt-trailing-slash">A forward slash (/) placed at the end of a directory name. In rsync, a trailing slash on the source means &quot;sync the contents of this directory,&quot; while omitting it means &quot;sync the directory itself.&quot;</span>
+
+        <div class="slash-visual" role="region" aria-label="Trailing slash comparison diagram">
+            <div class="slash-col without-slash">
+                <h4>Without trailing slash: <code>rsync -av /var/log /tmp</code></h4>
+                <p style="font-family:var(--font-display);font-size:0.85rem;">The <code>log</code> <strong>directory itself</strong> is copied into <code>/tmp</code>. Result: <code>/tmp/log/</code> is created, containing all log files.</p>
+                <div class="code-block" style="margin-top:10px;">
+                    <div class="code-title">Result</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls /tmp</span>
+<span class="code-output">log  ssh-RLjDdarkKiw1</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls /tmp/log</span>
+<span class="code-output">README  boot.log  dnf.log ...</span>
+                    </code>
+                </div>
+            </div>
+            <div class="slash-divider" aria-hidden="true"></div>
+            <div class="slash-col with-slash">
+                <h4>With trailing slash: <code>rsync -av /var/log/ /tmp</code></h4>
+                <p style="font-family:var(--font-display);font-size:0.85rem;">The <strong>contents</strong> of <code>log/</code> are placed directly inside <code>/tmp</code>. No extra <code>log/</code> subdirectory is created.</p>
+                <div class="code-block" style="margin-top:10px;">
+                    <div class="code-title">Result</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls /tmp</span>
+<span class="code-output">anaconda  audit  boot.log  dnf.log ...</span>
+<span class="code-comment"># Files land directly in /tmp — no log/ subdirectory</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Bash Tab Completion Adds a Trailing Slash</span></div>
+            <p>When you use Tab to complete a directory name in bash, it automatically appends a trailing slash. This means <code>rsync -av /var/log/</code> (syncs contents) vs. <code>rsync -av /var/log</code> (syncs directory) is an easy mistake to make. Be intentional: decide whether you want the directory itself or just its contents at the destination, then type accordingly.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Trailing slash example with full output">
+            <div class="code-title">With trailing slash: contents go directly into /tmp</div>
+            <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av /var/log/ /tmp</span>
+<span class="code-output">sending incremental file list</span>
+<span class="code-output">/</span>
+<span class="code-output">README</span>
+<span class="code-output">boot.log</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">tuned/tuned.log</span>
+<span class="code-output">sent 11,592,389 bytes  received 778 bytes  23,186,334.00 bytes/sec</span>
+<span class="code-output">total size is 11,586,755  speedup is 1.00</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 6: GUIDED EXERCISE 1 ==================== -->
+<section id="section-guided-ex1" class="content-section" aria-labelledby="guided-ex1-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="guided-ex1-heading">Guided Exercise: Transfer Files Between Systems</h2>
+    </div>
+    <div class="section-body">
+        <p>In this exercise, you practice using <code>sftp</code> and <code>scp</code> to transfer files between <code>workstation</code> and <code>serverb</code>.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Lab Environment</span></div>
+            <p>Use <code>student@workstation</code> as your starting point. The password for all lab accounts is <strong>student</strong>.</p>
+        </div>
+
+        <div class="expandable" id="gex1-step1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-step1-content">
+                <span>Step 1: Open an interactive SFTP session to serverb</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex1-step1-content" role="region">
+                <p>From your workstation, connect to <code>serverb</code> using <code>sftp</code>. Authenticate as <code>student</code>.</p>
+                <div class="code-block" role="region" aria-label="Step 1 commands">
+                    <div class="code-title">Connect to serverb with SFTP</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sftp student@serverb</span>
+<span class="code-output">student@serverb's password: student</span>
+<span class="code-output">Connected to serverb.</span>
+<span class="code-sftp">sftp&gt;</span>
+                    </code>
+                </div>
+                <p>You are now in an interactive SFTP session on <code>serverb</code>.</p>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-step2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-step2-content">
+                <span>Step 2: Verify remote and local working directories</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex1-step2-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 2 commands">
+                    <div class="code-title">Check working directories</div>
+                    <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">pwd</span>
+<span class="code-output">Remote working directory: /home/student</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">lpwd</span>
+<span class="code-output">Local working directory: /home/student</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-step3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-step3-content">
+                <span>Step 3: Create a remote directory and upload a file</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex1-step3-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 3 commands">
+                    <div class="code-title">Create directory and upload /etc/hosts</div>
+                    <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">mkdir hostbackup</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">cd hostbackup</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">put /etc/hosts</span>
+<span class="code-output">Uploading /etc/hosts to /home/student/hostbackup/hosts</span>
+<span class="code-output">/etc/hosts                    100%  227   0.2KB/s   00:00</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">ls</span>
+<span class="code-output">hosts</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-step4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-step4-content">
+                <span>Step 4: Download a file from the remote host</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex1-step4-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 4 commands">
+                    <div class="code-title">Download /etc/hostname from serverb</div>
+                    <code>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">cd /etc</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">get hostname</span>
+<span class="code-output">Fetching /etc/hostname to hostname</span>
+<span class="code-output">hostname                      100%   12   0.0KB/s   00:00</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">cat hostname</span>
+<span class="code-output">serverb.lab.example.com</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex1-step5">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex1-step5-content">
+                <span>Step 5: Use scp to copy a file to serverb</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex1-step5-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 5 commands">
+                    <div class="code-title">Copy /etc/dnf/dnf.conf to serverb using scp</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">scp /etc/dnf/dnf.conf student@serverb:/home/student</span>
+<span class="code-output">student@serverb's password: student</span>
+<span class="code-output">dnf.conf                      100%  813   0.8KB/s   00:00</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 7: GUIDED EXERCISE 2 ==================== -->
+<section id="section-guided-ex2" class="content-section" aria-labelledby="guided-ex2-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="guided-ex2-heading">Guided Exercise: Synchronize Content Between Systems</h2>
+    </div>
+    <div class="section-body">
+        <p>In this exercise, you use <code>rsync</code> to synchronize directory trees between local and remote systems, and practice the dry-run and trailing-slash behaviors.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Lab Environment</span></div>
+            <p>Start on <code>workstation</code> as <code>student</code>. You will SSH to <code>serverb</code> for some steps. Run <code>lab start rcopy-review</code> before beginning if prompted.</p>
+        </div>
+
+        <div class="expandable" id="gex2-step1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-step1-content">
+                <span>Step 1: Perform a dry run before syncing</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex2-step1-content" role="region">
+                <p>Always run with <code>-n</code> first to preview what will change.</p>
+                <div class="code-block" role="region" aria-label="Step 1 commands">
+                    <div class="code-title">Dry run: preview sync of /etc from servera to /configsync</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -avn root@servera:/etc /tmp</span>
+<span class="code-output">receiving incremental file list</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/.pwd.lock</span>
+<span class="code-output">etc/fstab</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-comment"># No files changed — this was a dry run</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-step2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-step2-content">
+                <span>Step 2: Create the target directory and run the real sync</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex2-step2-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 2 commands">
+                    <div class="code-title">Create /configsync and sync /etc from servera</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">mkdir /configsync</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av root@servera:/etc /configsync</span>
+<span class="code-output">receiving incremental file list</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/.pwd.lock</span>
+<span class="code-output">etc/.rht_authorized_keys</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">sent 16,649 bytes  received 22,010,221 bytes  14,684,580.00 bytes/sec</span>
+<span class="code-output">total size is 21,925,844  speedup is 1.00</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls -l /configsync</span>
+<span class="code-output">total 12</span>
+<span class="code-output">drwxr-xr-x. 111 root root 8192 Jul 11 06:29 etc</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-step3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-step3-content">
+                <span>Step 3: Observe trailing-slash behavior</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex2-step3-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 3 trailing slash comparison">
+                    <div class="code-title">Without vs. with trailing slash on the source</div>
+                    <code>
+<span class="code-comment"># Without trailing slash — syncs the directory itself</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av /var/log /tmp</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls /tmp</span>
+<span class="code-output">log  ssh-xxxxx</span>
+<span class="code-comment"># /tmp/log/ was created</span>
+
+<span class="code-comment"># With trailing slash — syncs the contents only</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av /var/log/ /tmp/logcontents</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls /tmp/logcontents</span>
+<span class="code-output">README  audit  boot.log  dnf.log  tuned</span>
+<span class="code-comment"># Files land directly in /tmp/logcontents — no log/ subdirectory</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="gex2-step4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="gex2-step4-content">
+                <span>Step 4: Use SFTP to push a file to workstation</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="gex2-step4-content" role="region">
+                <div class="code-block" role="region" aria-label="Step 4 SFTP push">
+                    <div class="code-title">Push /root/securedoc from serverb to workstation</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">sftp student@workstation</span>
+<span class="code-output">student@workstation's password: student</span>
+<span class="code-output">Connected to workstation.</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">put securedoc</span>
+<span class="code-output">Uploading securedoc to /home/student/securedoc</span>
+<span class="code-output">securedoc                     100%   30  68.9KB/s   00:00</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">exit</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat securedoc</span>
+<span class="code-output">Secure copy file from serverb</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 8: KNOWLEDGE CHECK QUIZ ==================== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="quiz-heading">Knowledge Check</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of file transfer concepts. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p class="quiz-q-text">1. Which SFTP command uploads a file from your local system to the remote host?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q1" id="q1a" value="a" /><label for="q1a">a) <code>get</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1b" value="b" /><label for="q1b">b) <code>put</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1c" value="c" /><label for="q1c">c) <code>push</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q1" id="q1d" value="d" /><label for="q1d">d) <code>send</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p class="quiz-q-text">2. What does the SFTP command <code>lpwd</code> do?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q2" id="q2a" value="a" /><label for="q2a">a) Lists files in the remote current directory</label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2b" value="b" /><label for="q2b">b) Prints the remote working directory</label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2c" value="c" /><label for="q2c">c) Prints the <strong>local</strong> working directory</label></li>
+                <li class="quiz-option"><input type="radio" name="q2" id="q2d" value="d" /><label for="q2d">d) Lists files in the local current directory</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p class="quiz-q-text">3. Starting with RHEL 10, which transport protocol does the <code>scp</code> command use by default?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q3" id="q3a" value="a" /><label for="q3a">a) SFTP</label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3b" value="b" /><label for="q3b">b) Legacy SCP</label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3c" value="c" /><label for="q3c">c) FTP</label></li>
+                <li class="quiz-option"><input type="radio" name="q3" id="q3d" value="d" /><label for="q3d">d) rsync daemon protocol</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p class="quiz-q-text">4. Which <code>rsync</code> option enables archive mode (equivalent to <code>-rlptgoD</code>)?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q4" id="q4a" value="a" /><label for="q4a">a) <code>-r</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4b" value="b" /><label for="q4b">b) <code>-v</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4c" value="c" /><label for="q4c">c) <code>-n</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q4" id="q4d" value="d" /><label for="q4d">d) <code>-a</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p class="quiz-q-text">5. You run <code>rsync -av /var/log hosta:/tmp</code>. What is created on <code>hosta</code>?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q5" id="q5a" value="a" /><label for="q5a">a) The <em>contents</em> of <code>/var/log</code> are placed directly inside <code>/tmp</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5b" value="b" /><label for="q5b">b) A <code>log/</code> directory is created inside <code>/tmp</code>, containing all the log files</label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5c" value="c" /><label for="q5c">c) The entire <code>/var</code> hierarchy is copied to <code>/tmp</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q5" id="q5d" value="d" /><label for="q5d">d) Nothing — you need root to run rsync remotely</label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p class="quiz-q-text">6. Which <code>rsync</code> flag performs a dry run (simulation without actually transferring files)?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q6" id="q6a" value="a" /><label for="q6a">a) <code>-d</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6b" value="b" /><label for="q6b">b) <code>-s</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6c" value="c" /><label for="q6c">c) <code>-n</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q6" id="q6d" value="d" /><label for="q6d">d) <code>-t</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p class="quiz-q-text">7. To preserve SELinux file contexts when using <code>rsync</code>, which additional flag must you add?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q7" id="q7a" value="a" /><label for="q7a">a) <code>-X</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7b" value="b" /><label for="q7b">b) <code>-A</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7c" value="c" /><label for="q7c">c) <code>-Z</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q7" id="q7d" value="d" /><label for="q7d">d) <code>-S</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p class="quiz-q-text">8. Which file, if present, disables the legacy SCP protocol and the <code>scp -O</code> option on a RHEL 10 system?</p>
+            <ul class="quiz-options">
+                <li class="quiz-option"><input type="radio" name="q8" id="q8a" value="a" /><label for="q8a">a) <code>/etc/ssh/sshd_config</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8b" value="b" /><label for="q8b">b) <code>/etc/ssh/ssh_config</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8c" value="c" /><label for="q8c">c) <code>/etc/ssh/no_scp</code></label></li>
+                <li class="quiz-option"><input type="radio" name="q8" id="q8d" value="d" /><label for="q8d">d) <code>/etc/ssh/disable_scp</code></label></li>
+            </ul>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div class="quiz-actions">
+            <button class="quiz-btn primary" id="check-quiz" aria-label="Check quiz answers">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz" aria-label="Reset quiz">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" role="status" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- ==================== SECTION 9: HANDS-ON LAB ==================== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="lab-heading">Hands-On Lab: Transfer Files</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Scenario:</strong> You need to back up the configuration files from <code>servera</code> to <code>serverb</code>, and then securely deliver a document from <code>serverb</code> to the <code>workstation</code> machine. You must complete these tasks using <code>rsync</code> and <code>sftp</code>.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Before You Begin</span></div>
+            <p>Run the lab setup command on <code>workstation</code> to prepare the environment and ensure all required resources are available:</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Lab setup command">
+            <div class="code-title">Initialize the lab environment</div>
+            <code>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">lab start rcopy-review</span>
+            </code>
+        </div>
+
+        <div class="expandable" id="lab-task1">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1-content">
+                <span>Task 1: Log in to serverb and elevate to root</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1-content" role="region">
+                <p><strong>Objective:</strong> SSH to <code>serverb</code> and switch to the root user to gain the permissions needed for the rsync sync.</p>
+                <div class="code-block" role="region" aria-label="Task 1 solution">
+                    <div class="code-title">Connect to serverb and become root</div>
+                    <code>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-output">[sudo] password for student: student</span>
+<span class="code-root-prompt">[root@serverb ~]#</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-task2">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2-content">
+                <span>Task 2: Create /configsync and synchronize /etc from servera</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2-content" role="region">
+                <p><strong>Objective:</strong> Create the destination directory on <code>serverb</code>, then use <code>rsync</code> in archive mode to pull the entire <code>/etc</code> directory tree from <code>servera</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 2 solution">
+                    <div class="code-title">Create directory and rsync /etc from servera</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">mkdir /configsync</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">rsync -av root@servera:/etc /configsync</span>
+<span class="code-output">receiving incremental file list</span>
+<span class="code-output">etc/</span>
+<span class="code-output">etc/.pwd.lock</span>
+<span class="code-output">etc/.rht_authorized_keys</span>
+<span class="code-output">etc/.updated</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-output">sent 16,649 bytes  received 22,010,221 bytes  14,684,580.00 bytes/sec</span>
+<span class="code-output">total size is 21,925,844  speedup is 1.00</span>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">ls -l /configsync</span>
+<span class="code-output">total 12</span>
+<span class="code-output">drwxr-xr-x. 111 root root 8192 Jul 11 06:29 etc</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-task3">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3-content">
+                <span>Task 3: Use SFTP to push securedoc to workstation</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3-content" role="region">
+                <p><strong>Objective:</strong> While still root on <code>serverb</code>, use <code>sftp</code> to connect to <code>workstation</code> and upload the <code>/root/securedoc</code> file to <code>/home/student</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 3 solution">
+                    <div class="code-title">SFTP from serverb to workstation</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">sftp student@workstation</span>
+<span class="code-output">student@workstation's password: student</span>
+<span class="code-output">Connected to workstation.</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">put securedoc</span>
+<span class="code-output">Uploading securedoc to /home/student/securedoc</span>
+<span class="code-output">securedoc                     100%   30  68.9KB/s   00:00</span>
+<span class="code-sftp">sftp&gt;</span> <span class="code-command">exit</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-task4">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4-content">
+                <span>Task 4: Return to workstation and verify the file</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4-content" role="region">
+                <p><strong>Objective:</strong> Exit back to <code>workstation</code> and confirm the file was transferred successfully.</p>
+                <div class="code-block" role="region" aria-label="Task 4 solution">
+                    <div class="code-title">Return to workstation and read the transferred file</div>
+                    <code>
+<span class="code-root-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">cat securedoc</span>
+<span class="code-output">Secure copy file from serverb</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" id="lab-task5">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5-content">
+                <span>Task 5: Grade and finish the lab</span>
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task5-content" role="region">
+                <div class="code-block" role="region" aria-label="Task 5 grade and finish">
+                    <div class="code-title">Grade your work and clean up</div>
+                    <code>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">lab grade rcopy-review</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">lab finish rcopy-review</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="lab-checklist" aria-label="Lab completion checklist">
+            <li>Logged in to serverb as student and escalated to root with sudo -i</li>
+            <li>Created /configsync on serverb</li>
+            <li>Synchronized /etc from servera to /configsync using rsync -av</li>
+            <li>Verified that /configsync/etc exists and contains the configuration files</li>
+            <li>Used sftp to connect from serverb to workstation and uploaded securedoc</li>
+            <li>Verified the file contents with cat on workstation</li>
+            <li>Ran lab grade rcopy-review and resolved any failures</li>
+            <li>Ran lab finish rcopy-review to clean up the environment</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ==================== SECTION 10: SUMMARY ==================== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned three complementary tools for transferring files between RHEL systems &mdash; all based on SSH for security, but each suited to different workflows.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li><strong>SFTP</strong> provides an interactive session for browsing and transferring files. Use <code>put</code> to upload and <code>get</code> to download. Prefix commands with <code>l</code> (e.g., <code>lpwd</code>, <code>lls</code>) to run them on the local system.</li>
+            <li><strong>SCP</strong> is a non-interactive, one-command-line tool. In RHEL 10, <code>scp</code> uses SFTP internally. Avoid the <code>-O</code> flag and the legacy SCP protocol due to CVE-2020-15778.</li>
+            <li><strong>rsync</strong> minimizes network traffic by transferring only changed data. Use <code>-a</code> for archive mode, <code>-v</code> for verbose output, and <code>-n</code> for a safe dry run before committing.</li>
+            <li>The <strong>trailing slash</strong> on an rsync source directory is critical: without it, the directory itself is synced; with it, only the <em>contents</em> are synced to the destination.</li>
+            <li>To preserve <strong>ACLs</strong> and <strong>SELinux contexts</strong> with rsync, add <code>-A</code> and <code>-X</code> respectively.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="summary-table" aria-label="Chapter 8 command reference">
+            <thead>
+                <tr><th scope="col">Command</th><th scope="col">Purpose</th><th scope="col">Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>sftp user@host</td><td>Open interactive SFTP session</td><td><code>sftp student@serverb</code></td></tr>
+                <tr><td>sftp&gt; put file</td><td>Upload file to remote host</td><td><code>put /etc/hosts</code></td></tr>
+                <tr><td>sftp&gt; get file</td><td>Download file from remote host</td><td><code>get /etc/dnf/dnf.conf</code></td></tr>
+                <tr><td>sftp&gt; put -r dir</td><td>Recursively upload directory</td><td><code>put -r mydir</code></td></tr>
+                <tr><td>scp src dst</td><td>Copy file to/from remote host</td><td><code>scp /etc/hosts user@host:~/</code></td></tr>
+                <tr><td>rsync -av src dst</td><td>Archive sync with verbose output</td><td><code>rsync -av /var/log hosta:/tmp</code></td></tr>
+                <tr><td>rsync -avn src dst</td><td>Dry run (no changes made)</td><td><code>rsync -avn /var/log hosta:/tmp</code></td></tr>
+                <tr><td>rsync -avAX src dst</td><td>Archive + ACLs + SELinux contexts</td><td><code>rsync -avAX /etc hosta:/backup</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav" aria-label="Chapter navigation">
+            <a href="rh134_chapter7_archiving.html" class="nav-chapter-btn prev">&#x2190; Chapter 7: Archiving Files</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter9_boot_process.html" class="nav-chapter-btn next">Chapter 9: Controlling the Boot Process &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <p><strong>Red Hat System Administration II (RH134)</strong> &bull; Chapter 8: Transferring Files</p>
+    <p>RHEL 10 &bull; RHCSA Exam Preparation</p>
+    <p>&copy; 2025 Course Materials. Red Hat&reg; and RHEL&reg; are trademarks of Red Hat, Inc.</p>
+</footer>
+
+<script>
+// ==================== PROGRESS BAR ====================
+(function() {
+    const sections = document.querySelectorAll('.content-section');
+    const fill = document.getElementById('progress-fill');
+    const text = document.getElementById('progress-text');
+    const bar  = document.getElementById('progress-bar');
+    const visited = new Set();
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) visited.add(e.target.id); });
+        const pct = Math.round((visited.size / sections.length) * 100);
+        fill.style.width = pct + '%';
+        text.textContent = 'Progress: ' + pct + '%';
+        bar.setAttribute('aria-valuenow', pct);
+    }, { threshold: 0.25 });
+    sections.forEach(s => obs.observe(s));
+})();
+
+// ==================== ACTIVE NAV ====================
+(function() {
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.content-section');
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            const id = e.target.id.replace('section-','');
+            const btn = document.querySelector('.nav-btn[data-section="' + id + '"]');
+            if (!btn) return;
+            if (e.isIntersecting) {
+                navBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active', 'visited');
+            }
+        });
+    }, { threshold: 0.4 });
+    sections.forEach(s => obs.observe(s));
+})();
+
+// ==================== TOOLTIP SYSTEM ====================
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeAnchor = null;
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+        bubble.textContent = contentEl.textContent.trim();
+        bubble.classList.remove('tt-above','tt-below','tt-left','tt-right');
+        bubble.style.cssText = '';
+        bubble.classList.add('visible');
+
+        requestAnimationFrame(() => {
+            const r = term.getBoundingClientRect();
+            const bw = bubble.offsetWidth;
+            const bh = bubble.offsetHeight;
+            const margin = 8;
+            const spaceAbove = r.top;
+            const spaceBelow = window.innerHeight - r.bottom;
+
+            let top, left;
+            if (spaceAbove >= bh + 12) {
+                bubble.classList.add('tt-above');
+                top = r.top - bh - 10;
+                left = r.left + r.width / 2 - bw / 2;
+            } else if (spaceBelow >= bh + 12) {
+                bubble.classList.add('tt-below');
+                top = r.bottom + 10;
+                left = r.left + r.width / 2 - bw / 2;
+            } else if (window.innerWidth - r.right >= bw + 12) {
+                bubble.classList.add('tt-right');
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.right + 10;
+            } else {
+                bubble.classList.add('tt-left');
+                top = r.top + r.height / 2 - bh / 2;
+                left = r.left - bw - 10;
+            }
+            // Clamp to viewport
+            left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+            top  = Math.max(margin, Math.min(top,  window.innerHeight - bh - margin));
+            bubble.style.left = left + 'px';
+            bubble.style.top  = top  + 'px';
+        });
+        activeAnchor = term;
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+        activeAnchor = null;
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => { if (e.key === 'Escape') { hideTooltip(); term.blur(); }});
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && activeAnchor) hideTooltip(); });
+})();
+
+// ==================== TAB SYSTEM ====================
+(function() {
+    document.querySelectorAll('.tabs-container').forEach(container => {
+        const tabs = container.querySelectorAll('.tab-btn');
+        const panels = container.querySelectorAll('.tab-panel');
+
+        function activateTab(index) {
+            tabs.forEach((t, i) => {
+                const active = i === index;
+                t.setAttribute('aria-selected', active);
+                panels[i].classList.toggle('active', active);
+            });
+        }
+
+        tabs.forEach((tab, i) => {
+            tab.addEventListener('click', () => activateTab(i));
+            tab.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') { e.preventDefault(); activateTab((i + 1) % tabs.length); tabs[(i + 1) % tabs.length].focus(); }
+                if (e.key === 'ArrowLeft')  { e.preventDefault(); activateTab((i - 1 + tabs.length) % tabs.length); tabs[(i - 1 + tabs.length) % tabs.length].focus(); }
+            });
+        });
+    });
+})();
+
+// ==================== EXPANDABLES ====================
+(function() {
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const content = document.getElementById(header.getAttribute('aria-controls'));
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+})();
+
+// ==================== QUIZ LOGIC ====================
+(function() {
+    const checkBtn  = document.getElementById('check-quiz');
+    const resetBtn  = document.getElementById('reset-quiz');
+    const scoreDiv  = document.getElementById('quiz-score');
+
+    checkBtn.addEventListener('click', () => {
+        let correct = 0;
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            const n  = q.dataset.question;
+            const ans = q.dataset.correct;
+            const sel = q.querySelector('input[name="q' + n + '"]:checked');
+            const fb  = document.getElementById('feedback-' + n);
+            q.classList.remove('correct','incorrect');
+            fb.classList.remove('show','correct','incorrect');
+            if (!sel) { fb.textContent = 'Please select an answer.'; fb.classList.add('show','incorrect'); return; }
+            if (sel.value === ans) {
+                correct++;
+                q.classList.add('correct');
+                fb.textContent = '\u2713 Correct!';
+                fb.classList.add('show','correct');
+            } else {
+                q.classList.add('incorrect');
+                const correctLabel = q.querySelector('input[value="' + ans + '"]');
+                const correctText  = correctLabel ? correctLabel.parentElement.textContent.trim() : '';
+                fb.textContent = '\u2717 Incorrect. The correct answer is: ' + correctText;
+                fb.classList.add('show','incorrect');
+            }
+        });
+        const total = document.querySelectorAll('.quiz-question').length;
+        scoreDiv.textContent = 'Score: ' + correct + ' / ' + total + ' correct';
+        scoreDiv.classList.add('show');
+    });
+
+    resetBtn.addEventListener('click', () => {
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            q.classList.remove('correct','incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            const n  = q.dataset.question;
+            const fb = document.getElementById('feedback-' + n);
+            fb.classList.remove('show','correct','incorrect');
+            fb.textContent = '';
+        });
+        scoreDiv.classList.remove('show');
+        scoreDiv.textContent = '';
+    });
+})();
+
+// ==================== SFTP SIMULATOR ====================
+(function() {
+    const output   = document.getElementById('sftp-sim-output');
+    const input    = document.getElementById('sftp-sim-input');
+    const runBtn   = document.getElementById('sftp-sim-run');
+    const chips    = document.querySelectorAll('.sim-chip');
+
+    let connected  = true;
+    let remoteCwd  = '/home/remoteuser';
+    let localCwd   = '/home/student';
+    let remoteFs   = {
+        '/home/remoteuser': ['reports','dnf.conf'],
+        '/home/remoteuser/reports': ['q1.txt','q2.txt'],
+        '/etc': ['hosts','hostname','dnf'],
+        '/etc/dnf': ['dnf.conf']
+    };
+    let localFs    = {
+        '/home/student': ['readme.txt','setup.sh'],
+        '/etc': ['hosts','hostname']
+    };
+    let sessionActive = true;
+
+    function print(html) {
+        output.innerHTML += html + '\n';
+        output.scrollTop = output.scrollHeight;
+    }
+
+    function getDir(fs, path) { return fs[path] || null; }
+
+    function resolvePath(base, p) {
+        if (!p || p === '~') return '/home/remoteuser';
+        if (p.startsWith('/')) return p.replace(/\/+$/,'') || '/';
+        const parts = (base + '/' + p).split('/').filter(Boolean);
+        const stack = [];
+        for (const part of parts) { if (part === '..') stack.pop(); else if (part !== '.') stack.push(part); }
+        return '/' + stack.join('/');
+    }
+
+    function init() {
+        output.innerHTML = '';
+        print('<span class="sim-info">Connected to serverb.lab.example.com.</span>');
+        print('<span class="sim-info">Type commands below or click a chip. Type <strong>help</strong> for a list.</span>');
+        print('');
+        sessionActive = true; connected = true;
+    }
+
+    function runCmd(raw) {
+        if (!raw.trim()) return;
+        const line = raw.trim();
+        print('<span class="sim-prompt">sftp&gt; </span><span style="color:#f1fa8c">' + escHtml(line) + '</span>');
+
+        if (!sessionActive) { print('<span class="sim-error">Session closed. Refresh the page to start over.</span>'); return; }
+
+        const parts = line.split(/\s+/);
+        const cmd   = parts[0].toLowerCase();
+        const arg1  = parts[1] || '';
+
+        switch (cmd) {
+            case 'pwd':
+                print('<span class="sim-info">Remote working directory: ' + remoteCwd + '</span>');
+                break;
+            case 'lpwd':
+                print('<span class="sim-info">Local working directory: ' + localCwd + '</span>');
+                break;
+            case 'ls': {
+                const dir = getDir(remoteFs, remoteCwd);
+                print(dir ? '<span class="sim-success">' + (dir.join('   ') || '(empty)') + '</span>' : '<span class="sim-error">Cannot open directory: No such file.</span>');
+                break;
+            }
+            case 'lls': {
+                const dir = getDir(localFs, localCwd);
+                print(dir ? '<span class="sim-success">' + (dir.join('   ') || '(empty)') + '</span>' : '<span class="sim-error">Cannot open local directory.</span>');
+                break;
+            }
+            case 'cd': {
+                const target = resolvePath(remoteCwd, arg1 || '/home/remoteuser');
+                if (getDir(remoteFs, target) !== null) { remoteCwd = target; print('<span class="sim-success">Remote directory changed to ' + remoteCwd + '</span>'); }
+                else print('<span class="sim-error">Couldn\'t stat remote file: No such file or directory.</span>');
+                break;
+            }
+            case 'lcd': {
+                const target = resolvePath(localCwd, arg1 || '/home/student');
+                if (getDir(localFs, target) !== null) { localCwd = target; print('<span class="sim-success">Local directory changed to ' + localCwd + '</span>'); }
+                else print('<span class="sim-error">Couldn\'t change local directory: No such file.</span>');
+                break;
+            }
+            case 'mkdir': {
+                if (!arg1) { print('<span class="sim-error">mkdir: missing operand.</span>'); break; }
+                const np = resolvePath(remoteCwd, arg1);
+                if (remoteFs[np] !== undefined) { print('<span class="sim-error">mkdir: cannot create directory &apos;' + escHtml(arg1) + '&apos;: File exists.</span>'); break; }
+                remoteFs[np] = [];
+                const parent = resolvePath(remoteCwd, '.');
+                if (remoteFs[parent]) remoteFs[parent].push(arg1);
+                print('<span class="sim-success">Remote directory created: ' + np + '</span>');
+                break;
+            }
+            case 'put': {
+                const recursive = arg1 === '-r';
+                const fname = recursive ? (parts[2] || '') : arg1;
+                if (!fname) { print('<span class="sim-error">put: missing filename.</span>'); break; }
+                const basename = fname.split('/').pop();
+                const destPath = remoteCwd + '/' + basename;
+                if (!remoteFs[remoteCwd]) remoteFs[remoteCwd] = [];
+                if (!remoteFs[remoteCwd].includes(basename)) remoteFs[remoteCwd].push(basename);
+                const size = Math.floor(Math.random() * 900 + 100);
+                print('<span class="sim-success">Uploading ' + escHtml(fname) + ' to ' + destPath + '</span>');
+                print('<span class="sim-success">' + escHtml(basename).padEnd(30) + '100%  ' + size + '  ' + (size/400).toFixed(1) + 'KB/s  00:00</span>');
+                break;
+            }
+            case 'get': {
+                if (!arg1) { print('<span class="sim-error">get: missing filename.</span>'); break; }
+                const basename = arg1.split('/').pop();
+                if (!localFs[localCwd]) localFs[localCwd] = [];
+                if (!localFs[localCwd].includes(basename)) localFs[localCwd].push(basename);
+                const size = Math.floor(Math.random() * 900 + 100);
+                print('<span class="sim-success">Fetching ' + escHtml(arg1) + ' to ' + basename + '</span>');
+                print('<span class="sim-success">' + escHtml(arg1).padEnd(30) + '100%  ' + size + '  ' + (size/400).toFixed(1) + 'KB/s  00:00</span>');
+                break;
+            }
+            case 'help':
+                print('<span class="sim-info">Available commands: pwd lpwd ls lls cd lcd mkdir put get rm exit bye help</span>');
+                break;
+            case 'exit':
+            case 'bye':
+                print('<span class="sim-info">Connection to serverb closed.</span>');
+                sessionActive = false;
+                break;
+            case 'rm': {
+                if (!arg1) { print('<span class="sim-error">rm: missing operand.</span>'); break; }
+                const dir = remoteFs[remoteCwd];
+                if (dir && dir.includes(arg1)) {
+                    remoteFs[remoteCwd] = dir.filter(f => f !== arg1);
+                    print('<span class="sim-success">Removed ' + escHtml(arg1) + '</span>');
+                } else print('<span class="sim-error">rm: ' + escHtml(arg1) + ': No such file.</span>');
+                break;
+            }
+            default:
+                print('<span class="sim-error">Unknown command: ' + escHtml(cmd) + '. Type help for a list of commands.</span>');
+        }
+    }
+
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    runBtn.addEventListener('click', () => { const v = input.value; input.value = ''; runCmd(v); input.focus(); });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') { const v = input.value; input.value = ''; runCmd(v); }});
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => { input.value = chip.dataset.cmd; input.focus(); runCmd(chip.dataset.cmd); input.value = ''; });
+        chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); chip.click(); }});
+    });
+
+    init();
+})();
+</script>
+</body>
+</html>
