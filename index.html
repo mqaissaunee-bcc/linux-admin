@@ -486,6 +486,31 @@
             background: linear-gradient(135deg, var(--rh-teal) 0%, #33CCCC 100%);
         }
 
+        /* RHCSA Exam Prep card — gold/trophy theme */
+        .card-exam-prep .card-header::before {
+            background: linear-gradient(90deg, #996600 0%, var(--rh-gold) 50%, #FFCC33 100%);
+        }
+        .card-exam-prep .card-icon {
+            background: linear-gradient(135deg, #996600 0%, var(--rh-gold) 100%);
+        }
+        .card-exam-prep {
+            border: 2px solid transparent;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+        }
+        .card-exam-prep:hover {
+            border-color: var(--rh-gold);
+            box-shadow: 0 8px 28px rgba(204,153,0,0.25);
+        }
+        .card-exam-prep .card-number {
+            color: #996600;
+        }
+        .card-exam-prep .card-action {
+            color: #996600;
+        }
+        .card-exam-prep .card-action svg {
+            fill: #996600;
+        }
+
         .card-icon {
             width: 56px;
             height: 56px;
@@ -1213,6 +1238,50 @@
             </div>
 
             <div class="nav-grid" id="main-nav-grid">
+                <!-- RHCSA Exam Prep Card — pinned first so students can always find it quickly -->
+                <a href="rhcsa_exam_simulator.html" target="_blank" rel="noopener noreferrer" class="nav-card card-exam-prep" role="listitem" aria-labelledby="card-rhcsa-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">Exam Prep</span>
+                        <h3 class="card-title" id="card-rhcsa-title">RHCSA Exam Simulator</h3>
+                        <p class="card-subtitle">Practice for the EX200 certification exam</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Tasks randomly drawn from a 90-task bank that mirror the real
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-ex200">EX200</button>
+                                <span class="tooltip-content" id="tooltip-ex200" role="tooltip">The RHCSA exam (EX200) is a 3-hour, performance-based exam on a live RHEL 10 system. No multiple choice &mdash; you complete real administrative tasks. Passing score is 210/300 (70%).</span>
+                            </span>
+                            exam format. Practice mode shows step-by-step guidance; Exam mode hides all hints for realistic conditions.
+                        </p>
+                        <ul class="card-topics">
+                            <li>40 tasks drawn from a 90-task bank across 8 domains</li>
+                            <li>Practice &amp; Exam modes with live 3-hour timer</li>
+                            <li>Built-in man pages for 68 critical commands</li>
+                            <li>Focused coverage of highest-failure areas</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2&ndash;3 Hours
+                        </span>
+                        <span class="card-action">
+                            Launch Simulator
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
                 <!-- Schedule Card -->
                 <a href="redhat-schedule.html" target="_blank" rel="noopener noreferrer" class="nav-card card-schedule" role="listitem" aria-labelledby="card-schedule-title">
                     <div class="card-header">
@@ -2290,7 +2359,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">10 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">11 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -2832,6 +2901,64 @@
                         </span>
                     </div>
                 </a>
+
+                <!-- RH134 Chapter 11 Card -->
+                <a href="rh134_chapter11_lvm.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch11-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 11</span>
+                        <h3 class="card-title" id="card-rh134-ch11-title">Managing Storage with LVM</h3>
+                        <p class="card-subtitle">Logical volumes, volume groups, and physical volumes</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Create flexible storage using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-lvm11">LVM</button>
+                                <span class="tooltip-content" id="tooltip-lvm11" role="tooltip">Logical Volume Manager (LVM) adds an abstraction layer between physical disks and file systems. It enables resizing volumes online, spanning storage across multiple disks, and taking snapshots without downtime.</span>
+                            </span>
+                            by combining
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-pv11">physical volumes</button>
+                                <span class="tooltip-content" id="tooltip-pv11" role="tooltip">A physical volume (PV) is a disk or partition initialized for use by LVM with pvcreate. Use pvdisplay or pvs to inspect PVs. Multiple PVs can be pooled into a single volume group.</span>
+                            </span>
+                            into
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-vg11">volume groups</button>
+                                <span class="tooltip-content" id="tooltip-vg11" role="tooltip">A volume group (VG) is a pool of storage created from one or more physical volumes using vgcreate. Logical volumes are carved out of the VG's total space. Use vgdisplay or vgs to inspect volume groups.</span>
+                            </span>
+                            and carving out
+                            <span class="tooltip-container tooltip-right">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-lv11">logical volumes</button>
+                                <span class="tooltip-content" id="tooltip-lv11" role="tooltip">A logical volume (LV) is a flexible partition created from a volume group using lvcreate. LVs can be resized online with lvextend or lvreduce, formatted with any file system, and extended across multiple physical disks transparently.</span>
+                            </span>
+                            that can be extended online without downtime.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Creating PVs, VGs, and LVs</li>
+                            <li>Extending and reducing logical volumes</li>
+                            <li>Replacing physical volumes and removing LVM storage</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
                     </div><!-- /.accordion-inner (end RH134) -->
                 </div><!-- /.accordion-body#accordion-body-rh134 -->
             </div><!-- /.nav-grid -->
@@ -3164,8 +3291,18 @@
                     </div>
                 </div>
 
-                <div class="path-item" role="listitem">
+                <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">32</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Manage Storage with LVM</h3>
+                        <p class="path-description">
+                            RH134 Chapter 11 covers the Logical Volume Manager&mdash;creating physical volumes, volume groups, and logical volumes, extending storage online, and safely removing LVM components.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item" role="listitem">
+                    <div class="path-marker" aria-hidden="true">33</div>
                     <div class="path-content">
                         <h3 class="path-title">Reference the Schedule</h3>
                         <p class="path-description">
@@ -3264,6 +3401,7 @@
                 <a href="rh134_chapter8_transferring_files.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 8</a>
                 <a href="rh134_chapter9_tuning.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 9</a>
                 <a href="rh134_chapter10_basic_storage.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 10</a>
+                <a href="rh134_chapter11_lvm.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 11</a>
             </nav>
         </div>
     </footer>
