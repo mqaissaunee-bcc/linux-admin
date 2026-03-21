@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 11: Managing Storage with LVM | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; font-weight: 600; }
+        .code-output { color: #CBD5E0; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-block code .code-prompt, .code-block code .code-command,
+        .code-block code .code-output, .code-block code .code-comment { display: inline; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 2px dotted var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { display: none; position: fixed; z-index: 9999; background: var(--rh-gray-dark); color: var(--rh-white); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; padding: 10px 14px; border-radius: var(--radius-md); max-width: 280px; box-shadow: var(--shadow-lg); pointer-events: none; }
+        #tooltip-bubble.visible { display: block; }
+        #tooltip-bubble::after { content: ''; position: absolute; width: 0; height: 0; }
+        #tooltip-bubble.tip-above::after { bottom: -7px; left: 50%; transform: translateX(-50%); border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-below::after { top: -7px; left: 50%; transform: translateX(-50%); border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { top: 50%; left: -7px; transform: translateY(-50%); border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-right: 7px solid var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { top: 50%; right: -7px; transform: translateY(-50%); border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 7px solid var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-light); flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; color: var(--rh-gray); transition: all var(--transition-fast); border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue); border-bottom-color: var(--rh-blue); background: var(--rh-gray-lighter); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin-bottom: 12px; overflow: hidden; }
+        .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; cursor: pointer; background: var(--rh-gray-lighter); font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E0E0; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue); color: var(--rh-white); }
+        .expandable-icon { font-size: 0.8rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* QUIZ */
+        .quiz-question { margin-bottom: 24px; padding: 20px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); border-left: 4px solid var(--rh-blue); }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; cursor: pointer; padding: 8px 12px; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: #E8F0FF; }
+        .quiz-option input { margin-top: 3px; flex-shrink: 0; }
+        .quiz-option label { cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; min-height: 1.2rem; }
+        .quiz-question.correct { border-left-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-left-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-btn { padding: 12px 28px; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin-right: 12px; margin-top: 8px; }
+        .quiz-btn.primary { background: var(--rh-blue); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.secondary { background: var(--rh-gray-light); color: var(--rh-black); }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-medium); color: var(--rh-white); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); margin-top: 16px; padding: 12px 20px; background: #EEF4FF; border-radius: var(--radius-md); display: none; }
+
+        /* LVM DIAGRAM */
+        .lvm-diagram { display: flex; gap: 0; align-items: stretch; margin: 1.5rem 0; overflow-x: auto; }
+        .lvm-layer { flex: 1; min-width: 140px; display: flex; flex-direction: column; gap: 4px; }
+        .lvm-layer-header { font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; text-align: center; padding: 8px 4px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .layer-phys .lvm-layer-header { background: #4A5568; color: white; }
+        .layer-pv .lvm-layer-header { background: #2D3748; color: white; }
+        .layer-vg .lvm-layer-header { background: var(--rh-blue-dark); color: white; }
+        .layer-lv .lvm-layer-header { background: var(--rh-teal-dark); color: white; }
+        .lvm-block { padding: 10px 8px; text-align: center; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-sm); }
+        .layer-phys .lvm-block { background: #CBD5E0; color: #2D3748; }
+        .layer-pv .lvm-block { background: #90CDF4; color: #003366; }
+        .layer-vg .lvm-block { background: #BEE3F8; color: #003366; }
+        .layer-lv .lvm-block { background: #81E6D9; color: #006666; }
+        .lvm-arrow { display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--rh-gray-medium); padding: 0 4px; align-self: center; }
+        .lvm-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-family: var(--font-display); font-size: 0.8rem; }
+        .lvm-legend-item { display: flex; align-items: center; gap: 6px; }
+        .lvm-legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+        /* COMMAND CARD GRID */
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 1.2rem 0; }
+        .cmd-card { background: var(--rh-gray-lighter); border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); padding: 16px; border-top: 4px solid var(--rh-blue); }
+        .cmd-card-name { font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; color: var(--rh-blue-dark); margin-bottom: 6px; }
+        .cmd-card-desc { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray-dark); line-height: 1.4; }
+        .cmd-card.pv-color { border-top-color: #4A5568; }
+        .cmd-card.vg-color { border-top-color: var(--rh-blue); }
+        .cmd-card.lv-color { border-top-color: var(--rh-teal); }
+
+        /* LVM SIMULATOR */
+        .simulator { background: #0D1117; border-radius: var(--radius-md); padding: 20px; margin: 1.5rem 0; color: #58A6FF; font-family: var(--font-mono); font-size: 0.88rem; }
+        .sim-output { background: #161B22; border-radius: var(--radius-sm); padding: 12px; min-height: 80px; color: #E6EDF3; margin-bottom: 12px; white-space: pre-wrap; line-height: 1.5; max-height: 220px; overflow-y: auto; }
+        .sim-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sim-btn { padding: 8px 14px; background: #21262D; color: #58A6FF; border: 1px solid #30363D; border-radius: var(--radius-sm); cursor: pointer; font-family: var(--font-mono); font-size: 0.82rem; transition: all var(--transition-fast); }
+        .sim-btn:hover { background: #30363D; color: #79C0FF; }
+        .sim-btn:active { background: var(--rh-blue-dark); }
+        .sim-label { font-family: var(--font-display); font-size: 0.8rem; color: #8B949E; margin-bottom: 8px; }
+        .sim-state { font-family: var(--font-display); font-size: 0.78rem; color: #8B949E; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+        .sim-state-item { background: #21262D; border: 1px solid #30363D; padding: 4px 10px; border-radius: 20px; }
+        .sim-state-item.active { border-color: #58A6FF; color: #58A6FF; }
+
+        /* SUMMARY TABLE */
+        .cmd-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-family: var(--font-display); font-size: 0.88rem; }
+        .cmd-table th { background: var(--rh-blue-dark); color: white; padding: 10px 14px; text-align: left; font-weight: 600; }
+        .cmd-table td { padding: 9px 14px; border-bottom: 1px solid var(--rh-gray-lighter); }
+        .cmd-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .cmd-table tr:hover { background: #EEF4FF; }
+        .cmd-table code { font-family: var(--font-mono); font-size: 0.82rem; background: #E8F0FF; padding: 2px 6px; border-radius: 3px; color: var(--rh-blue-dark); }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 30px 0 10px; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); }
+        .nav-chapter-btn.prev { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 2px solid var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-light); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: white; }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-teal); color: white; }
+        .nav-chapter-btn.next:hover { background: var(--rh-teal-dark); }
+
+        /* FOOTER */
+        .main-footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.8; }
+        .main-footer a { color: var(--rh-blue-light); text-decoration: none; }
+        .main-footer a:hover { text-decoration: underline; }
+
+        /* CHECKLIST */
+        .checklist { list-style: none; margin: 1rem 0; }
+        .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.92rem; }
+        .checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 700; font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .lvm-diagram { flex-direction: column; }
+            .lvm-arrow { transform: rotate(90deg); }
+            .cmd-grid { grid-template-columns: 1fr; }
+            .chapter-nav { flex-direction: column; align-items: stretch; }
+            .nav-chapter-btn { justify-content: center; }
+            .sim-controls { flex-direction: column; }
+        }
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#127939;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10 &bull; Chapter 11</div>
+        <h1 class="chapter-title">Managing Storage with Logical Volume Manager</h1>
+        <p class="chapter-subtitle">Create, extend, replace, and remove LVM physical volumes, volume groups, and logical volumes</p>
+        <div class="header-meta">
+            <span>&#9200; 2&ndash;3 Hours</span>
+            <span>&#128218; RH134 Chapter 11</span>
+            <span>&#127919; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-label="Chapter reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progress-bar">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" id="nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="objectives">1. Objectives</a></li>
+        <li><a href="#section-overview" class="nav-btn" data-section="overview">2. LVM Overview</a></li>
+        <li><a href="#section-create" class="nav-btn" data-section="create">3. Creating LVs</a></li>
+        <li><a href="#section-display" class="nav-btn" data-section="display">4. Display Status</a></li>
+        <li><a href="#section-extend" class="nav-btn" data-section="extend">5. Extending LVs</a></li>
+        <li><a href="#section-replace" class="nav-btn" data-section="replace">6. Replacing &amp; Removing</a></li>
+        <li><a href="#section-exercise" class="nav-btn" data-section="exercise">7. Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="quiz">8. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="lab">9. Hands-On Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="summary">10. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- SECTION 1: OBJECTIVES -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Describe how the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvm">Logical Volume Manager (LVM)</span> <span class="tooltip-content" id="tt-lvm">A storage management system in Linux that provides an abstraction layer between physical storage devices and file systems, enabling flexible resizing, pooling, and management of storage without downtime.</span> works and why it is preferred over direct disk partitioning for production systems.</li>
+            <li>Create <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pv">physical volumes (PVs)</span> <span class="tooltip-content" id="tt-pv">A physical storage device or partition that has been initialized for use by LVM. It is labeled with LVM metadata so it can be added to a volume group.</span>, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vg">volume groups (VGs)</span> <span class="tooltip-content" id="tt-vg">A storage pool made up of one or more physical volumes. The VG is the resource from which logical volumes are carved out.</span>, and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lv">logical volumes (LVs)</span> <span class="tooltip-content" id="tt-lv">A virtual partition created from free space in a volume group. Applications and file systems access LVs just like regular block devices.</span> using LVM command-line tools.</li>
+            <li>Format a logical volume with an XFS or ext4 file system and mount it persistently using <code>/etc/fstab</code>.</li>
+            <li>Extend a logical volume and resize its file system online (without unmounting) using <code>lvextend</code> and <code>xfs_growfs</code> or <code>resize2fs</code>.</li>
+            <li>Extend and contract a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vgextend">volume group</span> <span class="tooltip-content" id="tt-vgextend">A volume group can be expanded by adding new physical volumes with vgextend, or shrunk by removing PVs with vgreduce after migrating their data using pvmove.</span> by adding or removing physical volumes.</li>
+            <li>Replace a failing physical volume by migrating its data to a new PV, then removing it from the volume group.</li>
+            <li>Remove logical volumes, volume groups, and physical volumes cleanly and safely.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- SECTION 2: LVM OVERVIEW -->
+<section id="section-overview" class="content-section" aria-labelledby="overview-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="overview-heading">Logical Volume Manager Overview</h2>
+    </div>
+    <div class="section-body">
+        <p>Traditional disk partitioning has a significant limitation: once you create a partition of a certain size, resizing it requires unmounting the file system, repartitioning the disk, and potentially moving data&mdash;all of which cause downtime. On production servers running databases, web servers, or other critical services, this is unacceptable.</p>
+        <p>The <strong>Logical Volume Manager (LVM)</strong> solves this by inserting a virtualization layer between the physical hardware and the operating system. File systems no longer interact directly with a physical disk partition; instead, they sit on top of a <em>logical volume</em> that LVM manages. The result is flexible, live storage management.</p>
+
+        <h3>The Three-Layer Architecture</h3>
+        <p>LVM organizes storage into three abstraction layers. Understanding each layer is fundamental to working effectively with LVM.</p>
+
+        <!-- LVM Visual Diagram -->
+        <div class="lvm-diagram" role="img" aria-label="LVM three-layer architecture diagram showing physical devices, physical volumes, volume group, and logical volumes">
+            <div class="lvm-layer layer-phys">
+                <div class="lvm-layer-header">Physical Devices</div>
+                <div class="lvm-block">/dev/sdb1</div>
+                <div class="lvm-block">/dev/sdb2</div>
+                <div class="lvm-block">/dev/sdc</div>
+            </div>
+            <div class="lvm-arrow" aria-hidden="true">&#8594;</div>
+            <div class="lvm-layer layer-pv">
+                <div class="lvm-layer-header">Physical Volumes (PVs)</div>
+                <div class="lvm-block">PV: /dev/sdb1<br><small>191 PEs free</small></div>
+                <div class="lvm-block">PV: /dev/sdb2<br><small>128 PEs free</small></div>
+                <div class="lvm-block">PV: /dev/sdc<br><small>256 PEs free</small></div>
+            </div>
+            <div class="lvm-arrow" aria-hidden="true">&#8594;</div>
+            <div class="lvm-layer layer-vg">
+                <div class="lvm-layer-header">Volume Group (VG)</div>
+                <div class="lvm-block" style="flex-grow:1;">vg01<br><small>575 PEs total<br>4 MiB per PE</small></div>
+            </div>
+            <div class="lvm-arrow" aria-hidden="true">&#8594;</div>
+            <div class="lvm-layer layer-lv">
+                <div class="lvm-layer-header">Logical Volumes (LVs)</div>
+                <div class="lvm-block">lv_data (300 MiB)<br><small>XFS mounted /data</small></div>
+                <div class="lvm-block">lv_logs (512 MiB)<br><small>XFS mounted /logs</small></div>
+                <div class="lvm-block">lv_swap (200 MiB)<br><small>Swap space</small></div>
+            </div>
+        </div>
+
+        <div class="tabs-container" id="tabs-layers">
+            <div class="tab-list" role="tablist" aria-label="LVM layer details">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-phys" id="tab-btn-phys">Physical Devices</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-pv-detail" id="tab-btn-pv">Physical Volumes</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-vg-detail" id="tab-btn-vg">Volume Groups</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-lv-detail" id="tab-btn-lv">Logical Volumes</button>
+            </div>
+            <div class="tab-panel active" id="tab-phys" role="tabpanel" aria-labelledby="tab-btn-phys">
+                <h4>Physical Devices</h4>
+                <p>At the base of the LVM stack are the raw block devices. These can be any of the following: whole disks (e.g., <code>/dev/sdb</code>), disk partitions (<code>/dev/sdb1</code>), RAID arrays (<code>/dev/md0</code>), or SAN (Storage Area Network) LUNs.</p>
+                <p>Before using a device in LVM, you <em>must</em> initialize the entire device&mdash;not just part of it&mdash;as an LVM physical volume. Partitioning is optional; you can pass a whole raw disk directly to <code>pvcreate</code>. When you do use partitions, mark them with the <code>lvm</code> flag using the <code>parted</code> command so the kernel recognizes the intent.</p>
+                <div class="note-box note">
+                    <div class="note-box-header"><span aria-hidden="true">&#128221;</span><span>Note</span></div>
+                    <p>Device names like <code>/dev/sdb</code> are assigned by the kernel during boot and can change between reboots depending on hardware order. LVM internally tracks devices by UUID, so volume groups remain accessible even if device names shift. Always use <code>lsblk</code>, <code>blkid</code>, or <code>cat /proc/partitions</code> to verify device names on your specific system.</p>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-pv-detail" role="tabpanel" aria-labelledby="tab-btn-pv">
+                <h4>Physical Volumes (PVs)</h4>
+                <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pv2">physical volume</span> <span class="tooltip-content" id="tt-pv2">A raw block device or partition that has been labeled by pvcreate to store LVM metadata. The metadata is written to a small reserved area at the beginning of the device.</span> is a block device that has been labeled with LVM metadata by the <code>pvcreate</code> command. The metadata includes a <strong>UUID</strong> that uniquely identifies the PV, and the device is then divided into small, fixed-size units called <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pe">physical extents (PEs)</span> <span class="tooltip-content" id="tt-pe">The smallest allocatable unit in a physical volume, defaulting to 4 MiB. LVM assigns logical extents in a volume group by mapping them to these physical extents on the underlying device.</span>.</p>
+                <p>Physical extents are the fundamental unit of storage allocation in LVM. By default, each PE is <strong>4 MiB</strong>. When you create a logical volume, LVM allocates a certain number of PEs from the volume group's pool. The LV size is always a multiple of the PE size.</p>
+            </div>
+            <div class="tab-panel" id="tab-vg-detail" role="tabpanel" aria-labelledby="tab-btn-vg">
+                <h4>Volume Groups (VGs)</h4>
+                <p>A <strong>volume group</strong> combines one or more PVs into a single storage pool. Think of a VG as a virtual disk with a fixed total capacity&mdash;but one whose capacity can be increased at any time by adding more PVs.</p>
+                <p>A PV can only belong to <em>one</em> VG at a time. Within the VG, storage is tracked in units of <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-le">logical extents (LEs)</span> <span class="tooltip-content" id="tt-le">A logical extent is the VG-level unit of allocation, the same size as a PE. Each LE in a logical volume maps to one PE in the underlying physical volume by default.</span>, which correspond one-to-one to PEs. The VG maintains a map of which LEs in each LV are assigned to which PEs on which PVs.</p>
+            </div>
+            <div class="tab-panel" id="tab-lv-detail" role="tabpanel" aria-labelledby="tab-btn-lv">
+                <h4>Logical Volumes (LVs)</h4>
+                <p>Logical volumes are created from the free extents in a VG. To the operating system and users, an LV appears as a regular block device (<code>/dev/vg01/lv_data</code> or <code>/dev/mapper/vg01-lv_data</code>)&mdash;you can format it with a file system, use it as swap space, or pass it to a database engine.</p>
+                <p>The critical advantage: LVs can be <strong>resized online</strong>. Because the mapping from LEs to PEs is maintained in the VG metadata, LVM can add or remove extents from an LV without disrupting running applications. This is the single most important capability LVM provides over raw partitions.</p>
+            </div>
+        </div>
+
+        <h3>Why Use LVM? Key Advantages</h3>
+        <div class="cmd-grid">
+            <div class="cmd-card">
+                <div class="cmd-card-name">&#8599; Online Resizing</div>
+                <div class="cmd-card-desc">Extend LVs and their file systems while applications continue running&mdash;no downtime needed for storage growth.</div>
+            </div>
+            <div class="cmd-card">
+                <div class="cmd-card-name">&#128290; Storage Pooling</div>
+                <div class="cmd-card-desc">Combine multiple physical disks of different sizes into one VG and allocate storage from that pool freely.</div>
+            </div>
+            <div class="cmd-card">
+                <div class="cmd-card-name">&#128247; Snapshots</div>
+                <div class="cmd-card-desc">Create point-in-time snapshots of LVs for backups or testing without stopping services.</div>
+            </div>
+            <div class="cmd-card">
+                <div class="cmd-card-name">&#128260; PV Migration</div>
+                <div class="cmd-card-desc">Move data off a failing disk (pvmove) without downtime, then remove the old device safely.</div>
+            </div>
+        </div>
+
+        <h3>LVM Workflow Summary</h3>
+        <p>Creating LVM storage always follows this sequence:</p>
+        <ol>
+            <li>Prepare physical devices (optional partitioning with <code>parted</code>)</li>
+            <li>Initialize devices as physical volumes: <code>pvcreate /dev/sdb1 /dev/sdb2</code></li>
+            <li>Create a volume group from the PVs: <code>vgcreate vg01 /dev/sdb1 /dev/sdb2</code></li>
+            <li>Create logical volumes from the VG: <code>lvcreate -n lv01 -L 300M vg01</code></li>
+            <li>Format the LV with a file system: <code>mkfs -t xfs /dev/vg01/lv01</code></li>
+            <li>Mount persistently via <code>/etc/fstab</code></li>
+        </ol>
+    </div>
+</section>
+
+<!-- SECTION 3: CREATING LOGICAL VOLUMES -->
+<section id="section-create" class="content-section" aria-labelledby="create-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="create-heading">Creating Logical Volumes</h2>
+    </div>
+    <div class="section-body">
+        <p>Building LVM storage is a multi-step process. Each step builds on the last, and each layer has its own set of commands. Let's walk through the complete workflow from raw disk to mounted file system.</p>
+
+        <h3>Step 1 &mdash; Prepare Physical Devices</h3>
+        <p>While partitioning is optional (you can use a whole disk), it is common practice on shared disks. Use <code>parted</code> to create partitions and label them for LVM:</p>
+
+        <div class="code-block" role="region" aria-label="Parted partitioning example">
+            <div class="code-title">Partition a disk for LVM use</div>
+            <code><span class="code-comment"># Label the disk with a GPT partition table and create first partition</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mklabel gpt mkpart primary 1MiB 769MiB</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-comment"># Create a second partition</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb mkpart secondary 770MiB 1026MiB</span>
+
+<span class="code-comment"># Set the lvm flag on both partitions</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb set 1 lvm on</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">parted /dev/sdb set 2 lvm on</span>
+
+<span class="code-comment"># Register new partitions with the running kernel</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+            <p>The <code>udevadm settle</code> command waits until the kernel's device manager has fully processed all recent device events. Always run it after creating partitions so that new device files like <code>/dev/sdb1</code> and <code>/dev/sdb2</code> are available before proceeding.</p>
+        </div>
+
+        <h3>Step 2 &mdash; Create Physical Volumes</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pvcreate">pvcreate</span> <span class="tooltip-content" id="tt-pvcreate">Writes LVM metadata headers to a device, turning it into a physical volume. Multiple devices can be initialized in a single command by listing them space-delimited.</span> command writes LVM metadata to one or more devices, marking them as physical volumes. You can process multiple devices in a single invocation:</p>
+
+        <div class="code-block" role="region" aria-label="pvcreate example">
+            <div class="code-title">Initialize physical volumes</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvcreate /dev/sdb1 /dev/sdb2</span>
+<span class="code-output">  Physical volume "/dev/sdb1" successfully created.
+  Physical volume "/dev/sdb2" successfully created.
+  Creating devices file /etc/lvm/devices/system.devices</span></code>
+        </div>
+
+        <p>LVM also writes an entry to <code>/etc/lvm/devices/system.devices</code>&mdash;a RHEL 10 feature that maintains an explicit list of devices allowed for use in LVM. This improves security and prevents accidental LVM operations on unexpected devices.</p>
+
+        <h3>Step 3 &mdash; Create a Volume Group</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vgcreate">vgcreate</span> <span class="tooltip-content" id="tt-vgcreate">Creates a new volume group by combining one or more physical volumes into a shared storage pool. The first argument is the VG name; subsequent arguments are PV device paths.</span> command creates a volume group by pooling one or more PVs. The first argument is the VG name you choose; subsequent arguments are the PV device paths:</p>
+
+        <div class="code-block" role="region" aria-label="vgcreate example">
+            <div class="code-title">Create a volume group</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgcreate vg01 /dev/sdb1 /dev/sdb2</span>
+<span class="code-output">  Volume group "vg01" successfully created</span></code>
+        </div>
+
+        <p>Choose VG names that reflect their purpose (e.g., <code>vg_data</code>, <code>vg_logs</code>). Once created, the VG appears as a combined storage pool whose total capacity is the sum of all PV sizes minus a small amount reserved for LVM metadata.</p>
+
+        <h3>Step 4 &mdash; Create a Logical Volume</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvcreate">lvcreate</span> <span class="tooltip-content" id="tt-lvcreate">Allocates extents from a volume group to create a new logical volume. Use -n for the LV name, -L for size in MiB/GiB, or -l for size in physical extents.</span> command carves a logical volume out of free space in a VG:</p>
+
+        <div class="code-block" role="region" aria-label="lvcreate example">
+            <div class="code-title">Create a logical volume</div>
+            <code><span class="code-comment"># Create lv01 with 300 MiB from vg01</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvcreate -n lv01 -L 300M vg01</span>
+<span class="code-output">  Logical volume "lv01" created.</span>
+
+<span class="code-comment"># Equivalent: specify 32 physical extents (32 x 4 MiB = 128 MiB)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvcreate -n lv01 -l 32 vg01</span></code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip</span></div>
+            <p>The <code>-L</code> option accepts <strong>M</strong> for mebibytes (MiB) and <strong>G</strong> for gibibytes (GiB). The <code>-l</code> option (lowercase L) accepts the number of physical extents. LVM rounds the requested size up to the nearest PE boundary if the size does not exactly match.</p>
+        </div>
+
+        <h3>Step 5 &mdash; Format and Mount the Logical Volume</h3>
+        <p>Logical volumes appear as block devices under two equivalent paths:</p>
+        <ul>
+            <li>Traditional: <code>/dev/<em>vgname</em>/<em>lvname</em></code> (e.g., <code>/dev/vg01/lv01</code>)</li>
+            <li>Device mapper: <code>/dev/mapper/<em>vgname</em>-<em>lvname</em></code> (e.g., <code>/dev/mapper/vg01-lv01</code>)</li>
+        </ul>
+        <p>Either path can be used interchangeably in commands and <code>/etc/fstab</code>.</p>
+
+        <div class="code-block" role="region" aria-label="Format and mount LV example">
+            <div class="code-title">Create XFS file system, mount point, and persistent fstab entry</div>
+            <code><span class="code-comment"># Format with XFS</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkfs -t xfs /dev/vg01/lv01</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-comment"># Create a mount point</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkdir /mnt/data</span>
+
+<span class="code-comment"># Add entry to /etc/fstab for persistent mounting</span>
+<span class="code-output">/dev/vg01/lv01  /mnt/data  xfs  defaults  0 0</span>
+
+<span class="code-comment"># Reload systemd to recognize the new fstab entry</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># Mount the volume</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount /mnt/data</span></code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#128221;</span><span>Note</span></div>
+            <p>You can reference an LV in <code>/etc/fstab</code> by its traditional device name (<code>/dev/vg01/lv01</code>) or by its <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-uuid">UUID</span> <span class="tooltip-content" id="tt-uuid">A universally unique identifier assigned to a file system when it is formatted. UUIDs are stable across reboots and disk changes, making them ideal for /etc/fstab entries.</span>. LVM resolves the device by scanning PV metadata for the VG UUID during boot, so the traditional path also works reliably even if device names change.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: DISPLAY STATUS -->
+<section id="section-display" class="content-section" aria-labelledby="display-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="display-heading">Displaying LVM Component Status</h2>
+    </div>
+    <div class="section-body">
+        <p>LVM provides two levels of status commands for each component: a verbose display command and a compact summary command. Knowing both helps you troubleshoot and verify your storage configuration.</p>
+
+        <div class="tabs-container" id="tabs-display">
+            <div class="tab-list" role="tablist" aria-label="LVM display command tabs">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-pvdisplay" id="tab-btn-pvd">PV Status</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-vgdisplay" id="tab-btn-vgd">VG Status</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-lvdisplay" id="tab-btn-lvd">LV Status</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-summary-cmds" id="tab-btn-sum">Summary Commands</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-pvdisplay" role="tabpanel" aria-labelledby="tab-btn-pvd">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pvdisplay">pvdisplay</span> <span class="tooltip-content" id="tt-pvdisplay">Shows detailed information about a physical volume including its VG assignment, total PE count, free PEs, and PE size. Run without arguments to show all PVs.</span> command shows detailed PV information:</p>
+                <div class="code-block" role="region" aria-label="pvdisplay output example">
+                    <div class="code-title">pvdisplay /dev/sdb1</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvdisplay /dev/sdb1</span>
+<span class="code-output">  --- Physical volume ---
+  PV Name               /dev/sdb1         &#9312; Device name
+  VG Name               vg01              &#9313; Assigned volume group
+  PV Size               768.00 MiB / not usable 4.00 MiB  &#9314; Total size
+  Allocatable           yes
+  PE Size               4.00 MiB          &#9315; Extent size
+  Total PE              191
+  Free PE               116               &#9316; Available extents
+  Allocated PE          75
+  PV UUID               evAimq-gs8W-6X9C-3H6q-ndDk-pvTx-QEZ9Ic</span></code>
+                </div>
+                <p>Key fields to note: <strong>Free PE</strong> tells you how many extents remain available for allocating new LVs or extending existing ones. <strong>Allocated PE</strong> shows how much of this PV is already in use.</p>
+            </div>
+
+            <div class="tab-panel" id="tab-vgdisplay" role="tabpanel" aria-labelledby="tab-btn-vgd">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vgdisplay">vgdisplay</span> <span class="tooltip-content" id="tt-vgdisplay">Shows the total size, PE configuration, current PV and LV counts, and free space for a volume group. Essential for planning LV creation and extension.</span> command shows VG details including available free space:</p>
+                <div class="code-block" role="region" aria-label="vgdisplay output example">
+                    <div class="code-title">vgdisplay vg01</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgdisplay vg01</span>
+<span class="code-output">  --- Volume group ---
+  VG Name               vg01              &#9312; Name of the VG
+  Format                lvm2
+  Metadata Areas        2
+  VG Access             read/write
+  VG Status             resizable
+  Cur PV                2
+  VG Size               1016.00 MiB       &#9313; Total pool size
+  PE Size               4.00 MiB
+  Total PE              254               &#9314; Total extents in pool
+  Alloc PE / Size       75 / 300.00 MiB
+  Free PE / Size        179 / 716.00 MiB  &#9315; Available for new LVs
+  VG UUID               F5a4Um-Ln8v-cYM0-YJth-f7fj-1QYZ-1AP8Zu</span></code>
+                </div>
+                <p>Always check <strong>Free PE / Size</strong> before creating or extending an LV. If there is not enough free space, you must first extend the VG by adding a new PV.</p>
+            </div>
+
+            <div class="tab-panel" id="tab-lvdisplay" role="tabpanel" aria-labelledby="tab-btn-lvd">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvdisplay">lvdisplay</span> <span class="tooltip-content" id="tt-lvdisplay">Displays detailed information about a logical volume including its size, the VG it belongs to, the number of logical extents used, and its current status (available or suspended).</span> command shows details for a specific LV:</p>
+                <div class="code-block" role="region" aria-label="lvdisplay output example">
+                    <div class="code-title">lvdisplay /dev/vg01/lv01</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvdisplay /dev/vg01/lv01</span>
+<span class="code-output">  --- Logical volume ---
+  LV Path               /dev/vg01/lv01    &#9312; Device path
+  LV Name               lv01
+  VG Name               vg01              &#9313; Parent VG
+  LV UUID               7Toe5z-022v-aW41-mJYQ-2VOV-MiP2-hNGFCf
+  LV Write Access       read/write
+  LV Status             available
+  LV Size               300.00 MiB        &#9314; Total LV size
+  Current LE            75                &#9315; Logical extents used
+  Segments              1
+  Block device          253:0</span></code>
+                </div>
+                <p>Important: <strong>LV Size</strong> shows the size of the logical volume itself, not the amount of data stored. Use <code>df -h /mount/point</code> to see file system usage (used vs. available space).</p>
+            </div>
+
+            <div class="tab-panel" id="tab-summary-cmds" role="tabpanel" aria-labelledby="tab-btn-sum">
+                <p>The compact summary commands&mdash;<code>pvs</code>, <code>vgs</code>, and <code>lvs</code>&mdash;show one line per entity and are ideal for a quick overview:</p>
+                <div class="code-block" role="region" aria-label="pvs vgs lvs compact commands">
+                    <div class="code-title">Compact LVM status commands</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvs</span>
+<span class="code-output">  PV         VG   Fmt  Attr PSize   PFree
+  /dev/sdb1  vg01 lvm2 a--  768.00m 464.00m
+  /dev/sdb2  vg01 lvm2 a--  248.00m 248.00m</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgs</span>
+<span class="code-output">  VG   #PV #LV #SN Attr   VSize    VFree
+  vg01   2   1   0 wz--n- 1016.00m 716.00m</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvs</span>
+<span class="code-output">  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  lv01 vg01 -wi-ao---- 300.00m</span></code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 5: EXTENDING -->
+<section id="section-extend" class="content-section" aria-labelledby="extend-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="extend-heading">Extending a Logical Volume</h2>
+    </div>
+    <div class="section-body">
+        <p>One of LVM's greatest advantages is the ability to increase storage capacity while applications continue running. Extending an LV is a two-step process: first extend the logical volume block device, then expand the file system inside it to use the new space.</p>
+
+        <h3>Extend the Logical Volume</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvextend">lvextend</span> <span class="tooltip-content" id="tt-lvextend">Adds physical extents to an existing logical volume. Use +SIZE to add to the current size, or SIZE without a plus sign to set the final absolute size.</span> command adds extents to an existing LV. Prefix the size with <code>+</code> to add to the current size:</p>
+
+        <div class="code-block" role="region" aria-label="lvextend example">
+            <div class="code-title">Extend lv01 by 500 MiB</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvextend -L +500M /dev/vg01/lv01</span>
+<span class="code-output">  Size of logical volume vg01/lv01 changed from 300.00 MiB (75 extents)
+  to 800.00 MiB (200 extents).
+  Logical volume vg01/lv01 successfully resized.</span></code>
+        </div>
+
+        <p>Without the <code>+</code> prefix, the number specifies the <em>final</em> size rather than the amount to add. For example, <code>lvextend -L 1024M /dev/vg01/lv01</code> sets the total size to 1024 MiB regardless of the current size.</p>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important</span></div>
+            <p>Extending the LV only changes the block device size. The <em>file system inside</em> does not automatically grow. You must explicitly resize the file system as the next step; otherwise, the extra space is inaccessible.</p>
+        </div>
+
+        <h3>Resize the File System</h3>
+        <p>The resize command differs depending on the file system type:</p>
+
+        <div class="tabs-container" id="tabs-resize">
+            <div class="tab-list" role="tablist" aria-label="File system resize commands">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-xfs-resize" id="tab-btn-xfs">XFS</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-ext4-resize" id="tab-btn-ext4">EXT4</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-swap-resize" id="tab-btn-swap">Swap</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-onestep" id="tab-btn-one">One-Step Method</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-xfs-resize" role="tabpanel" aria-labelledby="tab-btn-xfs">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-xfsgrowfs">xfs_growfs</span> <span class="tooltip-content" id="tt-xfsgrowfs">Expands an XFS file system to fill the remaining space in its underlying block device. Takes the mount point as its argument and requires the file system to be mounted. XFS can only be grown, not shrunk.</span> command expands an XFS file system to fill the extended LV. It requires the file system to be <strong>mounted</strong>:</p>
+                <div class="code-block" role="region" aria-label="xfs_growfs example">
+                    <div class="code-title">Grow an XFS file system</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">xfs_growfs /mnt/data</span>
+<span class="code-output">...output omitted...
+data blocks changed from 76800 to 204800</span></code>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div>
+                    <p>XFS file systems can only be <strong>grown</strong>, never shrunk. Do not attempt to reduce the size of an XFS LV; it will result in data loss or a corrupted file system.</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-ext4-resize" role="tabpanel" aria-labelledby="tab-btn-ext4">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-resize2fs">resize2fs</span> <span class="tooltip-content" id="tt-resize2fs">Resizes ext2, ext3, or ext4 file systems. Takes the device path (not the mount point) as its argument. Supports both online (mounted) and offline resizing, and can grow or shrink the file system.</span> command resizes ext2, ext3, and ext4 file systems. Unlike <code>xfs_growfs</code>, it accepts the <em>device path</em> as its argument:</p>
+                <div class="code-block" role="region" aria-label="resize2fs example">
+                    <div class="code-title">Grow an EXT4 file system</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">resize2fs /dev/vg01/lv01</span>
+<span class="code-output">resize2fs 1.47.1 (20-May-2024)
+Resizing the filesystem on /dev/vg01/lv01 to 259072 (4k) blocks.
+The filesystem on /dev/vg01/lv01 is now 259072 (4k) blocks long.</span></code>
+                </div>
+                <p>Unlike XFS, ext4 supports <strong>both growing and shrinking</strong>. To shrink, you must first unmount the file system, then specify a smaller size: <code>resize2fs /dev/vg01/lv01 200M</code>. Then use <code>lvreduce</code> to shrink the LV. Always back up data before shrinking.</p>
+            </div>
+
+            <div class="tab-panel" id="tab-swap-resize" role="tabpanel" aria-labelledby="tab-btn-swap">
+                <p>Logical volumes used as <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-swap">swap space</span> <span class="tooltip-content" id="tt-swap">An area of disk used as virtual memory overflow when RAM is full. Swap can be a partition, a file, or a logical volume formatted with mkswap.</span> must be taken <strong>offline</strong> before extension. The process requires turning swap off, extending the LV, reformatting the swap space, and re-enabling it:</p>
+                <div class="code-block" role="region" aria-label="Swap LV extension example">
+                    <div class="code-title">Extend a swap logical volume</div>
+                    <code><span class="code-comment"># Deactivate swap on the LV</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapoff -v /dev/vg01/swap</span>
+<span class="code-output">swapoff /dev/vg01/swap</span>
+
+<span class="code-comment"># Extend the LV</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvextend -L +300M /dev/vg01/swap</span>
+<span class="code-output">  Logical volume vg01/swap successfully resized.</span>
+
+<span class="code-comment"># Reformat as swap (overwrites old swap signature)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkswap /dev/vg01/swap</span>
+<span class="code-output">Setting up swapspace version 1, size = 800 MiB (838856704 bytes)</span>
+
+<span class="code-comment"># Re-enable swap</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">swapon /dev/vg01/swap</span></code>
+                </div>
+                <div class="note-box important">
+                    <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important</span></div>
+                    <p>Be cautious when running <code>swapoff</code> on a busy system. If the system is actively using swap due to memory pressure, turning it off may trigger <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-oom">OOM (out-of-memory)</span> <span class="tooltip-content" id="tt-oom">The out-of-memory condition occurs when the Linux kernel cannot allocate memory for a process. The OOM killer then terminates processes to free memory, which can cause application crashes or system instability.</span> errors. Alternatively, create a new swap LV, enable it, then disable and remove the old one.</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" id="tab-onestep" role="tabpanel" aria-labelledby="tab-btn-one">
+                <p>The <code>lvextend -r</code> option (resize) combines the LV extension and file system resize into a single command. This is the recommended method for XFS and ext4 file systems because it eliminates the risk of forgetting the file system resize step:</p>
+                <div class="code-block" role="region" aria-label="lvextend with resize option">
+                    <div class="code-title">Extend LV and resize file system in one step</div>
+                    <code><span class="code-comment"># Extend the LV AND resize the file system automatically</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvextend -L +500M -r /dev/vg01/lv01</span>
+<span class="code-output">  Size of logical volume vg01/lv01 changed from 300.00 MiB to 800.00 MiB.
+  Logical volume vg01/lv01 successfully resized.
+...output omitted...
+data blocks changed from 76800 to 204800</span></code>
+                </div>
+                <p>If the LV is not currently mounted, the <code>-r</code> option creates a temporary mount point to perform the file system resize, then unmounts it. This makes <code>-r</code> safe to use in both mounted and unmounted scenarios for supported file systems.</p>
+            </div>
+        </div>
+
+        <h3>Adding Space to a Full Volume Group</h3>
+        <p>If the volume group has no free extents, you must expand it before extending an LV. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vgextend2">vgextend</span> <span class="tooltip-content" id="tt-vgextend2">Adds one or more new physical volumes to an existing volume group, increasing its total capacity. The PV must already be initialized with pvcreate.</span> command adds new PVs to an existing VG:</p>
+
+        <div class="code-block" role="region" aria-label="vgextend example">
+            <div class="code-title">Add a new PV to expand the volume group</div>
+            <code><span class="code-comment"># Initialize a new device as a PV</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvcreate /dev/sdb3</span>
+<span class="code-output">  Physical volume "/dev/sdb3" successfully created.</span>
+
+<span class="code-comment"># Add it to the existing VG</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgextend vg01 /dev/sdb3</span>
+<span class="code-output">  Volume group "vg01" successfully extended</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 6: REPLACING & REMOVING -->
+<section id="section-replace" class="content-section" aria-labelledby="replace-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="replace-heading">Replacing Physical Volumes and Removing LVM Storage</h2>
+    </div>
+    <div class="section-body">
+        <p>Storage hardware eventually fails or needs replacement. LVM provides tools to migrate data off a failing disk while keeping services online, then safely remove the old device. This section also covers cleanly decommissioning LVM components that are no longer needed.</p>
+
+        <h3>Replacing a Physical Volume</h3>
+        <p>When a PV must be replaced (due to hardware failure, insufficient space, or planned upgrade), follow this process:</p>
+
+        <ol>
+            <li><strong>Add the new disk</strong> to the VG using <code>pvcreate</code> and <code>vgextend</code></li>
+            <li><strong>Move data</strong> off the old PV using <code>pvmove</code></li>
+            <li><strong>Remove the old PV</strong> from the VG using <code>vgreduce</code></li>
+            <li><strong>Wipe the old PV metadata</strong> using <code>pvremove</code></li>
+        </ol>
+
+        <h4>Migrate Data with pvmove</h4>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pvmove">pvmove</span> <span class="tooltip-content" id="tt-pvmove">Moves physical extents from one PV to other PVs in the same VG that have free extents. The operation is online and the LV remains accessible during the move, though performance may be reduced.</span> command migrates all extents from a specified PV to other PVs in the same VG with free space. The LV remains accessible throughout:</p>
+
+        <div class="code-block" role="region" aria-label="pvmove example">
+            <div class="code-title">Move data off /dev/sdb1</div>
+            <code><span class="code-comment"># Move with automatic VG metadata backup after each segment</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvmove -A y /dev/sdb1</span>
+<span class="code-output">  /dev/sdb1: Moved: 2.74%
+  /dev/sdb1: Moved: 41.21%
+  ...output omitted...
+  /dev/sdb1: Moved: 100.00%</span></code>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div>
+            <p>Always back up data before running <code>pvmove</code>. An unexpected power loss during the operation can leave the VG in an inconsistent state and may cause data loss on all LVs in the VG. The <code>-A y</code> option instructs LVM to back up VG metadata automatically after each move segment, but this does not replace a full data backup.</p>
+        </div>
+
+        <h4>Remove PV from VG with vgreduce</h4>
+        <p>Once all extents have been moved off a PV (confirmed by checking that its <strong>Free PE</strong> equals its <strong>Total PE</strong>), remove it from the VG:</p>
+
+        <div class="code-block" role="region" aria-label="vgreduce example">
+            <div class="code-title">Remove /dev/sdb1 from vg01</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgreduce vg01 /dev/sdb1</span>
+<span class="code-output">  Removed "/dev/sdb1" from volume group "vg01"</span></code>
+        </div>
+
+        <h3>Removing LVM Components</h3>
+        <p>When an LVM component is no longer needed, remove it in reverse order: LV first, then VG, then PV. Each command is <em>irreversible</em>&mdash;data is permanently lost.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#9888;&#65039;</span><span>Warning</span></div>
+            <p>The <code>lvremove</code>, <code>vgremove</code>, and <code>pvremove</code> commands are <strong>destructive and unrecoverable</strong>. Always unmount file systems and verify data is no longer needed before running these commands. Removing an LV deletes all data on it permanently.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="LVM removal sequence">
+            <div class="code-title">Complete LVM teardown sequence</div>
+            <code><span class="code-comment"># 1. Unmount the file system and remove fstab entry</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">umount /mnt/data</span>
+
+<span class="code-comment"># 2. Remove the logical volume (prompts for confirmation)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">lvremove /dev/vg01/lv01</span>
+<span class="code-output">Do you really want to remove active logical volume vg01/lv01? [y/n]: y
+  Logical volume "lv01" successfully removed.</span>
+
+<span class="code-comment"># 3. Remove the volume group</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">vgremove vg01</span>
+<span class="code-output">  Volume group "vg01" successfully removed</span>
+
+<span class="code-comment"># 4. Wipe PV metadata from devices (space-delimited for multiple)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">pvremove /dev/sdb2 /dev/sdb3</span>
+<span class="code-output">  Labels on physical volume "/dev/sdb2" successfully wiped.
+  Labels on physical volume "/dev/sdb3" successfully wiped.</span></code>
+        </div>
+
+        <h3>LVM Command Reference Overview</h3>
+        <div class="cmd-grid">
+            <div class="cmd-card pv-color">
+                <div class="cmd-card-name">pvcreate</div>
+                <div class="cmd-card-desc">Initialize a device as an LVM physical volume</div>
+            </div>
+            <div class="cmd-card vg-color">
+                <div class="cmd-card-name">vgcreate</div>
+                <div class="cmd-card-desc">Create a new volume group from one or more PVs</div>
+            </div>
+            <div class="cmd-card lv-color">
+                <div class="cmd-card-name">lvcreate</div>
+                <div class="cmd-card-desc">Allocate a logical volume from VG free space</div>
+            </div>
+            <div class="cmd-card pv-color">
+                <div class="cmd-card-name">pvmove</div>
+                <div class="cmd-card-desc">Migrate extents from one PV to others in the same VG</div>
+            </div>
+            <div class="cmd-card vg-color">
+                <div class="cmd-card-name">vgextend / vgreduce</div>
+                <div class="cmd-card-desc">Add or remove PVs from an existing VG</div>
+            </div>
+            <div class="cmd-card lv-color">
+                <div class="cmd-card-name">lvextend -r</div>
+                <div class="cmd-card-desc">Extend LV and resize its file system in one step</div>
+            </div>
+            <div class="cmd-card pv-color">
+                <div class="cmd-card-name">pvremove</div>
+                <div class="cmd-card-desc">Wipe LVM metadata from a physical volume</div>
+            </div>
+            <div class="cmd-card vg-color">
+                <div class="cmd-card-name">vgremove</div>
+                <div class="cmd-card-desc">Delete a volume group (all LVs must be removed first)</div>
+            </div>
+            <div class="cmd-card lv-color">
+                <div class="cmd-card-name">lvremove</div>
+                <div class="cmd-card-desc">Delete a logical volume and free its extents back to the VG</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 7: GUIDED EXERCISE -->
+<section id="section-exercise" class="content-section" aria-labelledby="exercise-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="exercise-heading">Guided Exercise: LVM Interactive Simulator</h2>
+    </div>
+    <div class="section-body">
+        <p>Use the simulator below to practice LVM commands step by step. The simulator tracks the state of your virtual storage environment and shows realistic output. Click commands in order to build, extend, and remove LVM storage.</p>
+
+        <div class="simulator" role="region" aria-label="LVM command simulator">
+            <div class="sim-label">Virtual Environment State:</div>
+            <div class="sim-state" id="sim-state">
+                <span class="sim-state-item" id="state-disk">Disk: /dev/sdb (2 GiB, unpartitioned)</span>
+                <span class="sim-state-item" id="state-pv">PVs: none</span>
+                <span class="sim-state-item" id="state-vg">VGs: none</span>
+                <span class="sim-state-item" id="state-lv">LVs: none</span>
+            </div>
+            <div style="margin: 12px 0; color: #8B949E; font-size: 0.8rem; font-family: var(--font-display);">Click a command to execute it in sequence:</div>
+            <div class="sim-controls" id="sim-controls">
+                <button class="sim-btn" onclick="simRun('partition')">parted /dev/sdb</button>
+                <button class="sim-btn" onclick="simRun('pvcreate')">pvcreate /dev/sdb1</button>
+                <button class="sim-btn" onclick="simRun('vgcreate')">vgcreate vg01 /dev/sdb1</button>
+                <button class="sim-btn" onclick="simRun('lvcreate')">lvcreate -n lv01 -L 300M vg01</button>
+                <button class="sim-btn" onclick="simRun('mkfs')">mkfs -t xfs /dev/vg01/lv01</button>
+                <button class="sim-btn" onclick="simRun('mount')">mount /mnt/data</button>
+                <button class="sim-btn" onclick="simRun('lvextend')">lvextend -L +300M -r /dev/vg01/lv01</button>
+                <button class="sim-btn" onclick="simRun('lvs')">lvs</button>
+                <button class="sim-btn" onclick="simRun('reset')" style="border-color:#CC0000;color:#FF6666;">&#8635; Reset</button>
+            </div>
+            <div style="margin-top: 12px; color: #8B949E; font-size: 0.8rem; font-family: var(--font-display);">Output:</div>
+            <div class="sim-output" id="sim-output" aria-live="polite" aria-label="Simulator output">[root@host ~]# <span style="color:#58A6FF">_</span>
+Ready. Click a command above to begin.</div>
+        </div>
+
+        <h3>Guided Exercise: Create Logical Volumes (Written Steps)</h3>
+        <p>On <strong>serverb.lab.example.com</strong>, complete the following steps to build LVM storage from scratch. You will create two physical volumes, combine them into a volume group, create a logical volume, format it with XFS, and mount it persistently.</p>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-step1">
+                <span>&#128204; Task 1: Prepare Physical Partitions on /dev/sdb</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-step1">
+                <p>Create two partitions on <code>/dev/sdb</code> and flag them for LVM use.</p>
+                <div class="code-block" role="region" aria-label="Step 1 commands">
+                    <div class="code-title">Partition /dev/sdb</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mklabel gpt mkpart primary 1MiB 769MiB</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart secondary 770MiB 1026MiB</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb set 1 lvm on</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb set 2 lvm on</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span></code>
+                </div>
+                <p><strong>Expected result:</strong> Two partitions (<code>/dev/sdb1</code> and <code>/dev/sdb2</code>) appear in the kernel device list.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-step2">
+                <span>&#128204; Task 2: Create Physical Volumes</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-step2">
+                <p>Initialize both partitions as LVM physical volumes.</p>
+                <div class="code-block" role="region" aria-label="Step 2 commands">
+                    <div class="code-title">Initialize PVs</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">pvcreate /dev/sdb1 /dev/sdb2</span>
+<span class="code-output">  Physical volume "/dev/sdb1" successfully created.
+  Physical volume "/dev/sdb2" successfully created.
+  Creating devices file /etc/lvm/devices/system.devices</span></code>
+                </div>
+                <p><strong>Verify:</strong> Run <code>pvs</code> to confirm both PVs appear without a VG assignment.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-step3">
+                <span>&#128204; Task 3: Create Volume Group and Logical Volume</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-step3">
+                <div class="code-block" role="region" aria-label="Step 3 commands">
+                    <div class="code-title">Create VG and LV</div>
+                    <code><span class="code-comment"># Pool both PVs into one VG</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">vgcreate vg01 /dev/sdb1 /dev/sdb2</span>
+<span class="code-output">  Volume group "vg01" successfully created</span>
+
+<span class="code-comment"># Create a 300 MiB LV from the VG</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lvcreate -n lv01 -L 300M vg01</span>
+<span class="code-output">  Logical volume "lv01" created.</span></code>
+                </div>
+                <p><strong>Verify:</strong> Run <code>vgdisplay vg01</code> and check <strong>Free PE / Size</strong> to confirm remaining capacity.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="ex-step4">
+                <span>&#128204; Task 4: Format and Persistently Mount the LV</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="ex-step4">
+                <div class="code-block" role="region" aria-label="Step 4 commands">
+                    <div class="code-title">Format and mount persistently</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkfs -t xfs /dev/vg01/lv01</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkdir /mnt/data</span>
+
+<span class="code-comment"># Add to /etc/fstab</span>
+<span class="code-output">/dev/vg01/lv01  /mnt/data  xfs  defaults  0 0</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount /mnt/data</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">df -h /mnt/data</span>
+<span class="code-output">Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/vg01-lv01  296M   15M  281M   5% /mnt/data</span></code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: QUIZ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of LVM concepts and commands. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. You have a 500 MiB logical volume with an XFS file system and want to grow it to 900 MiB. Which command sequence is correct?</p>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1a" value="a"><label for="q1a">a) xfs_growfs /dev/vg01/lv01, then lvextend -L 900M /dev/vg01/lv01</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1b" value="b"><label for="q1b">b) lvextend -L 900M /dev/vg01/lv01, then xfs_growfs /mnt/data</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1c" value="c"><label for="q1c">c) lvextend -L +900M /dev/vg01/lv01 (no other steps needed)</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1d" value="d"><label for="q1d">d) resize2fs /mnt/data, then lvextend -L 900M /dev/vg01/lv01</label></div>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. Which command initializes a disk partition for use in an LVM volume group?</p>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2a" value="a"><label for="q2a">a) vgcreate</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2b" value="b"><label for="q2b">b) lvcreate</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2c" value="c"><label for="q2c">c) pvcreate</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2d" value="d"><label for="q2d">d) mkfs</label></div>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p>3. You need to remove a physical volume from a volume group. Before running vgreduce, what must you ensure?</p>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3a" value="a"><label for="q3a">a) All physical extents have been moved off the PV with pvmove</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3b" value="b"><label for="q3b">b) All logical volumes have been removed with lvremove</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3c" value="c"><label for="q3c">c) The volume group has been removed with vgremove</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3d" value="d"><label for="q3d">d) The partition type has been changed from lvm back to primary</label></div>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p>4. A volume group shows "Free PE / Size: 0 / 0" but you need to extend a logical volume. What is the correct first action?</p>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4a" value="a"><label for="q4a">a) Run lvextend with the -f (force) option to override the limit</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4b" value="b"><label for="q4b">b) Use resize2fs to compress the file system to make room</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4c" value="c"><label for="q4c">c) Remove another LV to free space, then extend the target LV</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4d" value="d"><label for="q4d">d) Add a new PV with pvcreate and vgextend before running lvextend</label></div>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. What is the default physical extent size in an LVM volume group?</p>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5a" value="a"><label for="q5a">a) 1 MiB</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5b" value="b"><label for="q5b">b) 4 MiB</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5c" value="c"><label for="q5c">c) 16 MiB</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5d" value="d"><label for="q5d">d) 64 MiB</label></div>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p>6. You run <code>lvextend -L +200M /dev/vg01/lv01</code> successfully. You then run <code>df -h /mnt/data</code> and the size has not changed. What is the most likely cause?</p>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6a" value="a"><label for="q6a">a) The lvextend command failed silently</label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6b" value="b"><label for="q6b">b) /mnt/data is not using the correct device mapper path</label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6c" value="c"><label for="q6c">c) The file system was not resized after extending the LV</label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6d" value="d"><label for="q6d">d) systemctl daemon-reload was not run after the extension</label></div>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p>7. Which pair of paths refers to the <em>same</em> logical volume block device?</p>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7a" value="a"><label for="q7a">a) /dev/vg01/lv01 and /dev/mapper/vg01-lv01</label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7b" value="b"><label for="q7b">b) /dev/vg01/lv01 and /dev/sdb1</label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7c" value="c"><label for="q7c">c) /dev/mapper/vg01 and /dev/vg01/lv01</label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7d" value="d"><label for="q7d">d) /dev/vg01 and /dev/mapper/vg01-lv01</label></div>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p>8. When extending a swap space logical volume, which step is required that is NOT needed when extending an XFS logical volume?</p>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8a" value="a"><label for="q8a">a) Running vgextend first</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8b" value="b"><label for="q8b">b) Running systemctl daemon-reload</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8c" value="c"><label for="q8c">c) Running lvdisplay to check the current size</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8d" value="d"><label for="q8d">d) Deactivating swap with swapoff and reformatting with mkswap</label></div>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button class="quiz-btn primary" onclick="checkQuiz()">Check Answers</button>
+            <button class="quiz-btn secondary" onclick="resetQuiz()">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score"></div>
+    </div>
+</section>
+
+<!-- SECTION 9: HANDS-ON LAB -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="lab-heading">Hands-On Lab: Manage Storage with Logical Volume Manager</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Scenario:</strong> The <code>/storage/data1</code> directory on <strong>serverb.lab.example.com</strong> is running out of space. The existing volume group (<code>vg_01_serverb</code>) has insufficient free extents to extend the LV directly. You must add a new PV to the VG, extend the existing LV, and then create a second LV for additional storage.</p>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Important</span></div>
+            <p>Partition sizes must be specified in <strong>MiB</strong> (mebibytes, 2<sup>20</sup> bytes), not MB (megabytes, 10<sup>6</sup> bytes). The lab evaluation script checks exact sizes in MiB. Use the <code>unit MiB</code> option in <code>parted</code> to verify partition sizes in the correct unit.</p>
+        </div>
+
+        <p>Prepare your lab environment on workstation:</p>
+        <div class="code-block" role="region" aria-label="Lab start command">
+            <div class="code-title">Start the lab environment</div>
+            <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab start lvm-review</span></code>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1">
+                <span>&#128295; Task 1: Create a Second 1024 MiB Partition on /dev/sdb</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1">
+                <p><strong>Objective:</strong> The existing first partition ends at 1025 MiB. Create a second partition starting at 1025 MiB and ending at 2049 MiB (exactly 1024 MiB), set its LVM flag, and register it with the kernel.</p>
+                <div class="code-block" role="region" aria-label="Task 1 solution">
+                    <div class="code-title">Solution: Task 1</div>
+                    <code><span class="code-comment"># Log in to serverb</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Verify current partition layout in MiB</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb unit MiB print</span>
+<span class="code-output">Number  Start    End      Size    File system  Name     Flags
+ 1      1.00MiB  1025MiB  1024MiB              primary  lvm</span>
+
+<span class="code-comment"># Create the second 1024 MiB partition</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart secondary 1025MiB 2049MiB</span>
+
+<span class="code-comment"># Set the lvm flag</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb set 2 lvm on</span>
+
+<span class="code-comment"># Register with the kernel</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2">
+                <span>&#128295; Task 2: Add the New Partition to the Volume Group</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2">
+                <p><strong>Objective:</strong> Initialize the new partition as a PV and extend <code>vg_01_serverb</code> to include it. The total VG size must not exceed 2048 MiB.</p>
+                <div class="code-block" role="region" aria-label="Task 2 solution">
+                    <div class="code-title">Solution: Task 2</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">pvcreate /dev/sdb2</span>
+<span class="code-output">  Physical volume "/dev/sdb2" successfully created.</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">vgextend vg_01_serverb /dev/sdb2</span>
+<span class="code-output">  Volume group "vg_01_serverb" successfully extended</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3">
+                <span>&#128295; Task 3: Extend lv_01_serverb to 1024 MiB</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3">
+                <p><strong>Objective:</strong> Extend the existing <code>lv_01_serverb</code> logical volume to exactly 1024 MiB and grow the XFS file system to use the new space. The LV must remain persistently mounted on <code>/storage/data1</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 3 solution">
+                    <div class="code-title">Solution: Task 3</div>
+                    <code><span class="code-comment"># Extend to absolute size of 1024 MiB</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lvextend -L 1024M /dev/vg_01_serverb/lv_01_serverb</span>
+<span class="code-output">  Size of logical volume vg_01_serverb/lv_01_serverb changed from
+  400.00 MiB (100 extents) to 1.00 GiB (256 extents).
+  Logical volume vg_01_serverb/lv_01_serverb successfully resized.</span>
+
+<span class="code-comment"># Grow the XFS file system to fill the extended LV</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">xfs_growfs /storage/data1</span>
+<span class="code-output">...output omitted...
+data blocks changed from 102400 to 262144</span>
+
+<span class="code-comment"># Verify the new size</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">df -h /storage/data1</span>
+<span class="code-output">Filesystem                                    Size  Used Avail Use% Mounted on
+/dev/mapper/vg_01_serverb-lv_01_serverb  960M   40M  921M   5% /storage/data1</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4">
+                <span>&#128295; Task 4: Create lv_02_serverb with 512 MiB and XFS</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4">
+                <p><strong>Objective:</strong> Create a new 512 MiB logical volume named <code>lv_02_serverb</code> in the <code>vg_01_serverb</code> VG. Format it with XFS and persistently mount it on <code>/storage/data2</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 4 solution">
+                    <div class="code-title">Solution: Task 4</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lvcreate -n lv_02_serverb -L 512M vg_01_serverb</span>
+<span class="code-output">  Logical volume "lv_02_serverb" created.</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkfs -t xfs /dev/vg_01_serverb/lv_02_serverb</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mkdir /storage/data2</span>
+
+<span class="code-comment"># Add to /etc/fstab</span>
+<span class="code-output">/dev/vg_01_serverb/lv_02_serverb  /storage/data2  xfs  defaults  0 0</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount /storage/data2</span>
+
+<span class="code-comment"># Verify</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">df -h /storage/data2</span>
+<span class="code-output">Filesystem                                    Size  Used Avail Use% Mounted on
+/dev/mapper/vg_01_serverb-lv_02_serverb  448M   35M  414M   8% /storage/data2</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5">
+                <span>&#128295; Task 5: Verify and Grade Your Work</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task5">
+                <div class="code-block" role="region" aria-label="Verification and grading">
+                    <div class="code-title">Verify LV details and grade</div>
+                    <code><span class="code-comment"># Confirm both LV sizes with lvdisplay</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lvdisplay /dev/vg_01_serverb/lv_01_serverb</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">lvdisplay /dev/vg_01_serverb/lv_02_serverb</span>
+
+<span class="code-comment"># Return to workstation</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+
+<span class="code-comment"># Grade the lab</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade lvm-review</span>
+
+<span class="code-comment"># Clean up when done</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish lvm-review</span></code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="checklist">
+            <li>Created a 1024 MiB second partition on <code>/dev/sdb</code> with the <code>lvm</code> flag set</li>
+            <li>Initialized <code>/dev/sdb2</code> as a physical volume with <code>pvcreate</code></li>
+            <li>Extended <code>vg_01_serverb</code> with the new PV using <code>vgextend</code></li>
+            <li>Extended <code>lv_01_serverb</code> to 1024 MiB and grew the XFS file system</li>
+            <li>Created <code>lv_02_serverb</code> with 512 MiB, formatted with XFS</li>
+            <li>Both LVs persistently mounted via <code>/etc/fstab</code> entries</li>
+            <li>Verified sizes with <code>df -h</code> and <code>lvdisplay</code></li>
+        </ul>
+    </div>
+</section>
+
+<!-- SECTION 10: SUMMARY -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>This chapter introduced the Logical Volume Manager, Red Hat's preferred storage abstraction layer for production systems. LVM provides flexibility, online resizeability, and safe PV migration that raw disk partitioning cannot match.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li><strong>Physical Volumes (PVs)</strong> are block devices initialized with <code>pvcreate</code>. They are divided into fixed-size physical extents (default 4 MiB).</li>
+            <li><strong>Volume Groups (VGs)</strong> pool one or more PVs into a single storage reservoir. Created with <code>vgcreate</code>, expanded with <code>vgextend</code>, and shrunk with <code>vgreduce</code>.</li>
+            <li><strong>Logical Volumes (LVs)</strong> are carved from VG free space using <code>lvcreate</code>. They appear as regular block devices, can be formatted with any file system, and can be resized online.</li>
+            <li><strong>Extending an LV</strong> requires two steps: <code>lvextend</code> to grow the block device, then <code>xfs_growfs</code> or <code>resize2fs</code> to grow the file system. The <code>-r</code> option to <code>lvextend</code> combines both steps.</li>
+            <li><strong>Replacing a PV</strong> uses <code>pvmove</code> to migrate data online, then <code>vgreduce</code> to remove the PV from the VG.</li>
+            <li>LVM components are removed in reverse order: <code>lvremove</code> &rarr; <code>vgremove</code> &rarr; <code>pvremove</code>.</li>
+        </ul>
+
+        <h3>Complete Command Reference</h3>
+        <table class="cmd-table" aria-label="LVM command reference table">
+            <thead>
+                <tr><th>Command</th><th>Purpose</th><th>Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>pvcreate</code></td><td>Initialize device as PV</td><td><code>pvcreate /dev/sdb1 /dev/sdb2</code></td></tr>
+                <tr><td><code>pvdisplay</code> / <code>pvs</code></td><td>Show PV details / summary</td><td><code>pvdisplay /dev/sdb1</code></td></tr>
+                <tr><td><code>pvmove</code></td><td>Migrate extents between PVs</td><td><code>pvmove -A y /dev/sdb1</code></td></tr>
+                <tr><td><code>pvremove</code></td><td>Wipe PV metadata</td><td><code>pvremove /dev/sdb1</code></td></tr>
+                <tr><td><code>vgcreate</code></td><td>Create volume group</td><td><code>vgcreate vg01 /dev/sdb1</code></td></tr>
+                <tr><td><code>vgdisplay</code> / <code>vgs</code></td><td>Show VG details / summary</td><td><code>vgdisplay vg01</code></td></tr>
+                <tr><td><code>vgextend</code></td><td>Add PV to VG</td><td><code>vgextend vg01 /dev/sdb3</code></td></tr>
+                <tr><td><code>vgreduce</code></td><td>Remove PV from VG</td><td><code>vgreduce vg01 /dev/sdb1</code></td></tr>
+                <tr><td><code>vgremove</code></td><td>Delete volume group</td><td><code>vgremove vg01</code></td></tr>
+                <tr><td><code>lvcreate</code></td><td>Create logical volume</td><td><code>lvcreate -n lv01 -L 300M vg01</code></td></tr>
+                <tr><td><code>lvdisplay</code> / <code>lvs</code></td><td>Show LV details / summary</td><td><code>lvdisplay /dev/vg01/lv01</code></td></tr>
+                <tr><td><code>lvextend -r</code></td><td>Extend LV + resize FS</td><td><code>lvextend -L +500M -r /dev/vg01/lv01</code></td></tr>
+                <tr><td><code>lvremove</code></td><td>Delete logical volume</td><td><code>lvremove /dev/vg01/lv01</code></td></tr>
+                <tr><td><code>xfs_growfs</code></td><td>Expand XFS file system</td><td><code>xfs_growfs /mnt/data</code></td></tr>
+                <tr><td><code>resize2fs</code></td><td>Resize ext2/3/4 file system</td><td><code>resize2fs /dev/vg01/lv01</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav">
+            <a href="rh134_chapter10_basic_storage.html" class="nav-chapter-btn prev">&#8592; Chapter 10: Managing Basic Storage</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter12_advanced_storage.html" class="nav-chapter-btn next">Chapter 12: Advanced Storage &#8594;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer class="main-footer" role="contentinfo">
+    <p><strong>RH134 &mdash; Red Hat System Administration II</strong></p>
+    <p>Chapter 11: Managing Storage with Logical Volume Manager &bull; RHEL 10</p>
+    <p>&copy; 2025 Course Materials. Red Hat&reg; and Red Hat Enterprise Linux&reg; are registered trademarks of Red Hat, Inc.</p>
+    <p><a href="index.html">Course Home</a> &bull; <a href="rhcsa_exam_simulator.html">RHCSA Exam Simulator</a></p>
+</footer>
+
+<script>
+// ============================================================
+// TOOLTIP SYSTEM
+// ============================================================
+const tooltipBubble = document.getElementById('tooltip-bubble');
+let activeTooltip = null;
+
+function showTooltip(term) {
+    const ttId = term.getAttribute('aria-describedby');
+    const contentEl = ttId ? document.getElementById(ttId) : null;
+    if (!contentEl) return;
+    tooltipBubble.textContent = contentEl.textContent;
+    tooltipBubble.className = 'visible';
+    tooltipBubble.style.cssText = '';
+    positionTooltip(term);
+}
+
+function positionTooltip(term) {
+    const rect = term.getBoundingClientRect();
+    const bW = 280, bH = tooltipBubble.offsetHeight || 80;
+    const spaceAbove = rect.top;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceLeft = rect.left;
+    const spaceRight = window.innerWidth - rect.right;
+    const margin = 8;
+    let top, left, placement;
+
+    if (spaceAbove >= bH + 12) {
+        placement = 'tip-above';
+        top = rect.top - bH - 10;
+        left = rect.left + rect.width / 2 - bW / 2;
+    } else if (spaceBelow >= bH + 12) {
+        placement = 'tip-below';
+        top = rect.bottom + 10;
+        left = rect.left + rect.width / 2 - bW / 2;
+    } else if (spaceRight >= bW + 12) {
+        placement = 'tip-right';
+        top = rect.top + rect.height / 2 - bH / 2;
+        left = rect.right + 10;
+    } else {
+        placement = 'tip-left';
+        top = rect.top + rect.height / 2 - bH / 2;
+        left = rect.left - bW - 10;
+    }
+
+    left = Math.max(margin, Math.min(left, window.innerWidth - bW - margin));
+    top = Math.max(margin, Math.min(top, window.innerHeight - bH - margin));
+
+    tooltipBubble.style.top = top + 'px';
+    tooltipBubble.style.left = left + 'px';
+    tooltipBubble.style.width = bW + 'px';
+    tooltipBubble.classList.add(placement);
+}
+
+function hideTooltip() {
+    tooltipBubble.className = '';
+    tooltipBubble.style.cssText = '';
+}
+
+document.querySelectorAll('.tooltip-term').forEach(term => {
+    term.addEventListener('mouseenter', () => { activeTooltip = term; showTooltip(term); });
+    term.addEventListener('mouseleave', () => { hideTooltip(); activeTooltip = null; });
+    term.addEventListener('focus', () => { activeTooltip = term; showTooltip(term); });
+    term.addEventListener('blur', () => { hideTooltip(); activeTooltip = null; });
+    term.addEventListener('keydown', e => { if (e.key === 'Escape') { hideTooltip(); term.blur(); } });
+});
+
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+const sections = document.querySelectorAll('.content-section');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const progressBar = document.getElementById('progress-bar');
+const visited = new Set();
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) visited.add(e.target.id); });
+    const pct = Math.round((visited.size / sections.length) * 100);
+    progressFill.style.width = pct + '%';
+    progressText.textContent = pct + '% complete';
+    progressBar.setAttribute('aria-valuenow', pct);
+}, { threshold: 0.3 });
+sections.forEach(s => observer.observe(s));
+
+// ============================================================
+// ACTIVE NAV HIGHLIGHTING
+// ============================================================
+const navBtns = document.querySelectorAll('.nav-btn');
+const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if (e.isIntersecting) {
+            const id = e.target.id.replace('section-', '');
+            navBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.section === id) btn.classList.add('active', 'visited');
+            });
+        }
+    });
+}, { threshold: 0.4 });
+sections.forEach(s => sectionObserver.observe(s));
+
+// ============================================================
+// TAB SYSTEM
+// ============================================================
+function initTabs(container) {
+    const tabs = container.querySelectorAll('[role="tab"]');
+    const panels = container.querySelectorAll('[role="tabpanel"]');
+    tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => activateTab(tabs, panels, i));
+        tab.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') activateTab(tabs, panels, (i + 1) % tabs.length);
+            if (e.key === 'ArrowLeft') activateTab(tabs, panels, (i - 1 + tabs.length) % tabs.length);
+            if (e.key === 'Home') activateTab(tabs, panels, 0);
+            if (e.key === 'End') activateTab(tabs, panels, tabs.length - 1);
+        });
+    });
+}
+function activateTab(tabs, panels, idx) {
+    tabs.forEach((t, i) => {
+        t.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+        t.tabIndex = i === idx ? 0 : -1;
+    });
+    panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+    tabs[idx].focus();
+}
+document.querySelectorAll('.tabs-container').forEach(initTabs);
+
+// ============================================================
+// EXPANDABLE SECTIONS
+// ============================================================
+document.querySelectorAll('.expandable-header').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', !expanded);
+        const content = document.getElementById(btn.getAttribute('aria-controls'));
+        if (content) content.classList.toggle('show', !expanded);
+    });
+});
+
+// ============================================================
+// QUIZ LOGIC
+// ============================================================
+function checkQuiz() {
+    let score = 0, total = 0;
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        const num = q.dataset.question;
+        const correct = q.dataset.correct;
+        const selected = q.querySelector('input:checked');
+        const feedback = document.getElementById('feedback-' + num);
+        total++;
+        q.classList.remove('correct', 'incorrect');
+        if (selected) {
+            if (selected.value === correct) {
+                score++;
+                q.classList.add('correct');
+                feedback.textContent = '&#10003; Correct!';
+                feedback.style.color = 'var(--rh-green)';
+            } else {
+                q.classList.add('incorrect');
+                const correctLabel = q.querySelector('input[value="' + correct + '"]');
+                const correctText = correctLabel ? correctLabel.nextElementSibling.textContent : '';
+                feedback.textContent = '\u2717 Incorrect. Correct answer: ' + correctText;
+                feedback.style.color = 'var(--rh-red)';
+            }
+        } else {
+            feedback.textContent = 'Please select an answer.';
+            feedback.style.color = 'var(--rh-gold)';
+        }
+    });
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.textContent = 'Score: ' + score + ' / ' + total + ' correct (' + Math.round(score/total*100) + '%)';
+    scoreEl.style.display = 'block';
+    scoreEl.style.color = score === total ? 'var(--rh-green-dark)' : score >= total * 0.7 ? 'var(--rh-blue-dark)' : 'var(--rh-red-dark)';
+}
+window.checkQuiz = checkQuiz;
+
+function resetQuiz() {
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('correct', 'incorrect');
+        q.querySelectorAll('input').forEach(i => i.checked = false);
+        const num = q.dataset.question;
+        const fb = document.getElementById('feedback-' + num);
+        if (fb) fb.textContent = '';
+    });
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.style.display = 'none';
+    scoreEl.textContent = '';
+}
+window.resetQuiz = resetQuiz;
+
+// ============================================================
+// LVM SIMULATOR
+// ============================================================
+const simOutput = document.getElementById('sim-output');
+let simStep = 0;
+const simCommands = {
+    partition: {
+        requires: 0,
+        cmd: '[root@host ~]# parted /dev/sdb mklabel gpt mkpart primary 1MiB 769MiB\n[root@host ~]# parted /dev/sdb set 1 lvm on\n[root@host ~]# udevadm settle',
+        result: 'Partition /dev/sdb1 created (768 MiB, lvm flag set)\nKernel updated: /dev/sdb1 is now available',
+        state: { disk: 'Disk: /dev/sdb (partitioned)', pv: 'PVs: none', vg: 'VGs: none', lv: 'LVs: none' },
+        step: 1
+    },
+    pvcreate: {
+        requires: 1,
+        cmd: '[root@host ~]# pvcreate /dev/sdb1',
+        result: '  Physical volume "/dev/sdb1" successfully created.\n  Creating devices file /etc/lvm/devices/system.devices',
+        state: { pv: 'PVs: /dev/sdb1 (768 MiB, no VG)' },
+        step: 2
+    },
+    vgcreate: {
+        requires: 2,
+        cmd: '[root@host ~]# vgcreate vg01 /dev/sdb1',
+        result: '  Volume group "vg01" successfully created',
+        state: { vg: 'VGs: vg01 (764 MiB free)' },
+        step: 3
+    },
+    lvcreate: {
+        requires: 3,
+        cmd: '[root@host ~]# lvcreate -n lv01 -L 300M vg01',
+        result: '  Logical volume "lv01" created.',
+        state: { vg: 'VGs: vg01 (464 MiB free)', lv: 'LVs: lv01 (300 MiB, no FS)' },
+        step: 4
+    },
+    mkfs: {
+        requires: 4,
+        cmd: '[root@host ~]# mkfs -t xfs /dev/vg01/lv01',
+        result: 'meta-data=/dev/vg01/lv01         isize=512    agcount=4, agsize=19200 blks\ndata     =                       bsize=4096   blocks=76800, imaxpct=25\nnaming   =version 2              bsize=4096   ascii-ci=0, ftype=1\nlog      =internal log           bsize=4096   blocks=1368, version=2\nrealtime =none                   extsz=4096   blocks=0, rtextents=0',
+        state: { lv: 'LVs: lv01 (300 MiB, XFS, unmounted)' },
+        step: 5
+    },
+    mount: {
+        requires: 5,
+        cmd: '[root@host ~]# mkdir /mnt/data\n[root@host ~]# systemctl daemon-reload\n[root@host ~]# mount /mnt/data\n[root@host ~]# df -h /mnt/data',
+        result: 'Filesystem             Size  Used Avail Use% Mounted on\n/dev/mapper/vg01-lv01   296M   15M  281M   5% /mnt/data',
+        state: { lv: 'LVs: lv01 (300 MiB, XFS, mounted /mnt/data)' },
+        step: 6
+    },
+    lvextend: {
+        requires: 6,
+        cmd: '[root@host ~]# lvextend -L +300M -r /dev/vg01/lv01',
+        result: '  Size of logical volume vg01/lv01 changed from 300.00 MiB to 600.00 MiB.\n  Logical volume vg01/lv01 successfully resized.\n...output omitted...\ndata blocks changed from 76800 to 153600',
+        state: { vg: 'VGs: vg01 (164 MiB free)', lv: 'LVs: lv01 (600 MiB, XFS, mounted /mnt/data)' },
+        step: 7
+    },
+    lvs: {
+        requires: 4,
+        cmd: '[root@host ~]# lvs',
+        result: '  LV   VG   Attr       LSize   Pool Origin Data%  Meta%  Move Log Cpy%Sync\n  lv01 vg01 -wi-ao----  600.00m',
+        step: 7
+    }
+};
+
+window.simRun = function(action) {
+    if (action === 'reset') {
+        simStep = 0;
+        simOutput.textContent = '[root@host ~]# _\nReady. Click a command above to begin.';
+        document.getElementById('state-disk').textContent = 'Disk: /dev/sdb (2 GiB, unpartitioned)';
+        document.getElementById('state-pv').textContent = 'PVs: none';
+        document.getElementById('state-vg').textContent = 'VGs: none';
+        document.getElementById('state-lv').textContent = 'LVs: none';
+        document.querySelectorAll('#sim-state .sim-state-item').forEach(i => i.classList.remove('active'));
+        return;
+    }
+    const c = simCommands[action];
+    if (!c) return;
+    if (simStep < c.requires) {
+        simOutput.textContent += '\n\n\u26a0\ufe0f  Run previous steps first (step ' + c.requires + ' required before this command).';
+        return;
+    }
+    simOutput.textContent += '\n\n$ ' + c.cmd + '\n' + c.result;
+    if (c.state) {
+        Object.keys(c.state).forEach(k => {
+            const el = document.getElementById('state-' + k);
+            if (el) { el.textContent = c.state[k]; el.classList.add('active'); }
+        });
+    }
+    if (c.step && c.step > simStep) simStep = c.step;
+    simOutput.scrollTop = simOutput.scrollHeight;
+};
+</script>
+</body>
+</html>
