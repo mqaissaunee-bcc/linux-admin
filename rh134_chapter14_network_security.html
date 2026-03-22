@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 14: Managing Network Security | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue-dark); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-output { color: #E2E8F0; opacity: 0.85; }
+        .code-highlight { color: #F6E05E; }
+        .code-error { color: #FC8181; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); margin-bottom: 0; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; background: var(--rh-gray-lighter); border: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--rh-gray); transition: all var(--transition-fast); border-bottom: 2px solid transparent; margin-bottom: -2px; }
+        .tab-btn:hover { background: #E0E0E0; color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { background: var(--rh-white); color: var(--rh-blue-dark); border-bottom: 2px solid var(--rh-blue); border-top: 2px solid var(--rh-blue-dark); }
+        .tab-panel { display: none; padding: 20px; background: var(--rh-white); border: 1px solid var(--rh-gray-lighter); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* CARDS */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin: 1.5rem 0; }
+        .card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; border-top: 4px solid var(--rh-blue); transition: box-shadow var(--transition-fast); cursor: default; }
+        .card:hover { box-shadow: var(--shadow-md); }
+        .card-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+        .card-title { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--rh-blue-dark); margin-bottom: 8px; }
+        .card-body { font-size: 0.88rem; color: var(--rh-gray-dark); line-height: 1.5; }
+
+        /* DATA TABLES */
+        .data-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.88rem; }
+        .data-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .data-table tr:nth-child(even) td { background: #F8F8FF; }
+        .data-table tr:hover td { background: #EEF4FF; }
+        .data-table code { background: #E8E8E8; padding: 2px 5px; border-radius: 3px; font-family: var(--font-mono); font-size: 0.85em; }
+        .table-wrap { overflow-x: auto; margin: 1.5rem 0; }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 10px 0; overflow: hidden; }
+        .expandable-header { background: var(--rh-gray-lighter); padding: 14px 18px; cursor: pointer; font-family: var(--font-display); font-weight: 600; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; text-align: left; font-size: 0.95rem; color: var(--rh-blue-dark); transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E0E8F8; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expandable-icon { font-size: 1.2rem; transition: transform var(--transition-fast); }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(45deg); }
+        .expandable-content { display: none; padding: 20px; background: var(--rh-white); border-top: 1px solid var(--rh-gray-lighter); }
+        .expandable-content.open { display: block; }
+
+        /* QUIZ */
+        .quiz-container { background: linear-gradient(135deg, #F0F4FF, #F8F8FF); border-radius: var(--radius-lg); padding: 24px; }
+        .quiz-question { background: var(--rh-white); border-radius: var(--radius-md); padding: 20px; margin-bottom: 18px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--rh-blue); }
+        .quiz-question.correct { border-left-color: var(--rh-green); background: #F0FFF4; }
+        .quiz-question.incorrect { border-left-color: var(--rh-red); background: #FFF5F5; }
+        .question-text { font-family: var(--font-display); font-weight: 600; margin-bottom: 14px; color: var(--rh-gray-dark); }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; transition: background var(--transition-fast); }
+        .quiz-option:hover { background: var(--rh-gray-lighter); }
+        .quiz-option input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--rh-blue); }
+        .quiz-feedback { margin-top: 10px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; display: none; padding: 8px 12px; border-radius: var(--radius-sm); }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct-fb { background: #E6FFE6; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect-fb { background: #FFE6E6; color: var(--rh-red-dark); }
+        .quiz-controls { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+        .btn { padding: 10px 22px; border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all var(--transition-fast); }
+        .btn-primary { background: var(--rh-blue); color: var(--rh-white); }
+        .btn-primary:hover { background: var(--rh-blue-dark); }
+        .btn-secondary { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 1px solid var(--rh-gray-light); }
+        .btn-secondary:hover { background: #E0E0E0; }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); padding: 14px; background: var(--rh-white); border-radius: var(--radius-md); text-align: center; display: none; margin-top: 10px; }
+
+        /* ZONE SIMULATOR */
+        .zone-simulator { background: #F8F9FF; border: 2px solid var(--rh-blue-light); border-radius: var(--radius-md); padding: 24px; margin: 1.5rem 0; }
+        .zone-simulator h4 { font-family: var(--font-display); color: var(--rh-blue-dark); margin-bottom: 16px; font-size: 1rem; }
+        .zone-select-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+        .zone-select-row label { font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; }
+        .zone-select-row select { padding: 8px 12px; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; background: var(--rh-white); }
+        .zone-details { background: var(--rh-white); border-radius: var(--radius-md); padding: 18px; box-shadow: var(--shadow-sm); }
+        .zone-name { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; color: var(--rh-blue-dark); margin-bottom: 10px; }
+        .zone-prop { display: flex; gap: 10px; margin-bottom: 6px; font-size: 0.88rem; }
+        .zone-prop-label { font-family: var(--font-display); font-weight: 600; min-width: 130px; color: var(--rh-gray); }
+        .zone-prop-value { color: var(--rh-gray-dark); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.78rem; font-family: var(--font-display); font-weight: 600; margin: 1px; }
+        .badge-blue { background: #DBEAFE; color: var(--rh-blue-dark); }
+        .badge-green { background: #D1FAE5; color: var(--rh-green-dark); }
+        .badge-red { background: #FEE2E2; color: var(--rh-red-dark); }
+        .badge-gray { background: #F3F4F6; color: var(--rh-gray-dark); }
+
+        /* SELINUX PORT EXPLORER */
+        .port-explorer { background: #FFF8F0; border: 2px solid var(--rh-orange); border-radius: var(--radius-md); padding: 24px; margin: 1.5rem 0; }
+        .port-explorer h4 { font-family: var(--font-display); color: #CC4400; margin-bottom: 16px; }
+        .port-input-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+        .port-input-row input { padding: 8px 12px; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9rem; width: 120px; }
+        .port-result { background: var(--rh-white); border-radius: var(--radius-md); padding: 16px; min-height: 60px; font-family: var(--font-mono); font-size: 0.88rem; border: 1px solid var(--rh-gray-lighter); }
+
+        /* COMMAND REFERENCE TABLE */
+        .cmd-ref-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .cmd-ref-table th { background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; font-family: var(--font-display); }
+        .cmd-ref-table td { padding: 8px 14px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .cmd-ref-table tr:nth-child(even) td { background: #F8F8F8; }
+        .cmd-ref-table code { background: #E8E8E8; padding: 2px 5px; border-radius: 3px; font-family: var(--font-mono); }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; margin-top: 40px; }
+        .footer-inner { max-width: var(--content-width); margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 24px; }
+        .footer-col h3 { font-family: var(--font-display); font-size: 0.9rem; color: var(--rh-white); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .footer-col a { color: var(--rh-gray-light); text-decoration: none; font-size: 0.85rem; display: block; margin-bottom: 4px; }
+        .footer-col a:hover { color: var(--rh-blue-light); }
+        .footer-bottom { border-top: 1px solid #333; padding-top: 16px; font-family: var(--font-display); font-size: 0.78rem; color: var(--rh-gray-medium); }
+
+        /* LAB CHECKLIST */
+        .lab-checklist { list-style: none; margin: 1rem 0; }
+        .lab-checklist li { padding: 8px 12px; background: var(--rh-gray-lighter); border-radius: var(--radius-sm); margin-bottom: 6px; font-family: var(--font-display); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .lab-checklist li::before { content: "\2713"; color: var(--rh-green); font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+
+        @media (max-width: 600px) {
+            .section-body { padding: 18px; }
+            .section-header { padding: 16px 18px; }
+            .card-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F6E1;</span>
+        <span class="course-tag">RH134 &bull; RHEL 10 &bull; Chapter 14</span>
+        <h1 class="chapter-title">Managing Network Security</h1>
+        <p class="chapter-subtitle">Control network access with firewalld and enforce SELinux port labeling</p>
+        <div class="header-meta">
+            <span>&#x23F1; Estimated Study Time: 2&ndash;3 hours</span>
+            <span>&#x1F4DA; RH134 &mdash; Red Hat System Administration II</span>
+            <span>&#x1F3AF; RHCSA Exam Objective</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Chapter reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <p class="progress-text" id="progress-text">0% complete</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" id="nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="section-objectives">1. Objectives</a></li>
+        <li><a href="#section-firewall-arch" class="nav-btn" data-section="section-firewall-arch">2. Firewall Architecture</a></li>
+        <li><a href="#section-firewalld" class="nav-btn" data-section="section-firewalld">3. The firewalld Service</a></li>
+        <li><a href="#section-zones" class="nav-btn" data-section="section-zones">4. Predefined Zones</a></li>
+        <li><a href="#section-services" class="nav-btn" data-section="section-services">5. Predefined Services</a></li>
+        <li><a href="#section-configure" class="nav-btn" data-section="section-configure">6. Configure Firewalld</a></li>
+        <li><a href="#section-selinux-ports" class="nav-btn" data-section="section-selinux-ports">7. SELinux Port Labeling</a></li>
+        <li><a href="#section-semanage" class="nav-btn" data-section="section-semanage">8. Managing Port Labels</a></li>
+        <li><a href="#section-exercise" class="nav-btn" data-section="section-exercise">9. Guided Exercise</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="section-lab">10. Lab</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="section-quiz">11. Quiz</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="section-summary">12. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- SECTION 1: OBJECTIVES -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Explain how the Linux <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-netfilter">netfilter</span><span class="tooltip-content" role="tooltip" id="tt-netfilter">A framework built into the Linux kernel that provides packet filtering, network address translation (NAT), and port translation for network traffic management.</span> framework and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nftables">nftables</span><span class="tooltip-content" role="tooltip" id="tt-nftables">The modern packet classification framework in RHEL 10 that replaces iptables. It applies firewall rules to network traffic using the netfilter kernel framework.</span> work together to implement firewalling in RHEL 10.</li>
+            <li>Describe how the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-firewalld">firewalld</span><span class="tooltip-content" role="tooltip" id="tt-firewalld">A dynamic firewall management service that acts as a front end to the nftables framework, organizing rules into named zones to simplify network traffic management.</span> service classifies network traffic into zones.</li>
+            <li>Accept or reject network connections to local services by using the <code>firewall-cmd</code> command-line tool and the web console.</li>
+            <li>Identify predefined firewall zones and predefined service configurations.</li>
+            <li>Manage runtime and permanent firewall configuration changes.</li>
+            <li>Explain how SELinux controls network access through <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-port-labeling">port labeling</span><span class="tooltip-content" role="tooltip" id="tt-port-labeling">An SELinux mechanism that assigns security context labels to network ports, allowing SELinux to enforce which services are permitted to bind to which ports.</span>.</li>
+            <li>List, add, modify, and remove SELinux port context labels using the <code>semanage port</code> command.</li>
+            <li>Diagnose and resolve SELinux port-binding failures that prevent services from starting.</li>
+        </ul>
+        <div class="note-box note">
+            <div class="note-box-header">&#x1F3AF; RHCSA Exam Relevance</div>
+            <p>Managing network security is a core RHCSA exam objective. You are expected to configure firewalld to allow or block services and ports, and to configure SELinux port contexts to allow services to bind to non-default ports. Both skills are tested together in troubleshooting scenarios.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 2: FIREWALL ARCHITECTURE -->
+<section id="section-firewall-arch" class="content-section" aria-labelledby="firewall-arch-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="firewall-arch-heading">Linux Firewall Architecture</h2>
+    </div>
+    <div class="section-body">
+        <p>To effectively manage network security on RHEL 10, it helps to understand the layered architecture that governs how network packets are processed. There are three distinct layers, each building on the one below it.</p>
+
+        <h3>The netfilter Framework (Kernel Layer)</h3>
+        <p>The Linux kernel provides the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-netfilter2">netfilter</span><span class="tooltip-content" role="tooltip" id="tt-netfilter2">A Linux kernel subsystem offering hooks for packet filtering, NAT, and connection tracking. All firewall tools ultimately write rules that netfilter enforces.</span> framework for network traffic operations such as <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-packet-filtering">packet filtering</span><span class="tooltip-content" role="tooltip" id="tt-packet-filtering">The process of inspecting network packets and deciding whether to allow, drop, or reject them based on criteria such as source/destination IP, port, and protocol.</span>, network address translation (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nat">NAT</span><span class="tooltip-content" role="tooltip" id="tt-nat">Network Address Translation — a technique that rewrites source or destination IP addresses in packet headers, commonly used to share a single public IP across multiple private hosts.</span>), and port translation. This is the lowest-level component — everything runs through here.</p>
+
+        <h3>The nftables Framework (Rules Layer)</h3>
+        <p>In RHEL 10, the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nftables2">nftables</span><span class="tooltip-content" role="tooltip" id="tt-nftables2">The successor to iptables/ip6tables in RHEL 10. Provides improved performance, unified IPv4/IPv6 handling, and more expressive rule syntax. It writes classification rules that the netfilter kernel framework enforces.</span> packet classification framework is the system firewall core. It builds on netfilter to apply firewall rules to network traffic.</p>
+
+        <div class="note-box note">
+            <div class="note-box-header">&#x1F4CB; nftables Replaces iptables</div>
+            <p>The nftables framework is the successor to the older <code>iptables</code>, <code>ip6tables</code>, and <code>ebtables</code> utilities. It offers many improvements in convenience, features, and performance. If you have existing <code>iptables</code> configuration files, you can convert them using the <code>iptables-translate</code> and <code>ip6tables-translate</code> utilities.</p>
+        </div>
+
+        <h3>The firewalld Service (Management Layer)</h3>
+        <p>Most administrators interact with neither <code>netfilter</code> nor <code>nftables</code> directly. Instead, RHEL 10 provides the <code>firewalld</code> service as a dynamic, high-level front end. You write rules using <code>firewall-cmd</code> or the web console, and <code>firewalld</code> translates those rules into <code>nftables</code> syntax and applies them.</p>
+
+        <div class="card-grid">
+            <div class="card">
+                <span class="card-icon" aria-hidden="true">&#x1F527;</span>
+                <div class="card-title">netfilter</div>
+                <div class="card-body">Kernel-level framework. Provides the hooks that enable packet inspection and manipulation. Not directly configured by administrators.</div>
+            </div>
+            <div class="card">
+                <span class="card-icon" aria-hidden="true">&#x1F4CB;</span>
+                <div class="card-title">nftables</div>
+                <div class="card-body">Rules engine built on netfilter. Replaces iptables in RHEL 10. Rarely used directly — firewalld manages it automatically.</div>
+            </div>
+            <div class="card">
+                <span class="card-icon" aria-hidden="true">&#x1F6E1;</span>
+                <div class="card-title">firewalld</div>
+                <div class="card-body">Dynamic firewall manager. The recommended interface for administrators. Uses zones, services, and ports as high-level concepts.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: THE FIREWALLD SERVICE -->
+<section id="section-firewalld" class="content-section" aria-labelledby="firewalld-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="firewalld-heading">The firewalld Service</h2>
+    </div>
+    <div class="section-body">
+        <p>The <code>firewalld</code> service is a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-dynamic-firewall">dynamic firewall manager</span><span class="tooltip-content" role="tooltip" id="tt-dynamic-firewall">A firewall that can update rules at runtime without interrupting established network connections or requiring a service restart, unlike static firewall tools.</span>, and is the recommended front end to the <code>nftables</code> framework. Red Hat Enterprise Linux 10 includes the <code>firewalld</code> package by default.</p>
+
+        <h3>Zone-Based Traffic Classification</h3>
+        <p>The <code>firewalld</code> service simplifies firewall management by classifying network traffic into <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-zone">zones</span><span class="tooltip-content" role="tooltip" id="tt-zone">A named firewall policy profile in firewalld. Each zone defines which traffic is trusted, and multiple zones can be active simultaneously for different network interfaces or source addresses.</span>. A network packet's assigned zone depends on criteria such as the source IP address or the incoming network interface. Each zone has its own list of ports and services that are permitted.</p>
+
+        <h3>Zone Assignment Logic</h3>
+        <p>When a packet arrives, <code>firewalld</code> determines which zone applies using the following priority order:</p>
+        <ol>
+            <li><strong>Source address match:</strong> If the packet's source IP address is assigned to a specific zone, that zone's rules apply.</li>
+            <li><strong>Interface zone:</strong> If no source address match, the zone assigned to the incoming network interface is used.</li>
+            <li><strong>Default zone:</strong> If the interface has no zone assignment, the packet is sent to the default zone.</li>
+        </ol>
+        <p>The <strong>default zone</strong> is not a separate zone — it is a designation applied to one of the existing zones. Initially, <code>firewalld</code> designates the <code>public</code> zone as the default, and maps the <code>lo</code> loopback interface to the <code>trusted</code> zone.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header">&#x1F4A1; NetworkManager Integration</div>
+            <p>For machines that frequently change networks, the <code>NetworkManager</code> service can automatically set the firewall zone for a connection. This is useful when switching between home, work, or public wireless networks. For example, you might want <code>sshd</code> reachable on your home network but blocked on a public coffee shop Wi-Fi.</p>
+        </div>
+
+        <h3>Runtime vs. Permanent Configuration</h3>
+        <p>A key concept in <code>firewalld</code> is the distinction between two configuration states:</p>
+        <div class="card-grid">
+            <div class="card" style="border-top-color: var(--rh-orange);">
+                <span class="card-icon" aria-hidden="true">&#x26A1;</span>
+                <div class="card-title">Runtime Configuration</div>
+                <div class="card-body">Currently active rules in memory. Changes take effect immediately but are <strong>lost on reboot or firewalld reload</strong>. Good for testing changes before making them permanent.</div>
+            </div>
+            <div class="card" style="border-top-color: var(--rh-green);">
+                <span class="card-icon" aria-hidden="true">&#x1F4BE;</span>
+                <div class="card-title">Permanent Configuration</div>
+                <div class="card-body">Rules stored on disk. <strong>Survive reboots</strong>, but only activate after a <code>--reload</code>. Use the <code>--permanent</code> flag with <code>firewall-cmd</code> to write to permanent config.</div>
+            </div>
+        </div>
+        <div class="note-box important">
+            <div class="note-box-header">&#x26A0; Always Reload After --permanent</div>
+            <p>When you use <code>firewall-cmd --permanent</code>, the rule is saved to disk but <em>not</em> yet active. You must follow up with <code>firewall-cmd --reload</code> to apply the permanent configuration as the new runtime. Alternatively, <code>firewall-cmd --runtime-to-permanent</code> saves the current runtime state to permanent storage.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: PREDEFINED ZONES -->
+<section id="section-zones" class="content-section" aria-labelledby="zones-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="zones-heading">Predefined Zones</h2>
+    </div>
+    <div class="section-body">
+        <p>The <code>firewalld</code> service ships with a set of predefined zones. All zones allow incoming traffic that is part of an existing session that the system initiated, and allow all outgoing traffic by default. The zones differ in how they handle <em>new</em> incoming connections.</p>
+
+        <p>Use the <strong>Zone Explorer</strong> below to review the default configuration of each zone:</p>
+
+        <div class="zone-simulator" role="region" aria-label="Firewall zone explorer">
+            <h4>&#x1F50D; Zone Explorer &mdash; Select a zone to view its default policy</h4>
+            <div class="zone-select-row">
+                <label for="zone-selector">Zone:</label>
+                <select id="zone-selector" aria-label="Select a firewall zone to explore">
+                    <option value="trusted">trusted</option>
+                    <option value="home">home</option>
+                    <option value="internal">internal</option>
+                    <option value="work">work</option>
+                    <option value="public" selected>public (default)</option>
+                    <option value="external">external</option>
+                    <option value="dmz">dmz</option>
+                    <option value="block">block</option>
+                    <option value="drop">drop</option>
+                </select>
+            </div>
+            <div class="zone-details" id="zone-details" aria-live="polite">
+                <!-- populated by JS -->
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="data-table" aria-label="Default configuration of firewall zones">
+                <thead>
+                    <tr><th scope="col">Zone Name</th><th scope="col">Default Behavior for New Incoming Traffic</th><th scope="col">Typical Use</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>trusted</code></td><td>Allow <em>all</em> incoming traffic</td><td>Fully trusted networks (e.g., internal loopback)</td></tr>
+                    <tr><td><code>home</code></td><td>Reject unless matching <code>ssh</code>, <code>mdns</code>, <code>ipp-client</code>, <code>samba-client</code>, <code>dhcpv6-client</code></td><td>Home networks where other hosts are trusted</td></tr>
+                    <tr><td><code>internal</code></td><td>Same as home zone initially</td><td>Internal corporate networks</td></tr>
+                    <tr><td><code>work</code></td><td>Reject unless matching <code>ssh</code>, <code>ipp-client</code>, <code>dhcpv6-client</code></td><td>Work network environments</td></tr>
+                    <tr><td><code>public</code></td><td>Reject unless matching <code>ssh</code>, <code>dhcpv6-client</code></td><td>Untrusted public networks. <strong>Default zone.</strong></td></tr>
+                    <tr><td><code>external</code></td><td>Reject unless matching <code>ssh</code>. IPv4 outgoing traffic is <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-masquerade">masqueraded</span><span class="tooltip-content" role="tooltip" id="tt-masquerade">IP masquerading rewrites outgoing packet source addresses to the interface's IP, hiding internal hosts. Used for NAT when routing traffic through a gateway.</span></td><td>External interfaces on routers/gateways</td></tr>
+                    <tr><td><code>dmz</code></td><td>Reject unless matching <code>ssh</code></td><td>Demilitarized zone for publicly accessible servers</td></tr>
+                    <tr><td><code>block</code></td><td>Reject all new incoming traffic (ICMP error returned)</td><td>Maximum restriction with error feedback</td></tr>
+                    <tr><td><code>drop</code></td><td>Drop all new incoming traffic (no ICMP error)</td><td>Maximum restriction with no feedback (stealthy)</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>For a complete reference, see the <code>firewalld.zones(5)</code> man page.</p>
+    </div>
+</section>
+
+<!-- SECTION 5: PREDEFINED SERVICES -->
+<section id="section-services" class="content-section" aria-labelledby="services-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="services-heading">Predefined Services</h2>
+    </div>
+    <div class="section-body">
+        <p>Rather than requiring administrators to know every port number for every service, <code>firewalld</code> provides predefined service configurations. A predefined service is a named group of port and protocol rules. For example, the <code>nfs</code> service predefinition includes all the ports NFS requires, so you don't need to look them up individually.</p>
+
+        <div class="table-wrap">
+            <table class="data-table" aria-label="Selected predefined firewall services">
+                <thead>
+                    <tr><th scope="col">Service Name</th><th scope="col">Ports / Protocols</th><th scope="col">Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>ssh</code></td><td>22/tcp</td><td>Local SSH server. Usually enabled in most zones.</td></tr>
+                    <tr><td><code>dhcpv6-client</code></td><td>546/udp (fe80::/64)</td><td>Local DHCPv6 client. Receives IPv6 address assignments.</td></tr>
+                    <tr><td><code>ipp-client</code></td><td>631/udp</td><td>Local Internet Printing Protocol (IPP) printing.</td></tr>
+                    <tr><td><code>samba-client</code></td><td>137/udp, 138/udp</td><td>Local Windows file and print sharing client.</td></tr>
+                    <tr><td><code>mdns</code></td><td>5353/udp (multicast)</td><td>Multicast DNS for local-link name resolution.</td></tr>
+                    <tr><td><code>http</code></td><td>80/tcp</td><td>Web server (HTTP).</td></tr>
+                    <tr><td><code>https</code></td><td>443/tcp</td><td>Web server (HTTPS/TLS).</td></tr>
+                    <tr><td><code>cockpit</code></td><td>9090/tcp</td><td>Red Hat web console management interface.</td></tr>
+                    <tr><td><code>mysql</code></td><td>3306/tcp</td><td>MySQL/MariaDB database server.</td></tr>
+                    <tr><td><code>postgresql</code></td><td>5432/tcp</td><td>PostgreSQL database server.</td></tr>
+                    <tr><td><code>nfs</code></td><td>2049/tcp, 2049/udp</td><td>Network File System server.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Listing All Available Services</h3>
+        <div class="code-block" role="region" aria-label="List predefined firewalld services">
+            <div class="code-title">List all predefined firewalld services</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --get-services</span>
+<span class="code-output">0-AD RH-Satellite-6 RH-Satellite-6-capsule afp alvr amanda-client amanda-k5-client amqp amqps
+anno-1602 anno-1800 apcupsd aseqnet audit ausweisapp2 bacula bacula-client bareos-director
+bareos-filedaemon bareos-storage bb bgp bitcoin bitcoin-rpc cockpit collectd
+...output omitted...</span></code>
+        </div>
+
+        <p>If none of the predefined service configurations fit your needs, you can manually specify ports and protocols using <code>--add-port=PORT/PROTOCOL</code>. You can also create custom service definitions in <code>/etc/firewalld/services/</code>.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header">&#x1F4A1; Best Practice: Use Services Over Ports</div>
+            <p>Whenever possible, open firewall rules using named services (<code>--add-service=http</code>) rather than raw ports (<code>--add-port=80/tcp</code>). Service names make configurations more readable and maintainable. If a service requires multiple ports, all are added automatically.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 6: CONFIGURE FIREWALLD -->
+<section id="section-configure" class="content-section" aria-labelledby="configure-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="configure-heading">Configuring firewalld</h2>
+    </div>
+    <div class="section-body">
+        <p>System administrators can interact with <code>firewalld</code> through two interfaces: the web console (graphical) and the <code>firewall-cmd</code> command-line tool. Both accomplish the same tasks; the CLI is more scriptable and works on headless servers.</p>
+
+        <div class="tabs-container" role="region" aria-label="Configuration interface options">
+            <div class="tab-list" role="tablist" aria-label="Configuration methods">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-webconsole" id="tab-webconsole-btn">Web Console</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-cmdline" id="tab-cmdline-btn">firewall-cmd CLI</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-examples" id="tab-examples-btn">Common Examples</button>
+            </div>
+            <div class="tab-panel active" id="tab-webconsole" role="tabpanel" aria-labelledby="tab-webconsole-btn">
+                <h4>Using the Web Console</h4>
+                <p>To manage firewall services with the web console, log in and escalate privileges by clicking the <strong>Limited access</strong> or <strong>Turn on administrative access</strong> button. Enter your password when prompted — this elevates privileges based on your <code>sudo</code> configuration.</p>
+                <ol>
+                    <li>Click <strong>Networking</strong> in the left navigation menu</li>
+                    <li>Locate the <strong>Firewall</strong> section on the networking page</li>
+                    <li>Click <strong>Edit rules and zones</strong> to open the Firewall management page</li>
+                    <li>The Firewall page shows active zones and their allowed services</li>
+                    <li>Click the <strong>Add services</strong> button in a zone to add new services</li>
+                    <li>In the Add Services dialog, scroll or filter to find a service, check its box, and click <strong>Add services</strong></li>
+                </ol>
+                <div class="note-box tip">
+                    <div class="note-box-header">&#x1F4A1; Remember to Toggle Access Mode</div>
+                    <p>After performing administrative tasks in the web console, toggle back to Limited access mode. Administrative mode grants elevated privileges for the duration of the session.</p>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-cmdline" role="tabpanel" aria-labelledby="tab-cmdline-btn">
+                <h4>The firewall-cmd Command Reference</h4>
+                <p>The <code>firewall-cmd</code> tool is installed with the <code>firewalld</code> package and works on any RHEL 10 system, including headless servers. Most commands operate on the runtime configuration unless the <code>--permanent</code> flag is used.</p>
+                <div class="table-wrap">
+                    <table class="cmd-ref-table" aria-label="firewall-cmd command reference">
+                        <thead>
+                            <tr><th scope="col">Command / Option</th><th scope="col">Effect</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><code>--get-default-zone</code></td><td>Query the current default zone</td></tr>
+                            <tr><td><code>--set-default-zone=ZONE</code></td><td>Set the default zone (runtime <em>and</em> permanent)</td></tr>
+                            <tr><td><code>--get-zones</code></td><td>List all available zones</td></tr>
+                            <tr><td><code>--get-active-zones</code></td><td>List zones in use with their interfaces and sources</td></tr>
+                            <tr><td><code>--add-source=CIDR [--zone=ZONE]</code></td><td>Route traffic from IP/network to specified zone</td></tr>
+                            <tr><td><code>--remove-source=CIDR [--zone=ZONE]</code></td><td>Remove source-based zone routing rule</td></tr>
+                            <tr><td><code>--add-interface=IFACE [--zone=ZONE]</code></td><td>Route all traffic on interface to zone</td></tr>
+                            <tr><td><code>--change-interface=IFACE [--zone=ZONE]</code></td><td>Move interface to a different zone</td></tr>
+                            <tr><td><code>--list-all [--zone=ZONE]</code></td><td>Show all configured interfaces, sources, services, and ports for zone</td></tr>
+                            <tr><td><code>--list-all-zones</code></td><td>Show all information for all zones</td></tr>
+                            <tr><td><code>--add-service=SVC [--zone=ZONE]</code></td><td>Allow traffic for named service</td></tr>
+                            <tr><td><code>--add-port=PORT/PROTO [--zone=ZONE]</code></td><td>Allow traffic to specified port/protocol</td></tr>
+                            <tr><td><code>--remove-service=SVC [--zone=ZONE]</code></td><td>Remove a service from the allowed list</td></tr>
+                            <tr><td><code>--remove-port=PORT/PROTO [--zone=ZONE]</code></td><td>Remove a port from the allowed list</td></tr>
+                            <tr><td><code>--reload</code></td><td>Apply permanent configuration as new runtime config</td></tr>
+                            <tr><td><code>--runtime-to-permanent</code></td><td>Save current runtime config to permanent storage</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-panel" id="tab-examples" role="tabpanel" aria-labelledby="tab-examples-btn">
+                <h4>Common Configuration Examples</h4>
+
+                <p><strong>Example 1: Set the default zone to dmz</strong></p>
+                <div class="code-block" role="region" aria-label="Set default zone example">
+                    <div class="code-title">Set default zone</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --set-default-zone=dmz</span>
+<span class="code-output">success</span></code>
+                </div>
+
+                <p><strong>Example 2: Allow an internal network and open MySQL</strong></p>
+                <div class="code-block" role="region" aria-label="Add source and service example">
+                    <div class="code-title">Assign network to internal zone and open MySQL</div>
+                    <code><span class="code-comment"># Assign 192.168.0.0/24 to the internal zone (permanent)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=internal --add-source=192.168.0.0/24</span>
+<span class="code-output">success</span>
+<span class="code-comment"># Open mysql service in the internal zone (permanent)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=internal --add-service=mysql</span>
+<span class="code-output">success</span>
+<span class="code-comment"># Apply the permanent changes to runtime</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span></code>
+                </div>
+
+                <p><strong>Example 3: Allow a specific host IP in the public zone</strong></p>
+                <div class="code-block" role="region" aria-label="Add specific host example">
+                    <div class="code-title">Allow traffic from a single IPv4 address</div>
+                    <code><span class="code-comment"># Allow 172.25.25.11 to be treated as the public zone (/32 = single host)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=public --add-source=172.25.25.11/32</span>
+<span class="code-output">success</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span></code>
+                </div>
+
+                <p><strong>Example 4: Add HTTP to the public zone and verify</strong></p>
+                <div class="code-block" role="region" aria-label="Add HTTP and verify example">
+                    <div class="code-title">Open HTTP and verify the zone configuration</div>
+                    <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=public --add-service=http</span>
+<span class="code-output">success</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">firewall-cmd --zone=public --list-all</span>
+<span class="code-output">public (default, active)
+  target: default
+  ingress-priority: 0
+  egress-priority: 0
+  icmp-block-inversion: no
+  interfaces: ens3
+  sources:
+  services: cockpit dhcpv6-client http ssh
+  ports:
+  protocols:
+  forward: yes
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:</span></code>
+                </div>
+
+                <div class="note-box note">
+                    <div class="note-box-header">&#x1F4CC; Advanced Rules: Rich Rules and Direct Configuration</div>
+                    <p>For situations where the basic zone/service/port syntax is not enough, <code>firewall-cmd</code> supports <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rich-rules">rich rules</span><span class="tooltip-content" role="tooltip" id="tt-rich-rules">Advanced firewalld rules with more expressive syntax for matching on source/destination, limiting connection rate, logging, or applying masquerade on a per-rule basis.</span> for complex matching. If even rich rules fall short, Direct Configuration rules allow mixing raw <code>nft</code> syntax with firewalld rules. These advanced configurations are beyond the scope of this course.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- SECTION 7: SELINUX PORT LABELING -->
+<section id="section-selinux-ports" class="content-section" aria-labelledby="selinux-ports-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="selinux-ports-heading">SELinux Port Labeling</h2>
+    </div>
+    <div class="section-body">
+        <p>Firewall rules control <em>which</em> hosts and ports can reach your system from the network. But a second layer of protection exists at the application level: <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux">SELinux</span><span class="tooltip-content" role="tooltip" id="tt-selinux">Security-Enhanced Linux — a mandatory access control system built into the Linux kernel. SELinux enforces security policies based on labels attached to files, processes, and network ports.</span> port labeling controls <em>which processes</em> on your system are allowed to bind to which ports.</p>
+
+        <h3>Why Port Labeling Matters</h3>
+        <p>In addition to file context and process type labeling, SELinux assigns <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux-context">security context labels</span><span class="tooltip-content" role="tooltip" id="tt-selinux-context">A label in the format user:role:type:level assigned to SELinux subjects (processes) and objects (files, ports). Policy rules define what access is allowed between labels.</span> to network ports. The targeted policy controls which <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-targeted-policy">targeted</span><span class="tooltip-content" role="tooltip" id="tt-targeted-policy">The default SELinux policy mode in RHEL, where only specific high-risk processes run in confined domains. Most user processes run unconfined.</span> processes can bind to which ports by matching process type labels against port type labels.</p>
+
+        <h3>How Port Labels Work</h3>
+        <p>Consider two common examples built into the targeted policy:</p>
+        <ul>
+            <li>The <strong>SSH</strong> targeted policy assigns the <code>ssh_port_t</code> context label to port 22/TCP. The SSH daemon (<code>sshd</code>) runs with the <code>sshd_t</code> domain, and the policy permits <code>sshd_t</code> to bind to <code>ssh_port_t</code> ports.</li>
+            <li>The <strong>HTTP</strong> targeted policy assigns the <code>http_port_t</code> context to ports 80/TCP and 443/TCP. The <code>httpd_t</code> domain is permitted to bind to <code>http_port_t</code> ports.</li>
+        </ul>
+        <p>This enforcement means that even if an attacker compromises a web server and tries to redirect traffic to an unusual port, SELinux will block the attempt — because the rogue process cannot bind to a port with an incompatible label.</p>
+
+        <div class="note-box important">
+            <div class="note-box-header">&#x26A0; SELinux Blocks Non-Standard Port Binding</div>
+            <p>When you configure a legitimate service to listen on a non-default port (e.g., running an HTTP server on port 8888), SELinux will block the service from starting unless port 8888 is labeled with the correct SELinux type (e.g., <code>http_port_t</code>). This is a very common cause of service startup failures on RHEL systems with SELinux enforcing mode.</p>
+        </div>
+
+        <h3>The Diagnostic Workflow</h3>
+        <p>When a service fails to start because of an SELinux port binding issue, the typical diagnostic workflow is:</p>
+        <ol>
+            <li>Attempt to start the service: <code>systemctl start servicename</code></li>
+            <li>Check the service status: <code>systemctl status servicename</code></li>
+            <li>Look for a &ldquo;Permission denied&rdquo; error on the port bind attempt in the output</li>
+            <li>Use <code>sealert -a /var/log/audit/audit.log</code> to get a detailed SELinux alert with suggested remediation</li>
+            <li>Use <code>semanage port -l | grep service_name</code> to find the correct port type</li>
+            <li>Use <code>semanage port -a -t port_type -p tcp|udp PORT</code> to add the port label</li>
+        </ol>
+
+        <div class="code-block" role="region" aria-label="Example of an SELinux port bind failure">
+            <div class="code-title">Example: httpd fails to bind to port 1001</div>
+            <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl status httpd.service</span>
+<span class="code-error">&#x2715; httpd.service - The Apache HTTP Server</span>
+<span class="code-output">   Loaded: loaded (/usr/lib/systemd/system/httpd.service; enabled; preset: disabled)
+   Active: failed (Result: exit-code)
+...
+Jul 14 12:54:15 serverb httpd[4202]: <span class="code-error">(13)Permission denied: AH00072: make_sock: could not bind to address [::]:1001</span>
+Jul 14 12:54:15 serverb httpd[4202]: (13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:1001
+Jul 14 12:54:15 serverb httpd[4202]: no listening sockets available, shutting down</span>
+
+<span class="code-comment"># Permission denied on port 1001 is an SELinux block, not a Linux permission issue</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">sealert -a /var/log/audit/audit.log</span>
+<span class="code-output">SELinux is preventing /usr/sbin/httpd from name_bind access on the tcp_socket port 1001.
+
+#=== Plugin bind_ports (99.5 confidence) suggests ========================
+
+If you want to allow /usr/sbin/httpd to bind to network port 1001
+Then you need to modify the port type.
+Do
+# semanage port -a -t PORT_TYPE -p tcp 1001
+where PORT_TYPE is one of the following: http_cache_port_t, http_port_t,
+jboss_management_port_t, jboss_messaging_port_t, ntop_port_t, puppet_port_t.</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: MANAGING PORT LABELS -->
+<section id="section-semanage" class="content-section" aria-labelledby="semanage-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="semanage-heading">Managing SELinux Port Labels with semanage</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-semanage">semanage</span><span class="tooltip-content" role="tooltip" id="tt-semanage">The SELinux policy management tool. Used to manage SELinux file contexts, port labels, user mappings, and other policy configurations. Part of the policycoreutils-python-utils package.</span> command is the primary tool for managing SELinux port labels. It is part of the <code>policycoreutils-python-utils</code> package.</p>
+
+        <h3>Listing Port Labels</h3>
+        <p>Use <code>semanage port -l</code> to list all current port label assignments. The output is long — use <code>grep</code> to filter.</p>
+
+        <div class="code-block" role="region" aria-label="List SELinux port labels">
+            <div class="code-title">Listing SELinux port labels</div>
+            <code><span class="code-comment"># List all port labels (output is lengthy)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l</span>
+<span class="code-output">...output omitted...
+http_cache_port_t   tcp   8080, 8118, 8123, 10001-10010
+http_cache_port_t   udp   3130
+http_port_t         tcp   80, 81, 443, 488, 8008, 8009, 8443, 9000
+...output omitted...</span>
+
+<span class="code-comment"># Filter by service name (e.g., ftp)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l | grep ftp</span>
+<span class="code-output">ftp_data_port_t   tcp   20
+ftp_port_t        tcp   21, 989, 990
+ftp_port_t        udp   989, 990
+tftp_port_t       udp   69</span>
+
+<span class="code-comment"># Filter by a specific port number (exact word match)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l | grep -w 70</span>
+<span class="code-output">gopher_port_t   tcp   70
+gopher_port_t   udp   70</span></code>
+        </div>
+
+        <h3>Adding, Modifying, and Deleting Port Labels</h3>
+        <p>The <code>semanage port</code> command supports four key operations: add (<code>-a</code>), modify (<code>-m</code>), delete (<code>-d</code>), and list (<code>-l</code>). These operations are summarized below, and then illustrated with a worked example using the gopher service on port 71/TCP.</p>
+
+        <div class="note-box important">
+            <div class="note-box-header">&#x26A0; Cannot Change Default Policy Labels</div>
+            <p>Most services in RHEL provide an SELinux policy module that includes the service's default port contexts. You <em>cannot</em> change these default port labels using <code>semanage</code> — the <code>-a</code> option only adds <em>new</em> labels on top of the policy. To change a default, you must modify and reload the targeted policy module, which is beyond the scope of this course. You <em>can</em> add additional ports to any existing label.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Add a new port label">
+            <div class="code-title">Add a new port label</div>
+            <code><span class="code-comment"># Syntax: semanage port -a -t PORT_TYPE -p tcp|udp PORT</span>
+<span class="code-comment"># Enable the gopher service to listen on the non-default port 71/TCP</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -a -t gopher_port_t -p tcp 71</span>
+
+<span class="code-comment"># Verify the new label was added (show only local policy changes with -C)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l -C</span>
+<span class="code-output">SELinux Port Type   Proto   Port Number
+gopher_port_t       tcp     71</span></code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Modify an existing port label">
+            <div class="code-title">Modify an existing port label</div>
+            <code><span class="code-comment"># Change the port 71/TCP label from gopher_port_t to http_port_t</span>
+<span class="code-comment"># -m (modify) is more efficient than -d then -a</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -m -t http_port_t -p tcp 71</span>
+
+<span class="code-comment"># Verify the change</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l -C</span>
+<span class="code-output">SELinux Port Type   Proto   Port Number
+http_port_t         tcp     71</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -l | grep http</span>
+<span class="code-output">http_cache_port_t   tcp   8080, 8118, 8123, 10001-10010
+http_cache_port_t   udp   3130
+http_port_t         tcp   71, 80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t tcp   5988
+pegasus_https_port_t tcp  5989</span></code>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Delete a port label">
+            <div class="code-title">Delete a port label</div>
+            <code><span class="code-comment"># Remove the binding of port 71/TCP from gopher_port_t</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">semanage port -d -t gopher_port_t -p tcp 71</span></code>
+        </div>
+
+        <h3>SELinux Man Pages for Services</h3>
+        <p>Service-specific SELinux man pages are named using the service name plus <code>_selinux</code> (e.g., <code>httpd_selinux(8)</code>). These man pages contain detailed information about the service's SELinux types, Booleans, and port types. They are not installed by default.</p>
+
+        <div class="code-block" role="region" aria-label="Install and use SELinux man pages">
+            <div class="code-title">Install SELinux policy documentation and search man pages</div>
+            <code><span class="code-comment"># Install the SELinux policy documentation package</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">dnf -y install selinux-policy-doc</span>
+
+<span class="code-comment"># Search for available SELinux-specific man pages</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">man -k _selinux | head -10</span>
+<span class="code-output">abrt_selinux (8)     - Security Enhanced Linux Policy for the abrt processes
+apache_selinux (8)   - Security Enhanced Linux Policy for the apache processes
+chronyd_selinux (8)  - Security Enhanced Linux Policy for the chronyd processes
+httpd_selinux (8)    - Security Enhanced Linux Policy for the httpd processes
+mysqld_selinux (8)   - Security Enhanced Linux Policy for the mysqld processes
+...output omitted...</span>
+
+<span class="code-comment"># Read the httpd-specific SELinux policy</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">man httpd_selinux</span></code>
+        </div>
+
+        <!-- PORT EXPLORER WIDGET -->
+        <div class="port-explorer" role="region" aria-label="SELinux port label explorer">
+            <h4>&#x1F50E; SELinux Port Type Reference</h4>
+            <p style="font-family: var(--font-display); font-size: 0.88rem; color: var(--rh-gray-dark); margin-bottom: 14px;">Common port-to-SELinux-type mappings for RHCSA exam preparation:</p>
+            <div class="table-wrap">
+                <table class="cmd-ref-table" aria-label="Common SELinux port types">
+                    <thead>
+                        <tr><th scope="col">SELinux Port Type</th><th scope="col">Protocol</th><th scope="col">Default Ports</th><th scope="col">Service(s)</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>ssh_port_t</code></td><td>tcp</td><td>22</td><td>SSH (sshd)</td></tr>
+                        <tr><td><code>http_port_t</code></td><td>tcp</td><td>80, 81, 443, 488, 8008, 8009, 8443, 9000</td><td>Apache httpd, nginx</td></tr>
+                        <tr><td><code>http_cache_port_t</code></td><td>tcp</td><td>8080, 8118, 8123, 10001-10010</td><td>Web caches/proxies</td></tr>
+                        <tr><td><code>ftp_port_t</code></td><td>tcp</td><td>21, 989, 990</td><td>FTP (vsftpd)</td></tr>
+                        <tr><td><code>mysqld_port_t</code></td><td>tcp</td><td>1186, 3306, 3366</td><td>MySQL/MariaDB</td></tr>
+                        <tr><td><code>postgresql_port_t</code></td><td>tcp</td><td>5432</td><td>PostgreSQL</td></tr>
+                        <tr><td><code>smtp_port_t</code></td><td>tcp</td><td>25, 465, 587</td><td>Mail (Postfix, Sendmail)</td></tr>
+                        <tr><td><code>dns_port_t</code></td><td>tcp, udp</td><td>53</td><td>DNS (named, unbound)</td></tr>
+                        <tr><td><code>nfs_port_t</code></td><td>tcp, udp</td><td>2049</td><td>NFS server</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 9: GUIDED EXERCISE -->
+<section id="section-exercise" class="content-section" aria-labelledby="exercise-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="exercise-heading">Guided Exercise: Manage a Server Firewall and SELinux Port Labels</h2>
+    </div>
+    <div class="section-body">
+        <p>In this guided exercise, you will configure the firewall on <code>serverb</code> to allow HTTP traffic on a standard and a non-standard port, and configure SELinux to allow the web server to bind to the non-standard port.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header">&#x26A0; Lab Environment Note</div>
+            <p>The Red Hat Online Learning environment requires port 5900/TCP to remain available for its graphical interface (associated with the <code>vnc-server</code> service). If you accidentally lock yourself out of <code>serverb</code>, recover via <code>ssh student@serverb</code> from <code>workstation</code>. The configuration includes a custom zone named ROL that opens these ports.</p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task1-content" id="task1-header">
+                Task 1: Verify the Problem &mdash; Web Server is Not Accessible
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="task1-content" aria-labelledby="task1-header" role="region">
+                <p><strong>Objective:</strong> Confirm that the web server on <code>serverb</code> is inaccessible on both port 80 and port 1001.</p>
+                <div class="code-block" role="region" aria-label="Test connectivity to serverb">
+                    <div class="code-title">Test connectivity from workstation</div>
+                    <code><span class="code-comment"># Test standard HTTP port (80) -- should fail</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com</span>
+<span class="code-error">curl: (7) Failed to connect to serverb.lab.example.com port 80 after 3 ms: Could not connect to server</span>
+
+<span class="code-comment"># Test virtual host on port 1001 -- also fails</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com:1001</span>
+<span class="code-error">curl: (7) Failed to connect to serverb.lab.example.com port 1001 after 2 ms: Could not connect to server</span></code>
+                </div>
+                <p>Both connections fail. The problem has two possible causes: the firewall is blocking the ports, or the web service is not running (or cannot start). Next steps will investigate both.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task2-content" id="task2-header">
+                Task 2: Diagnose the httpd Service Failure
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="task2-content" aria-labelledby="task2-header" role="region">
+                <p><strong>Objective:</strong> Log in to <code>serverb</code>, attempt to start httpd, and diagnose why it fails.</p>
+                <div class="code-block" role="region" aria-label="Diagnose httpd service failure">
+                    <div class="code-title">Log in to serverb and check httpd</div>
+                    <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...output omitted...</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-output">[sudo] password for student: student</span>
+
+<span class="code-comment"># Check whether httpd is currently active</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl is-active httpd</span>
+<span class="code-output">inactive</span>
+
+<span class="code-comment"># Attempt to start and enable httpd -- this will fail</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+<span class="code-output">Created symlink '/etc/systemd/system/multi-user.target.wants/httpd.service' -&gt; '/usr/lib/systemd/system/httpd.service'.
+<span class="code-error">Job for httpd.service failed because the control process exited with error code.
+See "systemctl status httpd.service" and "journalctl -xeu httpd.service" for details.</span></span>
+
+<span class="code-comment"># Check the detailed status</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl status httpd.service</span>
+<span class="code-output"><span class="code-error">&#x2715; httpd.service - The Apache HTTP Server</span>
+   Active: failed (Result: exit-code)
+   ...
+   Jul 14 httpd[4202]: <span class="code-error">(13)Permission denied: AH00072: make_sock: could not bind to address [::]:1001</span>
+   Jul 14 httpd[4202]: (13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:1001
+   Jul 14 httpd[4202]: no listening sockets available, shutting down</span></code>
+                </div>
+                <p>The &ldquo;Permission denied&rdquo; error on port 1001 is an SELinux enforcement block. Port 1001/TCP has no <code>http_port_t</code> label, so SELinux prevents <code>httpd</code> from binding to it.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task3-content" id="task3-header">
+                Task 3: Resolve the SELinux Port Binding Issue
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="task3-content" aria-labelledby="task3-header" role="region">
+                <p><strong>Objective:</strong> Use <code>semanage</code> to label port 1001/TCP with <code>http_port_t</code> so <code>httpd</code> can bind to it.</p>
+                <div class="code-block" role="region" aria-label="Resolve SELinux port binding issue">
+                    <div class="code-title">Add SELinux port label and start httpd</div>
+                    <code><span class="code-comment"># Check current http port labels to confirm 1001 is missing</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">semanage port -l | grep 'http'</span>
+<span class="code-output">http_cache_port_t   tcp   8080, 8118, 8123, 10001-10010
+http_cache_port_t   udp   3130
+http_port_t         tcp   80, 81, 443, 488, 8008, 8009, 8443, 9000</span>
+
+<span class="code-comment"># Add port 1001/TCP to the http_port_t label</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">semanage port -a -t http_port_t -p tcp 1001</span>
+
+<span class="code-comment"># Confirm port 1001 is now labeled http_port_t</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">semanage port -l | grep 'http_port_t'</span>
+<span class="code-output">http_port_t   tcp   1001, 80, 81, 443, 488, 8008, 8009, 8443, 9000</span>
+
+<span class="code-comment"># Now start httpd -- it should succeed</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl is-active httpd</span>
+<span class="code-output">active</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task4-content" id="task4-header">
+                Task 4: Configure firewalld to Allow Ports 80 and 1001
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="task4-content" aria-labelledby="task4-header" role="region">
+                <p><strong>Objective:</strong> Even with httpd running, traffic cannot reach the server until the firewall allows it. Check and update firewall rules.</p>
+                <div class="code-block" role="region" aria-label="Configure firewall ports">
+                    <div class="code-title">Verify and update firewalld configuration</div>
+                    <code><span class="code-comment"># Verify the default zone</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --get-default-zone</span>
+<span class="code-output">public</span>
+
+<span class="code-comment"># Check what's currently allowed -- note port 1001 is absent</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --zone=public --list-all</span>
+<span class="code-output">public (default, active)
+  interfaces: ens3
+  sources:
+  services: cockpit dhcpv6-client http ssh
+  ports:
+  ...
+</span>
+<span class="code-comment"># Port 80 is covered by the 'http' service. Add port 1001/TCP permanently.</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=public --add-port=1001/tcp</span>
+<span class="code-output">success</span>
+
+<span class="code-comment"># Apply the change</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+
+<span class="code-comment"># Verify the change</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --zone=public --list-all</span>
+<span class="code-output">public (default, active)
+  interfaces: ens3
+  services: cockpit dhcpv6-client http ssh
+  ports: 1001/tcp
+  ...</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="task5-content" id="task5-header">
+                Task 5: Verify Access from workstation
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="task5-content" aria-labelledby="task5-header" role="region">
+                <p><strong>Objective:</strong> Return to workstation and confirm both ports are now accessible.</p>
+                <div class="code-block" role="region" aria-label="Verify access from workstation">
+                    <div class="code-title">Test access from workstation</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+<span class="code-output">Connection to serverb closed.</span>
+
+<span class="code-comment"># Test port 80 -- should return "SERVER B"</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com</span>
+<span class="code-output">SERVER B</span>
+
+<span class="code-comment"># Test port 1001 -- should return "VHOST 1"</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com:1001</span>
+<span class="code-output">VHOST 1</span></code>
+                </div>
+                <p>Both tests succeed. The web server is now accessible on both ports because the SELinux port label allows <code>httpd</code> to bind to port 1001, and the firewall allows traffic to reach both ports 80 and 1001.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 10: LAB -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="lab-heading">Lab: Manage Network Security</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Scenario:</strong> Your company has decided to deploy a new web application on <code>serverb.lab.example.com</code>. This application listens on ports 80/TCP and 1001/TCP. All changes must persist across a reboot. The application is pre-installed but not yet accessible.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header">&#x1F3AC; Setup</div>
+            <p>As the student user on the workstation machine, run: <br><code>student@workstation:~$ lab start netsecurity-review</code></p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab1-content" id="lab1-header">
+                Lab Task 1: Identify What Is Preventing Web Server Access
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="lab1-content" aria-labelledby="lab1-header" role="region">
+                <p><strong>Expected outcome:</strong> You can identify that <code>httpd</code> fails to start due to an SELinux port binding issue on port 1001/TCP, and the firewall is not configured to allow port 1001.</p>
+                <div class="code-block" role="region" aria-label="Lab task 1 solution">
+                    <div class="code-title">Investigation steps</div>
+                    <code><span class="code-comment"># From workstation, confirm both curl connections fail</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com</span>
+<span class="code-error">curl: (7) Failed to connect...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com:1001</span>
+<span class="code-error">curl: (7) Failed to connect...</span>
+
+<span class="code-comment"># SSH to serverb and check the service</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl is-active httpd</span>
+<span class="code-output">inactive</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+<span class="code-error">Job for httpd.service failed...</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl status httpd</span>
+<span class="code-comment"># Look for: "Permission denied: make_sock: could not bind to address ... :1001"</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab2-content" id="lab2-header">
+                Lab Task 2: Fix the SELinux Port Binding Issue
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="lab2-content" aria-labelledby="lab2-header" role="region">
+                <p><strong>Expected outcome:</strong> Port 1001/TCP is labeled <code>http_port_t</code> and <code>httpd</code> starts successfully.</p>
+                <div class="code-block" role="region" aria-label="Lab task 2 solution">
+                    <div class="code-title">Add SELinux port label</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">semanage port -a -t http_port_t -p tcp 1001</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">semanage port -l | grep http_port_t</span>
+<span class="code-output">http_port_t   tcp   1001, 80, 81, 443, 488, 8008, 8009, 8443, 9000</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl is-active httpd</span>
+<span class="code-output">active</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab3-content" id="lab3-header">
+                Lab Task 3: Configure the Firewall for Persistent Access
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="lab3-content" aria-labelledby="lab3-header" role="region">
+                <p><strong>Expected outcome:</strong> Port 1001/TCP is added permanently to the public zone, and the firewall is reloaded so the change persists across reboots.</p>
+                <div class="code-block" role="region" aria-label="Lab task 3 solution">
+                    <div class="code-title">Add port to firewall (permanent)</div>
+                    <code><span class="code-comment"># Verify default zone and current rules</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --get-default-zone</span>
+<span class="code-output">public</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --zone=public --list-all</span>
+<span class="code-output">  services: cockpit dhcpv6-client http ssh
+  ports:</span>
+
+<span class="code-comment"># Add port 1001/tcp permanently</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --permanent --zone=public --add-port=1001/tcp</span>
+<span class="code-output">success</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+
+<span class="code-comment"># Confirm</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --zone=public --list-all</span>
+<span class="code-output">  services: cockpit dhcpv6-client http ssh
+  ports: 1001/tcp</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab4-content" id="lab4-header">
+                Lab Task 4: Verify Full Connectivity from workstation
+                <span class="expandable-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="expandable-content" id="lab4-content" aria-labelledby="lab4-header" role="region">
+                <p><strong>Expected outcome:</strong> Both curl commands return content from the server.</p>
+                <div class="code-block" role="region" aria-label="Lab task 4 solution">
+                    <div class="code-title">Verify access from workstation</div>
+                    <code><span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+
+<span class="code-comment"># From workstation -- verify port 80</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com</span>
+<span class="code-output">SERVER B</span>
+
+<span class="code-comment"># From workstation -- verify port 1001</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com:1001</span>
+<span class="code-output">VHOST 1</span></code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="lab-checklist" aria-label="Lab completion checklist">
+            <li>Both <code>curl</code> commands failed before making any changes</li>
+            <li>Identified SELinux as blocking <code>httpd</code> from binding to port 1001/TCP</li>
+            <li>Added <code>http_port_t</code> label to port 1001/TCP using <code>semanage port -a</code></li>
+            <li>Successfully started and enabled the <code>httpd</code> service</li>
+            <li>Added port 1001/TCP to the <code>public</code> firewall zone with <code>--permanent</code></li>
+            <li>Ran <code>firewall-cmd --reload</code> to apply the permanent configuration</li>
+            <li>Verified <code>curl http://serverb.lab.example.com</code> returns <code>SERVER B</code></li>
+            <li>Verified <code>curl http://serverb.lab.example.com:1001</code> returns <code>VHOST 1</code></li>
+        </ul>
+
+        <div class="note-box tip">
+            <div class="note-box-header">&#x1F4CC; Grading and Cleanup</div>
+            <p>To grade your work: <code>student@workstation:~$ lab grade netsecurity-review</code><br>
+            To clean up: <code>student@workstation:~$ lab finish netsecurity-review</code></p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 11: QUIZ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <div class="quiz-container" role="region" aria-label="Chapter knowledge check quiz">
+
+            <div class="quiz-question" id="q1" data-question="1" data-correct="b">
+                <p class="question-text">1. In RHEL 10, the <code>firewalld</code> service uses which underlying framework to enforce packet filtering rules?</p>
+                <label class="quiz-option"><input type="radio" name="q1" value="a"> iptables</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="b"> nftables</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="c"> netstat</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="d"> tcpdump</label>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <div class="quiz-question" id="q2" data-question="2" data-correct="c">
+                <p class="question-text">2. You add a new service rule using <code>firewall-cmd --permanent --zone=public --add-service=http</code>. After this command, is the service immediately accessible through the firewall?</p>
+                <label class="quiz-option"><input type="radio" name="q2" value="a"> Yes, the --permanent flag activates the rule immediately</label>
+                <label class="quiz-option"><input type="radio" name="q2" value="b"> Yes, because the http service was already pre-loaded in memory</label>
+                <label class="quiz-option"><input type="radio" name="q2" value="c"> No, you must run <code>firewall-cmd --reload</code> to apply the permanent configuration</label>
+                <label class="quiz-option"><input type="radio" name="q2" value="d"> No, the system requires a full reboot to load permanent firewall rules</label>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <div class="quiz-question" id="q3" data-question="3" data-correct="d">
+                <p class="question-text">3. Which <code>firewalld</code> zone drops all incoming traffic without sending any ICMP error response?</p>
+                <label class="quiz-option"><input type="radio" name="q3" value="a"> block</label>
+                <label class="quiz-option"><input type="radio" name="q3" value="b"> dmz</label>
+                <label class="quiz-option"><input type="radio" name="q3" value="c"> external</label>
+                <label class="quiz-option"><input type="radio" name="q3" value="d"> drop</label>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <div class="quiz-question" id="q4" data-question="4" data-correct="b">
+                <p class="question-text">4. An Apache web server configured to listen on port 9001/TCP fails to start on RHEL 10 with a &ldquo;Permission denied&rdquo; error. What is the most likely cause?</p>
+                <label class="quiz-option"><input type="radio" name="q4" value="a"> Port 9001 is blocked by the firewall</label>
+                <label class="quiz-option"><input type="radio" name="q4" value="b"> SELinux is blocking <code>httpd</code> from binding to port 9001 because it lacks the <code>http_port_t</code> label</label>
+                <label class="quiz-option"><input type="radio" name="q4" value="c"> The Apache configuration file is corrupted</label>
+                <label class="quiz-option"><input type="radio" name="q4" value="d"> Port 9001 requires root privileges to bind</label>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+            <div class="quiz-question" id="q5" data-question="5" data-correct="a">
+                <p class="question-text">5. Which command correctly adds an SELinux label so that Apache can listen on port 8888/TCP?</p>
+                <label class="quiz-option"><input type="radio" name="q5" value="a"> <code>semanage port -a -t http_port_t -p tcp 8888</code></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="b"> <code>chcon -t http_port_t 8888</code></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="c"> <code>firewall-cmd --add-port=8888/tcp --selinux-type=http_port_t</code></label>
+                <label class="quiz-option"><input type="radio" name="q5" value="d"> <code>setsebool -P http_port_t 8888</code></label>
+                <div class="quiz-feedback" id="feedback-5"></div>
+            </div>
+
+            <div class="quiz-question" id="q6" data-question="6" data-correct="c">
+                <p class="question-text">6. Which command would you run to view only the SELinux port label changes you have made (not the default policy labels)?</p>
+                <label class="quiz-option"><input type="radio" name="q6" value="a"> <code>semanage port -l</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="b"> <code>semanage port -l --local</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="c"> <code>semanage port -l -C</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="d"> <code>getsebool -a | grep port</code></label>
+                <div class="quiz-feedback" id="feedback-6"></div>
+            </div>
+
+            <div class="quiz-question" id="q7" data-question="7" data-correct="b">
+                <p class="question-text">7. You need to route all traffic from the 10.0.50.0/24 subnet to the <code>internal</code> firewall zone. Which command accomplishes this permanently?</p>
+                <label class="quiz-option"><input type="radio" name="q7" value="a"> <code>firewall-cmd --zone=internal --add-interface=10.0.50.0/24</code></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="b"> <code>firewall-cmd --permanent --zone=internal --add-source=10.0.50.0/24</code></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="c"> <code>firewall-cmd --permanent --zone=internal --add-port=10.0.50.0/24</code></label>
+                <label class="quiz-option"><input type="radio" name="q7" value="d"> <code>nmcli connection modify ens3 connection.zone internal</code></label>
+                <div class="quiz-feedback" id="feedback-7"></div>
+            </div>
+
+            <div class="quiz-question" id="q8" data-question="8" data-correct="d">
+                <p class="question-text">8. The <code>external</code> firewall zone enables a feature not found in most other zones. What is it?</p>
+                <label class="quiz-option"><input type="radio" name="q8" value="a"> Allows all incoming traffic</label>
+                <label class="quiz-option"><input type="radio" name="q8" value="b"> Blocks ICMP responses</label>
+                <label class="quiz-option"><input type="radio" name="q8" value="c"> Enables port forwarding by default</label>
+                <label class="quiz-option"><input type="radio" name="q8" value="d"> Enables IPv4 masquerading for outgoing traffic</label>
+                <div class="quiz-feedback" id="feedback-8"></div>
+            </div>
+
+            <div class="quiz-controls">
+                <button class="btn btn-primary" id="check-quiz-btn" onclick="window.checkQuiz()">Check Answers</button>
+                <button class="btn btn-secondary" id="reset-quiz-btn" onclick="window.resetQuiz()">Reset Quiz</button>
+            </div>
+            <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 12: SUMMARY -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">12</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned how to secure network connections to services using the system firewall, and how to enforce the SELinux targeted policy to protect service ports through port labeling.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li>The Linux kernel's <strong>netfilter</strong> framework handles packet filtering. <strong>nftables</strong> provides the rules layer, and <strong>firewalld</strong> is the recommended high-level management tool in RHEL 10.</li>
+            <li><code>firewalld</code> classifies traffic into <strong>zones</strong>. Zone assignment uses source IP first, then interface, then the default zone.</li>
+            <li>RHEL 10 defaults to the <strong>public zone</strong> as the default, allowing only <code>ssh</code> and <code>dhcpv6-client</code> services.</li>
+            <li>Rules added without <code>--permanent</code> are runtime-only and lost on reload/reboot. Use <code>--permanent</code> plus <code>--reload</code> for persistence.</li>
+            <li><strong>SELinux port labeling</strong> assigns security context types to network ports. Processes can only bind to ports with compatible labels.</li>
+            <li>The <code>semanage port -a -t TYPE -p PROTOCOL PORT</code> command adds a new port to an existing SELinux label.</li>
+            <li>The <code>semanage port -l -C</code> command shows only local policy customizations (not default policy).</li>
+            <li>When a service cannot start with &ldquo;Permission denied&rdquo; on a port, the first troubleshooting step is to check SELinux with <code>sealert</code> or <code>semanage port -l</code>.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <div class="table-wrap">
+            <table class="cmd-ref-table" aria-label="Chapter 14 command reference">
+                <thead>
+                    <tr><th scope="col">Command</th><th scope="col">Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>firewall-cmd --get-default-zone</code></td><td>Show the current default zone</td></tr>
+                    <tr><td><code>firewall-cmd --set-default-zone=ZONE</code></td><td>Set the default zone (runtime + permanent)</td></tr>
+                    <tr><td><code>firewall-cmd --get-active-zones</code></td><td>List all active zones and their interfaces/sources</td></tr>
+                    <tr><td><code>firewall-cmd --zone=ZONE --list-all</code></td><td>Show all settings for a zone</td></tr>
+                    <tr><td><code>firewall-cmd --permanent --zone=Z --add-service=S</code></td><td>Add a service to a zone (permanent)</td></tr>
+                    <tr><td><code>firewall-cmd --permanent --zone=Z --add-port=P/proto</code></td><td>Add a port to a zone (permanent)</td></tr>
+                    <tr><td><code>firewall-cmd --permanent --zone=Z --add-source=CIDR</code></td><td>Route a subnet to a zone (permanent)</td></tr>
+                    <tr><td><code>firewall-cmd --reload</code></td><td>Apply permanent config as new runtime config</td></tr>
+                    <tr><td><code>firewall-cmd --runtime-to-permanent</code></td><td>Save runtime config to permanent storage</td></tr>
+                    <tr><td><code>semanage port -l</code></td><td>List all SELinux port labels</td></tr>
+                    <tr><td><code>semanage port -l -C</code></td><td>List only local SELinux port label changes</td></tr>
+                    <tr><td><code>semanage port -a -t TYPE -p proto PORT</code></td><td>Add a port label</td></tr>
+                    <tr><td><code>semanage port -m -t TYPE -p proto PORT</code></td><td>Modify an existing port label</td></tr>
+                    <tr><td><code>semanage port -d -t TYPE -p proto PORT</code></td><td>Delete a port label</td></tr>
+                    <tr><td><code>sealert -a /var/log/audit/audit.log</code></td><td>Analyze SELinux audit log for alerts with suggestions</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3>Navigation</h3>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;">
+            <a href="rh134_chapter13_superuser_recovery.html" class="btn btn-secondary">&larr; Chapter 13: Recovering Superuser Access</a>
+            <a href="index.html" class="btn btn-primary">&#x1F3E0; Course Index</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer>
+    <div class="footer-inner">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h3>RH134 Chapters</h3>
+                <a href="rh134_chapter1_shell_scripting.html">Ch 1: Shell Scripting</a>
+                <a href="rh134_chapter2_regex.html">Ch 2: Regular Expressions</a>
+                <a href="rh134_chapter3_scheduling.html">Ch 3: Scheduling User Tasks</a>
+                <a href="rh134_chapter4_scheduling_system_tasks.html">Ch 4: System Tasks</a>
+                <a href="rh134_chapter5_logs.html">Ch 5: Analyzing Logs</a>
+                <a href="rh134_chapter6_selinux.html">Ch 6: Managing SELinux</a>
+            </div>
+            <div class="footer-col">
+                <h3>More RH134</h3>
+                <a href="rh134_chapter7_archiving.html">Ch 7: Archiving &amp; Transfer</a>
+                <a href="rh134_chapter8_transferring_files.html">Ch 8: Transferring Files</a>
+                <a href="rh134_chapter9_tuning.html">Ch 9: Tuning Performance</a>
+                <a href="rh134_chapter10_basic_storage.html">Ch 10: Basic Storage</a>
+                <a href="rh134_chapter11_lvm.html">Ch 11: LVM Storage</a>
+                <a href="rh134_chapter12_boot.html">Ch 12: Boot Process</a>
+            </div>
+            <div class="footer-col">
+                <h3>Resources</h3>
+                <a href="index.html">Course Index</a>
+                <a href="rhcsa_exam_simulator.html">RHCSA Exam Simulator</a>
+                <a href="course_schedule.html">Course Schedule</a>
+                <a href="rh134_chapter13_superuser_recovery.html">Ch 13: Superuser Recovery</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Red Hat System Administration Course Materials &mdash; RH134 Chapter 14: Managing Network Security &mdash; RHEL 10</p>
+            <p style="margin-top: 6px;">Red Hat and Red Hat Enterprise Linux are trademarks or registered trademarks of Red Hat, Inc. or its subsidiaries in the United States and other countries. This material is for educational purposes only.</p>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+(function() {
+    'use strict';
+
+    // ── TOOLTIP SYSTEM ─────────────────────────────────────────────────────────
+    const bubble = document.getElementById('tooltip-bubble');
+
+    function showTooltip(term) {
+        const id = term.getAttribute('aria-describedby');
+        const contentEl = id ? document.getElementById(id) : null;
+        if (!contentEl) return;
+        bubble.textContent = contentEl.textContent;
+        bubble.style.cssText = '';
+        bubble.classList.remove('tip-top','tip-bottom','tip-left','tip-right');
+        bubble.classList.add('visible');
+
+        requestAnimationFrame(function() {
+            const bh = bubble.offsetHeight;
+            const bw = bubble.offsetWidth;
+            const rect = term.getBoundingClientRect();
+            const margin = 8;
+            let top, left;
+
+            if (rect.top >= bh + margin + 12) {
+                bubble.classList.add('tip-top');
+                top = rect.top - bh - 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if ((window.innerHeight - rect.bottom) >= bh + margin + 12) {
+                bubble.classList.add('tip-bottom');
+                top = rect.bottom + 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if ((window.innerWidth - rect.right) >= bw + margin + 12) {
+                bubble.classList.add('tip-right');
+                top = rect.top + (rect.height / 2) - (bh / 2);
+                left = rect.right + 12;
+            } else {
+                bubble.classList.add('tip-left');
+                top = rect.top + (rect.height / 2) - (bh / 2);
+                left = rect.left - bw - 12;
+            }
+
+            top = Math.max(margin, Math.min(top, window.innerHeight - bh - margin));
+            left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+            bubble.style.top = top + 'px';
+            bubble.style.left = left + 'px';
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        term.addEventListener('mouseenter', function() { showTooltip(term); });
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', function() { showTooltip(term); });
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideTooltip();
+        });
+    });
+
+    // ── PROGRESS BAR ───────────────────────────────────────────────────────────
+    const sections = document.querySelectorAll('.content-section');
+    const fillEl = document.getElementById('progress-fill');
+    const textEl = document.getElementById('progress-text');
+    const progressBar = document.querySelector('.progress-container');
+
+    const observer = new IntersectionObserver(function(entries) {
+        let maxVisible = 0;
+        sections.forEach(function(sec, idx) {
+            if (sec.getBoundingClientRect().top < window.innerHeight * 0.8) {
+                maxVisible = Math.max(maxVisible, idx + 1);
+            }
+        });
+        const pct = Math.round((maxVisible / sections.length) * 100);
+        fillEl.style.width = pct + '%';
+        textEl.textContent = pct + '% complete';
+        progressBar.setAttribute('aria-valuenow', pct);
+    }, { threshold: 0.1 });
+
+    sections.forEach(function(sec) { observer.observe(sec); });
+
+    // ── SECTION NAV ACTIVE STATE ───────────────────────────────────────────────
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const secObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                navBtns.forEach(function(btn) {
+                    btn.classList.remove('active');
+                    if (btn.getAttribute('data-section') === entry.target.id) {
+                        btn.classList.add('active');
+                        btn.classList.add('visited');
+                    }
+                });
+            }
+        });
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(sec) { secObserver.observe(sec); });
+
+    // ── EXPANDABLE SECTIONS ─────────────────────────────────────────────────────
+    document.querySelectorAll('.expandable-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const contentId = header.getAttribute('aria-controls');
+            const content = document.getElementById(contentId);
+            if (content) content.classList.toggle('open', !expanded);
+        });
+        header.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+
+    // ── TAB PANELS ─────────────────────────────────────────────────────────────
+    document.querySelectorAll('[role="tablist"]').forEach(function(tablist) {
+        const tabs = tablist.querySelectorAll('[role="tab"]');
+        tabs.forEach(function(tab, idx) {
+            tab.addEventListener('click', function() {
+                tabs.forEach(function(t) {
+                    t.setAttribute('aria-selected', 'false');
+                    const panel = document.getElementById(t.getAttribute('aria-controls'));
+                    if (panel) panel.classList.remove('active');
+                });
+                tab.setAttribute('aria-selected', 'true');
+                const panel = document.getElementById(tab.getAttribute('aria-controls'));
+                if (panel) panel.classList.add('active');
+            });
+            tab.addEventListener('keydown', function(e) {
+                let newIdx = idx;
+                if (e.key === 'ArrowRight') newIdx = (idx + 1) % tabs.length;
+                if (e.key === 'ArrowLeft') newIdx = (idx - 1 + tabs.length) % tabs.length;
+                if (newIdx !== idx) { e.preventDefault(); tabs[newIdx].click(); tabs[newIdx].focus(); }
+            });
+        });
+    });
+
+    // ── ZONE EXPLORER ───────────────────────────────────────────────────────────
+    var zoneData = {
+        trusted: {
+            behavior: 'Allow ALL incoming traffic',
+            services: ['(all traffic permitted)'],
+            allowAll: true,
+            use: 'Fully trusted networks such as loopback (lo interface)',
+            risk: 'high'
+        },
+        home: {
+            behavior: 'Reject unless matching allowed services',
+            services: ['ssh (22/tcp)', 'mdns (5353/udp)', 'ipp-client (631/udp)', 'samba-client (137-138/udp)', 'dhcpv6-client (546/udp)'],
+            allowAll: false,
+            use: 'Home networks where other systems are trusted',
+            risk: 'low'
+        },
+        internal: {
+            behavior: 'Reject unless matching allowed services (same as home initially)',
+            services: ['ssh (22/tcp)', 'mdns (5353/udp)', 'ipp-client (631/udp)', 'samba-client (137-138/udp)', 'dhcpv6-client (546/udp)'],
+            allowAll: false,
+            use: 'Internal corporate or organizational networks',
+            risk: 'low'
+        },
+        work: {
+            behavior: 'Reject unless matching allowed services',
+            services: ['ssh (22/tcp)', 'ipp-client (631/udp)', 'dhcpv6-client (546/udp)'],
+            allowAll: false,
+            use: 'Work or corporate network environments',
+            risk: 'medium'
+        },
+        public: {
+            behavior: 'Reject unless matching allowed services',
+            services: ['ssh (22/tcp)', 'dhcpv6-client (546/udp)'],
+            allowAll: false,
+            use: 'Untrusted public networks. <strong>Default zone for new interfaces.</strong>',
+            risk: 'medium'
+        },
+        external: {
+            behavior: 'Reject unless matching ssh. IPv4 outgoing traffic is masqueraded.',
+            services: ['ssh (22/tcp)'],
+            allowAll: false,
+            masquerade: true,
+            use: 'External interface on routers and gateways performing IPv4 NAT',
+            risk: 'medium'
+        },
+        dmz: {
+            behavior: 'Reject unless matching ssh',
+            services: ['ssh (22/tcp)'],
+            allowAll: false,
+            use: 'Publicly accessible servers in a demilitarized zone',
+            risk: 'medium'
+        },
+        block: {
+            behavior: 'REJECT all new incoming traffic (ICMP error returned to sender)',
+            services: [],
+            allowAll: false,
+            use: 'Maximum restriction while still notifying the sender',
+            risk: 'high'
+        },
+        drop: {
+            behavior: 'DROP all new incoming traffic silently (no response sent)',
+            services: [],
+            allowAll: false,
+            use: 'Maximum restriction with no feedback (stealthy firewall)',
+            risk: 'high'
+        }
+    };
+
+    function renderZone(zoneName) {
+        var z = zoneData[zoneName];
+        if (!z) return;
+        var det = document.getElementById('zone-details');
+        var svcHtml = '';
+        if (z.allowAll) {
+            svcHtml = '<span class="badge badge-green">All Traffic</span>';
+        } else if (z.services.length === 0) {
+            svcHtml = '<span class="badge badge-red">None — All new traffic blocked</span>';
+        } else {
+            z.services.forEach(function(s) { svcHtml += '<span class="badge badge-blue">' + s + '</span> '; });
+        }
+        det.innerHTML =
+            '<div class="zone-name">' + zoneName.toUpperCase() + (zoneName === 'public' ? ' <span class="badge badge-green">Default Zone</span>' : '') + '</div>' +
+            '<div class="zone-prop"><span class="zone-prop-label">Behavior:</span><span class="zone-prop-value">' + z.behavior + '</span></div>' +
+            '<div class="zone-prop"><span class="zone-prop-label">Default Services:</span><span class="zone-prop-value">' + svcHtml + '</span></div>' +
+            (z.masquerade ? '<div class="zone-prop"><span class="zone-prop-label">Masquerade:</span><span class="zone-prop-value"><span class="badge badge-blue">IPv4 Masquerade Enabled</span></span></div>' : '') +
+            '<div class="zone-prop"><span class="zone-prop-label">Typical Use:</span><span class="zone-prop-value">' + z.use + '</span></div>';
+    }
+
+    var zoneSel = document.getElementById('zone-selector');
+    if (zoneSel) {
+        zoneSel.addEventListener('change', function() { renderZone(this.value); });
+        renderZone('public');
+    }
+
+    // ── QUIZ ────────────────────────────────────────────────────────────────────
+    var correctAnswers = {
+        q1: 'SELinux port labeling is not relevant here. <strong>nftables</strong> is the packet filtering framework that firewalld manages in RHEL 10. iptables is the deprecated predecessor.',
+        q2: 'The <code>--permanent</code> flag writes to disk but does NOT immediately activate the rule. You must run <code>firewall-cmd --reload</code> separately to apply the permanent config.',
+        q3: 'The <strong>block</strong> zone rejects incoming traffic (sends ICMP error). The <strong>drop</strong> zone silently discards packets with no response — making the host appear non-existent.',
+        q4: 'SELinux enforces port binding permissions. &ldquo;Permission denied&rdquo; on a port bind attempt is almost always SELinux, not a Linux file permission issue. The firewall only affects incoming connections, not local bind operations.',
+        q5: '<code>semanage port -a -t http_port_t -p tcp 8888</code> is correct. <code>chcon</code> sets file contexts (not ports), <code>setsebool</code> sets boolean values, and firewall-cmd does not handle SELinux labels.',
+        q6: 'The <code>-C</code> flag (for &ldquo;customizations&rdquo;) shows only the policy changes you have made on top of the default policy, making it easy to audit your local modifications.',
+        q7: '<code>--add-source</code> routes packets from an IP or network range to a specific zone. <code>--add-interface</code> routes by network interface name, not CIDR address. <code>nmcli</code> sets the zone for a connection but is not a permanent firewall rule.',
+        q8: 'The <strong>external</strong> zone enables IPv4 masquerading on outgoing traffic, which is used for NAT on router/gateway interfaces. This hides internal hosts behind the gateway&rsquo;s public IP address.'
+    };
+
+    window.checkQuiz = function() {
+        var score = 0;
+        var total = 8;
+        for (var i = 1; i <= total; i++) {
+            var qEl = document.getElementById('q' + i);
+            var correct = qEl.getAttribute('data-correct');
+            var selected = qEl.querySelector('input[name="q' + i + '"]:checked');
+            var fb = document.getElementById('feedback-' + i);
+            qEl.classList.remove('correct','incorrect');
+            fb.classList.remove('show','correct-fb','incorrect-fb');
+            if (selected) {
+                if (selected.value === correct) {
+                    score++;
+                    qEl.classList.add('correct');
+                    fb.innerHTML = '&#x2713; Correct! ' + correctAnswers['q' + i];
+                    fb.classList.add('show','correct-fb');
+                } else {
+                    qEl.classList.add('incorrect');
+                    fb.innerHTML = '&#x2717; Incorrect. The correct answer is <strong>(' + correct.toUpperCase() + ')</strong>. ' + correctAnswers['q' + i];
+                    fb.classList.add('show','incorrect-fb');
+                }
+            } else {
+                fb.innerHTML = '&#x26A0; No answer selected. The correct answer is <strong>(' + correct.toUpperCase() + ')</strong>.';
+                fb.classList.add('show','incorrect-fb');
+            }
+        }
+        var scoreEl = document.getElementById('quiz-score');
+        var pct = Math.round((score / total) * 100);
+        var msg = score === total ? ' Excellent! Perfect score!' : score >= 6 ? ' Good work!' : score >= 4 ? ' Keep reviewing.' : ' More practice needed.';
+        scoreEl.innerHTML = '&#x1F3AF; Score: ' + score + ' / ' + total + ' (' + pct + '%)' + msg;
+        scoreEl.style.display = 'block';
+        scoreEl.style.borderLeft = '4px solid ' + (score === total ? 'var(--rh-green)' : score >= 6 ? 'var(--rh-blue)' : 'var(--rh-orange)');
+    };
+
+    window.resetQuiz = function() {
+        for (var i = 1; i <= 8; i++) {
+            var qEl = document.getElementById('q' + i);
+            qEl.classList.remove('correct','incorrect');
+            var fb = document.getElementById('feedback-' + i);
+            fb.classList.remove('show','correct-fb','incorrect-fb');
+            qEl.querySelectorAll('input[type="radio"]').forEach(function(r) { r.checked = false; });
+        }
+        var scoreEl = document.getElementById('quiz-score');
+        scoreEl.style.display = 'none';
+    };
+
+})();
+</script>
+</body>
+</html>
