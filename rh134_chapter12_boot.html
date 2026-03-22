@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 12: Controlling and Troubleshooting the Boot Process | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-output { color: #E2E8F0; opacity: 0.85; }
+        .code-highlight { color: #F6E05E; }
+        .code-error { color: #FC8181; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; border-bottom: 2px solid var(--rh-gray-light); gap: 4px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; background: var(--rh-gray-lighter); border: 1px solid var(--rh-gray-light); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--rh-gray); transition: all var(--transition-fast); }
+        .tab-btn[aria-selected="true"] { background: var(--rh-white); color: var(--rh-blue-dark); font-weight: 600; border-color: var(--rh-gray-light); border-bottom-color: var(--rh-white); margin-bottom: -2px; }
+        .tab-btn:hover:not([aria-selected="true"]) { background: var(--rh-white); color: var(--rh-black); }
+        .tab-panel { display: none; padding: 20px; border: 1px solid var(--rh-gray-light); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 1rem 0; overflow: hidden; }
+        .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; color: var(--rh-gray-dark); border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E4E4E4; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expandable-icon { font-size: 1.2rem; transition: transform var(--transition-med); flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* BOOT FLOW DIAGRAM */
+        .boot-flow { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+        .boot-stage { display: flex; align-items: stretch; gap: 0; }
+        .boot-stage-box { background: var(--rh-white); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 16px 20px; flex: 1; position: relative; }
+        .boot-stage-box h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--rh-blue-dark); margin-bottom: 6px; }
+        .boot-stage-box p { font-size: 0.88rem; color: var(--rh-gray-dark); margin: 0; }
+        .boot-stage-num { background: var(--rh-blue); color: var(--rh-white); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; flex-shrink: 0; margin-right: 16px; margin-top: 4px; }
+        .boot-stage-inner { display: flex; align-items: flex-start; }
+        .boot-arrow { text-align: center; color: var(--rh-blue); font-size: 1.5rem; line-height: 1; padding: 4px 0; }
+        .boot-stage-box.firmware { border-color: var(--rh-purple); }
+        .boot-stage-box.firmware .boot-stage-num { background: var(--rh-purple); }
+        .boot-stage-box.firmware h4 { color: var(--rh-purple); }
+        .boot-stage-box.bootloader { border-color: var(--rh-teal); }
+        .boot-stage-box.bootloader .boot-stage-num { background: var(--rh-teal); }
+        .boot-stage-box.bootloader h4 { color: var(--rh-teal-dark); }
+        .boot-stage-box.kernel { border-color: var(--rh-orange); }
+        .boot-stage-box.kernel .boot-stage-num { background: var(--rh-orange); }
+        .boot-stage-box.kernel h4 { color: #CC4400; }
+        .boot-stage-box.initramfs { border-color: var(--rh-gold); }
+        .boot-stage-box.initramfs .boot-stage-num { background: var(--rh-gold); }
+        .boot-stage-box.initramfs h4 { color: #996600; }
+        .boot-stage-box.systemd { border-color: var(--rh-green); }
+        .boot-stage-box.systemd .boot-stage-num { background: var(--rh-green); }
+        .boot-stage-box.systemd h4 { color: var(--rh-green-dark); }
+        .boot-stage-box.target { border-color: var(--rh-blue); }
+
+        /* TARGET COMPARISON CARDS */
+        .target-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 1.5rem 0; }
+        .target-card { border-radius: var(--radius-md); padding: 18px; border: 2px solid; cursor: pointer; transition: all var(--transition-fast); }
+        .target-card:hover, .target-card:focus { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .target-card.graphical { border-color: var(--rh-blue); background: #F0F8FF; }
+        .target-card.multiuser { border-color: var(--rh-teal); background: #F0FFFE; }
+        .target-card.rescue { border-color: var(--rh-gold); background: #FFFDF0; }
+        .target-card.emergency { border-color: var(--rh-red); background: #FFF5F5; }
+        .target-card-icon { font-size: 2rem; margin-bottom: 8px; }
+        .target-card-name { font-family: var(--font-mono); font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; }
+        .target-card.graphical .target-card-name { color: var(--rh-blue-dark); }
+        .target-card.multiuser .target-card-name { color: var(--rh-teal-dark); }
+        .target-card.rescue .target-card-name { color: #996600; }
+        .target-card.emergency .target-card-name { color: var(--rh-red-dark); }
+        .target-card p { font-size: 0.83rem; color: var(--rh-gray-dark); margin: 0; }
+        .target-detail { display: none; margin-top: 1.5rem; padding: 16px; border-radius: var(--radius-md); background: var(--rh-gray-lighter); }
+        .target-detail.show { display: block; }
+
+        /* GRUBBY SIMULATOR */
+        .simulator { background: #0D1117; border-radius: var(--radius-md); overflow: hidden; margin: 1.5rem 0; box-shadow: var(--shadow-lg); }
+        .sim-header { background: #161B22; padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363D; }
+        .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .sim-dot.red { background: #FF5F57; }
+        .sim-dot.yellow { background: #FFBD2E; }
+        .sim-dot.green { background: #28C840; }
+        .sim-title { font-family: var(--font-display); font-size: 0.78rem; color: #8B949E; margin-left: 8px; }
+        .sim-output { padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; color: #C9D1D9; min-height: 80px; max-height: 220px; overflow-y: auto; }
+        .sim-output .prompt { color: #3FB950; }
+        .sim-output .result { color: #C9D1D9; }
+        .sim-output .error { color: #F85149; }
+        .sim-output .info { color: #58A6FF; }
+        .sim-input-row { display: flex; align-items: center; padding: 10px 16px; background: #161B22; border-top: 1px solid #30363D; gap: 8px; }
+        .sim-prompt-label { font-family: var(--font-mono); font-size: 0.85rem; color: #3FB950; flex-shrink: 0; }
+        .sim-input { flex: 1; background: transparent; border: none; font-family: var(--font-mono); font-size: 0.85rem; color: #C9D1D9; outline: none; }
+        .sim-run-btn { background: var(--rh-blue); color: var(--rh-white); border: none; padding: 6px 16px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .sim-run-btn:hover { background: var(--rh-blue-dark); }
+        .sim-commands { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; background: #0D1117; border-top: 1px solid #30363D; }
+        .sim-cmd-btn { background: #21262D; color: #C9D1D9; border: 1px solid #30363D; padding: 4px 10px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.78rem; cursor: pointer; transition: all var(--transition-fast); }
+        .sim-cmd-btn:hover { background: #30363D; color: var(--rh-white); border-color: #58A6FF; }
+
+        /* QUIZ */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF5F5; }
+        .quiz-question p { font-weight: 600; margin-bottom: 12px; font-family: var(--font-display); }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; transition: background var(--transition-fast); }
+        .quiz-option:hover { background: #E8E8E8; }
+        .quiz-option input { margin-top: 3px; flex-shrink: 0; accent-color: var(--rh-blue); }
+        .quiz-option label { cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; }
+        .quiz-feedback { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct-msg { background: #D4EDDA; color: #155724; border-left: 4px solid var(--rh-green); }
+        .quiz-feedback.incorrect-msg { background: #F8D7DA; color: #721C24; border-left: 4px solid var(--rh-red); }
+        .quiz-score { text-align: center; padding: 16px; background: var(--rh-blue-dark); color: var(--rh-white); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; display: none; }
+        .quiz-score.show { display: block; }
+        .quiz-btn { background: var(--rh-blue); color: var(--rh-white); border: none; padding: 12px 28px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); margin-right: 10px; }
+        .quiz-btn:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.reset { background: var(--rh-gray); }
+        .quiz-btn.reset:hover { background: var(--rh-gray-dark); }
+
+        /* COMMAND REFERENCE TABLE */
+        .cmd-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+        .cmd-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .cmd-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-light); vertical-align: top; }
+        .cmd-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .cmd-table tr:hover { background: #EBF4FF; }
+        .cmd-table code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--rh-blue-dark); background: var(--rh-gray-lighter); padding: 2px 6px; border-radius: 3px; }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 30px 0 10px; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all var(--transition-fast); }
+        .nav-chapter-btn.prev { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 2px solid var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-light); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .nav-chapter-btn.next:hover { background: #002244; }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.7; }
+        footer a { color: var(--rh-blue-light); }
+
+        /* CHECKLIST */
+        .checklist { list-style: none; margin: 1rem 0; padding: 0; }
+        .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.92rem; }
+        .checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+        /* FSTAB REPAIR FLOW */
+        .repair-steps { counter-reset: step; margin: 1.5rem 0; }
+        .repair-step { display: flex; gap: 16px; margin-bottom: 1rem; align-items: flex-start; }
+        .repair-step-num { counter-increment: step; background: var(--rh-red-dark); color: var(--rh-white); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+        .repair-step-content { flex: 1; }
+        .repair-step-content h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-red-dark); margin-bottom: 4px; }
+        .repair-step-content p { font-size: 0.9rem; margin: 0; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-meta { gap: 12px; }
+            .chapter-title { font-size: 1.6rem; }
+            main { padding: 12px; }
+            .section-body { padding: 20px; }
+            .target-grid { grid-template-columns: 1fr 1fr; }
+            .chapter-nav { flex-direction: column; align-items: center; }
+            .cmd-table { font-size: 0.82rem; }
+            .sim-commands { gap: 4px; }
+        }
+        @media (max-width: 480px) {
+            .target-grid { grid-template-columns: 1fr; }
+            .tab-btn { padding: 8px 12px; font-size: 0.8rem; }
+        }
+
+        /* PRINT */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .sim-commands, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+            .expandable-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F480;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 12: Controlling and Troubleshooting the Boot Process</h1>
+        <p class="chapter-subtitle">Manage boot targets, control GRUB2, and repair file-system boot failures</p>
+        <div class="header-meta">
+            <span>&#x1F4DA; Red Hat System Administration II</span>
+            <span>&#x23F1; 2&ndash;3 Hours</span>
+            <span>&#x1F3AF; RHCSA Exam Topic</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Chapter reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" id="section-nav-list">
+        <li><a href="#section-objectives" class="nav-btn" data-section="objectives">Objectives</a></li>
+        <li><a href="#section-bootloader" class="nav-btn" data-section="bootloader">Boot Loader</a></li>
+        <li><a href="#section-grubby" class="nav-btn" data-section="grubby">grubby &amp; Kernel Args</a></li>
+        <li><a href="#section-bootprocess" class="nav-btn" data-section="bootprocess">Boot Process</a></li>
+        <li><a href="#section-targets" class="nav-btn" data-section="targets">systemd Targets</a></li>
+        <li><a href="#section-repair" class="nav-btn" data-section="repair">Repairing Filesystems</a></li>
+        <li><a href="#section-exercise" class="nav-btn" data-section="exercise">Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" data-section="quiz">Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" data-section="lab">Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" data-section="summary">Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ========== SECTION 1: OBJECTIVES ========== -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Describe how the boot loader selects and loads the operating system.</li>
+            <li>Reinstall the boot loader and modify boot-loader configuration using the <code>grubby</code> command.</li>
+            <li>Add, remove, and change kernel command-line arguments persistently.</li>
+            <li>Explain the RHEL 10 system initialization sequence from firmware to login prompt.</li>
+            <li>List and select <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-systemd-target">systemd targets<span class="tooltip-content" id="tt-systemd-target" role="tooltip">A systemd target is a named group of units that brings the system to a specific operational state, such as graphical.target for a full desktop or rescue.target for single-user maintenance.</span></span> at runtime and set the default boot target.</li>
+            <li>Boot into rescue or emergency mode to troubleshoot startup failures.</li>
+            <li>Diagnose and repair common <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fstab">/etc/fstab<span class="tooltip-content" id="tt-fstab" role="tooltip">The /etc/fstab file is a system configuration file listing all disk partitions and remote filesystems that should be automatically mounted at boot time.</span></span> and file-system errors that prevent the system from booting.</li>
+            <li>Use <code>xfs_repair</code> and <code>fsck.ext4</code> to check and repair damaged file systems.</li>
+        </ul>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>RHCSA Exam Relevance</span></div>
+            <p>Boot process control and troubleshooting is a <strong>heavily tested area</strong> on the RHCSA exam. You must be comfortable booting into rescue and emergency targets, modifying kernel arguments in GRUB2, and fixing broken <code>/etc/fstab</code> entries under exam conditions.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 2: BOOT LOADER ========== -->
+<section id="section-bootloader" class="content-section" aria-labelledby="bootloader-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="bootloader-heading">The Boot Loader: GRUB2</h2>
+    </div>
+    <div class="section-body">
+        <p>Modern computer systems require many hardware and software components to cooperate before a login prompt appears. Understanding this sequence is essential for diagnosing boot failures and configuring the system for specific startup behaviors.</p>
+
+        <h3>Firmware: UEFI and BIOS</h3>
+        <p>When a computer is powered on, it loads a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-firmware">firmware<span class="tooltip-content" id="tt-firmware" role="tooltip">Firmware is low-level software stored in ROM on the motherboard that initializes hardware and locates a boot loader on disk before handing off control to the operating system.</span></span> boot system from a ROM chip on the motherboard. In modern x86 machines, this is typically either:</p>
+        <ul>
+            <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-uefi">UEFI (Unified Extensible Firmware Interface)<span class="tooltip-content" id="tt-uefi" role="tooltip">UEFI is the modern replacement for BIOS. It uses an EFI System Partition on disk and stores settings in NVRAM, allowing faster boot times and support for disks larger than 2 TB.</span></span></strong> &mdash; The standard in all machines manufactured since approximately 2020.</li>
+            <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bios">BIOS (Basic Input/Output System)<span class="tooltip-content" id="tt-bios" role="tooltip">BIOS is the older firmware standard that reads the first 512-byte sector (MBR) of a disk to find the boot loader. Common in machines manufactured before 2020.</span></span></strong> &mdash; The legacy firmware found in older hardware.</li>
+        </ul>
+
+        <div class="tabs-container" id="tabs-firmware">
+            <div class="tab-list" role="tablist" aria-label="Firmware boot types">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-uefi-panel" id="tab-uefi">UEFI Boot Path</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-bios-panel" id="tab-bios">BIOS Boot Path</button>
+            </div>
+            <div id="tab-uefi-panel" class="tab-panel active" role="tabpanel" aria-labelledby="tab-uefi">
+                <h4>GRUB2 with UEFI</h4>
+                <p>In a UEFI system, the boot firmware reads settings from <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nvram">NVRAM<span class="tooltip-content" id="tt-nvram" role="tooltip">Non-Volatile RAM (NVRAM) is persistent memory on the motherboard that stores UEFI boot settings even when the system is powered off.</span></span> to determine which disk and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-efi">EFI application<span class="tooltip-content" id="tt-efi" role="tooltip">An EFI application is a special executable stored on the EFI System Partition that UEFI firmware can load directly — GRUB2 generates an EFI application as its boot entry.</span></span> to load.</p>
+                <p>The disk contains an <strong>EFI System Partition (ESP)</strong>, typically mounted at <code>/boot/efi</code>. GRUB2 generates EFI-compatible files in this partition. After GRUB2 loads, it presents the boot menu.</p>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+                    <p>To see the EFI System Partition on a running RHEL system: <code>ls /boot/efi/EFI/redhat/</code>. You will find <code>grubx64.efi</code> &mdash; the GRUB2 UEFI boot application.</p>
+                </div>
+            </div>
+            <div id="tab-bios-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-bios">
+                <h4>GRUB2 with BIOS</h4>
+                <p>In a BIOS system, the boot firmware reads the first sector of a disk &mdash; the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mbr">Master Boot Record (MBR)<span class="tooltip-content" id="tt-mbr" role="tooltip">The Master Boot Record is the first 512-byte sector of a disk. It contains a small boot loader (boot.img) and the partition table. GRUB2 installs boot.img here in BIOS systems.</span></span> &mdash; which contains the <code>boot.img</code> image.</p>
+                <p>This <code>boot.img</code> loads <code>core.img</code> from the unpartitioned MBR gap space before the first partition. The <code>core.img</code> image loads additional modules to read the filesystem and locate the GRUB2 configuration. GRUB2 installs and manages these images automatically.</p>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+                    <p>Never write raw data to the beginning of a BIOS-boot disk without backing up the MBR first. Overwriting <code>boot.img</code> will prevent the system from booting.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>The GRUB2 Boot Menu</h3>
+        <p>After GRUB2 initializes and loads disks, it presents a boot menu. From this menu you can:</p>
+        <ul>
+            <li>Select which kernel version to boot (multiple entries if several kernels are installed).</li>
+            <li>Edit the kernel command-line arguments for a single boot by pressing <kbd>E</kbd>.</li>
+            <li>Press <kbd>C</kbd> to access the GRUB2 command line for advanced troubleshooting.</li>
+        </ul>
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>Changes made in the GRUB2 editor (via <kbd>E</kbd>) affect <strong>only that one boot instance</strong>. Use <code>grubby</code> to make persistent changes, as described in the next section.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 3: GRUBBY ========== -->
+<section id="section-grubby" class="content-section" aria-labelledby="grubby-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="grubby-heading">Managing GRUB2 with grubby and Kernel Arguments</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grubby"><code>grubby</code><span class="tooltip-content" id="tt-grubby" role="tooltip">grubby is a command-line tool for reading and modifying GRUB2 boot-menu entries. It can change the default boot entry, add or remove kernel arguments, and display entry details.</span></span> command is the standard RHEL 10 tool for making persistent changes to GRUB2 configuration. It operates on the boot-loader entries in <code>/boot/loader/entries/</code>.</p>
+
+        <h3>Viewing Boot Entry Information</h3>
+        <p>To view all boot entries and their details:</p>
+        <div class="code-block" role="region" aria-label="grubby info example">
+            <div class="code-title">Viewing a specific boot entry</div>
+            <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --info 1</span>
+<span class="code-output">index=1
+kernel="/boot/vmlinuz-6.12.0-55.12.1.el10_0.x86_64"
+args="ro crashkernel=2G-64G:256M,64G-:512M $tuned_params"
+root="UUID=15507695-22bb-4c65-94e6-a438e095983f"
+initrd="/boot/initramfs-6.12.0-55.12.1.el10_0.x86_64.img $tuned_initrd"
+title="Red Hat Enterprise Linux (6.12.0-55.12.1.el10_0.x86_64) 10.0"
+id="b70d796f931842cb9776f658cd068435-6.12.0-55.12.1.el10_0.x86_64"</span></code>
+        </div>
+
+        <p>The key fields in this output are:</p>
+        <ul>
+            <li><strong>index</strong> &mdash; The boot-menu position number, starting at 0.</li>
+            <li><strong>kernel</strong> &mdash; Path to the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vmlinuz">vmlinuz<span class="tooltip-content" id="tt-vmlinuz" role="tooltip">vmlinuz is the compressed Linux kernel executable. The "z" suffix indicates it is compressed with gzip. GRUB2 decompresses and loads it into memory during boot.</span></span> kernel image GRUB2 will load.</li>
+            <li><strong>args</strong> &mdash; Kernel command-line arguments passed at boot.</li>
+            <li><strong>root</strong> &mdash; The block device (by UUID) containing the kernel and initramfs.</li>
+            <li><strong>initrd</strong> &mdash; Path to the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-initramfs">initramfs<span class="tooltip-content" id="tt-initramfs" role="tooltip">The initramfs (initial RAM filesystem) is a compressed archive loaded into memory by GRUB2. It contains drivers, scripts, and a minimal root filesystem needed to mount the real root partition before systemd takes over.</span></span> image.</li>
+            <li><strong>title</strong> &mdash; The display name shown in the GRUB2 boot menu.</li>
+        </ul>
+
+        <h3>Changing the Default Boot Entry</h3>
+        <div class="code-block" role="region" aria-label="Set default boot entry example">
+            <div class="code-title">Setting and verifying the default boot entry</div>
+            <code><span class="code-comment"># Set entry index 0 as the default</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --set-default-index 0</span>
+<span class="code-output">The default is /boot/loader/entries/ffffffffffffffffffffffff-6.12.0-55.9.1.el10_0.x86_64.conf
+with index 0 and kernel /boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64</span>
+
+<span class="code-comment"># Verify the change</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --default-index</span>
+<span class="code-output">0</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --default-kernel</span>
+<span class="code-output">/boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64</span></code>
+        </div>
+
+        <h3>Adding and Removing Kernel Arguments</h3>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kernel-args">Kernel command-line arguments<span class="tooltip-content" id="tt-kernel-args" role="tooltip">Kernel command-line arguments are options passed to the Linux kernel at boot time that control hardware detection, debugging output, and system behavior. They are stored in GRUB2 boot entries and can be modified with grubby.</span></span> are passed to the kernel at boot and can control behavior such as whether a graphical splash screen appears, how the kernel handles crashes, and which init system to use.</p>
+
+        <div class="code-block" role="region" aria-label="Adding and removing kernel args example">
+            <div class="code-title">Managing kernel arguments with grubby</div>
+            <code><span class="code-comment"># Add rhgb (graphical boot) and quiet (suppress messages) to a kernel</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --update-kernel /boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64 \
+    --args="rhgb quiet"</span>
+
+<span class="code-comment"># Remove those arguments from the same kernel</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --update-kernel /boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64 \
+    --remove-args="rhgb quiet"</span>
+
+<span class="code-comment"># Apply a kernel argument to ALL installed kernels</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">grubby --update-kernel ALL --args="crashkernel=512M"</span></code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4DD;</span><span>Note</span></div>
+            <p>The <code>rhgb</code> (Red Hat Graphical Boot) and <code>quiet</code> arguments suppress kernel boot messages. During troubleshooting, removing these arguments lets you see detailed boot messages that reveal the cause of failures.</p>
+        </div>
+
+        <h3>Interactive grubby Simulator</h3>
+        <p>Use this simulator to practice common <code>grubby</code> operations. Type a command or click a quick-launch button:</p>
+
+        <div class="simulator" role="region" aria-label="grubby command simulator">
+            <div class="sim-header">
+                <div class="sim-dot red" aria-hidden="true"></div>
+                <div class="sim-dot yellow" aria-hidden="true"></div>
+                <div class="sim-dot green" aria-hidden="true"></div>
+                <span class="sim-title">root@host:~ (grubby simulator)</span>
+            </div>
+            <div class="sim-output" id="grubby-output" aria-live="polite">
+                <div><span class="info">grubby Simulator — type a command or click a button below.</span></div>
+            </div>
+            <div class="sim-input-row">
+                <span class="sim-prompt-label">[root@host ~]#</span>
+                <input type="text" class="sim-input" id="grubby-input" aria-label="Enter grubby command" placeholder="grubby --info ALL" />
+                <button class="sim-run-btn" id="grubby-run" aria-label="Run command">Run</button>
+            </div>
+            <div class="sim-commands" role="group" aria-label="Quick command buttons">
+                <button class="sim-cmd-btn" data-cmd="grubby --info ALL">--info ALL</button>
+                <button class="sim-cmd-btn" data-cmd="grubby --info 0">--info 0</button>
+                <button class="sim-cmd-btn" data-cmd="grubby --default-index">--default-index</button>
+                <button class="sim-cmd-btn" data-cmd="grubby --default-kernel">--default-kernel</button>
+                <button class="sim-cmd-btn" data-cmd="grubby --set-default-index 0">--set-default-index 0</button>
+                <button class="sim-cmd-btn" data-cmd='grubby --update-kernel /boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64 --args="quiet"'>--args="quiet"</button>
+                <button class="sim-cmd-btn" data-cmd='grubby --update-kernel /boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64 --remove-args="quiet"'>--remove-args="quiet"</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 4: BOOT PROCESS ========== -->
+<section id="section-bootprocess" class="content-section" aria-labelledby="bootprocess-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="bootprocess-heading">The RHEL 10 System Initialization Sequence</h2>
+    </div>
+    <div class="section-body">
+        <p>Understanding the complete boot sequence lets you identify exactly <em>where</em> a failure is occurring. The RHEL 10 initialization process moves through several distinct stages, each responsible for progressively more of the running system.</p>
+
+        <h3>Complete Boot Sequence</h3>
+        <div class="boot-flow" role="region" aria-label="Boot sequence diagram">
+
+            <div class="boot-stage">
+                <div class="boot-stage-box firmware">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-purple);">1</div>
+                        <div>
+                            <h4>Firmware (UEFI / BIOS)</h4>
+                            <p>Power-on self-test (POST), hardware initialization, firmware reads NVRAM (UEFI) or MBR (BIOS) to locate the boot loader.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="boot-arrow" aria-hidden="true">&#x2193;</div>
+
+            <div class="boot-stage">
+                <div class="boot-stage-box bootloader">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-teal);">2</div>
+                        <div>
+                            <h4>GRUB2 Boot Loader</h4>
+                            <p>Loads <code>vmlinuz</code> kernel and <code>initramfs</code> image from disk into memory. Presents the boot menu. Passes kernel command-line arguments and the initramfs location to the kernel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="boot-arrow" aria-hidden="true">&#x2193;</div>
+
+            <div class="boot-stage">
+                <div class="boot-stage-box kernel">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-orange);">3</div>
+                        <div>
+                            <h4>Kernel Initialization</h4>
+                            <p>The kernel decompresses itself, detects and initializes hardware using drivers from initramfs, then executes <code>/sbin/init</code> from the initramfs as <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pid1">PID 1<span class="tooltip-content" id="tt-pid1" role="tooltip">PID 1 is the first process started by the kernel. It is the ancestor of all other processes. In RHEL 10, /sbin/init is a symbolic link to systemd, making systemd PID 1.</span></span>. In RHEL 10, <code>/sbin/init</code> is a symlink to <code>systemd</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="boot-arrow" aria-hidden="true">&#x2193;</div>
+
+            <div class="boot-stage">
+                <div class="boot-stage-box initramfs">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-gold);">4</div>
+                        <div>
+                            <h4>initramfs systemd (initrd.target)</h4>
+                            <p>systemd from the initramfs runs all units for <code>initrd.target</code>, which includes mounting the real root filesystem from disk onto <code>/sysroot</code>. The kernel then <em>pivots</em> (switches) to the real root filesystem.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="boot-arrow" aria-hidden="true">&#x2193;</div>
+
+            <div class="boot-stage">
+                <div class="boot-stage-box systemd">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-green);">5</div>
+                        <div>
+                            <h4>systemd (Disk) &mdash; Default Target</h4>
+                            <p>systemd re-executes itself from the installed copy on disk, then activates the <strong>default target</strong> (e.g., <code>multi-user.target</code> or <code>graphical.target</code>), starting all required services and resolving dependencies automatically.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="boot-arrow" aria-hidden="true">&#x2193;</div>
+
+            <div class="boot-stage">
+                <div class="boot-stage-box target">
+                    <div class="boot-stage-inner">
+                        <div class="boot-stage-num" style="background:var(--rh-blue);">6</div>
+                        <div>
+                            <h4>Login Prompt</h4>
+                            <p>The system presents a text-based or graphical login screen, completing the boot process.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>You can inspect the contents of the initramfs image with <code>lsinitrd</code>. This shows exactly which kernel modules and scripts are loaded into memory before the real root filesystem is mounted:</p>
+            <p><code>lsinitrd /boot/initramfs-$(uname -r).img | head -40</code></p>
+        </div>
+
+        <h3>Where Failures Occur</h3>
+        <p>Knowing the sequence above makes failure diagnosis much easier. Different symptoms indicate failures at different stages:</p>
+        <ul>
+            <li><strong>Black screen, no POST</strong> &mdash; Hardware or power failure before firmware even runs.</li>
+            <li><strong>GRUB2 menu does not appear</strong> &mdash; Boot loader is missing or corrupted (MBR or EFI entries damaged).</li>
+            <li><strong>"kernel panic"</strong> &mdash; Kernel stage failure; often due to missing driver or corrupted initramfs.</li>
+            <li><strong>System drops to emergency shell during boot</strong> &mdash; systemd failed to mount a filesystem listed in <code>/etc/fstab</code> &mdash; the most common exam scenario.</li>
+            <li><strong>Services fail but login works</strong> &mdash; Individual systemd unit failure, not a boot-loader issue.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ========== SECTION 5: TARGETS ========== -->
+<section id="section-targets" class="content-section" aria-labelledby="targets-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="targets-heading">systemd Targets: Selecting the System State</h2>
+    </div>
+    <div class="section-body">
+        <p>A <strong>systemd target</strong> is a named collection of units that together define a specific operating state. Targets replace the older concept of <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-runlevels">runlevels<span class="tooltip-content" id="tt-runlevels" role="tooltip">Runlevels were a SysVinit concept (0–6) that defined discrete system states. systemd targets are more flexible and can have dependencies on other targets, unlike the strictly numbered runlevel system.</span></span> from SysVinit.</p>
+
+        <h3>Common systemd Targets</h3>
+        <p>Click a target card to learn more about each target and how to use it:</p>
+
+        <div class="target-grid" role="group" aria-label="systemd target comparison cards">
+            <div class="target-card graphical" tabindex="0" role="button" aria-pressed="false" data-target="graphical">
+                <div class="target-card-icon" aria-hidden="true">&#x1F5A5;&#xFE0F;</div>
+                <div class="target-card-name">graphical.target</div>
+                <p>Multiple users, graphical &amp; text login</p>
+            </div>
+            <div class="target-card multiuser" tabindex="0" role="button" aria-pressed="false" data-target="multiuser">
+                <div class="target-card-icon" aria-hidden="true">&#x1F4BB;</div>
+                <div class="target-card-name">multi-user.target</div>
+                <p>Multiple users, text-only login</p>
+            </div>
+            <div class="target-card rescue" tabindex="0" role="button" aria-pressed="false" data-target="rescue">
+                <div class="target-card-icon" aria-hidden="true">&#x1F6E0;&#xFE0F;</div>
+                <div class="target-card-name">rescue.target</div>
+                <p>Single-user, basic services running</p>
+            </div>
+            <div class="target-card emergency" tabindex="0" role="button" aria-pressed="false" data-target="emergency">
+                <div class="target-card-icon" aria-hidden="true">&#x1F6A8;</div>
+                <div class="target-card-name">emergency.target</div>
+                <p>Minimal system, root FS read-only</p>
+            </div>
+        </div>
+
+        <div class="target-detail" id="td-graphical" role="region" aria-label="graphical.target details">
+            <h4>graphical.target</h4>
+            <p>This is the standard desktop target. It includes <code>multi-user.target</code> plus a display manager service (like GNOME Display Manager). Most workstations and systems with a graphical interface default to this target.</p>
+            <p><strong>To switch at runtime:</strong> <code>systemctl isolate graphical.target</code></p>
+            <p><strong>To set as default:</strong> <code>systemctl set-default graphical.target</code></p>
+            <p><strong>Supports <code>AllowIsolate=yes</code></strong> &mdash; can be used with <code>systemctl isolate</code>.</p>
+        </div>
+        <div class="target-detail" id="td-multiuser" role="region" aria-label="multi-user.target details">
+            <h4>multi-user.target</h4>
+            <p>This is the standard server target. All system services run, but there is no graphical display manager. SSH, networking, and other services are fully available. Most headless servers default to this target.</p>
+            <p><strong>To switch at runtime:</strong> <code>systemctl isolate multi-user.target</code></p>
+            <p><strong>To set as default:</strong> <code>systemctl set-default multi-user.target</code></p>
+        </div>
+        <div class="target-detail" id="td-rescue" role="region" aria-label="rescue.target details">
+            <h4>rescue.target</h4>
+            <p>The rescue target waits for <code>sysinit.target</code> to complete before opening a root shell. This means logging services are running and most filesystems are mounted read/write. Use rescue mode when you need to fix configuration issues that don't prevent filesystem mounting.</p>
+            <p><strong>To boot into rescue:</strong> Append <code>systemd.unit=rescue.target</code> to the kernel command line in GRUB2.</p>
+            <p><strong>Requires root password</strong> to access the shell.</p>
+        </div>
+        <div class="target-detail" id="td-emergency" role="region" aria-label="emergency.target details">
+            <h4>emergency.target</h4>
+            <p>The emergency target starts the absolute minimal system &mdash; the root filesystem is mounted <strong>read-only</strong>. Use emergency mode when the system cannot reach <code>rescue.target</code> (for example, a damaged filesystem prevents sysinit.target from completing).</p>
+            <p><strong>To boot into emergency:</strong> Append <code>systemd.unit=emergency.target</code> to the kernel command line in GRUB2.</p>
+            <p><strong>To remount root read/write:</strong> <code>mount -o remount,rw /</code></p>
+            <p><strong>Requires root password</strong> to access the shell.</p>
+        </div>
+
+        <h3>Managing the Default Target</h3>
+        <div class="code-block" role="region" aria-label="Managing default target examples">
+            <div class="code-title">Getting and setting the default systemd target</div>
+            <code><span class="code-comment"># Check the current default target</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">multi-user.target</span>
+
+<span class="code-comment"># Set graphical.target as the new default</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl set-default graphical.target</span>
+<span class="code-output">Removed '/etc/systemd/system/default.target'.
+Created symlink '/etc/systemd/system/default.target'
+  → '/usr/lib/systemd/system/graphical.target'.</span>
+
+<span class="code-comment"># Verify the change</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">graphical.target</span></code>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p><code>systemctl set-default</code> works by creating a symbolic link at <code>/etc/systemd/system/default.target</code>. You can verify this with <code>ls -l /etc/systemd/system/default.target</code>.</p>
+        </div>
+
+        <h3>Switching Targets at Runtime</h3>
+        <p>The <code>systemctl isolate</code> command switches the running system to a different target immediately. It stops all services the new target does not need and starts any required services not yet running. Only targets where <code>AllowIsolate=yes</code> can be used with <code>isolate</code>.</p>
+        <div class="code-block" role="region" aria-label="Isolate target examples">
+            <div class="code-title">Runtime target switching with systemctl isolate</div>
+            <code><span class="code-comment"># Switch to text-only mode (stops graphical services)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl isolate multi-user.target</span>
+
+<span class="code-comment"># Switch back to graphical mode</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl isolate graphical.target</span>
+
+<span class="code-comment"># List all targets and their state</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">systemctl list-units --type=target --all</span>
+
+<span class="code-comment"># View target dependencies</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">systemctl list-dependencies graphical.target | grep target</span></code>
+        </div>
+
+        <h3>Booting to a Different Target at Boot Time</h3>
+        <p>To override the default target for a single boot &mdash; for example, to enter rescue mode after a misconfiguration &mdash; append the target to the kernel command line in GRUB2:</p>
+        <ol>
+            <li>Boot or reboot the system.</li>
+            <li>At the GRUB2 menu, press any key (except <kbd>Enter</kbd>) to interrupt the countdown.</li>
+            <li>Select the kernel entry to modify, then press <kbd>E</kbd> to edit it.</li>
+            <li>Move the cursor to the line beginning with <code>linux</code> (the kernel command line).</li>
+            <li>Append: <code>systemd.unit=rescue.target</code> (or <code>emergency.target</code>).</li>
+            <li>Press <kbd>Ctrl+X</kbd> to boot with these changes.</li>
+        </ol>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important</span></div>
+            <p>This change is <strong>temporary</strong> &mdash; it only affects the current boot. On the next reboot, the system returns to its configured default target.</p>
+        </div>
+
+        <h3>Powering Off and Rebooting</h3>
+        <div class="code-block" role="region" aria-label="Power commands">
+            <div class="code-title">System power and reboot commands</div>
+            <code><span class="code-comment"># Graceful shutdown (stops services, unmounts filesystems, powers off)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl poweroff</span>
+<span class="code-comment"># Equivalent shortcut:</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">poweroff</span>
+
+<span class="code-comment"># Graceful reboot</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reboot</span>
+<span class="code-comment"># Equivalent shortcut:</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">reboot</span>
+
+<span class="code-comment"># Halt (stops system but does NOT power off — for manual power-off)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl halt</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 6: FILESYSTEM REPAIR ========== -->
+<section id="section-repair" class="content-section" aria-labelledby="repair-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="repair-heading">Repairing Damaged File Systems at Boot Time</h2>
+    </div>
+    <div class="section-body">
+        <p>File-system issues are one of the most common causes of boot failures in RHEL. During boot, systemd reads <code>/etc/fstab</code> and attempts to mount all listed filesystems. If a mount fails, systemd may drop to an emergency shell. Knowing how to diagnose and fix these issues is essential for the RHCSA exam.</p>
+
+        <h3>Common Boot-Time File-System Failures</h3>
+
+        <div class="tabs-container" id="tabs-fserrors">
+            <div class="tab-list" role="tablist" aria-label="File system error types">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-corrupted-panel" id="tab-corrupted">Corrupted FS</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-missing-panel" id="tab-missing">Missing Device / Bad UUID</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-badmount-panel" id="tab-badmount">Bad Mount Point</button>
+            </div>
+            <div id="tab-corrupted-panel" class="tab-panel active" role="tabpanel" aria-labelledby="tab-corrupted">
+                <h4>Corrupted File System</h4>
+                <p>If systemd detects <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fscorrupt">file-system corruption<span class="tooltip-content" id="tt-fscorrupt" role="tooltip">File-system corruption occurs when the on-disk data structures become inconsistent, often due to improper shutdown, hardware failure, or power loss. Journal-based filesystems like ext4 and XFS can often recover automatically by replaying the journal.</span></span>, it attempts an automatic repair. For journal-based filesystems (XFS, ext4), this is usually a fast journal replay. For severe corruption, the system opens an emergency shell.</p>
+                <p><strong>Tool for XFS:</strong> <code>xfs_repair /dev/sdXN</code></p>
+                <p><strong>Tool for ext4:</strong> <code>fsck.ext4 -p /dev/sdXN</code></p>
+            </div>
+            <div id="tab-missing-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-missing">
+                <h4>Nonexistent Device, UUID, or Mount Point</h4>
+                <p>If an <code>/etc/fstab</code> entry references a UUID or device that does not exist, systemd waits (times out) then opens an emergency shell with a message like: <code>Timed out waiting for device /dev/sda2</code>.</p>
+                <p>This is the most common exam scenario. The fix is to either correct the UUID/device path in <code>/etc/fstab</code>, or comment out the offending entry, then run <code>systemctl daemon-reload</code> and <code>mount --all</code> to verify.</p>
+            </div>
+            <div id="tab-badmount-panel" class="tab-panel" role="tabpanel" aria-labelledby="tab-badmount">
+                <h4>Missing Mount Point Directory</h4>
+                <p>If the directory listed as the mount point in <code>/etc/fstab</code> does not exist, <code>mount --all</code> will report: <code>mount point does not exist</code>.</p>
+                <p>The fix is simple: create the missing directory with <code>mkdir -p /path/to/mountpoint</code>, then retry <code>mount --all</code>.</p>
+            </div>
+        </div>
+
+        <h3>File-System Repair Tools</h3>
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+            <p>Always <strong>unmount</strong> a filesystem before running repair tools. Running <code>xfs_repair</code> or <code>e2fsck</code> on a mounted filesystem can cause data loss or further corruption.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Filesystem repair commands">
+            <div class="code-title">Checking and repairing XFS and ext4 filesystems</div>
+            <code><span class="code-comment"># Check and repair an XFS filesystem (must be unmounted first)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">xfs_repair /dev/sdb1</span>
+<span class="code-output">Phase 1 - find and verify superblock...
+Phase 2 - using internal log
+Phase 3 - for each AG...
+...
+done</span>
+
+<span class="code-comment"># Check and repair ext4 filesystem (-p = auto-fix minor issues)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">fsck.ext4 -p /dev/sdb2</span>
+<span class="code-output">/dev/sdb2: clean, 11/131072 files, 26929/524288 blocks</span>
+
+<span class="code-comment"># Note: fsck.xfs only satisfies boot requirements but does nothing</span>
+<span class="code-comment"># The real XFS repair tool is xfs_repair</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">fsck.xfs /dev/sdb1</span>
+<span class="code-output">If you wish to check the consistency of an XFS filesystem or
+repair a damaged filesystem, see xfs_repair(8).</span></code>
+        </div>
+
+        <h3>Step-by-Step Emergency Shell Recovery</h3>
+        <p>When a system drops to an emergency shell due to an <code>/etc/fstab</code> error, follow this recovery procedure:</p>
+
+        <div class="repair-steps" role="region" aria-label="Emergency shell recovery procedure">
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-red-dark);">1</div>
+                <div class="repair-step-content">
+                    <h4>Log In to the Emergency Shell</h4>
+                    <p>At the prompt <em>"Give root password for maintenance"</em>, enter the root password.</p>
+                </div>
+            </div>
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-red-dark);">2</div>
+                <div class="repair-step-content">
+                    <h4>Check If Root Is Read-Only</h4>
+                    <div class="code-block" style="margin:0.5rem 0;" role="region" aria-label="Check mount status">
+                        <div class="code-title">Check root filesystem mount mode</div>
+                        <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount | grep "on / "</span>
+<span class="code-output">/dev/sda3 on / type xfs (ro,relatime,seclabel,...)</span>
+<span class="code-comment"># "ro" means read-only — remount it:</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount -o remount,rw /</span></code>
+                    </div>
+                </div>
+            </div>
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-red-dark);">3</div>
+                <div class="repair-step-content">
+                    <h4>Try Mounting All Filesystems</h4>
+                    <div class="code-block" style="margin:0.5rem 0;" role="region" aria-label="Mount all attempt">
+                        <div class="code-title">Attempt to mount all /etc/fstab entries</div>
+                        <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount --all</span>
+<span class="code-output"><span class="code-error">mount: /olddata: can't find UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc.</span></span></code>
+                    </div>
+                    <p>This shows exactly which entry is failing.</p>
+                </div>
+            </div>
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-red-dark);">4</div>
+                <div class="repair-step-content">
+                    <h4>Edit /etc/fstab to Fix the Error</h4>
+                    <div class="code-block" style="margin:0.5rem 0;" role="region" aria-label="Edit fstab">
+                        <div class="code-title">Comment out or fix the bad entry in /etc/fstab</div>
+                        <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">vi /etc/fstab</span>
+<span class="code-comment"># Comment out the offending line:</span>
+<span class="code-output"># UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc /olddata xfs defaults 0 0</span></code>
+                    </div>
+                </div>
+            </div>
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-red-dark);">5</div>
+                <div class="repair-step-content">
+                    <h4>Reload systemd and Verify</h4>
+                    <div class="code-block" style="margin:0.5rem 0;" role="region" aria-label="Reload and verify">
+                        <div class="code-title">Reload systemd configuration and verify mounts</div>
+                        <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount --all</span>
+<span class="code-comment"># No errors = success</span></code>
+                    </div>
+                </div>
+            </div>
+            <div class="repair-step">
+                <div class="repair-step-num" style="background:var(--rh-green);">6</div>
+                <div class="repair-step-content">
+                    <h4>Reboot to Verify Full Boot</h4>
+                    <div class="code-block" style="margin:0.5rem 0;" role="region" aria-label="Reboot">
+                        <div class="code-title">Reboot the system</div>
+                        <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reboot</span></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4DD;</span><span>Note</span></div>
+            <p>The <code>nofail</code> mount option in <code>/etc/fstab</code> allows the system to continue booting even if that filesystem cannot be mounted. This is useful for non-critical removable media but should <strong>never</strong> be used for production filesystems that applications depend on.</p>
+            <p>Example: <code>UUID=xxxx /backup xfs defaults,nofail 0 0</code></p>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 7: GUIDED EXERCISE ========== -->
+<section id="section-exercise" class="content-section" aria-labelledby="exercise-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="exercise-heading">Guided Exercise: Manage the Boot Loader and Select Boot Targets</h2>
+    </div>
+    <div class="section-body">
+        <p>This exercise covers three practical skills: viewing GRUB2 boot entries with <code>grubby</code>, switching to rescue mode, and setting the default systemd target.</p>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4DD;</span><span>Setup</span></div>
+            <p>Run <code>lab start boot-grubby</code> on the workstation machine before beginning this exercise. Use <strong>serverb.lab.example.com</strong> as the target system.</p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 1: View and Inspect Boot Entries with grubby</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Use <code>grubby</code> to list all boot entries and examine the details of the default entry.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Task 1 — Inspect boot entries</div>
+                    <code><span class="code-comment"># Log in to serverb</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># List all boot entries</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --info ALL</span>
+<span class="code-output">index=0
+kernel="/boot/vmlinuz-6.12.0-55.12.1.el10_0.x86_64"
+args="ro crashkernel=2G-64G:256M,64G-:512M $tuned_params"
+root="UUID=8f3d2a11-1234-5678-abcd-ef0123456789"
+initrd="/boot/initramfs-6.12.0-55.12.1.el10_0.x86_64.img $tuned_initrd"
+title="Red Hat Enterprise Linux (6.12.0-55.12.1.el10_0.x86_64) 10.0 (Coughlan)"
+id="aaaaaaaa-6.12.0-55.12.1.el10_0.x86_64"</span>
+
+<span class="code-comment"># Show the current default boot entry index and kernel</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --default-index</span>
+<span class="code-output">0</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --default-kernel</span>
+<span class="code-output">/boot/vmlinuz-6.12.0-55.12.1.el10_0.x86_64</span></code>
+                </div>
+                <p><strong>Expected outcome:</strong> You can see the default kernel path, its arguments, root UUID, and initramfs path.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 2: Add and Remove a Kernel Argument</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Add the <code>quiet</code> argument to suppress boot messages, verify it was added, then remove it.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2 — Add and remove kernel argument</div>
+                    <code><span class="code-comment"># Get the current default kernel path</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">KERNEL=$(grubby --default-kernel)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">echo $KERNEL</span>
+<span class="code-output">/boot/vmlinuz-6.12.0-55.12.1.el10_0.x86_64</span>
+
+<span class="code-comment"># Add the quiet argument</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --update-kernel $KERNEL --args="quiet"</span>
+
+<span class="code-comment"># Verify the argument was added</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --info 0 | grep args</span>
+<span class="code-output">args="ro crashkernel=2G-64G:256M,64G-:512M quiet $tuned_params"</span>
+
+<span class="code-comment"># Remove the quiet argument</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --update-kernel $KERNEL --remove-args="quiet"</span>
+
+<span class="code-comment"># Verify it was removed</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grubby --info 0 | grep args</span>
+<span class="code-output">args="ro crashkernel=2G-64G:256M,64G-:512M $tuned_params"</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 3: Boot Into Rescue Mode (Simulated)</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Understand how to append <code>systemd.unit=rescue.target</code> to the kernel command line at boot time, and what the rescue shell looks like.</p>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+                    <p>This task describes the <em>procedure</em> to enter rescue mode. In a lab environment, use the console connection to <code>serverb</code> to reboot and interrupt the GRUB2 countdown. Do not interrupt the boot on a production system.</p>
+                </div>
+                <div class="code-block" role="region" aria-label="Task 3 rescue mode procedure">
+                    <div class="code-title">Rescue mode boot procedure and recovery</div>
+                    <code><span class="code-comment"># ---- Steps at the GRUB2 menu ----</span>
+<span class="code-comment"># 1. Reboot the system</span>
+<span class="code-comment"># 2. Press any key (not Enter) to interrupt the boot countdown</span>
+<span class="code-comment"># 3. Select the kernel entry and press E to edit</span>
+<span class="code-comment"># 4. Find the line beginning with "linux"</span>
+<span class="code-comment"># 5. Append at the end of the line:</span>
+<span class="code-highlight">    systemd.unit=rescue.target</span>
+<span class="code-comment"># 6. Press Ctrl+X to boot</span>
+
+<span class="code-comment"># ---- At the rescue shell ----</span>
+<span class="code-comment"># Enter root password when prompted</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl list-units --type=service | head -10</span>
+<span class="code-comment"># Rescue mode has logging and most filesystems mounted</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-comment"># System continues normal boot after exiting the shell</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 4: Set the Default Boot Target</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Change the default systemd target from <code>multi-user.target</code> to <code>graphical.target</code> on <code>serverb</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Task 4 — Set default target to graphical.target</div>
+                    <code><span class="code-comment"># Check current default target</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">multi-user.target</span>
+
+<span class="code-comment"># Set graphical.target as new default</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl set-default graphical.target</span>
+<span class="code-output">Removed '/etc/systemd/system/default.target'.
+Created symlink '/etc/systemd/system/default.target'
+  → '/usr/lib/systemd/system/graphical.target'.</span>
+
+<span class="code-comment"># Confirm the change</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">graphical.target</span>
+
+<span class="code-comment"># Log out and back to workstation</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">exit</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">exit</span>
+<span class="code-output">Connection to serverb closed.</span></code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 8: QUIZ ========== -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of boot process control and troubleshooting. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div id="quiz-score" class="quiz-score" role="status" aria-live="polite"></div>
+
+        <!-- Q1 -->
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. Which command would you use to persistently add the <code>quiet</code> argument to a specific kernel boot entry in RHEL 10?</p>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1a" value="a"><label for="q1a">Edit <code>/etc/grub2.cfg</code> directly and add the argument manually.</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1b" value="b"><label for="q1b"><code>grubby --update-kernel /boot/vmlinuz-... --args="quiet"</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1c" value="c"><label for="q1c">Press <kbd>E</kbd> at the GRUB2 menu and append the argument.</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1d" value="d"><label for="q1d"><code>systemctl set-kernel-args quiet</code></label></div>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. A system drops to an emergency shell during boot with the message: <em>"Timed out waiting for device /dev/sdb2."</em> What is the most likely cause?</p>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2a" value="a"><label for="q2a">The kernel is corrupted and needs to be reinstalled.</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2b" value="b"><label for="q2b">The GRUB2 boot loader is missing from the MBR.</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2c" value="c"><label for="q2c">An <code>/etc/fstab</code> entry references a device that does not exist.</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2d" value="d"><label for="q2d">The root filesystem is full.</label></div>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p>3. You are in the emergency shell and need to edit <code>/etc/fstab</code>, but the root filesystem is mounted read-only. Which command remounts it as read/write?</p>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3a" value="a"><label for="q3a"><code>mount -o remount,rw /</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3b" value="b"><label for="q3b"><code>chmod +w /</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3c" value="c"><label for="q3c"><code>mount --bind / /mnt</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3d" value="d"><label for="q3d"><code>systemctl enable rw.target</code></label></div>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p>4. Which command sets <code>multi-user.target</code> as the permanent default boot target?</p>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4a" value="a"><label for="q4a"><code>systemctl isolate multi-user.target</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4b" value="b"><label for="q4b"><code>ln -s /usr/lib/systemd/system/multi-user.target /etc/systemd/system/active.target</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4c" value="c"><label for="q4c"><code>systemctl enable multi-user.target</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4d" value="d"><label for="q4d"><code>systemctl set-default multi-user.target</code></label></div>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. What is the key difference between <code>rescue.target</code> and <code>emergency.target</code>?</p>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5a" value="a"><label for="q5a">Rescue mode does not require a root password; emergency mode does.</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5b" value="b"><label for="q5b">Rescue mode waits for <code>sysinit.target</code> so more services run and filesystems are mounted read/write; emergency mode starts the absolute minimum with the root filesystem read-only.</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5c" value="c"><label for="q5c">Emergency mode can be entered without rebooting using <code>systemctl isolate emergency.target</code>; rescue mode cannot.</label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5d" value="d"><label for="q5d">There is no practical difference; both start an identical minimal shell.</label></div>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p>6. After editing <code>/etc/fstab</code> in the emergency shell to fix a bad entry, what must you run before attempting <code>mount --all</code>?</p>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6a" value="a"><label for="q6a"><code>systemctl restart systemd-mount</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6b" value="b"><label for="q6b"><code>dracut --force</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6c" value="c"><label for="q6c"><code>systemctl daemon-reload</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6d" value="d"><label for="q6d">Nothing — <code>mount --all</code> reads <code>/etc/fstab</code> directly and does not need systemd.</label></div>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p>7. Which tool is the correct command to check and repair an XFS filesystem on <code>/dev/sdb1</code>?</p>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7a" value="a"><label for="q7a"><code>xfs_repair /dev/sdb1</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7b" value="b"><label for="q7b"><code>fsck.xfs /dev/sdb1</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7c" value="c"><label for="q7c"><code>e2fsck /dev/sdb1</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7d" value="d"><label for="q7d"><code>mkfs.xfs --repair /dev/sdb1</code></label></div>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p>8. To override the default boot target for a <strong>single boot only</strong>, where do you make the change?</p>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8a" value="a"><label for="q8a">Edit <code>/etc/systemd/system/default.target</code> before rebooting.</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8b" value="b"><label for="q8b">Run <code>systemctl set-default rescue.target</code> then reboot.</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8c" value="c"><label for="q8c">Add the target to <code>/etc/grub.d/40_custom</code>.</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8d" value="d"><label for="q8d">Press <kbd>E</kbd> at the GRUB2 menu, append <code>systemd.unit=target.target</code> to the kernel line, and press <kbd>Ctrl+X</kbd>.</label></div>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button class="quiz-btn" id="quiz-check" aria-label="Check quiz answers">Check Answers</button>
+            <button class="quiz-btn reset" id="quiz-reset" aria-label="Reset quiz">Reset Quiz</button>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 9: LAB ========== -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="lab-heading">Hands-On Lab: Control and Troubleshoot the Boot Process</h2>
+    </div>
+    <div class="section-body">
+        <h3>Lab Scenario</h3>
+        <p>The <code>serverb.lab.example.com</code> system has been misconfigured. The <code>/etc/fstab</code> file references a storage device that no longer exists, preventing the system from completing its boot. You must access the emergency shell, fix the configuration, and restore normal booting. You will then set the default systemd target to <code>graphical.target</code>.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+            <p>This lab involves booting into an emergency shell and editing system configuration files. Work carefully &mdash; errors in <code>/etc/fstab</code> can make a system unbootable. Always verify changes with <code>mount --all</code> before rebooting.</p>
+        </div>
+
+        <h3>Setup</h3>
+        <div class="code-block" role="region" aria-label="Lab setup command">
+            <div class="code-title">Initialize the lab environment</div>
+            <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab start boot-review</span></code>
+        </div>
+
+        <h3>Lab Tasks</h3>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 1: Access serverb Console and Reboot into Emergency Shell</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Open the console to <code>serverb</code>, reboot the machine, observe the boot failure, and log in to the emergency shell.</p>
+                <ol>
+                    <li>Open the <code>serverb</code> machine console in your lab environment.</li>
+                    <li>Reboot the system by pressing <kbd>Ctrl+Alt+Del</kbd> or using the console menu.</li>
+                    <li>Watch the boot output. The system will timeout waiting for a device and open an emergency shell.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Task 1 expected output">
+                    <div class="code-title">Expected boot failure output</div>
+                    <code><span class="code-output">[ TIME ] A start job is running for /dev/disk/by-uuid/4d5c85a5...
+[FAILED] Failed to mount /olddata.
+[DEPEND] Dependency failed for Local File Systems.
+...
+[ OK ] Started Emergency Shell.</span>
+
+<span class="code-comment">Give root password for maintenance</span>
+<span class="code-comment">(or press Control-D to continue): <span class="code-highlight">redhat</span></span>
+<span class="code-prompt">[root@serverb ~]#</span></code>
+                </div>
+                <p><strong>Expected outcome:</strong> You are at the root prompt in the emergency shell.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 2: Identify the Problematic /etc/fstab Entry</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Check whether the root filesystem is writable and identify which <code>/etc/fstab</code> entry is causing the failure.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2 — Identify the fstab problem</div>
+                    <code><span class="code-comment"># Check if root is mounted read-write</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount | grep "on / "</span>
+<span class="code-output">/dev/sda3 on / type xfs (rw,relatime,seclabel,...)</span>
+<span class="code-comment"># Root is already read-write in this scenario (rw)</span>
+
+<span class="code-comment"># Try mounting all fstab entries to find the failure</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount --all</span>
+<span class="code-output"><span class="code-error">mount: /olddata: can't find UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc.</span></span>
+
+<span class="code-comment"># View the fstab entry causing the issue</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">grep olddata /etc/fstab</span>
+<span class="code-output">UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc /olddata xfs defaults 0 0</span></code>
+                </div>
+                <p><strong>Expected outcome:</strong> The UUID references a device that no longer exists on the system.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 3: Fix /etc/fstab and Reload systemd</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Comment out the bad <code>/etc/fstab</code> entry, reload systemd, and verify mounts succeed.</p>
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Task 3 — Fix fstab and verify</div>
+                    <code><span class="code-comment"># Edit /etc/fstab — comment out the bad line</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">vi /etc/fstab</span>
+<span class="code-comment"># Change this line:</span>
+<span class="code-output">UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc /olddata xfs defaults 0 0</span>
+<span class="code-comment"># To this (add # at the beginning):</span>
+<span class="code-output"><span class="code-highlight"># UUID=4d5c85a5-8921-4a06-8aff-80567e9689bc /olddata xfs defaults 0 0</span></span>
+
+<span class="code-comment"># Reload systemd to register the fstab change</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># Verify all remaining entries mount successfully</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">mount --all</span>
+<span class="code-comment"># No output = no errors</span></code>
+                </div>
+                <p><strong>Expected outcome:</strong> <code>mount --all</code> completes silently with no errors.</p>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false">
+                <span>Task 4: Reboot and Set the Default Target</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content">
+                <p><strong>Objective:</strong> Reboot <code>serverb</code> to verify it now boots normally, then set <code>graphical.target</code> as the default boot target.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Task 4 — Reboot and configure default target</div>
+                    <code><span class="code-comment"># Reboot to verify the fix</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl reboot</span>
+<span class="code-comment"># ... system should now boot normally ...</span>
+
+<span class="code-comment"># From workstation, SSH back in</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo -i</span>
+
+<span class="code-comment"># Set graphical.target as the default (even without GNOME installed)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl set-default graphical.target</span>
+<span class="code-output">Removed '/etc/systemd/system/default.target'.
+Created symlink '/etc/systemd/system/default.target'
+  → '/usr/lib/systemd/system/graphical.target'.</span>
+
+<span class="code-comment"># Confirm</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">graphical.target</span></code>
+                </div>
+                <p><strong>Expected outcome:</strong> System boots normally; default target is <code>graphical.target</code>.</p>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="checklist" aria-label="Lab completion items">
+            <li>serverb boots to a normal login prompt without stopping at an emergency shell.</li>
+            <li>The bad UUID entry in <code>/etc/fstab</code> is commented out or removed.</li>
+            <li><code>mount --all</code> completes without errors.</li>
+            <li><code>systemctl get-default</code> returns <code>graphical.target</code> on serverb.</li>
+            <li>The <code>systemctl daemon-reload</code> command was run after editing <code>/etc/fstab</code>.</li>
+        </ul>
+
+        <h3>Grading and Finish</h3>
+        <div class="code-block" role="region" aria-label="Lab grading commands">
+            <div class="code-title">Grade and finish the lab</div>
+            <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade boot-review</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish boot-review</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- ========== SECTION 10: SUMMARY ========== -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>This chapter covered the complete RHEL 10 boot process, from firmware initialization through GRUB2 and the systemd initialization sequence, with a focus on control, customization, and troubleshooting.</p>
+
+        <h3>Key Concepts Recap</h3>
+        <ul>
+            <li><strong>GRUB2</strong> is the default boot loader for RHEL 10, supporting both UEFI (EFI System Partition) and BIOS (MBR) firmware.</li>
+            <li>The <strong><code>grubby</code></strong> command makes persistent changes to GRUB2 boot entries: view entries (<code>--info</code>), set the default (<code>--set-default-index</code>), and manage kernel arguments (<code>--args</code>, <code>--remove-args</code>).</li>
+            <li><strong>Kernel arguments</strong> modified at the GRUB2 editor (<kbd>E</kbd>) are temporary (one boot only); use <code>grubby --update-kernel</code> for permanent changes.</li>
+            <li>The RHEL 10 boot sequence: Firmware &rarr; GRUB2 &rarr; Kernel &rarr; initramfs systemd &rarr; root pivot &rarr; disk systemd &rarr; default target.</li>
+            <li><strong>systemd targets</strong> define the system operating state. Use <code>systemctl get-default</code> and <code>systemctl set-default</code> to manage the default; use <code>systemctl isolate</code> for runtime switching.</li>
+            <li><strong>rescue.target</strong> provides a root shell with logging and filesystems mounted; <strong>emergency.target</strong> provides the most minimal environment with the root filesystem read-only.</li>
+            <li>Boot into special targets by appending <code>systemd.unit=target.target</code> to the kernel command line in GRUB2 at boot time.</li>
+            <li>Common <code>/etc/fstab</code> errors (bad UUID, missing device, missing mount point) cause boot failures recoverable from the emergency shell.</li>
+            <li>After editing <code>/etc/fstab</code>, always run <code>systemctl daemon-reload</code> then <code>mount --all</code> to verify before rebooting.</li>
+            <li><strong><code>xfs_repair</code></strong> repairs XFS filesystems; <strong><code>fsck.ext4</code></strong> (or <code>e2fsck</code>) repairs ext4 filesystems. Both require the filesystem to be unmounted first.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="cmd-table" role="grid" aria-label="Chapter 12 command reference">
+            <thead>
+                <tr><th scope="col">Command</th><th scope="col">Purpose</th><th scope="col">Example</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>grubby --info N</code></td><td>View details of boot entry N (or ALL)</td><td><code>grubby --info 0</code></td></tr>
+                <tr><td><code>grubby --default-index</code></td><td>Show default boot entry index</td><td><code>grubby --default-index</code></td></tr>
+                <tr><td><code>grubby --set-default-index N</code></td><td>Set default boot entry</td><td><code>grubby --set-default-index 0</code></td></tr>
+                <tr><td><code>grubby --update-kernel KERNEL --args="X"</code></td><td>Add kernel argument persistently</td><td><code>grubby --update-kernel /boot/vmlinuz-... --args="quiet"</code></td></tr>
+                <tr><td><code>grubby --update-kernel KERNEL --remove-args="X"</code></td><td>Remove kernel argument persistently</td><td><code>grubby --update-kernel /boot/vmlinuz-... --remove-args="quiet"</code></td></tr>
+                <tr><td><code>systemctl get-default</code></td><td>Show default systemd target</td><td><code>systemctl get-default</code></td></tr>
+                <tr><td><code>systemctl set-default TARGET</code></td><td>Set default systemd target</td><td><code>systemctl set-default multi-user.target</code></td></tr>
+                <tr><td><code>systemctl isolate TARGET</code></td><td>Switch to a target at runtime</td><td><code>systemctl isolate graphical.target</code></td></tr>
+                <tr><td><code>systemctl list-units --type=target</code></td><td>List all active targets</td><td><code>systemctl list-units --type=target --all</code></td></tr>
+                <tr><td><code>mount -o remount,rw /</code></td><td>Remount root filesystem read/write</td><td>Use in emergency shell</td></tr>
+                <tr><td><code>mount --all</code></td><td>Mount all /etc/fstab entries</td><td>Use after editing fstab</td></tr>
+                <tr><td><code>systemctl daemon-reload</code></td><td>Reload systemd unit configuration</td><td>Run after editing fstab</td></tr>
+                <tr><td><code>xfs_repair DEVICE</code></td><td>Check and repair XFS filesystem</td><td><code>xfs_repair /dev/sdb1</code></td></tr>
+                <tr><td><code>fsck.ext4 -p DEVICE</code></td><td>Check and repair ext4 filesystem</td><td><code>fsck.ext4 -p /dev/sdb2</code></td></tr>
+                <tr><td><code>lsinitrd</code></td><td>Inspect initramfs contents</td><td><code>lsinitrd /boot/initramfs-$(uname -r).img</code></td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+            <a href="rh134_chapter11_lvm.html" class="nav-chapter-btn prev">&#x2190; Chapter 11: Managing LVM Storage</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter13_superuser_recovery.html" class="nav-chapter-btn next">Chapter 13: Recovering Superuser Access &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <p><strong>RH134: Red Hat System Administration II</strong> &bull; Chapter 12: Controlling and Troubleshooting the Boot Process</p>
+    <p>Red Hat Enterprise Linux 10 &bull; RHCSA Exam Preparation</p>
+    <p style="margin-top:8px; font-size:0.78rem; color:#888888;">Red Hat and Red Hat Enterprise Linux are registered trademarks of Red Hat, Inc. This educational material is not affiliated with or endorsed by Red Hat, Inc.</p>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    // ========== PROGRESS BAR ==========
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const progressBar = document.querySelector('.progress-container');
+    const sections = Array.from(document.querySelectorAll('.content-section'));
+    const visited = new Set();
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                visited.add(entry.target);
+                const pct = Math.round((visited.size / sections.length) * 100);
+                progressFill.style.width = pct + '%';
+                progressBar.setAttribute('aria-valuenow', pct);
+                progressText.textContent = pct + '% complete';
+                updateActiveNav(entry.target.id);
+            }
+        });
+    }, { threshold: 0.2 });
+
+    sections.forEach(s => sectionObserver.observe(s));
+
+    // ========== SECTION NAV ==========
+    function updateActiveNav(activeId) {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            const href = btn.getAttribute('href');
+            if (href === '#' + activeId) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+                if (visited.has(document.getElementById(btn.getAttribute('data-section') ? 'section-' + btn.getAttribute('data-section') : ''))) {
+                    btn.classList.add('visited');
+                }
+            }
+        });
+    }
+
+    // ========== TOOLTIP SYSTEM ==========
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTooltip = null;
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+        bubble.textContent = contentEl.textContent;
+        bubble.classList.remove('tip-top', 'tip-bottom', 'tip-left', 'tip-right');
+        bubble.style.cssText = '';
+        bubble.classList.add('visible');
+
+        requestAnimationFrame(() => {
+            const rect = term.getBoundingClientRect();
+            const bw = bubble.offsetWidth;
+            const bh = bubble.offsetHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const margin = 8;
+            let top, left, placement;
+
+            if (rect.top - bh - 10 >= margin) {
+                placement = 'tip-top';
+                top = rect.top - bh - 10;
+                left = rect.left + rect.width / 2 - bw / 2;
+            } else if (rect.bottom + bh + 10 <= vh - margin) {
+                placement = 'tip-bottom';
+                top = rect.bottom + 10;
+                left = rect.left + rect.width / 2 - bw / 2;
+            } else if (rect.left - bw - 10 >= margin) {
+                placement = 'tip-left';
+                top = rect.top + rect.height / 2 - bh / 2;
+                left = rect.left - bw - 10;
+            } else {
+                placement = 'tip-right';
+                top = rect.top + rect.height / 2 - bh / 2;
+                left = rect.right + 10;
+            }
+
+            // Clamp
+            left = Math.max(margin, Math.min(left, vw - bw - margin));
+            top = Math.max(margin, Math.min(top, vh - bh - margin));
+
+            bubble.style.top = top + 'px';
+            bubble.style.left = left + 'px';
+            bubble.classList.add(placement);
+        });
+
+        activeTooltip = term;
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+        bubble.classList.remove('tip-top', 'tip-bottom', 'tip-left', 'tip-right');
+        activeTooltip = null;
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Escape') { hideTooltip(); term.blur(); }
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showTooltip(term); }
+        });
+    });
+
+    // ========== TAB SYSTEM ==========
+    document.querySelectorAll('[role="tablist"]').forEach(tablist => {
+        const tabs = Array.from(tablist.querySelectorAll('[role="tab"]'));
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => activateTab(tab, tabs));
+            tab.addEventListener('keydown', e => {
+                let idx = tabs.indexOf(e.currentTarget);
+                if (e.key === 'ArrowRight') { idx = (idx + 1) % tabs.length; tabs[idx].focus(); activateTab(tabs[idx], tabs); e.preventDefault(); }
+                if (e.key === 'ArrowLeft') { idx = (idx - 1 + tabs.length) % tabs.length; tabs[idx].focus(); activateTab(tabs[idx], tabs); e.preventDefault(); }
+                if (e.key === 'Home') { tabs[0].focus(); activateTab(tabs[0], tabs); e.preventDefault(); }
+                if (e.key === 'End') { tabs[tabs.length - 1].focus(); activateTab(tabs[tabs.length - 1], tabs); e.preventDefault(); }
+            });
+        });
+    });
+
+    function activateTab(tab, tabs) {
+        tabs.forEach(t => {
+            t.setAttribute('aria-selected', 'false');
+            const panelId = t.getAttribute('aria-controls');
+            const panel = document.getElementById(panelId);
+            if (panel) panel.classList.remove('active');
+        });
+        tab.setAttribute('aria-selected', 'true');
+        const activePanel = document.getElementById(tab.getAttribute('aria-controls'));
+        if (activePanel) activePanel.classList.add('active');
+    }
+
+    // ========== EXPANDABLE SECTIONS ==========
+    document.querySelectorAll('.expandable-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const content = header.nextElementSibling;
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+
+    // ========== TARGET CARDS ==========
+    const targetDetails = {
+        'graphical': 'td-graphical',
+        'multiuser': 'td-multiuser',
+        'rescue': 'td-rescue',
+        'emergency': 'td-emergency'
+    };
+    let activeTargetCard = null;
+
+    document.querySelectorAll('.target-card').forEach(card => {
+        card.addEventListener('click', () => toggleTargetCard(card));
+        card.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleTargetCard(card); }
+        });
+    });
+
+    function toggleTargetCard(card) {
+        const targetKey = card.getAttribute('data-target');
+        const detailId = targetDetails[targetKey];
+        const detail = document.getElementById(detailId);
+        if (!detail) return;
+
+        if (activeTargetCard === card) {
+            detail.classList.remove('show');
+            card.setAttribute('aria-pressed', 'false');
+            activeTargetCard = null;
+        } else {
+            // Close previous
+            if (activeTargetCard) {
+                const prevKey = activeTargetCard.getAttribute('data-target');
+                document.getElementById(targetDetails[prevKey]).classList.remove('show');
+                activeTargetCard.setAttribute('aria-pressed', 'false');
+            }
+            detail.classList.add('show');
+            card.setAttribute('aria-pressed', 'true');
+            activeTargetCard = card;
+        }
+    }
+
+    // ========== GRUBBY SIMULATOR ==========
+    const grubbyOutput = document.getElementById('grubby-output');
+    const grubbyInput = document.getElementById('grubby-input');
+    const grubbyRun = document.getElementById('grubby-run');
+
+    const KERNELS = [
+        {
+            index: 0, kernel: '/boot/vmlinuz-6.12.0-55.12.1.el10_0.x86_64',
+            args: 'ro crashkernel=2G-64G:256M,64G-:512M $tuned_params',
+            root: 'UUID=8f3d2a11-1234-5678-abcd-ef0123456789',
+            initrd: '/boot/initramfs-6.12.0-55.12.1.el10_0.x86_64.img $tuned_initrd',
+            title: 'Red Hat Enterprise Linux (6.12.0-55.12.1.el10_0.x86_64) 10.0 (Coughlan)',
+            id: 'aaaa0000-6.12.0-55.12.1.el10_0.x86_64'
+        },
+        {
+            index: 1, kernel: '/boot/vmlinuz-6.12.0-55.9.1.el10_0.x86_64',
+            args: 'ro crashkernel=2G-64G:256M,64G-:512M $tuned_params',
+            root: 'UUID=8f3d2a11-1234-5678-abcd-ef0123456789',
+            initrd: '/boot/initramfs-6.12.0-55.9.1.el10_0.x86_64.img $tuned_initrd',
+            title: 'Red Hat Enterprise Linux (6.12.0-55.9.1.el10_0.x86_64) 10.0 (Coughlan)',
+            id: 'bbbb1111-6.12.0-55.9.1.el10_0.x86_64'
+        }
+    ];
+    let defaultIdx = 0;
+
+    function grubbyFormatEntry(k) {
+        return `index=${k.index}\nkernel="${k.kernel}"\nargs="${k.args}"\nroot="${k.root}"\ninitrd="${k.initrd}"\ntitle="${k.title}"\nid="${k.id}"`;
+    }
+
+    function addSimLine(text, cls) {
+        const div = document.createElement('div');
+        div.className = cls || '';
+        div.textContent = text;
+        grubbyOutput.appendChild(div);
+        grubbyOutput.scrollTop = grubbyOutput.scrollHeight;
+    }
+
+    function addSimPromptLine(cmd) {
+        const div = document.createElement('div');
+        div.innerHTML = '<span class="prompt">[root@host ~]# </span>' + escHtml(cmd);
+        grubbyOutput.appendChild(div);
+        grubbyOutput.scrollTop = grubbyOutput.scrollHeight;
+    }
+
+    function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function runGrubby(cmd) {
+        cmd = cmd.trim();
+        if (!cmd) return;
+        addSimPromptLine(cmd);
+
+        if (cmd === 'grubby --info ALL') {
+            KERNELS.forEach(k => { addSimLine(grubbyFormatEntry(k), 'result'); addSimLine('', 'result'); });
+        } else if (cmd.match(/^grubby --info (\d+)$/)) {
+            const idx = parseInt(cmd.match(/(\d+)$/)[1]);
+            const k = KERNELS.find(e => e.index === idx);
+            k ? addSimLine(grubbyFormatEntry(k), 'result') : addSimLine(`grubby: error: index ${idx} not found`, 'error');
+        } else if (cmd === 'grubby --default-index') {
+            addSimLine(String(defaultIdx), 'result');
+        } else if (cmd === 'grubby --default-kernel') {
+            addSimLine(KERNELS[defaultIdx].kernel, 'result');
+        } else if (cmd.match(/^grubby --set-default-index (\d+)$/)) {
+            const idx = parseInt(cmd.match(/(\d+)$/)[1]);
+            if (KERNELS.find(e => e.index === idx)) {
+                defaultIdx = idx;
+                addSimLine(`The default is /boot/loader/entries/aaaa0000-...-${KERNELS[idx].kernel.split('/').pop()}.conf with index ${idx} and kernel ${KERNELS[idx].kernel}`, 'result');
+            } else {
+                addSimLine(`grubby: error: index ${idx} not found`, 'error');
+            }
+        } else if (cmd.match(/--update-kernel .+ --args="([^"]+)"/)) {
+            const arg = cmd.match(/--args="([^"]+)"/)[1];
+            const kernelPath = cmd.match(/--update-kernel (\S+)/)[1];
+            const k = KERNELS.find(e => e.kernel === kernelPath) || KERNELS[0];
+            if (!k.args.includes(arg)) k.args += ' ' + arg;
+            addSimLine('', 'result');
+            addSimLine(`[info] Added "${arg}" to kernel args.`, 'info');
+        } else if (cmd.match(/--update-kernel .+ --remove-args="([^"]+)"/)) {
+            const arg = cmd.match(/--remove-args="([^"]+)"/)[1];
+            const kernelPath = cmd.match(/--update-kernel (\S+)/)[1];
+            const k = KERNELS.find(e => e.kernel === kernelPath) || KERNELS[0];
+            k.args = k.args.replace(new RegExp('\\s*' + arg, 'g'), '').trim();
+            addSimLine('', 'result');
+            addSimLine(`[info] Removed "${arg}" from kernel args.`, 'info');
+        } else if (cmd.startsWith('grubby')) {
+            addSimLine(`grubby: unrecognized option '${cmd.split(' ')[1] || ''}'`, 'error');
+            addSimLine('Try: --info ALL, --info N, --default-index, --default-kernel, --set-default-index N', 'info');
+        } else {
+            addSimLine(`-bash: ${cmd.split(' ')[0]}: command not found`, 'error');
+        }
+    }
+
+    grubbyRun.addEventListener('click', () => {
+        runGrubby(grubbyInput.value);
+        grubbyInput.value = '';
+        grubbyInput.focus();
+    });
+
+    grubbyInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { runGrubby(grubbyInput.value); grubbyInput.value = ''; }
+    });
+
+    document.querySelectorAll('.sim-cmd-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            grubbyInput.value = btn.getAttribute('data-cmd');
+            runGrubby(grubbyInput.value);
+            grubbyInput.value = '';
+            grubbyInput.focus();
+        });
+    });
+
+    // ========== QUIZ SYSTEM ==========
+    const quizMessages = {
+        '1': { b: 'Correct! grubby --update-kernel with --args makes the change persistent in the boot entry configuration file.', a: 'Incorrect. /etc/grub2.cfg is auto-generated and should not be edited directly.', c: 'Incorrect. Pressing E at GRUB2 only affects a single boot.', d: 'Incorrect. There is no systemctl set-kernel-args command.' },
+        '2': { c: 'Correct! A timed-out device wait indicates /etc/fstab references a device that does not exist on the system.', a: 'Incorrect. A corrupted kernel would produce a kernel panic, not a timed-out device wait.', b: 'Incorrect. A missing boot loader would prevent GRUB2 from loading at all.', d: 'Incorrect. A full filesystem would not cause a timed-out device wait.' },
+        '3': { a: 'Correct! mount -o remount,rw / changes the root filesystem mount options without unmounting it.', b: 'Incorrect. chmod cannot change filesystem mount options.', c: 'Incorrect. mount --bind mounts one directory over another; it does not change read-only status.', d: 'Incorrect. There is no rw.target in systemd.' },
+        '4': { d: 'Correct! systemctl set-default creates a symlink making the target permanent across reboots.', a: 'Incorrect. systemctl isolate only switches the target at runtime for the current session.', b: 'Incorrect. The symlink target must be default.target, not active.target.', c: 'Incorrect. systemctl enable enables a service/unit to start at boot but does not set the default target.' },
+        '5': { b: 'Correct! Rescue waits for sysinit.target (logging, filesystems mounted rw); emergency mounts root read-only with the absolute minimum services.', a: 'Incorrect. Both rescue and emergency require the root password.', c: 'Incorrect. Neither rescue nor emergency can be entered with systemctl isolate from a broken boot.', d: 'Incorrect. There are significant practical differences, especially regarding filesystem mount state.' },
+        '6': { c: 'Correct! systemctl daemon-reload tells systemd to re-read its configuration, including the updated /etc/fstab file.', a: 'Incorrect. There is no systemd-mount service to restart.', b: 'Incorrect. dracut --force rebuilds the initramfs and is not related to fstab mounting.', d: 'Incorrect. While mount --all does read fstab directly, systemd also needs to be notified of changes to avoid conflicts.' },
+        '7': { a: 'Correct! xfs_repair is the correct tool for checking and repairing XFS filesystems.', b: 'Incorrect. fsck.xfs exits immediately with code 0 and performs no actual repair — it exists only to satisfy boot requirements.', c: 'Incorrect. e2fsck (fsck.ext4) is for ext3/ext4 filesystems, not XFS.', d: 'Incorrect. mkfs.xfs creates a new filesystem; it does not repair an existing one.' },
+        '8': { d: 'Correct! Pressing E in GRUB2 and appending systemd.unit=target.target to the linux line changes the target for a single boot only.', a: 'Incorrect. Editing default.target changes the permanent default, not just one boot.', b: 'Incorrect. systemctl set-default makes a permanent change.', c: 'Incorrect. /etc/grub.d/40_custom adds custom menu entries but does not control single-boot target selection.' }
+    };
+
+    document.getElementById('quiz-check').addEventListener('click', checkQuiz);
+    document.getElementById('quiz-reset').addEventListener('click', resetQuiz);
+
+    function checkQuiz() {
+        let score = 0;
+        let answered = 0;
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            const qNum = q.getAttribute('data-question');
+            const correct = q.getAttribute('data-correct');
+            const selected = q.querySelector(`input[name="q${qNum}"]:checked`);
+            const feedback = document.getElementById(`feedback-${qNum}`);
+            q.classList.remove('correct', 'incorrect');
+            feedback.className = 'quiz-feedback';
+
+            if (selected) {
+                answered++;
+                const val = selected.value;
+                if (val === correct) {
+                    score++;
+                    q.classList.add('correct');
+                    feedback.textContent = '&#x2713; ' + (quizMessages[qNum][correct] || 'Correct!');
+                    feedback.classList.add('show', 'correct-msg');
+                } else {
+                    q.classList.add('incorrect');
+                    const msg = quizMessages[qNum][val] || 'Incorrect.';
+                    const correctMsg = quizMessages[qNum][correct] || '';
+                    feedback.textContent = '\u2717 ' + msg + (correctMsg ? ' \u2192 ' + correctMsg : '');
+                    feedback.classList.add('show', 'incorrect-msg');
+                }
+            } else {
+                feedback.textContent = 'Please select an answer.';
+                feedback.classList.add('show', 'incorrect-msg');
+            }
+        });
+
+        const scoreEl = document.getElementById('quiz-score');
+        const total = document.querySelectorAll('.quiz-question').length;
+        scoreEl.textContent = `Score: ${score} / ${total} correct`;
+        scoreEl.classList.add('show');
+        scoreEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function resetQuiz() {
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            q.classList.remove('correct', 'incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+        });
+        document.querySelectorAll('.quiz-feedback').forEach(f => { f.className = 'quiz-feedback'; f.textContent = ''; });
+        document.getElementById('quiz-score').classList.remove('show');
+    }
+
+})();
+</script>
+
+</body>
+</html>

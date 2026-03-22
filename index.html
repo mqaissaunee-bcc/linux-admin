@@ -1252,7 +1252,7 @@
                     </div>
                     <div class="card-body">
                         <p class="card-description">
-                            Tasks randomly drawn from a 90-task bank that mirror the real
+                            40 performance-based tasks that mirror the real
                             <span class="tooltip-container">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-ex200">EX200</button>
                                 <span class="tooltip-content" id="tooltip-ex200" role="tooltip">The RHCSA exam (EX200) is a 3-hour, performance-based exam on a live RHEL 10 system. No multiple choice &mdash; you complete real administrative tasks. Passing score is 210/300 (70%).</span>
@@ -1260,9 +1260,9 @@
                             exam format. Practice mode shows step-by-step guidance; Exam mode hides all hints for realistic conditions.
                         </p>
                         <ul class="card-topics">
-                            <li>40 tasks drawn from a 90-task bank across 8 domains</li>
+                            <li>40 tasks across all 7 EX200 exam domains</li>
                             <li>Practice &amp; Exam modes with live 3-hour timer</li>
-                            <li>Built-in man pages for 68 critical commands</li>
+                            <li>Built-in man pages for 23 critical commands</li>
                             <li>Focused coverage of highest-failure areas</li>
                         </ul>
                     </div>
@@ -1670,11 +1670,11 @@
                             </span>, 
                             <span class="tooltip-container">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-mv">mv</button>
-                                <span class="tooltip-content" id="tooltip-mv" role="tooltip">The mv command moves or renames files and directories. Unlike cp, it doesn't create a copyâ€”it relocates the original file to a new location or name.</span>
+                                <span class="tooltip-content" id="tooltip-mv" role="tooltip">The mv command moves or renames files and directories. Unlike cp, it doesn't create a copy&mdash;it relocates the original file to a new location or name.</span>
                             </span>, and 
                             <span class="tooltip-container tooltip-right">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rm">rm</button>
-                                <span class="tooltip-content" id="tooltip-rm" role="tooltip">The rm command removes files and directories. Use with cautionâ€”deleted files cannot be easily recovered. The -r flag removes directories recursively.</span>
+                                <span class="tooltip-content" id="tooltip-rm" role="tooltip">The rm command removes files and directories. Use with caution&mdash;deleted files cannot be easily recovered. The -r flag removes directories recursively.</span>
                             </span>
                             to manage your Linux filesystem.
                         </p>
@@ -1724,7 +1724,7 @@
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-nano">Nano</button>
                                 <span class="tooltip-content" id="tooltip-nano" role="tooltip">Nano is a simple, user-friendly text editor with on-screen command hints. It's ideal for beginners and quick edits, using familiar keyboard shortcuts like Ctrl+O to save.</span>
                             </span>
-                            â€”essential skills for any Linux administrator.
+                            &mdash;essential skills for any Linux administrator.
                         </p>
                         <ul class="card-topics">
                             <li>Vim modes and basic commands</li>
@@ -2359,7 +2359,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">11 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">8 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -2745,203 +2745,35 @@
                     </div>
                 </a>
 
-                <!-- RH134 Chapter 8 Card -->
-                <a href="rh134_chapter8_transferring_files.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch8-title">
+                <a href="rh134_chapter14_network_security.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch14-title">
                     <div class="card-header">
                         <div class="card-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5zm-1 4v4h2V9h-2zm0 6v2h2v-2h-2z"/>
                             </svg>
                         </div>
-                        <span class="card-number">RH134 &mdash; Chapter 8</span>
-                        <h3 class="card-title" id="card-rh134-ch8-title">Transferring Files Securely</h3>
-                        <p class="card-subtitle">sftp, scp, and rsync for secure file transfer</p>
+                        <span class="card-number">RH134 &mdash; Chapter 14</span>
+                        <h3 class="card-title" id="card-rh134-ch14-title">Managing Network Security</h3>
+                        <p class="card-subtitle">firewalld zones, services, and SELinux port labeling</p>
                     </div>
                     <div class="card-body">
                         <p class="card-description">
-                            Move and synchronize files between systems using
+                            Secure network access to services using the
                             <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-sftp8">sftp</button>
-                                <span class="tooltip-content" id="tooltip-sftp8" role="tooltip">sftp (SSH File Transfer Protocol) provides an interactive, encrypted file transfer session. Commands like get, put, ls, and cd work similarly to FTP but all traffic is encrypted over an SSH tunnel.</span>
-                            </span>,
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-scp8">scp</button>
-                                <span class="tooltip-content" id="tooltip-scp8" role="tooltip">scp (Secure Copy Protocol) copies files between hosts over SSH. It uses the same authentication and encryption as SSH. Syntax mirrors cp but adds user@host: prefixes for remote paths.</span>
-                            </span>, and
-                            <span class="tooltip-container tooltip-right">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-rsync8">rsync</button>
-                                <span class="tooltip-content" id="tooltip-rsync8" role="tooltip">rsync synchronizes files and directories between two locations, transferring only the differences (deltas). The --delete flag removes files from the destination that no longer exist at the source. Commonly used for backups and deployment.</span>
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-firewalld14">firewalld</button>
+                                <span class="tooltip-content" id="tooltip-firewalld14" role="tooltip">A dynamic firewall manager that organizes rules into named zones and acts as a front end to the nftables framework. Managed with the firewall-cmd command-line tool or the web console.</span>
                             </span>
-                            to efficiently back up and deploy content across RHEL systems.
+                            service and enforce port restrictions with
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-semanage14">SELinux port labeling</button>
+                                <span class="tooltip-content" id="tooltip-semanage14" role="tooltip">SELinux assigns context labels to network ports. The semanage port command adds, modifies, or removes these labels, controlling which services can bind to which ports.</span>
+                            </span>
+                            using the <code>semanage port</code> command.
                         </p>
                         <ul class="card-topics">
-                            <li>Interactive file transfers with sftp</li>
-                            <li>Non-interactive copying with scp</li>
-                            <li>Efficient synchronization with rsync</li>
-                        </ul>
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-meta">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                            </svg>
-                            2-3 Hours
-                        </span>
-                        <span class="card-action">
-                            Begin Chapter
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                <!-- RH134 Chapter 9 Card -->
-                <a href="rh134_chapter9_tuning.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch9-title">
-                    <div class="card-header">
-                        <div class="card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 17.93V18a1 1 0 00-2 0v1.93A8.001 8.001 0 014.07 13H6a1 1 0 000-2H4.07A8.001 8.001 0 0111 4.07V6a1 1 0 002 0V4.07A8.001 8.001 0 0119.93 11H18a1 1 0 000 2h1.93A8.001 8.001 0 0113 19.93zM12 8a4 4 0 100 8 4 4 0 000-8zm0 6a2 2 0 110-4 2 2 0 010 4z"/>
-                            </svg>
-                        </div>
-                        <span class="card-number">RH134 &mdash; Chapter 9</span>
-                        <h3 class="card-title" id="card-rh134-ch9-title">Tuning System Performance</h3>
-                        <p class="card-subtitle">TuneD profiles, nice values, and process scheduling</p>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-description">
-                            Optimize system performance using
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-tuned9">TuneD</button>
-                                <span class="tooltip-content" id="tooltip-tuned9" role="tooltip">TuneD is a daemon that monitors system activity and dynamically tunes kernel parameters using pre-built profiles. Profiles like throughput-performance, latency-performance, and virtual-guest optimize the system for specific workloads.</span>
-                            </span>
-                            tuning profiles and influence
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-nice9">nice values</button>
-                                <span class="tooltip-content" id="tooltip-nice9" role="tooltip">Nice values range from -20 (highest priority) to +19 (lowest priority). Regular users can only increase niceness (lower priority). Use nice to start a process with a specific value and renice to change it while running.</span>
-                            </span>
-                            to control
-                            <span class="tooltip-container tooltip-right">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-scheduling9">process scheduling</button>
-                                <span class="tooltip-content" id="tooltip-scheduling9" role="tooltip">The Linux kernel scheduler assigns CPU time to processes based on scheduling policy and priority. Real-time policies (SCHED_FIFO, SCHED_RR) take priority over normal processes (SCHED_OTHER), which use the Completely Fair Scheduler (CFS).</span>
-                            </span>
-                            for demanding workloads.
-                        </p>
-                        <ul class="card-topics">
-                            <li>TuneD daemon and built-in profiles</li>
-                            <li>Adjusting priority with nice and renice</li>
-                            <li>Real-time vs. normal scheduling policies</li>
-                        </ul>
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-meta">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                            </svg>
-                            2-3 Hours
-                        </span>
-                        <span class="card-action">
-                            Begin Chapter
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                <!-- RH134 Chapter 10 Card -->
-                <a href="rh134_chapter10_basic_storage.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch10-title">
-                    <div class="card-header">
-                        <div class="card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M4 6a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm0 8a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2z"/>
-                            </svg>
-                        </div>
-                        <span class="card-number">RH134 &mdash; Chapter 10</span>
-                        <h3 class="card-title" id="card-rh134-ch10-title">Managing Basic Storage</h3>
-                        <p class="card-subtitle">Partitions, file systems, fstab, and swap space</p>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-description">
-                            Provision and mount storage by creating
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-partitions10">disk partitions</button>
-                                <span class="tooltip-content" id="tooltip-partitions10" role="tooltip">Disk partitions divide a physical disk into independent sections. MBR (Master Boot Record) supports up to 4 primary partitions and disks up to 2 TB. GPT (GUID Partition Table) supports 128 partitions and disks larger than 2 TB.</span>
-                            </span>
-                            with parted, formatting with
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-xfs10">XFS</button>
-                                <span class="tooltip-content" id="tooltip-xfs10" role="tooltip">XFS is the default file system in RHEL. It is a high-performance 64-bit journaling file system that supports files up to 8 exabytes. Use mkfs.xfs to create, xfs_repair to check, and xfs_admin to tune XFS file systems.</span>
-                            </span>
-                            or ext4, and persisting mounts through
-                            <span class="tooltip-container tooltip-right">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-fstab10">/etc/fstab</button>
-                                <span class="tooltip-content" id="tooltip-fstab10" role="tooltip">/etc/fstab defines file systems to be mounted at boot. Each line specifies the device (or UUID), mount point, file system type, mount options, dump frequency, and fsck pass order. Use systemctl daemon-reload after editing fstab.</span>
-                            </span>
-                            and swap space.
-                        </p>
-                        <ul class="card-topics">
-                            <li>MBR vs. GPT partitioning with parted</li>
-                            <li>Creating XFS and ext4 file systems</li>
-                            <li>Persistent mounts via /etc/fstab and swap</li>
-                        </ul>
-                    </div>
-                    <div class="card-footer">
-                        <span class="card-meta">
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
-                            </svg>
-                            2-3 Hours
-                        </span>
-                        <span class="card-action">
-                            Begin Chapter
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
-                            </svg>
-                        </span>
-                    </div>
-                </a>
-
-                <!-- RH134 Chapter 11 Card -->
-                <a href="rh134_chapter11_lvm.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch11-title">
-                    <div class="card-header">
-                        <div class="card-icon" aria-hidden="true">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M2 20h20v-4H2v4zm2-3h2v2H4v-2zM2 4v4h20V4H2zm4 3H4V5h2v2zm-4 7h20v-4H2v4zm2-3h2v2H4v-2z"/>
-                            </svg>
-                        </div>
-                        <span class="card-number">RH134 &mdash; Chapter 11</span>
-                        <h3 class="card-title" id="card-rh134-ch11-title">Managing Storage with LVM</h3>
-                        <p class="card-subtitle">Logical volumes, volume groups, and physical volumes</p>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-description">
-                            Create flexible storage using
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-lvm11">LVM</button>
-                                <span class="tooltip-content" id="tooltip-lvm11" role="tooltip">Logical Volume Manager (LVM) adds an abstraction layer between physical disks and file systems. It enables resizing volumes online, spanning storage across multiple disks, and taking snapshots without downtime.</span>
-                            </span>
-                            by combining
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-pv11">physical volumes</button>
-                                <span class="tooltip-content" id="tooltip-pv11" role="tooltip">A physical volume (PV) is a disk or partition initialized for use by LVM with pvcreate. Use pvdisplay or pvs to inspect PVs. Multiple PVs can be pooled into a single volume group.</span>
-                            </span>
-                            into
-                            <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-vg11">volume groups</button>
-                                <span class="tooltip-content" id="tooltip-vg11" role="tooltip">A volume group (VG) is a pool of storage created from one or more physical volumes using vgcreate. Logical volumes are carved out of the VG's total space. Use vgdisplay or vgs to inspect volume groups.</span>
-                            </span>
-                            and carving out
-                            <span class="tooltip-container tooltip-right">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-lv11">logical volumes</button>
-                                <span class="tooltip-content" id="tooltip-lv11" role="tooltip">A logical volume (LV) is a flexible partition created from a volume group using lvcreate. LVs can be resized online with lvextend or lvreduce, formatted with any file system, and extended across multiple physical disks transparently.</span>
-                            </span>
-                            that can be extended online without downtime.
-                        </p>
-                        <ul class="card-topics">
-                            <li>Creating PVs, VGs, and LVs</li>
-                            <li>Extending and reducing logical volumes</li>
-                            <li>Replacing physical volumes and removing LVM storage</li>
+                            <li>firewalld zones, services, and port rules</li>
+                            <li>Runtime vs. permanent configuration</li>
+                            <li>SELinux port context labels with semanage</li>
                         </ul>
                     </div>
                     <div class="card-footer">
@@ -2997,7 +2829,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Master the Command Line</h3>
                         <p class="path-description">
-                            Chapter 2 teaches the fundamental skills you'll use throughout your careerâ€”terminal navigation, shell commands, and efficient workflows.
+                            Chapter 2 teaches the fundamental skills you'll use throughout your career&mdash;terminal navigation, shell commands, and efficient workflows.
                         </p>
                     </div>
                 </div>
@@ -3047,7 +2879,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Files Like a Pro</h3>
                         <p class="path-description">
-                            Chapter 7 builds on filesystem knowledge with hands-on file operationsâ€”copying, moving, linking, and safely deleting files from the command line.
+                            Chapter 7 builds on filesystem knowledge with hands-on file operations&mdash;copying, moving, linking, and safely deleting files from the command line.
                         </p>
                     </div>
                 </div>
@@ -3057,7 +2889,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Edit Text Files</h3>
                         <p class="path-description">
-                            Chapter 8 teaches you to use Vim and Nano text editorsâ€”essential tools for editing configuration files and scripts on any Linux system.
+                            Chapter 8 teaches you to use Vim and Nano text editors&mdash;essential tools for editing configuration files and scripts on any Linux system.
                         </p>
                     </div>
                 </div>
@@ -3067,7 +2899,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Practice with Simulators</h3>
                         <p class="path-description">
-                            Reinforce your text editing skills with the Chapter 8 Practice Labâ€”interactive Vim and Nano simulators that let you practice safely in your browser.
+                            Reinforce your text editing skills with the Chapter 8 Practice Lab&mdash;interactive Vim and Nano simulators that let you practice safely in your browser.
                         </p>
                     </div>
                 </div>
@@ -3077,7 +2909,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Master I/O Redirection</h3>
                         <p class="path-description">
-                            Chapter 9 teaches you to redirect command output, chain commands with pipes, and work with standard streamsâ€”fundamental skills for shell scripting.
+                            Chapter 9 teaches you to redirect command output, chain commands with pipes, and work with standard streams&mdash;fundamental skills for shell scripting.
                         </p>
                     </div>
                 </div>
@@ -3087,7 +2919,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Users and Groups</h3>
                         <p class="path-description">
-                            Chapter 10 covers user and group administrationâ€”creating accounts, managing permissions, and implementing security policies for multi-user systems.
+                            Chapter 10 covers user and group administration&mdash;creating accounts, managing permissions, and implementing security policies for multi-user systems.
                         </p>
                     </div>
                 </div>
@@ -3097,7 +2929,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Control File Access</h3>
                         <p class="path-description">
-                            Chapter 11 teaches Linux file permissionsâ€”understanding read, write, and execute access, using chmod and chown, and setting default permissions with umask.
+                            Chapter 11 teaches Linux file permissions&mdash;understanding read, write, and execute access, using chmod and chown, and setting default permissions with umask.
                         </p>
                     </div>
                 </div>
@@ -3107,7 +2939,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Install and Update Software</h3>
                         <p class="path-description">
-                            Chapter 12 covers RPM package managementâ€”installing, updating, and removing software using DNF, and managing software repositories on RHEL systems.
+                            Chapter 12 covers RPM package management&mdash;installing, updating, and removing software using DNF, and managing software repositories on RHEL systems.
                         </p>
                     </div>
                 </div>
@@ -3117,7 +2949,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Explore Flatpak Applications</h3>
                         <p class="path-description">
-                            Chapter 13 introduces Flatpakâ€”a modern approach to application deployment using sandboxed containers for enhanced security and cross-distribution compatibility.
+                            Chapter 13 introduces Flatpak&mdash;a modern approach to application deployment using sandboxed containers for enhanced security and cross-distribution compatibility.
                         </p>
                     </div>
                 </div>
@@ -3137,7 +2969,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Monitor and Manage Processes</h3>
                         <p class="path-description">
-                            Chapter 15 covers process managementâ€”viewing running processes, understanding system resource usage, and controlling processes with signals and priorities.
+                            Chapter 15 covers process management&mdash;viewing running processes, understanding system resource usage, and controlling processes with signals and priorities.
                         </p>
                     </div>
                 </div>
@@ -3147,7 +2979,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Control Services and Daemons</h3>
                         <p class="path-description">
-                            Chapter 16 teaches systemd service managementâ€”starting, stopping, enabling, and configuring system services using systemctl commands.
+                            Chapter 16 teaches systemd service management&mdash;starting, stopping, enabling, and configuring system services using systemctl commands.
                         </p>
                     </div>
                 </div>
@@ -3157,7 +2989,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Explore Linux Networking</h3>
                         <p class="path-description">
-                            Chapter 17 introduces networking fundamentalsâ€”TCP/IP concepts, configuring network interfaces with nmcli and ip commands, and troubleshooting connectivity.
+                            Chapter 17 introduces networking fundamentals&mdash;TCP/IP concepts, configuring network interfaces with nmcli and ip commands, and troubleshooting connectivity.
                         </p>
                     </div>
                 </div>
@@ -3167,7 +2999,7 @@
                     <div class="path-content">
                         <h3 class="path-title">Manage Network Configuration</h3>
                         <p class="path-description">
-                            Chapter 18 covers advanced networkingâ€”managing connections with nmcli, editing configuration files, and configuring hostnames and DNS resolution.
+                            Chapter 18 covers advanced networking&mdash;managing connections with nmcli, editing configuration files, and configuring hostnames and DNS resolution.
                         </p>
                     </div>
                 </div>
@@ -3264,9 +3096,9 @@
                 <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">29</div>
                     <div class="path-content">
-                        <h3 class="path-title">Transfer Files Securely</h3>
+                        <h3 class="path-title">Secure Networks with Firewalls and SELinux Port Labels</h3>
                         <p class="path-description">
-                            RH134 Chapter 8 covers secure file transfer&mdash;using sftp for interactive sessions, scp for non-interactive copies, and rsync to efficiently synchronize directories between systems.
+                            RH134 Chapter 14 covers managing network security&mdash;controlling access to services with firewalld zones and rules, and configuring SELinux port labeling with semanage to allow services to bind to non-standard ports.
                         </p>
                     </div>
                 </div>
@@ -3274,39 +3106,20 @@
                 <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" aria-hidden="true">30</div>
                     <div class="path-content">
-                        <h3 class="path-title">Tune System Performance</h3>
+                        <h3 class="path-title">Track Your Progress with the Schedule</h3>
                         <p class="path-description">
-                            RH134 Chapter 9 teaches performance tuning&mdash;selecting TuneD profiles for workload optimization, adjusting process priority with nice and renice, and understanding real-time scheduling policies.
+                            Keep the course schedule handy throughout the semester to track lab assignments, upcoming exam dates, and your progress through the full 15-week RH124 and RH134 sequence.
                         </p>
                     </div>
                 </div>
 
+                <!-- Final capstone step -->
                 <div class="path-item rh134-step" role="listitem">
-                    <div class="path-marker" aria-hidden="true">31</div>
-                    <div class="path-content">
-                        <h3 class="path-title">Manage Basic Storage</h3>
+                    <div class="path-marker" style="background:var(--rh-gold);color:#000;border-color:var(--rh-gold);font-size:1.1rem;" aria-hidden="true">&#x1F3C6;</div>
+                    <div class="path-content" style="border-left-color:var(--rh-gold);">
+                        <h3 class="path-title">Prepare for the RHCSA Certification Exam</h3>
                         <p class="path-description">
-                            RH134 Chapter 10 covers disk management&mdash;creating MBR and GPT partitions with parted, formatting with XFS and ext4, mounting file systems persistently via /etc/fstab, and managing swap space.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="path-item rh134-step" role="listitem">
-                    <div class="path-marker" aria-hidden="true">32</div>
-                    <div class="path-content">
-                        <h3 class="path-title">Manage Storage with LVM</h3>
-                        <p class="path-description">
-                            RH134 Chapter 11 covers the Logical Volume Manager&mdash;creating physical volumes, volume groups, and logical volumes, extending storage online, and safely removing LVM components.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="path-item" role="listitem">
-                    <div class="path-marker" aria-hidden="true">33</div>
-                    <div class="path-content">
-                        <h3 class="path-title">Reference the Schedule</h3>
-                        <p class="path-description">
-                            Keep the course schedule handy to track lab assignments, exam dates, and your progress through the full 15-week semester covering both RH124 and RH134.
+                            After completing both courses, use the RHCSA Exam Simulator to prepare for the EX200 certification. Practice with 40 performance-based tasks across all 7 exam domains&mdash;in Practice mode with full guidance, or Exam mode with a live 3-hour timer and no hints, exactly like the real exam.
                         </p>
                     </div>
                 </div>
@@ -3369,6 +3182,7 @@
                 <span class="footer-text">RH124/RH134 Course Portal | Red Hat System Administration I and II</span>
             </div>
             <nav class="footer-links" aria-label="Footer navigation">
+                <a href="rhcsa_exam_simulator.html" target="_blank" rel="noopener noreferrer">&#x1F3C6; RHCSA Simulator</a>
                 <a href="redhat-schedule.html" target="_blank" rel="noopener noreferrer">Schedule</a>
                 <a href="rh124_course_introduction.html" target="_blank" rel="noopener noreferrer">Introduction</a>
                 <a href="chapter1_intro_to_rhel.html" target="_blank" rel="noopener noreferrer">Chapter 1</a>
@@ -3398,10 +3212,7 @@
                 <a href="rh134_chapter5_logs.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 5</a>
                 <a href="rh134_chapter6_selinux.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 6</a>
                 <a href="rh134_chapter7_archiving.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 7</a>
-                <a href="rh134_chapter8_transferring_files.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 8</a>
-                <a href="rh134_chapter9_tuning.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 9</a>
-                <a href="rh134_chapter10_basic_storage.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 10</a>
-                <a href="rh134_chapter11_lvm.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 11</a>
+                <a href="rh134_chapter14_network_security.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 14</a>
             </nav>
         </div>
     </footer>

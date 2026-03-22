@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 13: Recovering Superuser Access | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue-dark); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-output { color: #E2E8F0; opacity: 0.85; }
+        .code-highlight { color: #F6E05E; }
+        .code-error { color: #FC8181; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; border-bottom: 2px solid var(--rh-gray-light); gap: 4px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 20px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; background: var(--rh-gray-lighter); border: 1px solid var(--rh-gray-light); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; color: var(--rh-gray); transition: all var(--transition-fast); }
+        .tab-btn[aria-selected="true"] { background: var(--rh-white); color: var(--rh-blue-dark); font-weight: 600; border-color: var(--rh-gray-light); border-bottom-color: var(--rh-white); margin-bottom: -2px; }
+        .tab-btn:hover:not([aria-selected="true"]) { background: var(--rh-white); color: var(--rh-black); }
+        .tab-panel { display: none; padding: 20px; border: 1px solid var(--rh-gray-light); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 1rem 0; overflow: hidden; }
+        .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; color: var(--rh-gray-dark); border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E4E4E4; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expandable-icon { font-size: 1.2rem; transition: transform var(--transition-med); flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* RECOVERY FLOW DIAGRAM */
+        .recovery-flow { display: flex; flex-direction: column; gap: 0; margin: 1.5rem 0; }
+        .recovery-stage { display: flex; align-items: stretch; gap: 0; }
+        .recovery-stage-box { background: var(--rh-white); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 16px 20px; flex: 1; }
+        .recovery-stage-box h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--rh-blue-dark); margin-bottom: 6px; }
+        .recovery-stage-box p { font-size: 0.88rem; color: var(--rh-gray-dark); margin: 0; }
+        .recovery-stage-num { background: var(--rh-blue-dark); color: var(--rh-white); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; flex-shrink: 0; margin-right: 16px; margin-top: 4px; }
+        .recovery-stage-inner { display: flex; align-items: flex-start; }
+        .recovery-arrow { text-align: center; color: var(--rh-blue); font-size: 1.5rem; line-height: 1; padding: 4px 0; }
+        .recovery-stage-box.selinux { border-color: var(--rh-orange); }
+        .recovery-stage-box.selinux .recovery-stage-num { background: var(--rh-orange); }
+        .recovery-stage-box.selinux h4 { color: #CC4400; }
+        .recovery-stage-box.grub { border-color: var(--rh-purple); }
+        .recovery-stage-box.grub .recovery-stage-num { background: var(--rh-purple); }
+        .recovery-stage-box.grub h4 { color: var(--rh-purple); }
+        .recovery-stage-box.chroot { border-color: var(--rh-teal); }
+        .recovery-stage-box.chroot .recovery-stage-num { background: var(--rh-teal); }
+        .recovery-stage-box.chroot h4 { color: var(--rh-teal-dark); }
+        .recovery-stage-box.passwd { border-color: var(--rh-green); }
+        .recovery-stage-box.passwd .recovery-stage-num { background: var(--rh-green); }
+        .recovery-stage-box.passwd h4 { color: var(--rh-green-dark); }
+        .recovery-stage-box.reboot { border-color: var(--rh-blue); }
+        .recovery-stage-box.reboot .recovery-stage-num { background: var(--rh-blue); }
+        .recovery-stage-box.reboot h4 { color: var(--rh-blue-dark); }
+
+        /* METHOD COMPARISON CARDS */
+        .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 1.5rem 0; }
+        .method-card { border-radius: var(--radius-md); padding: 20px; border: 2px solid; }
+        .method-card.media { border-color: var(--rh-green); background: #F0FFF0; }
+        .method-card.nomedia { border-color: var(--rh-orange); background: #FFF8F0; }
+        .method-card-icon { font-size: 2rem; margin-bottom: 8px; }
+        .method-card-name { font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+        .method-card.media .method-card-name { color: var(--rh-green-dark); }
+        .method-card.nomedia .method-card-name { color: #CC4400; }
+        .method-card ul { margin: 0; padding-left: 1.2rem; font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray-dark); }
+        .method-card li { margin-bottom: 4px; }
+
+        /* SIMULATOR */
+        .simulator { background: #0D1117; border-radius: var(--radius-md); overflow: hidden; margin: 1.5rem 0; box-shadow: var(--shadow-lg); }
+        .sim-header { background: #161B22; padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #30363D; }
+        .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .sim-dot.red { background: #FF5F57; }
+        .sim-dot.yellow { background: #FFBD2E; }
+        .sim-dot.green { background: #28C840; }
+        .sim-title { font-family: var(--font-display); font-size: 0.78rem; color: #8B949E; margin-left: 8px; }
+        .sim-context { padding: 8px 16px; background: #1C2128; border-bottom: 1px solid #30363D; font-family: var(--font-mono); font-size: 0.78rem; color: #E3B341; }
+        .sim-output { padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7; color: #C9D1D9; min-height: 80px; max-height: 260px; overflow-y: auto; }
+        .sim-output .prompt { color: #3FB950; }
+        .sim-output .root-prompt { color: #F85149; }
+        .sim-output .chroot-prompt { color: #E3B341; }
+        .sim-output .result { color: #C9D1D9; }
+        .sim-output .error { color: #F85149; }
+        .sim-output .info { color: #58A6FF; }
+        .sim-output .success { color: #3FB950; }
+        .sim-input-row { display: flex; align-items: center; padding: 10px 16px; background: #161B22; border-top: 1px solid #30363D; gap: 8px; }
+        .sim-prompt-label { font-family: var(--font-mono); font-size: 0.85rem; color: #F85149; flex-shrink: 0; }
+        .sim-input { flex: 1; background: transparent; border: none; font-family: var(--font-mono); font-size: 0.85rem; color: #C9D1D9; outline: none; }
+        .sim-run-btn { background: var(--rh-blue-dark); color: var(--rh-white); border: none; padding: 6px 16px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); }
+        .sim-run-btn:hover { background: var(--rh-blue-dark); filter: brightness(0.8); }
+        .sim-reset-btn { background: #21262D; color: #C9D1D9; border: 1px solid #30363D; padding: 6px 12px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.82rem; cursor: pointer; transition: all var(--transition-fast); }
+        .sim-reset-btn:hover { background: #30363D; }
+        .sim-commands { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; background: #0D1117; border-top: 1px solid #30363D; }
+        .sim-cmd-btn { background: #21262D; color: #C9D1D9; border: 1px solid #30363D; padding: 4px 10px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.78rem; cursor: pointer; transition: all var(--transition-fast); }
+        .sim-cmd-btn:hover { background: #30363D; color: var(--rh-white); border-color: #F85149; }
+
+        /* QUIZ */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 20px; border: 2px solid transparent; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF5F5; }
+        .quiz-question p { font-weight: 600; margin-bottom: 12px; font-family: var(--font-display); }
+        .quiz-option { display: flex; align-items: flex-start; gap: 10px; padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; transition: background var(--transition-fast); }
+        .quiz-option:hover { background: #E8E8E8; }
+        .quiz-option input { margin-top: 3px; flex-shrink: 0; accent-color: var(--rh-blue-dark); }
+        .quiz-option label { cursor: pointer; font-family: var(--font-display); font-size: 0.92rem; }
+        .quiz-feedback { margin-top: 10px; padding: 10px 14px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.88rem; font-weight: 500; display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct-msg { background: #D4EDDA; color: #155724; border-left: 4px solid var(--rh-green); }
+        .quiz-feedback.incorrect-msg { background: #F8D7DA; color: #721C24; border-left: 4px solid var(--rh-red); }
+        .quiz-score { text-align: center; padding: 16px; background: var(--rh-blue-dark); color: var(--rh-white); border-radius: var(--radius-md); font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; display: none; }
+        .quiz-score.show { display: block; }
+        .quiz-btn { background: var(--rh-blue-dark); color: var(--rh-white); border: none; padding: 12px 28px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background var(--transition-fast); margin-right: 10px; }
+        .quiz-btn:hover { background: var(--rh-blue-dark); filter: brightness(0.8); }
+        .quiz-btn.reset { background: var(--rh-gray); }
+        .quiz-btn.reset:hover { background: var(--rh-gray-dark); }
+
+        /* COMMAND REFERENCE TABLE */
+        .cmd-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+        .cmd-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; text-align: left; font-family: var(--font-display); font-weight: 600; }
+        .cmd-table td { padding: 10px 14px; border-bottom: 1px solid var(--rh-gray-light); vertical-align: top; }
+        .cmd-table tr:nth-child(even) { background: var(--rh-gray-lighter); }
+        .cmd-table tr:hover { background: #EBF4FF; }
+        .cmd-table code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--rh-blue-dark); background: var(--rh-gray-lighter); padding: 2px 6px; border-radius: 3px; }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 30px 0 10px; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; text-decoration: none; transition: all var(--transition-fast); }
+        .nav-chapter-btn.prev { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 2px solid var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-light); }
+        .nav-chapter-btn.home { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .nav-chapter-btn.home:hover { background: #002244; }
+        .nav-chapter-btn.next { background: var(--rh-gray-dark); color: var(--rh-white); }
+        .nav-chapter-btn.next:hover { background: var(--rh-black); }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; font-family: var(--font-display); font-size: 0.82rem; line-height: 1.7; }
+        footer a { color: var(--rh-blue-light); }
+
+        /* CHECKLIST */
+        .checklist { list-style: none; margin: 1rem 0; padding: 0; }
+        .checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--rh-gray-lighter); font-family: var(--font-display); font-size: 0.92rem; }
+        .checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+        /* STEP FLOW */
+        .step-flow { counter-reset: stepnum; margin: 1.5rem 0; }
+        .step-item { display: flex; gap: 16px; margin-bottom: 1rem; align-items: flex-start; }
+        .step-num { counter-increment: stepnum; background: var(--rh-blue-dark); color: var(--rh-white); width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+        .step-content { flex: 1; }
+        .step-content h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; color: var(--rh-blue-dark); margin-bottom: 4px; }
+        .step-content p { font-size: 0.9rem; margin: 0 0 0.5rem; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-meta { gap: 12px; }
+            .chapter-title { font-size: 1.6rem; }
+            main { padding: 12px; }
+            .section-body { padding: 20px; }
+            .method-grid { grid-template-columns: 1fr; }
+            .chapter-nav { flex-direction: column; align-items: center; }
+            .cmd-table { font-size: 0.82rem; }
+        }
+        @media (max-width: 480px) {
+            .tab-btn { padding: 8px 12px; font-size: 0.8rem; }
+        }
+
+        /* PRINT */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .sim-commands, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+            .expandable-content { display: block !important; }
+        }
+    </style>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F511;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 13: Recovering Superuser Access</h1>
+        <p class="chapter-subtitle">Regain administrative access when the root password is lost or locked</p>
+        <div class="header-meta">
+            <span>&#x1F4DA; Red Hat System Administration II</span>
+            <span>&#x23F1; 2&ndash;3 Hours</span>
+            <span>&#x1F3AF; RHCSA Exam Topic</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Reading progress"></div>
+    </div>
+    <p class="progress-text" id="progress-text">Progress: 0%</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives" class="nav-btn" aria-label="Section 1: Learning Objectives">1. Objectives</a></li>
+        <li><a href="#section-overview" class="nav-btn" aria-label="Section 2: Overview">2. Overview</a></li>
+        <li><a href="#section-rescue-media" class="nav-btn" aria-label="Section 3: With Rescue Media">3. Rescue Media</a></li>
+        <li><a href="#section-no-media" class="nav-btn" aria-label="Section 4: Without Rescue Media">4. No Media</a></li>
+        <li><a href="#section-selinux" class="nav-btn" aria-label="Section 5: SELinux Relabeling">5. SELinux</a></li>
+        <li><a href="#section-guided" class="nav-btn" aria-label="Section 6: Guided Exercise">6. Guided Exercise</a></li>
+        <li><a href="#section-quiz" class="nav-btn" aria-label="Section 7: Knowledge Check">7. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" aria-label="Section 8: Hands-On Lab">8. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" aria-label="Section 9: Summary">9. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- ============================================================
+     SECTION 1: LEARNING OBJECTIVES
+     ============================================================ -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Explain why root password recovery is a critical system administration skill and when it is necessary.</li>
+            <li>Distinguish between the two methods for recovering the root password: with rescue media and without rescue media.</li>
+            <li>Boot a RHEL 10 system into rescue mode using a boot ISO image to change the root password.</li>
+            <li>Use the <code>chroot</code> command to change the root directory context within the rescue environment.</li>
+            <li>Recover the root password without rescue media by passing the <code>init=/bin/bash</code> kernel argument through GRUB2.</li>
+            <li>Remount the root file system in read/write mode using <code>mount -o remount,rw /</code>.</li>
+            <li>Create the <code>/.autorelabel</code> file to trigger a full SELinux relabeling on next boot after recovery.</li>
+            <li>Understand why SELinux relabeling is required after changing the root password in a non-standard boot environment.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2: OVERVIEW
+     ============================================================ -->
+<section id="section-overview" class="content-section" aria-labelledby="overview-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="overview-heading">Overview: When Superuser Access Is Lost</h2>
+    </div>
+    <div class="section-body">
+        <p>Every system administrator will encounter a scenario at some point where access to the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-root-account">root account</span> is unavailable. This might happen because the password was forgotten, accidentally changed, or the account was locked during security hardening. Regardless of the cause, a locked-out root account on a production system is a critical situation that requires immediate resolution.
+        <span class="tooltip-content" id="tt-root-account">The root account is the superuser account on Linux systems with UID 0. It has unrestricted access to all system resources, files, and commands.</span>
+        </p>
+        <p>On RHEL 10, the root password is stored as a salted hash in the <code>/etc/shadow</code> file. Without knowing the plaintext password, there is no way to reverse the hash — however, there are legitimate methods to <em>replace</em> the root password by booting the system into a special recovery environment where you have access to the file system without normal authentication.</p>
+
+        <h3>Recovery Methods at a Glance</h3>
+        <p>Red Hat Enterprise Linux 10 supports two approaches to password recovery. Which one you use depends on whether you have installation media available:</p>
+
+        <div class="method-grid">
+            <div class="method-card media">
+                <div class="method-card-icon">&#x1F4BF;</div>
+                <div class="method-card-name">With Rescue Media (Recommended)</div>
+                <ul>
+                    <li>Uses a RHEL 10 Boot ISO</li>
+                    <li>Boots a minimal RHEL environment</li>
+                    <li>Mounts system under <code>/mnt/sysroot</code></li>
+                    <li>Safer and more reliable</li>
+                    <li>Works even if GRUB is damaged</li>
+                    <li>Requires physical or virtual media access</li>
+                </ul>
+            </div>
+            <div class="method-card nomedia">
+                <div class="method-card-icon">&#x26A0;&#xFE0F;</div>
+                <div class="method-card-name">Without Rescue Media (Higher Risk)</div>
+                <ul>
+                    <li>Modifies the GRUB2 boot entry</li>
+                    <li>Passes <code>init=/bin/bash</code> to kernel</li>
+                    <li>Boots to a minimal bash shell</li>
+                    <li>No media required</li>
+                    <li>Requires manual remount of root filesystem</li>
+                    <li>Must be performed carefully — risk of data corruption</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>Both methods require <strong>physical or console access</strong> to the system. Remote recovery over SSH is not possible when the root password is unknown. This is by design — it is a security feature that prevents remote attackers from resetting your root password.</p>
+        </div>
+
+        <h3>Security Implications</h3>
+        <p>The ability to reset a root password by booting into rescue mode or modifying kernel arguments is a fundamental characteristic of Linux systems that have physical access available. This is why <strong>physical security</strong> of servers is so critical. Anyone with physical access to a server running RHEL (or most Linux distributions) can reset the root password unless additional protections are in place:</p>
+        <ul>
+            <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grub-password">GRUB2 password protection</span></strong> — Requiring a password to edit GRUB2 entries prevents unauthorized modification of kernel arguments.
+            <span class="tooltip-content" id="tt-grub-password">GRUB2 can be configured to require a username and password before allowing users to edit boot entries or access the GRUB2 command line, adding a layer of security against local attacks.</span>
+            </li>
+            <li><strong>Full disk encryption (LUKS)</strong> — Encrypting the disk prevents access to the file system without the decryption key.</li>
+            <li><strong>BIOS/UEFI passwords</strong> — Preventing changes to boot order stops unauthorized booting from external media.</li>
+        </ul>
+        <p>For this chapter, we focus on the recovery procedures themselves — skills you will need for the RHCSA exam and for real-world system administration.</p>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3: WITH RESCUE MEDIA
+     ============================================================ -->
+<section id="section-rescue-media" class="content-section" aria-labelledby="rescue-media-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="rescue-media-heading">Resetting the Root Password with Rescue Media</h2>
+    </div>
+    <div class="section-body">
+        <p>The recommended approach for resetting a lost root password is to use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rescue-media">rescue media</span>. This method boots the system from an external RHEL 10 installation image rather than from the hard drive, giving you access to a special recovery environment.
+        <span class="tooltip-content" id="tt-rescue-media">Rescue media is an installation ISO image (such as the RHEL 10 Boot ISO) used to boot a system into a minimal recovery environment when the installed system cannot boot normally or when administrative access is unavailable.</span>
+        </p>
+
+        <h3>What You Need</h3>
+        <p>You need the <strong>Red Hat Enterprise Linux 10.0 Boot ISO</strong> image. This is the same image used for network installations and is available from the Red Hat Customer Portal. For the rescue operation to work correctly, the ISO version must match the version of RHEL installed on the system (do not use a RHEL 9 ISO to rescue a RHEL 10 system).</p>
+        <ul>
+            <li><strong>Physical machine:</strong> Boot from a CD-ROM or USB flash drive containing the ISO</li>
+            <li><strong>Virtual machine:</strong> Attach the ISO file as a virtual CD-ROM/DVD device</li>
+        </ul>
+
+        <h3>Step-by-Step: Rescue Media Method</h3>
+        <p>Follow these steps carefully in sequence:</p>
+
+        <div class="recovery-flow">
+            <div class="recovery-stage">
+                <div class="recovery-stage-box grub">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">1</div>
+                        <div>
+                            <h4>Reboot &amp; Select Boot Media</h4>
+                            <p>Reboot the system and configure it to boot from the rescue ISO. During boot, select the ISO image as the boot device. The exact method varies by hardware/hypervisor.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box grub">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">2</div>
+                        <div>
+                            <h4>Navigate to Troubleshooting in GRUB2</h4>
+                            <p>From the GRUB2 boot menu, use arrow keys to select <strong>Troubleshooting &rarr; Rescue a Red Hat Enterprise Linux system</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">3</div>
+                        <div>
+                            <h4>Select "Continue" (Option 1)</h4>
+                            <p>In the rescue environment menu, press <kbd>1</kbd> and Enter to mount the system normally in read/write mode under <code>/mnt/sysroot</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box chroot">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">4</div>
+                        <div>
+                            <h4>Change Root Directory (chroot)</h4>
+                            <p>Run <code>chroot /mnt/sysroot</code> to make the installed system's root directory the active root. This makes all installed commands and configuration files accessible.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box passwd">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">5</div>
+                        <div>
+                            <h4>Reset the Root Password</h4>
+                            <p>Run <code>passwd root</code> and enter the new password twice when prompted. The password hash will be updated in <code>/etc/shadow</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box selinux">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">6</div>
+                        <div>
+                            <h4>Trigger SELinux Relabeling</h4>
+                            <p>Run <code>touch /.autorelabel</code> to create a flag file that forces SELinux to relabel all files on the next boot, including the modified <code>/etc/shadow</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-arrow" aria-hidden="true">&#x2193;</div>
+            <div class="recovery-stage">
+                <div class="recovery-stage-box reboot">
+                    <div class="recovery-stage-inner">
+                        <div class="recovery-stage-num">7</div>
+                        <div>
+                            <h4>Exit Twice to Reboot</h4>
+                            <p>Type <code>exit</code> once to leave the chroot environment, then type <code>exit</code> again to exit rescue mode. The system reboots, performs SELinux relabeling, and reboots once more.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>GRUB2 Menu Navigation</h3>
+        <p>When the system boots from the ISO, you will see the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grub2">GRUB2</span> boot menu. Use the arrow keys to navigate and Enter to select.
+        <span class="tooltip-content" id="tt-grub2">GRUB2 (GRand Unified Bootloader version 2) is the default boot loader for RHEL 10. It presents a menu of bootable entries and passes kernel parameters to the Linux kernel at boot time.</span>
+        </p>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important</span></div>
+            <p>At the rescue environment menu, you will see four options: (1) Continue, (2) Read-only mount, (3) Skip to shell, (4) Quit/Reboot. You <strong>must</strong> choose option 1 (Continue) so the file system is mounted read/write. Option 2 mounts read-only, which will prevent password changes.</p>
+        </div>
+
+        <h3>Command Sequence</h3>
+        <div class="code-block" role="region" aria-label="Rescue media password reset command sequence">
+            <div class="code-title">Rescue Environment &mdash; Complete Command Sequence</div>
+            <code><span class="code-comment"># Step 4: Change root directory to the installed system</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">chroot /mnt/sysroot</span>
+
+<span class="code-comment"># Step 5: Set a new root password</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">passwd root</span>
+<span class="code-output">New password: <em>your_new_password</em>
+Retype new password: <em>your_new_password</em>
+passwd: password updated successfully</span>
+
+<span class="code-comment"># Step 6: Create autorelabel flag for SELinux</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">touch /.autorelabel</span>
+
+<span class="code-comment"># Step 7a: Exit the chroot environment</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">exit</span>
+<span class="code-output">exit</span>
+
+<span class="code-comment"># Step 7b: Exit rescue mode (triggers reboot)</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">exit</span>
+<span class="code-comment"># System reboots, performs full SELinux relabeling, then reboots again</span></code>
+        </div>
+
+        <h3>Understanding the chroot Command</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-chroot"><code>chroot</code></span> command is critical to the rescue media process. Without it, running <code>passwd</code> would modify the password for the rescue environment's temporary system — not your installed system's <code>/etc/shadow</code>.
+        <span class="tooltip-content" id="tt-chroot">chroot (change root) changes the apparent root directory for the current process and its children. Commands run after chroot see the specified directory as /, making them operate on the installed system rather than the rescue environment.</span>
+        </p>
+        <p>When the rescue environment mounts your installed system under <code>/mnt/sysroot</code>, running <code>chroot /mnt/sysroot</code> makes that directory appear as <code>/</code> to all subsequent commands. So when you run <code>passwd root</code>, it reads and writes <code>/etc/shadow</code> — which in the chrooted context is actually <code>/mnt/sysroot/etc/shadow</code> on the real file system.</p>
+
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>After running <code>chroot /mnt/sysroot</code>, your shell prompt changes from <code>bash-5.2#</code> to a standard root prompt, confirming you are now operating inside the installed system's context.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4: WITHOUT RESCUE MEDIA
+     ============================================================ -->
+<section id="section-no-media" class="content-section" aria-labelledby="no-media-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="no-media-heading">Resetting the Root Password Without Rescue Media</h2>
+    </div>
+    <div class="section-body">
+        <p>When rescue media is not available, you can reset the root password by intercepting the normal boot process and passing a special argument to the kernel through <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grub2-editor">GRUB2's boot editor</span>. This method instructs the kernel to run <code>/bin/bash</code> as the first process instead of <code>systemd</code>, dropping you into a root shell before any authentication.
+        <span class="tooltip-content" id="tt-grub2-editor">GRUB2 allows you to edit boot entries before booting by pressing 'e' at the boot menu. Changes made here are temporary and apply only to the current boot.</span>
+        </p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+            <p>This method is riskier than using rescue media. If the system loses power or is interrupted during this process — particularly before you properly remount the filesystem read-only before rebooting — you risk file system corruption. Proceed carefully and do not skip any steps.</p>
+        </div>
+
+        <h3>How This Method Works</h3>
+        <p>Normally, the Linux kernel launches <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-init">init</span> (which on RHEL 10 is <code>systemd</code>) as the first process (PID 1). By passing <code>init=/bin/bash</code> as a kernel parameter, you replace <code>systemd</code> with bash, resulting in a root shell with no password authentication.
+        <span class="tooltip-content" id="tt-init">init is the first process started by the kernel after boot (PID 1). On RHEL 10, systemd serves as init, managing all services and system state. The init= kernel parameter can override which program is launched as PID 1.</span>
+        </p>
+        <p>However, at this stage the root file system (<code>/</code>) is mounted <strong>read-only</strong>, which prevents any changes from being saved. Before you can reset the password, you must remount it as read-write.</p>
+
+        <h3>Step-by-Step: No-Media Method</h3>
+
+        <div class="tabs-container" role="region" aria-label="No-media recovery steps">
+            <div class="tab-list" role="tablist" aria-label="Recovery phases">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-grub-edit" id="btn-grub-edit">Phase 1: Edit GRUB2</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-passwd-reset" id="btn-passwd-reset">Phase 2: Reset Password</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-reboot" id="btn-reboot">Phase 3: Reboot</button>
+            </div>
+            <div id="tab-grub-edit" class="tab-panel active" role="tabpanel" aria-labelledby="btn-grub-edit">
+                <h4>Editing the GRUB2 Boot Entry</h4>
+                <ol>
+                    <li><strong>Reboot the system.</strong></li>
+                    <li>When the GRUB2 countdown begins, press <kbd>Esc</kbd> to interrupt it and display the menu.</li>
+                    <li>Use the arrow keys to highlight the kernel entry you want to boot.</li>
+                    <li>Press <kbd>e</kbd> to edit the selected entry.</li>
+                    <li>Use the arrow keys to find the line beginning with <code>linux</code> — this is the kernel command line.</li>
+                    <li>Remove any <code>console=</code> parameters from the line (these redirect output to serial console and can interfere).</li>
+                    <li>Press <kbd>Ctrl+E</kbd> (or <kbd>End</kbd>) to move to the end of the <code>linux</code> line.</li>
+                    <li>Add a space, then type: <code>init=/bin/bash</code></li>
+                    <li>Press <kbd>Ctrl+X</kbd> to boot with these temporary changes.</li>
+                </ol>
+
+                <div class="code-block" role="region" aria-label="GRUB2 kernel line modification">
+                    <div class="code-title">GRUB2 Kernel Line &mdash; Before and After</div>
+                    <code><span class="code-comment"># BEFORE: Original kernel line (simplified)</span>
+<span class="code-output">linux /vmlinuz-5.14.0-503.el10.x86_64 root=/dev/mapper/rhel-root ro crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap console=tty0 console=ttyS0,115200n8</span>
+
+<span class="code-comment"># AFTER: Remove console= args, add init=/bin/bash at end</span>
+<span class="code-highlight">linux /vmlinuz-5.14.0-503.el10.x86_64 root=/dev/mapper/rhel-root ro crashkernel=1G-4G:192M,4G-64G:256M,64G-:512M resume=/dev/mapper/rhel-swap rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap init=/bin/bash</span></code>
+                </div>
+            </div>
+            <div id="tab-passwd-reset" class="tab-panel" role="tabpanel" aria-labelledby="btn-passwd-reset">
+                <h4>Resetting the Password in the Bash Shell</h4>
+                <p>After booting with the modified kernel line, you will land at a minimal bash shell. The root file system is mounted read-only at this point.</p>
+                <div class="step-flow">
+                    <div class="step-item">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Wait for boot to complete</h4>
+                            <p>The system will pause briefly at the bash prompt. You are now root with no password required.</p>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Remount root filesystem read/write</h4>
+                            <p>The root filesystem is currently read-only. Remount it to allow changes:</p>
+                            <div class="code-block" role="region" aria-label="Remount root filesystem">
+                                <div class="code-title">Remount /</div>
+                                <code><span class="code-prompt">bash-5.2#</span> <span class="code-command">mount -o remount,rw /</span></code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Set a new root password</h4>
+                            <div class="code-block" role="region" aria-label="Set root password">
+                                <div class="code-title">Reset Root Password</div>
+                                <code><span class="code-prompt">bash-5.2#</span> <span class="code-command">passwd</span>
+<span class="code-output">New password: <em>your_new_password</em>
+Retype new password: <em>your_new_password</em>
+passwd: password updated successfully</span></code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Create the SELinux autorelabel file</h4>
+                            <div class="code-block" role="region" aria-label="Create autorelabel file">
+                                <div class="code-title">Flag SELinux Relabeling</div>
+                                <code><span class="code-prompt">bash-5.2#</span> <span class="code-command">touch /.autorelabel</span></code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-reboot" class="tab-panel" role="tabpanel" aria-labelledby="btn-reboot">
+                <h4>Rebooting After the No-Media Method</h4>
+                <p>Unlike the rescue media method (where you type <code>exit</code> twice), the no-media method requires a specific command to reboot because there is no init system running:</p>
+                <div class="code-block" role="region" aria-label="Reboot command for no-media method">
+                    <div class="code-title">Reboot the System</div>
+                    <code><span class="code-prompt">bash-5.2#</span> <span class="code-command">exec /sbin/init</span>
+<span class="code-comment"># This launches systemd as PID 1 and continues the normal boot process</span>
+<span class="code-comment"># The system performs SELinux relabeling and then reboots again automatically</span></code>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+                    <p>Do <strong>not</strong> press the power button or use <code>reboot</code> directly after setting the password. Using <code>exec /sbin/init</code> allows a clean handoff to systemd, which then handles the SELinux relabeling and shutdown properly. A hard power-off at this point risks file system corruption.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Comparing Both Methods</h3>
+        <table class="cmd-table" aria-label="Comparison of recovery methods">
+            <thead>
+                <tr>
+                    <th>Aspect</th>
+                    <th>With Rescue Media</th>
+                    <th>Without Rescue Media</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Media required</td>
+                    <td>RHEL 10 Boot ISO</td>
+                    <td>None</td>
+                </tr>
+                <tr>
+                    <td>Boot environment</td>
+                    <td>External rescue environment</td>
+                    <td>Minimal bash shell (no systemd)</td>
+                </tr>
+                <tr>
+                    <td>Root directory</td>
+                    <td><code>/mnt/sysroot</code> (requires chroot)</td>
+                    <td><code>/</code> (direct, after remount)</td>
+                </tr>
+                <tr>
+                    <td>Filesystem mount</td>
+                    <td>Automatically mounted r/w by rescue tool</td>
+                    <td>Must manually remount: <code>mount -o remount,rw /</code></td>
+                </tr>
+                <tr>
+                    <td>Reboot command</td>
+                    <td><code>exit</code> twice</td>
+                    <td><code>exec /sbin/init</code></td>
+                </tr>
+                <tr>
+                    <td>Risk level</td>
+                    <td>Low</td>
+                    <td>Medium (file system risk if interrupted)</td>
+                </tr>
+                <tr>
+                    <td>SELinux relabeling</td>
+                    <td>Required: <code>touch /.autorelabel</code></td>
+                    <td>Required: <code>touch /.autorelabel</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5: SELINUX RELABELING
+     ============================================================ -->
+<section id="section-selinux" class="content-section" aria-labelledby="selinux-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="selinux-heading">SELinux Relabeling After Password Recovery</h2>
+    </div>
+    <div class="section-body">
+        <p>One of the most critical steps in both recovery methods — and one that is frequently overlooked — is triggering an <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux-relabel">SELinux relabeling</span> of the file system. Skipping this step can prevent the system from booting normally or cause authentication to fail even after the password is correctly changed.
+        <span class="tooltip-content" id="tt-selinux-relabel">SELinux relabeling is the process of scanning all files on the system and assigning correct SELinux security context labels. It is required when files are created or modified outside the normal SELinux-protected environment.</span>
+        </p>
+
+        <h3>Why Relabeling Is Required</h3>
+        <p>Both recovery methods operate in environments where <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux">SELinux</span> is not fully active. When SELinux is not running, any file that is created or modified does not receive the proper SELinux security context label.
+        <span class="tooltip-content" id="tt-selinux">SELinux (Security-Enhanced Linux) is a Linux kernel security module that provides mandatory access control. It labels every file and process with a security context and enforces access rules based on those contexts.</span>
+        </p>
+        <p>The <code>passwd</code> command works by creating a new temporary file, writing the updated password hash into it, and then replacing the original file with the new one. This replacement creates a new file — and in a non-SELinux environment, that new file has <strong>no SELinux context label</strong>. When the system boots normally and SELinux is enforcing, it will deny access to <code>/etc/shadow</code> because it lacks the expected <code>shadow_t</code> context. This means login will fail even though the password was correctly set.</p>
+
+        <h3>The .autorelabel Mechanism</h3>
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autorelabel"><code>/.autorelabel</code></span> file is a simple flag recognized by the SELinux subsystem during early boot.
+        <span class="tooltip-content" id="tt-autorelabel">The /.autorelabel file is an empty flag file in the root directory. When SELinux detects this file at boot, it performs a complete file system relabeling (applying correct SELinux contexts to all files) before starting normal services. The file is deleted after relabeling completes.</span>
+        </p>
+
+        <div class="code-block" role="region" aria-label="Creating the autorelabel flag file">
+            <div class="code-title">Creating the SELinux Autorelabel Flag</div>
+            <code><span class="code-comment"># Create the flag file that triggers full SELinux relabeling on next boot</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">touch /.autorelabel</span>
+
+<span class="code-comment"># Verify the file was created</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">ls -la /.autorelabel</span>
+<span class="code-output">-rw-r--r--. 1 root root 0 Mar 15 10:32 /.autorelabel</span></code>
+        </div>
+
+        <h3>What Happens During Relabeling</h3>
+        <p>After you reboot following password recovery, here is what happens:</p>
+        <ol>
+            <li>The system begins its normal boot sequence.</li>
+            <li>SELinux detects the <code>/.autorelabel</code> file in the root directory.</li>
+            <li>SELinux pauses the normal boot process and begins scanning every file on every mounted filesystem.</li>
+            <li>Each file is assigned its correct SELinux context based on the system's policy rules.</li>
+            <li>The <code>/.autorelabel</code> file is deleted.</li>
+            <li>The system reboots automatically one more time.</li>
+            <li>On this second reboot, the system starts normally with all files correctly labeled.</li>
+        </ol>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important</span></div>
+            <p>On systems with large filesystems (many terabytes of data), the SELinux relabeling process can take a significant amount of time — potentially many minutes or even hours. This is expected behavior. <strong>Do not power off the system</strong> during relabeling, as this can leave the filesystem in an inconsistent state.</p>
+        </div>
+
+        <h3>Verifying SELinux Context After Recovery</h3>
+        <p>Once the system has fully rebooted after relabeling, you can verify that <code>/etc/shadow</code> has the correct SELinux context:</p>
+
+        <div class="code-block" role="region" aria-label="Verify SELinux context of shadow file">
+            <div class="code-title">Verifying /etc/shadow SELinux Context</div>
+            <code><span class="code-comment"># Check the SELinux context of the shadow file (should show shadow_t)</span>
+<span class="code-prompt">[root@server ~]#</span> <span class="code-command">ls -Z /etc/shadow</span>
+<span class="code-output">system_u:object_r:shadow_t:s0 /etc/shadow</span>
+
+<span class="code-comment"># If the context was missing (before relabeling), it would appear as:</span>
+<span class="code-comment"># system_u:object_r:unlabeled_t:s0 /etc/shadow</span>
+<span class="code-comment"># This would cause authentication failures even with the correct password</span></code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4DD;</span><span>Note</span></div>
+            <p>The <code>-Z</code> flag on <code>ls</code> displays the SELinux security context of files. The context format is <code>user:role:type:sensitivity</code>. For <code>/etc/shadow</code>, the expected type is <code>shadow_t</code>, which grants access only to privileged authentication processes.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6: GUIDED EXERCISE (SIMULATOR)
+     ============================================================ -->
+<section id="section-guided" class="content-section" aria-labelledby="guided-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="guided-heading">Guided Exercise: Interactive Recovery Simulator</h2>
+    </div>
+    <div class="section-body">
+        <p>This interactive simulator walks you through the root password recovery process. Work through both methods to build muscle memory before attempting the lab exercise. Type commands or use the quick-command buttons.</p>
+
+        <div class="tabs-container" role="region" aria-label="Recovery method simulators">
+            <div class="tab-list" role="tablist" aria-label="Simulator methods">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="sim-tab-media" id="sim-btn-media">Rescue Media Method</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="sim-tab-nomedia" id="sim-btn-nomedia">No-Media Method</button>
+            </div>
+
+            <div id="sim-tab-media" class="tab-panel active" role="tabpanel" aria-labelledby="sim-btn-media">
+                <p style="font-family:var(--font-display);font-size:0.9rem;color:var(--rh-gray-dark);margin-bottom:12px;">
+                    <strong>Scenario:</strong> You have booted from the RHEL 10 Boot ISO and chosen <em>Rescue a Red Hat Enterprise Linux system &rarr; Continue</em>. The system is now mounted at <code>/mnt/sysroot</code>. Complete the recovery.
+                </p>
+                <div class="simulator" role="region" aria-label="Rescue media method simulator">
+                    <div class="sim-header">
+                        <div class="sim-dot red"></div>
+                        <div class="sim-dot yellow"></div>
+                        <div class="sim-dot green"></div>
+                        <span class="sim-title">Rescue Environment &mdash; RHEL 10 Boot ISO</span>
+                    </div>
+                    <div class="sim-context">&#x1F4CD; Rescue mode active &bull; System mounted at /mnt/sysroot (read/write) &bull; SELinux: disabled</div>
+                    <div class="sim-output" id="sim-media-output" aria-live="polite" aria-label="Simulator output">
+                        <span class="root-prompt">bash-5.2# </span><span class="result">_ (type a command or use the buttons below)</span>
+                    </div>
+                    <div class="sim-input-row">
+                        <span class="sim-prompt-label">bash-5.2#&nbsp;</span>
+                        <input type="text" class="sim-input" id="sim-media-input" aria-label="Command input for rescue media simulator" placeholder="Type command here..." autocomplete="off" spellcheck="false">
+                        <button class="sim-run-btn" id="sim-media-run" aria-label="Run command">Run</button>
+                        <button class="sim-reset-btn" id="sim-media-reset" aria-label="Reset simulator">Reset</button>
+                    </div>
+                    <div class="sim-commands" aria-label="Quick command buttons">
+                        <button class="sim-cmd-btn" data-cmd="chroot /mnt/sysroot" data-sim="media">chroot /mnt/sysroot</button>
+                        <button class="sim-cmd-btn" data-cmd="passwd root" data-sim="media">passwd root</button>
+                        <button class="sim-cmd-btn" data-cmd="touch /.autorelabel" data-sim="media">touch /.autorelabel</button>
+                        <button class="sim-cmd-btn" data-cmd="ls -la /.autorelabel" data-sim="media">ls -la /.autorelabel</button>
+                        <button class="sim-cmd-btn" data-cmd="exit" data-sim="media">exit</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sim-tab-nomedia" class="tab-panel" role="tabpanel" aria-labelledby="sim-btn-nomedia">
+                <p style="font-family:var(--font-display);font-size:0.9rem;color:var(--rh-gray-dark);margin-bottom:12px;">
+                    <strong>Scenario:</strong> You edited the GRUB2 boot entry and added <code>init=/bin/bash</code>. The system has booted to a bash shell. The root filesystem is currently read-only. Complete the recovery.
+                </p>
+                <div class="simulator" role="region" aria-label="No-media method simulator">
+                    <div class="sim-header">
+                        <div class="sim-dot red"></div>
+                        <div class="sim-dot yellow"></div>
+                        <div class="sim-dot green"></div>
+                        <span class="sim-title">Minimal Bash Shell &mdash; init=/bin/bash</span>
+                    </div>
+                    <div class="sim-context">&#x1F4CD; Kernel launched bash as PID 1 &bull; Root filesystem: read-only &bull; SELinux: disabled &bull; No systemd running</div>
+                    <div class="sim-output" id="sim-nomedia-output" aria-live="polite" aria-label="No-media simulator output">
+                        <span class="root-prompt">bash-5.2# </span><span class="result">_ (type a command or use the buttons below)</span>
+                    </div>
+                    <div class="sim-input-row">
+                        <span class="sim-prompt-label">bash-5.2#&nbsp;</span>
+                        <input type="text" class="sim-input" id="sim-nomedia-input" aria-label="Command input for no-media simulator" placeholder="Type command here..." autocomplete="off" spellcheck="false">
+                        <button class="sim-run-btn" id="sim-nomedia-run" aria-label="Run command">Run</button>
+                        <button class="sim-reset-btn" id="sim-nomedia-reset" aria-label="Reset simulator">Reset</button>
+                    </div>
+                    <div class="sim-commands" aria-label="Quick command buttons">
+                        <button class="sim-cmd-btn" data-cmd="mount -o remount,rw /" data-sim="nomedia">mount -o remount,rw /</button>
+                        <button class="sim-cmd-btn" data-cmd="mount | grep ' / '" data-sim="nomedia">mount | grep ' / '</button>
+                        <button class="sim-cmd-btn" data-cmd="passwd" data-sim="nomedia">passwd</button>
+                        <button class="sim-cmd-btn" data-cmd="touch /.autorelabel" data-sim="nomedia">touch /.autorelabel</button>
+                        <button class="sim-cmd-btn" data-cmd="exec /sbin/init" data-sim="nomedia">exec /sbin/init</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 7: KNOWLEDGE CHECK QUIZ
+     ============================================================ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="quiz-heading">Knowledge Check</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of root password recovery. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div id="quiz-score" class="quiz-score" role="status" aria-live="polite"></div>
+
+        <!-- Q1 -->
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. When using rescue media to reset the root password, which directory does the rescue environment mount the installed system under?</p>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1a" value="a"><label for="q1a">A. /rescue</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1b" value="b"><label for="q1b">B. /mnt/sysroot</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1c" value="c"><label for="q1c">C. /mnt/install</label></div>
+            <div class="quiz-option"><input type="radio" name="q1" id="q1d" value="d"><label for="q1d">D. /media/root</label></div>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. Why is the <code>chroot /mnt/sysroot</code> command required in the rescue media method?</p>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2a" value="a"><label for="q2a">A. To mount the filesystem as read/write</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2b" value="b"><label for="q2b">B. To enable SELinux in the rescue environment</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2c" value="c"><label for="q2c">C. So that commands like passwd modify the installed system's files rather than the rescue environment's files</label></div>
+            <div class="quiz-option"><input type="radio" name="q2" id="q2d" value="d"><label for="q2d">D. To create the /.autorelabel file in the correct location</label></div>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p>3. In the no-media recovery method, what must you do immediately after booting to the bash shell before resetting the password?</p>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3a" value="a"><label for="q3a">A. Run <code>mount -o remount,rw /</code> to remount the root filesystem as read/write</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3b" value="b"><label for="q3b">B. Run <code>systemctl start selinux</code> to enable SELinux</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3c" value="c"><label for="q3c">C. Run <code>chroot /mnt/sysroot</code> to change the root directory</label></div>
+            <div class="quiz-option"><input type="radio" name="q3" id="q3d" value="d"><label for="q3d">D. Run <code>fsck /</code> to check the filesystem</label></div>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p>4. Why is the <code>touch /.autorelabel</code> command required after resetting the root password in either recovery method?</p>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4a" value="a"><label for="q4a">A. To force GRUB2 to regenerate its configuration on next boot</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4b" value="b"><label for="q4b">B. To unlock the root account after it was locked</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4c" value="c"><label for="q4c">C. To save the new password hash to disk before rebooting</label></div>
+            <div class="quiz-option"><input type="radio" name="q4" id="q4d" value="d"><label for="q4d">D. Because the passwd command creates files without SELinux context labels when SELinux is not running, which would prevent login on next boot</label></div>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. Which kernel parameter is added to the GRUB2 boot line in the no-media recovery method?</p>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5a" value="a"><label for="q5a">A. <code>rescue=1</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5b" value="b"><label for="q5b">B. <code>init=/bin/bash</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5c" value="c"><label for="q5c">C. <code>single</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q5" id="q5d" value="d"><label for="q5d">D. <code>emergency</code></label></div>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <!-- Q6 -->
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p>6. After completing the no-media password recovery and creating the /.autorelabel file, which command is used to properly hand off execution to systemd?</p>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6a" value="a"><label for="q6a">A. <code>reboot</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6b" value="b"><label for="q6b">B. <code>exit</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6c" value="c"><label for="q6c">C. <code>exec /sbin/init</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q6" id="q6d" value="d"><label for="q6d">D. <code>systemctl reboot</code></label></div>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="quiz-question" data-question="7" data-correct="a">
+            <p>7. What is the correct SELinux type context that <code>/etc/shadow</code> should have after a successful recovery and relabeling?</p>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7a" value="a"><label for="q7a">A. <code>shadow_t</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7b" value="b"><label for="q7b">B. <code>passwd_t</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7c" value="c"><label for="q7c">C. <code>etc_t</code></label></div>
+            <div class="quiz-option"><input type="radio" name="q7" id="q7d" value="d"><label for="q7d">D. <code>unlabeled_t</code></label></div>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <!-- Q8 -->
+        <div class="quiz-question" data-question="8" data-correct="b">
+            <p>8. In the rescue environment menu, which option should you select to mount the system in read/write mode and proceed with password recovery?</p>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8a" value="a"><label for="q8a">A. Option 2: Read-only mount</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8b" value="b"><label for="q8b">B. Option 1: Continue</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8c" value="c"><label for="q8c">C. Option 3: Skip to shell</label></div>
+            <div class="quiz-option"><input type="radio" name="q8" id="q8d" value="d"><label for="q8d">D. Option 4: Quit (Reboot)</label></div>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button class="quiz-btn" id="check-quiz-btn" aria-label="Check quiz answers">Check Answers</button>
+            <button class="quiz-btn reset" id="reset-quiz-btn" aria-label="Reset quiz">Reset Quiz</button>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 8: HANDS-ON LAB
+     ============================================================ -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="lab-heading">Hands-On Lab: Recovering the Root Password</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Lab Scenario:</strong> The root password on <code>serverb.lab.example.com</code> has been lost. You have access to the system console but cannot log in as root or use sudo. Your task is to reset the root password using both recovery methods: first with rescue media (simulated), then without rescue media by modifying the GRUB2 boot entry.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning</span></div>
+            <p>These procedures require <strong>console or physical access</strong> to the server. They will cause a system reboot. Ensure no critical services are running or that any outage has been properly coordinated before proceeding. The SELinux relabeling step will cause an additional automatic reboot — this is expected.</p>
+        </div>
+
+        <!-- Task 1 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1-content" id="lab-task1-btn">
+                <span>&#x1F4CC; Task 1: Reset Root Password Using Rescue Media</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1-content" role="region" aria-labelledby="lab-task1-btn">
+                <p><strong>Objective:</strong> Use the RHEL 10 Boot ISO in rescue mode to reset the root password on <code>serverb.lab.example.com</code>.</p>
+                <p><strong>Prerequisites:</strong> Attach the RHEL 10 Boot ISO to the virtual machine as a CD-ROM/DVD device and configure the VM to boot from it first.</p>
+                <ol>
+                    <li>Reboot <code>serverb</code> and boot from the RHEL 10 Boot ISO.</li>
+                    <li>At the GRUB2 menu, use arrow keys to select <strong>Troubleshooting</strong>.</li>
+                    <li>Select <strong>Rescue a Red Hat Enterprise Linux system</strong>.</li>
+                    <li>At the rescue menu, press <kbd>1</kbd> then <kbd>Enter</kbd> to select <strong>Continue</strong> (mounts the system r/w at /mnt/sysroot).</li>
+                    <li>At the bash prompt, change root to the installed system:</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Task 1 &mdash; Rescue Media Password Reset</div>
+                    <code><span class="code-comment"># Change root directory to the installed system</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">chroot /mnt/sysroot</span>
+
+<span class="code-comment"># Set the new root password (use: redhat123 for lab purposes)</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">passwd root</span>
+<span class="code-output">New password:
+Retype new password:
+passwd: password updated successfully</span>
+
+<span class="code-comment"># Create the SELinux autorelabel flag</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">touch /.autorelabel</span>
+
+<span class="code-comment"># Verify the autorelabel file exists</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">ls -la /.autorelabel</span>
+<span class="code-output">-rw-r--r--. 1 root root 0 Mar 15 10:32 /.autorelabel</span>
+
+<span class="code-comment"># Exit chroot, then exit rescue mode to reboot</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">exit</span>
+<span class="code-output">exit</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">exit</span>
+<span class="code-comment"># System reboots, relabels, reboots again...</span></code>
+                </div>
+                <p><strong>Expected result:</strong> The system boots normally after the two-reboot SELinux relabeling cycle. You can now log in as root using the new password.</p>
+            </div>
+        </div>
+
+        <!-- Task 2 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2-content" id="lab-task2-btn">
+                <span>&#x1F4CC; Task 2: Reset Root Password Without Rescue Media</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2-content" role="region" aria-labelledby="lab-task2-btn">
+                <p><strong>Objective:</strong> Reset the root password on <code>serverb.lab.example.com</code> by modifying the GRUB2 boot entry — without using any external media.</p>
+                <ol>
+                    <li>Reboot <code>serverb</code> (remove the ISO if it is still attached).</li>
+                    <li>When the GRUB2 countdown appears, press <kbd>Esc</kbd> to stop it.</li>
+                    <li>Highlight the default kernel entry and press <kbd>e</kbd> to edit.</li>
+                    <li>Locate the line beginning with <code>linux</code>.</li>
+                    <li>Remove any <code>console=ttyS0...</code> or similar <code>console=</code> parameters.</li>
+                    <li>Press <kbd>Ctrl+E</kbd> to go to the end of the <code>linux</code> line.</li>
+                    <li>Add: <code> init=/bin/bash</code> (with a space before init)</li>
+                    <li>Press <kbd>Ctrl+X</kbd> to boot.</li>
+                </ol>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2 &mdash; No-Media Password Reset</div>
+                    <code><span class="code-comment"># At the bash shell, verify / is read-only</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">mount | grep ' / '</span>
+<span class="code-output">/dev/mapper/rhel-root on / type xfs (ro,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota)</span>
+
+<span class="code-comment"># Remount root filesystem as read/write</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">mount -o remount,rw /</span>
+
+<span class="code-comment"># Verify the remount succeeded (should show 'rw')</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">mount | grep ' / '</span>
+<span class="code-output">/dev/mapper/rhel-root on / type xfs (rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota)</span>
+
+<span class="code-comment"># Reset the root password</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">passwd</span>
+<span class="code-output">New password:
+Retype new password:
+passwd: password updated successfully</span>
+
+<span class="code-comment"># Create SELinux autorelabel flag</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">touch /.autorelabel</span>
+
+<span class="code-comment"># Hand off to systemd for proper reboot</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">exec /sbin/init</span>
+<span class="code-comment"># System performs SELinux relabeling and reboots again...</span></code>
+                </div>
+                <p><strong>Expected result:</strong> After the SELinux relabeling reboot cycle completes, you can log in as root with the new password.</p>
+            </div>
+        </div>
+
+        <!-- Task 3 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3-content" id="lab-task3-btn">
+                <span>&#x1F4CC; Task 3: Verify Recovery Success and SELinux Context</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3-content" role="region" aria-labelledby="lab-task3-btn">
+                <p><strong>Objective:</strong> After recovery, verify the root password works, the system is healthy, and the SELinux context on <code>/etc/shadow</code> is correct.</p>
+                <div class="code-block" role="region" aria-label="Task 3 verification commands">
+                    <div class="code-title">Task 3 &mdash; Post-Recovery Verification</div>
+                    <code><span class="code-comment"># Log in as root with the new password (from console or via su)</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">su -</span>
+<span class="code-output">Password:
+Last login: Sun Mar 15 10:45:22 2026</span>
+
+<span class="code-comment"># Verify the SELinux context on /etc/shadow</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">ls -Z /etc/shadow</span>
+<span class="code-output">system_u:object_r:shadow_t:s0 /etc/shadow</span>
+
+<span class="code-comment"># Verify SELinux is enforcing</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">getenforce</span>
+<span class="code-output">Enforcing</span>
+
+<span class="code-comment"># Confirm /.autorelabel file has been removed (cleaned up after relabeling)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">ls -la /.autorelabel</span>
+<span class="code-output">ls: cannot access '/.autorelabel': No such file or directory</span>
+
+<span class="code-comment"># Check system is fully booted and healthy</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">systemctl is-system-running</span>
+<span class="code-output">running</span></code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task 4 -->
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4-content" id="lab-task4-btn">
+                <span>&#x1F4CC; Task 4: Troubleshooting &mdash; What If Recovery Fails?</span>
+                <span class="expandable-icon" aria-hidden="true">&#x25BC;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4-content" role="region" aria-labelledby="lab-task4-btn">
+                <p><strong>Objective:</strong> Understand common failure scenarios and how to diagnose them.</p>
+                <h4>Scenario A: Login still fails after recovery (SELinux context issue)</h4>
+                <div class="code-block" role="region" aria-label="Troubleshooting SELinux context">
+                    <div class="code-title">Fix Missing SELinux Context Manually</div>
+                    <code><span class="code-comment"># If /.autorelabel was forgotten, shadow file may have wrong context</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">ls -Z /etc/shadow</span>
+<span class="code-output">system_u:object_r:unlabeled_t:s0 /etc/shadow</span>
+
+<span class="code-comment"># Fix it manually with restorecon</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">restorecon -v /etc/shadow</span>
+<span class="code-output">Relabeled /etc/shadow from system_u:object_r:unlabeled_t:s0 to system_u:object_r:shadow_t:s0</span>
+
+<span class="code-comment"># Or trigger a full relabeling via autorelabel (requires reboot)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">touch /.autorelabel &amp;&amp; reboot</span></code>
+                </div>
+                <h4>Scenario B: No-media method &mdash; root filesystem remount failed</h4>
+                <div class="code-block" role="region" aria-label="Troubleshooting remount failure">
+                    <div class="code-title">Check for Filesystem Errors Before Remounting</div>
+                    <code><span class="code-comment"># If remount fails, check dmesg for errors</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">dmesg | tail -20</span>
+<span class="code-comment"># Look for filesystem errors or device issues</span>
+
+<span class="code-comment"># Try remount with explicit device</span>
+<span class="code-prompt">bash-5.2#</span> <span class="code-command">mount -o remount,rw /dev/mapper/rhel-root /</span></code>
+                </div>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+                    <p>If neither method works, boot into the RHEL 10 emergency target (add <code>systemd.unit=emergency.target</code> to the kernel line) for a fully functional root environment with all filesystems available.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="checklist" aria-label="Lab completion checklist">
+            <li>Successfully booted from rescue media and entered rescue mode by selecting option 1 (Continue)</li>
+            <li>Used <code>chroot /mnt/sysroot</code> to enter the installed system's context</li>
+            <li>Reset the root password with <code>passwd root</code> in the chroot environment</li>
+            <li>Created <code>/.autorelabel</code> before exiting the rescue environment</li>
+            <li>Exited twice to trigger reboot and SELinux relabeling</li>
+            <li>Successfully modified GRUB2 boot entry to add <code>init=/bin/bash</code></li>
+            <li>Remounted root filesystem read/write with <code>mount -o remount,rw /</code></li>
+            <li>Reset root password and created <code>/.autorelabel</code> in the no-media environment</li>
+            <li>Used <code>exec /sbin/init</code> to properly hand off to systemd</li>
+            <li>Verified <code>/etc/shadow</code> has <code>shadow_t</code> SELinux context after recovery</li>
+        </ul>
+    </div>
+</section>
+
+<!-- ============================================================
+     SECTION 9: CHAPTER SUMMARY
+     ============================================================ -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned how to recover administrative access to a RHEL 10 system when the root password is unknown or the account is locked. You practiced both recovery methods and understood the critical role of SELinux relabeling in the recovery process.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li>Root password recovery requires <strong>physical or console access</strong> — it cannot be done remotely via SSH when locked out.</li>
+            <li>The <strong>rescue media method</strong> (using a RHEL 10 Boot ISO) is the recommended approach: boot the ISO, choose Troubleshooting &rarr; Rescue, select option 1, then <code>chroot /mnt/sysroot</code> before running <code>passwd root</code>.</li>
+            <li>The <strong>no-media method</strong> uses GRUB2 to pass <code>init=/bin/bash</code> to the kernel, bypassing <code>systemd</code> entirely and dropping directly into a root shell. The root filesystem must then be manually remounted read/write before changing the password.</li>
+            <li><strong>SELinux relabeling</strong> is always required: the <code>passwd</code> command creates files without SELinux context labels when SELinux is inactive. Without <code>touch /.autorelabel</code>, the new <code>/etc/shadow</code> will have an incorrect context and logins will fail.</li>
+            <li>After the no-media method, use <code>exec /sbin/init</code> (not <code>reboot</code>) to hand off to systemd for a clean shutdown and relabeling cycle.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="cmd-table" aria-label="Chapter 13 command reference">
+            <thead>
+                <tr>
+                    <th>Command / Action</th>
+                    <th>Purpose</th>
+                    <th>Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>chroot /mnt/sysroot</code></td>
+                    <td>Change root to the installed system's filesystem within the rescue environment</td>
+                    <td>Rescue media</td>
+                </tr>
+                <tr>
+                    <td><code>passwd root</code></td>
+                    <td>Set a new password for the root account</td>
+                    <td>Rescue media (after chroot)</td>
+                </tr>
+                <tr>
+                    <td><code>passwd</code></td>
+                    <td>Set a new password for the current user (root in no-media shell)</td>
+                    <td>No-media</td>
+                </tr>
+                <tr>
+                    <td><code>touch /.autorelabel</code></td>
+                    <td>Create a flag file that triggers full SELinux relabeling on next boot</td>
+                    <td>Both methods</td>
+                </tr>
+                <tr>
+                    <td><code>exit</code> (twice)</td>
+                    <td>Exit chroot, then exit rescue environment to trigger reboot</td>
+                    <td>Rescue media</td>
+                </tr>
+                <tr>
+                    <td><code>mount -o remount,rw /</code></td>
+                    <td>Remount root filesystem as read/write (required before passwd in no-media method)</td>
+                    <td>No-media</td>
+                </tr>
+                <tr>
+                    <td><code>exec /sbin/init</code></td>
+                    <td>Launch systemd as PID 1 for a clean boot/relabeling cycle</td>
+                    <td>No-media</td>
+                </tr>
+                <tr>
+                    <td><code>ls -Z /etc/shadow</code></td>
+                    <td>Verify the SELinux context of /etc/shadow (should be <code>shadow_t</code>)</td>
+                    <td>Post-recovery verification</td>
+                </tr>
+                <tr>
+                    <td><code>restorecon -v /etc/shadow</code></td>
+                    <td>Manually restore the correct SELinux context to /etc/shadow</td>
+                    <td>Troubleshooting</td>
+                </tr>
+                <tr>
+                    <td><code>getenforce</code></td>
+                    <td>Verify SELinux is in Enforcing mode after recovery</td>
+                    <td>Post-recovery verification</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>RHCSA Exam Tips</h3>
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F3AF;</span><span>RHCSA Exam Focus</span></div>
+            <p>Resetting the root password is a commonly tested RHCSA skill. Key points to remember for the exam: (1) You must know both methods. (2) <strong>Never forget <code>touch /.autorelabel</code></strong> — forgetting this step is the single most common reason the recovery appears to succeed but login still fails. (3) In the rescue media method, remember to <code>chroot</code> before running <code>passwd</code>. (4) In the no-media method, remember to remount the filesystem <em>before</em> running <code>passwd</code>.</p>
+        </div>
+
+        <div class="chapter-nav" aria-label="Chapter navigation">
+            <a href="rh134_chapter12_boot.html" class="nav-chapter-btn prev">&#x2190; Chapter 12: Boot Process</a>
+            <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+            <a href="rh134_chapter14_network_security.html" class="nav-chapter-btn next">Chapter 14: Managing Network Security &#x2192;</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <p>&copy; 2025 Red Hat, Inc. &bull; Red Hat Enterprise Linux 10 &bull; RH134: Red Hat System Administration II</p>
+    <p>Red Hat, Red Hat Enterprise Linux, and RHCSA are trademarks or registered trademarks of Red Hat, Inc. or its subsidiaries in the United States and other countries.</p>
+    <p>This material is for educational use only and is based on official Red Hat course content.</p>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    /* =========================================================
+       PROGRESS BAR
+       ========================================================= */
+    const sections = document.querySelectorAll('.content-section');
+    const progressFill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const visitedSections = new Set();
+
+    const progressObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                visitedSections.add(entry.target.id);
+            }
+        });
+        const pct = Math.round((visitedSections.size / sections.length) * 100);
+        progressFill.style.width = pct + '%';
+        progressFill.setAttribute('aria-valuenow', pct);
+        progressText.textContent = 'Progress: ' + pct + '%';
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(s) { progressObserver.observe(s); });
+
+    /* =========================================================
+       ACTIVE NAV HIGHLIGHTING
+       ========================================================= */
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    const navObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                const id = entry.target.id;
+                navBtns.forEach(function(btn) {
+                    const href = btn.getAttribute('href');
+                    if (href === '#' + id) {
+                        btn.classList.add('active');
+                        btn.classList.add('visited');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        });
+    }, { threshold: 0.4 });
+
+    sections.forEach(function(s) { navObserver.observe(s); });
+
+    /* =========================================================
+       TOOLTIP SYSTEM
+       ========================================================= */
+    const bubble = document.getElementById('tooltip-bubble');
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+
+        bubble.textContent = contentEl.textContent.trim();
+        bubble.classList.remove('tip-top', 'tip-bottom', 'tip-left', 'tip-right');
+        bubble.style.cssText = '';
+        bubble.classList.add('visible');
+
+        requestAnimationFrame(function() {
+            const rect = term.getBoundingClientRect();
+            const bw = bubble.offsetWidth;
+            const bh = bubble.offsetHeight;
+            const margin = 8;
+            const spaceAbove = rect.top;
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceLeft = rect.left;
+            const spaceRight = window.innerWidth - rect.right;
+
+            let top, left;
+
+            if (spaceAbove >= bh + 16) {
+                // Place above
+                bubble.classList.add('tip-top');
+                top = rect.top - bh - 12;
+                left = rect.left + rect.width / 2 - bw / 2;
+            } else if (spaceBelow >= bh + 16) {
+                // Place below
+                bubble.classList.add('tip-bottom');
+                top = rect.bottom + 12;
+                left = rect.left + rect.width / 2 - bw / 2;
+            } else if (spaceRight >= bw + 16) {
+                // Place right
+                bubble.classList.add('tip-right');
+                top = rect.top + rect.height / 2 - bh / 2;
+                left = rect.right + 12;
+            } else {
+                // Place left
+                bubble.classList.add('tip-left');
+                top = rect.top + rect.height / 2 - bh / 2;
+                left = rect.left - bw - 12;
+            }
+
+            // Clamp to viewport
+            left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+            top = Math.max(margin, Math.min(top, window.innerHeight - bh - margin));
+
+            bubble.style.left = left + 'px';
+            bubble.style.top = top + 'px';
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        term.addEventListener('mouseenter', function() { showTooltip(term); });
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', function() { showTooltip(term); });
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { hideTooltip(); term.blur(); }
+        });
+    });
+
+    /* =========================================================
+       TAB SYSTEM
+       ========================================================= */
+    document.querySelectorAll('.tabs-container').forEach(function(container) {
+        const tabs = container.querySelectorAll('.tab-btn');
+        const panels = container.querySelectorAll('.tab-panel');
+
+        function activateTab(idx) {
+            tabs.forEach(function(t, i) {
+                const sel = i === idx;
+                t.setAttribute('aria-selected', sel);
+                if (panels[i]) {
+                    panels[i].classList.toggle('active', sel);
+                }
+            });
+        }
+
+        tabs.forEach(function(tab, idx) {
+            tab.addEventListener('click', function() { activateTab(idx); });
+            tab.addEventListener('keydown', function(e) {
+                let newIdx = idx;
+                if (e.key === 'ArrowRight') newIdx = (idx + 1) % tabs.length;
+                else if (e.key === 'ArrowLeft') newIdx = (idx - 1 + tabs.length) % tabs.length;
+                else return;
+                e.preventDefault();
+                activateTab(newIdx);
+                tabs[newIdx].focus();
+            });
+        });
+    });
+
+    /* =========================================================
+       EXPANDABLE SECTIONS
+       ========================================================= */
+    document.querySelectorAll('.expandable-header').forEach(function(header) {
+        header.addEventListener('click', function() {
+            const expanded = header.getAttribute('aria-expanded') === 'true';
+            header.setAttribute('aria-expanded', !expanded);
+            const contentId = header.getAttribute('aria-controls');
+            const content = document.getElementById(contentId);
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        header.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+        });
+    });
+
+    /* =========================================================
+       QUIZ LOGIC
+       ========================================================= */
+    const correctAnswers = {
+        1: 'b', 2: 'c', 3: 'a', 4: 'd', 5: 'b', 6: 'c', 7: 'a', 8: 'b'
+    };
+    const feedbackMessages = {
+        1: { correct: 'Correct! The rescue environment mounts the installed system under /mnt/sysroot.', incorrect: 'Incorrect. The rescue environment mounts the installed system under /mnt/sysroot. You must chroot into this directory before running passwd.' },
+        2: { correct: 'Correct! Without chroot, passwd would modify the rescue environment\'s temporary files, not your installed system\'s /etc/shadow.', incorrect: 'Incorrect. chroot changes the root directory context so that commands like passwd affect the installed system\'s /etc/shadow, not the rescue environment.' },
+        3: { correct: 'Correct! The root filesystem is mounted read-only at boot. You must remount it read/write before passwd can modify /etc/shadow.', incorrect: 'Incorrect. The root filesystem is read-only when you first land at the bash shell. You must run mount -o remount,rw / before running passwd.' },
+        4: { correct: 'Correct! The passwd command creates a new file to replace /etc/shadow. In environments without SELinux, that new file has no SELinux context. Without relabeling, SELinux will deny access to /etc/shadow and logins will fail.', incorrect: 'Incorrect. The /.autorelabel file is needed because passwd creates /etc/shadow without an SELinux context in the recovery environment. Without relabeling, SELinux will block access to the file and logins will fail.' },
+        5: { correct: 'Correct! Adding init=/bin/bash to the kernel line makes the kernel launch bash instead of systemd as PID 1, giving you a root shell.', incorrect: 'Incorrect. The kernel parameter is init=/bin/bash. This replaces systemd with bash as the first process (PID 1), giving you an unauthenticated root shell.' },
+        6: { correct: 'Correct! exec /sbin/init replaces the current bash process with systemd, initiating a proper boot and SELinux relabeling cycle.', incorrect: 'Incorrect. You must use exec /sbin/init to properly hand off to systemd. Running reboot or poweroff may not work correctly because there is no init system managing system state at this point.' },
+        7: { correct: 'Correct! The expected SELinux type context for /etc/shadow is shadow_t. If it shows unlabeled_t after recovery, login will fail.', incorrect: 'Incorrect. The /etc/shadow file should have the shadow_t SELinux type context. If it shows unlabeled_t, it means the autorelabel step was skipped or failed.' },
+        8: { correct: 'Correct! Option 1 (Continue) mounts the installed system at /mnt/sysroot in read/write mode. Option 2 is read-only (cannot change passwords), and option 3 skips mounting entirely.', incorrect: 'Incorrect. You must select Option 1: Continue. This mounts your installed system at /mnt/sysroot in read/write mode, which is required to modify /etc/shadow.' }
+    };
+
+    document.getElementById('check-quiz-btn').addEventListener('click', function() {
+        let score = 0;
+        const total = Object.keys(correctAnswers).length;
+
+        document.querySelectorAll('.quiz-question').forEach(function(qDiv) {
+            const qNum = parseInt(qDiv.getAttribute('data-question'));
+            const correct = qDiv.getAttribute('data-correct');
+            const selected = qDiv.querySelector('input[type="radio"]:checked');
+            const feedback = document.getElementById('feedback-' + qNum);
+
+            qDiv.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('show', 'correct-msg', 'incorrect-msg');
+
+            if (selected) {
+                if (selected.value === correct) {
+                    score++;
+                    qDiv.classList.add('correct');
+                    feedback.textContent = '✓ ' + feedbackMessages[qNum].correct;
+                    feedback.classList.add('show', 'correct-msg');
+                } else {
+                    qDiv.classList.add('incorrect');
+                    feedback.textContent = '✗ ' + feedbackMessages[qNum].incorrect;
+                    feedback.classList.add('show', 'incorrect-msg');
+                }
+            } else {
+                feedback.textContent = '— No answer selected. The correct answer is: ' + correct.toUpperCase() + '. ' + feedbackMessages[qNum].correct;
+                feedback.classList.add('show', 'incorrect-msg');
+                qDiv.classList.add('incorrect');
+            }
+        });
+
+        const scoreDiv = document.getElementById('quiz-score');
+        const pct = Math.round((score / total) * 100);
+        let msg = score + ' / ' + total + ' correct (' + pct + '%)';
+        if (score === total) msg += ' — Excellent! You are ready for the lab.';
+        else if (score >= total * 0.75) msg += ' — Good work! Review the incorrect answers before proceeding.';
+        else msg += ' — Review the chapter content and try again.';
+        scoreDiv.textContent = msg;
+        scoreDiv.classList.add('show');
+        scoreDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    document.getElementById('reset-quiz-btn').addEventListener('click', function() {
+        document.querySelectorAll('.quiz-question').forEach(function(qDiv) {
+            qDiv.classList.remove('correct', 'incorrect');
+            qDiv.querySelectorAll('input[type="radio"]').forEach(function(r) { r.checked = false; });
+            const qNum = qDiv.getAttribute('data-question');
+            const feedback = document.getElementById('feedback-' + qNum);
+            feedback.classList.remove('show', 'correct-msg', 'incorrect-msg');
+            feedback.textContent = '';
+        });
+        const scoreDiv = document.getElementById('quiz-score');
+        scoreDiv.classList.remove('show');
+        scoreDiv.textContent = '';
+    });
+
+    /* =========================================================
+       SIMULATORS
+       ========================================================= */
+
+    // --- Rescue Media Simulator ---
+    var mediaSate = { chrooted: false, passwordSet: false, autorelabelCreated: false, exitCount: 0 };
+
+    function mediaOutput(html) {
+        var out = document.getElementById('sim-media-output');
+        out.innerHTML += '\n' + html;
+        out.scrollTop = out.scrollHeight;
+    }
+
+    function resetMediaSim() {
+        mediaSate = { chrooted: false, passwordSet: false, autorelabelCreated: false, exitCount: 0 };
+        var out = document.getElementById('sim-media-output');
+        out.innerHTML = '<span class="root-prompt">bash-5.2# </span><span class="result">_ (type a command or use the buttons below)</span>';
+        document.getElementById('sim-media-input').value = '';
+    }
+
+    function runMediaCommand(cmd) {
+        cmd = cmd.trim();
+        if (!cmd) return;
+        mediaOutput('<span class="root-prompt">bash-5.2# </span><span class="result">' + escHtml(cmd) + '</span>');
+
+        if (cmd === 'chroot /mnt/sysroot') {
+            if (mediaSate.chrooted) {
+                mediaOutput('<span class="result">Already in chroot environment.</span>');
+            } else {
+                mediaSate.chrooted = true;
+                mediaOutput('<span class="success">Root directory changed to /mnt/sysroot.</span>\n<span class="info">You are now operating on the installed RHEL 10 system.</span>');
+            }
+        } else if (cmd === 'passwd root' || cmd === 'passwd') {
+            if (!mediaSate.chrooted) {
+                mediaOutput('<span class="error">WARNING: You have not run "chroot /mnt/sysroot" yet!</span>\n<span class="error">Running passwd now would change the rescue environment\'s password, not your installed system\'s password!</span>');
+            } else {
+                mediaSate.passwordSet = true;
+                mediaOutput('<span class="result">New password: ••••••••••</span>\n<span class="result">Retype new password: ••••••••••</span>\n<span class="success">passwd: password updated successfully</span>\n<span class="info">The /etc/shadow file has been updated (currently without SELinux context).</span>');
+            }
+        } else if (cmd === 'touch /.autorelabel') {
+            mediaSate.autorelabelCreated = true;
+            mediaOutput('<span class="success">/.autorelabel created. SELinux will relabel all files on next boot.</span>');
+        } else if (cmd === 'ls -la /.autorelabel' || cmd === 'ls /.autorelabel') {
+            if (mediaSate.autorelabelCreated) {
+                mediaOutput('<span class="result">-rw-r--r--. 1 root root 0 Mar 15 10:32 /.autorelabel</span>');
+            } else {
+                mediaOutput('<span class="error">ls: cannot access \'/.autorelabel\': No such file or directory</span>\n<span class="error">Remember to run: touch /.autorelabel before exiting!</span>');
+            }
+        } else if (cmd === 'exit') {
+            if (!mediaSate.chrooted) {
+                mediaOutput('<span class="error">You are not in the chroot environment yet. Run "chroot /mnt/sysroot" first.</span>');
+            } else if (!mediaSate.passwordSet) {
+                mediaOutput('<span class="error">Warning: You have not reset the root password yet! Run "passwd root" first.</span>');
+            } else if (!mediaSate.autorelabelCreated) {
+                mediaOutput('<span class="error">Warning: You forgot to create /.autorelabel! The new password may not work due to SELinux context issues.</span>\n<span class="error">Run "touch /.autorelabel" before exiting.</span>');
+            } else {
+                mediaSate.exitCount++;
+                if (mediaSate.exitCount === 1) {
+                    mediaSate.chrooted = false;
+                    mediaOutput('<span class="info">exit</span>\n<span class="result">Exited chroot environment. Now in rescue environment root.</span>\n<span class="info">Type "exit" again to leave rescue mode and reboot.</span>');
+                } else {
+                    mediaOutput('<span class="success">\nExiting rescue mode...</span>\n<span class="info">System is rebooting...</span>\n<span class="info">[ OK ] SELinux: Relabeling all files (this may take several minutes)...</span>\n<span class="info">[ OK ] Reached target SELinux Relabeling.</span>\n<span class="success">System rebooting for second time with correct SELinux contexts...</span>\n<span class="success">\n✓ RECOVERY COMPLETE! Root password successfully reset and SELinux contexts restored.</span>');
+                }
+            }
+        } else {
+            mediaOutput('<span class="result">' + escHtml(getGenericResponse(cmd)) + '</span>');
+        }
+        document.getElementById('sim-media-input').value = '';
+    }
+
+    document.getElementById('sim-media-run').addEventListener('click', function() {
+        runMediaCommand(document.getElementById('sim-media-input').value);
+    });
+    document.getElementById('sim-media-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') runMediaCommand(this.value);
+    });
+    document.getElementById('sim-media-reset').addEventListener('click', resetMediaSim);
+
+    // --- No-Media Simulator ---
+    var nomediaSate = { remounted: false, passwordSet: false, autorelabelCreated: false };
+
+    function nomediaOutput(html) {
+        var out = document.getElementById('sim-nomedia-output');
+        out.innerHTML += '\n' + html;
+        out.scrollTop = out.scrollHeight;
+    }
+
+    function resetNomediaSim() {
+        nomediaSate = { remounted: false, passwordSet: false, autorelabelCreated: false };
+        var out = document.getElementById('sim-nomedia-output');
+        out.innerHTML = '<span class="root-prompt">bash-5.2# </span><span class="result">_ (type a command or use the buttons below)</span>';
+        document.getElementById('sim-nomedia-input').value = '';
+    }
+
+    function runNomediaCommand(cmd) {
+        cmd = cmd.trim();
+        if (!cmd) return;
+        nomediaOutput('<span class="root-prompt">bash-5.2# </span><span class="result">' + escHtml(cmd) + '</span>');
+
+        if (cmd === 'mount -o remount,rw /' || cmd === 'mount -o remount,rw') {
+            nomediaSate.remounted = true;
+            mediaOutput && void 0;
+            nomediaOutput('<span class="success">Root filesystem remounted as read/write.</span>');
+        } else if (cmd === "mount | grep ' / '" || cmd === 'mount | grep / ' || cmd.startsWith('mount')) {
+            if (nomediaSate.remounted) {
+                nomediaOutput('<span class="result">/dev/mapper/rhel-root on / type xfs <span class="success">(rw</span>,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota)</span>');
+            } else {
+                nomediaOutput('<span class="result">/dev/mapper/rhel-root on / type xfs <span class="error">(ro</span>,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota)</span>\n<span class="error">Root is read-only! Run: mount -o remount,rw /</span>');
+            }
+        } else if (cmd === 'passwd' || cmd === 'passwd root') {
+            if (!nomediaSate.remounted) {
+                nomediaOutput('<span class="error">passwd: Authentication token manipulation error</span>\n<span class="error">The filesystem is read-only! Run "mount -o remount,rw /" first.</span>');
+            } else {
+                nomediaSate.passwordSet = true;
+                nomediaOutput('<span class="result">New password: ••••••••••</span>\n<span class="result">Retype new password: ••••••••••</span>\n<span class="success">passwd: password updated successfully</span>');
+            }
+        } else if (cmd === 'touch /.autorelabel') {
+            if (!nomediaSate.remounted) {
+                nomediaOutput('<span class="error">touch: cannot touch \'/.autorelabel\': Read-only file system</span>\n<span class="error">Run "mount -o remount,rw /" first.</span>');
+            } else {
+                nomediaSate.autorelabelCreated = true;
+                nomediaOutput('<span class="success">/.autorelabel created. SELinux relabeling will occur on next boot.</span>');
+            }
+        } else if (cmd === 'exec /sbin/init') {
+            if (!nomediaSate.passwordSet) {
+                nomediaOutput('<span class="error">Warning: Root password has not been reset yet!</span>');
+            } else if (!nomediaSate.autorelabelCreated) {
+                nomediaOutput('<span class="error">Warning: /.autorelabel not created! SELinux context on /etc/shadow will be wrong and login will fail!</span>');
+            } else {
+                nomediaOutput('<span class="info">Handing off to systemd (PID 1)...</span>\n<span class="info">[ OK ] Started systemd.</span>\n<span class="info">[ OK ] SELinux: Relabeling all files...</span>\n<span class="success">Relabeling complete. System rebooting...</span>\n<span class="success">\n✓ RECOVERY COMPLETE! Root password reset and SELinux contexts restored.</span>');
+            }
+        } else if (cmd === 'reboot') {
+            nomediaOutput('<span class="error">reboot: Cannot reboot system — no init system is running (bash is PID 1).</span>\n<span class="error">Use "exec /sbin/init" to properly hand off to systemd and trigger relabeling.</span>');
+        } else {
+            nomediaOutput('<span class="result">' + escHtml(getGenericResponse(cmd)) + '</span>');
+        }
+        document.getElementById('sim-nomedia-input').value = '';
+    }
+
+    document.getElementById('sim-nomedia-run').addEventListener('click', function() {
+        runNomediaCommand(document.getElementById('sim-nomedia-input').value);
+    });
+    document.getElementById('sim-nomedia-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') runNomediaCommand(this.value);
+    });
+    document.getElementById('sim-nomedia-reset').addEventListener('click', resetNomediaSim);
+
+    // Quick command buttons
+    document.querySelectorAll('.sim-cmd-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var sim = btn.getAttribute('data-sim');
+            var cmd = btn.getAttribute('data-cmd');
+            if (sim === 'media') {
+                document.getElementById('sim-media-input').value = cmd;
+                runMediaCommand(cmd);
+            } else if (sim === 'nomedia') {
+                document.getElementById('sim-nomedia-input').value = cmd;
+                runNomediaCommand(cmd);
+            }
+        });
+    });
+
+    function escHtml(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function getGenericResponse(cmd) {
+        var c = cmd.toLowerCase().split(' ')[0];
+        var map = {
+            'ls': 'anaconda-post.log  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var',
+            'pwd': '/',
+            'id': 'uid=0(root) gid=0(root) groups=0(root)',
+            'whoami': 'root',
+            'hostname': 'serverb.lab.example.com',
+            'uname': 'Linux serverb.lab.example.com 6.11.0-9.el10.x86_64 #1 SMP PREEMPT_DYNAMIC',
+            'date': new Date().toString(),
+            'help': 'Available: chroot, passwd, touch, ls, mount, exec, exit, uname, id, pwd'
+        };
+        return map[c] || 'bash: ' + cmd.split(' ')[0] + ': command not found (only key recovery commands are simulated)';
+    }
+
+    /* =========================================================
+       WINDOW EXPOSURE FOR ONCLICK COMPATIBILITY
+       ========================================================= */
+    window.runMediaCommand = runMediaCommand;
+    window.runNomediaCommand = runNomediaCommand;
+
+})();
+</script>
+</body>
+</html>
