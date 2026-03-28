@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RH134 Chapter 19: Comprehensive Review Labs | Red Hat System Administration II</title>
+<style>
+:root {
+    --rh-red: #CC0000; --rh-red-dark: #990000; --rh-red-light: #FF3333;
+    --rh-black: #1A1A1A; --rh-gray-dark: #333333; --rh-gray: #666666;
+    --rh-gray-medium: #999999; --rh-gray-light: #CCCCCC;
+    --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+    --rh-blue: #0066CC; --rh-blue-dark: #003366; --rh-blue-light: #3399FF;
+    --rh-teal: #009999; --rh-teal-dark: #006666;
+    --rh-gold: #CC9900; --rh-green: #339933; --rh-green-dark: #006600;
+    --rh-purple: #663399; --rh-orange: #FF6600;
+    --status-success: #339933; --status-warning: #CC9900;
+    --status-error: #CC0000; --status-info: #0066CC;
+    --font-display: 'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    --font-body: Georgia,'Times New Roman',serif;
+    --font-mono: 'Consolas','Monaco','Courier New',monospace;
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 16px; --radius-xl: 24px;
+    --transition-fast: 0.15s ease; --transition-med: 0.3s ease; --transition-slow: 0.5s ease;
+    --max-width: 1200px; --content-width: 900px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+*:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+.skip-link:focus { top: 8px; }
+.main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+.main-header::before { content: ''; position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+.header-tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 4px 14px; border-radius: 20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+.header-title { font-family: var(--font-display); font-size: clamp(1.6rem,4vw,2.4rem); font-weight: 700; margin-bottom: 10px; line-height: 1.2; }
+.header-subtitle { font-family: var(--font-body); font-size: 1rem; opacity: 0.85; max-width: 600px; margin: 0 auto 20px; }
+.header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.header-meta span { font-family: var(--font-display); font-size: 0.82rem; opacity: 0.8; }
+.progress-container { background: var(--rh-blue-dark); padding: 6px 20px 4px; }
+.progress-bar-outer { height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; max-width: var(--max-width); margin: 0 auto; }
+#progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--rh-blue-light), #66CCFF); transition: width var(--transition-med); border-radius: 2px; }
+.progress-text { text-align: center; font-family: var(--font-display); font-size: 0.72rem; color: rgba(255,255,255,0.6); padding-top: 3px; }
+.section-nav { background: var(--rh-white); border-bottom: 2px solid var(--rh-blue); box-shadow: var(--shadow-sm); position: sticky; top: 36px; z-index: 99; overflow-x: auto; }
+.section-nav-inner { display: flex; max-width: var(--max-width); margin: 0 auto; padding: 0 12px; }
+.nav-btn { flex-shrink: 0; padding: 10px 16px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; color: var(--rh-gray); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all var(--transition-fast); white-space: nowrap; text-decoration: none; display: inline-block; }
+.nav-btn:hover { color: var(--rh-blue); border-bottom-color: var(--rh-blue-light); background: rgba(0,102,204,0.05); }
+.nav-btn.active { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue); font-weight: 700; }
+main { max-width: var(--max-width); margin: 0 auto; padding: 24px 16px 40px; }
+.content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 28px; overflow: hidden; }
+.section-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%); padding: 20px 28px; display: flex; align-items: center; gap: 16px; }
+.lab-header-1 { background: linear-gradient(135deg, #003366 0%, #0066CC 100%); }
+.lab-header-2 { background: linear-gradient(135deg, #004488 0%, #0077EE 100%); }
+.lab-header-3 { background: linear-gradient(135deg, #005599 0%, #0088FF 100%); }
+.lab-header-4 { background: linear-gradient(135deg, #006699 0%, #0099CC 100%); }
+.section-number { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: var(--rh-white); font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.section-header h2 { color: var(--rh-white); font-family: var(--font-display); font-size: clamp(1rem,2.5vw,1.3rem); font-weight: 700; }
+.section-body { padding: 24px 28px; }
+.section-body p { margin-bottom: 1rem; }
+.section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); margin: 1.5rem 0 0.6rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+.section-body h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--rh-gray-dark); margin: 1rem 0 0.4rem; }
+.section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.4rem; }
+.section-body li { margin-bottom: 0.35rem; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: #EEF4FF; color: #003399; padding: 2px 6px; border-radius: 3px; }
+.code-block { background: #0D1117; border-radius: var(--radius-md); padding: 18px 20px; margin: 1rem 0; overflow-x: auto; }
+.code-title { color: #8B949E; font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; border-bottom: 1px solid #30363D; padding-bottom: 8px; }
+.code-block code { display: block; background: none; color: #C9D1D9; font-size: 0.84rem; line-height: 1.7; padding: 0; white-space: pre; }
+.code-prompt { color: #58A6FF; }
+.code-root { color: #FF7B72; }
+.code-command { font-weight: 700; color: #79C0FF; }
+.code-output { color: #8B949E; font-style: italic; display: block; }
+.code-comment { color: #6E7681; font-style: italic; display: block; }
+.code-highlight { color: #E3B341; font-weight: 700; }
+.note-box { border-left: 4px solid; border-radius: var(--radius-md); padding: 14px 18px; margin: 1rem 0; }
+.note-box-header { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.note-box p { font-size: 0.9rem; margin: 0; }
+.note-box.tip { background: #F0FFF4; border-color: var(--rh-green); }
+.note-box.tip .note-box-header { color: var(--rh-green-dark); }
+.note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+.note-box.warning .note-box-header { color: #886600; }
+.note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+.note-box.important .note-box-header { color: var(--rh-red-dark); }
+.note-box.note { background: #F0F8FF; border-color: var(--rh-blue); }
+.note-box.note .note-box-header { color: var(--rh-blue-dark); }
+.expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 0.5rem 0; overflow: hidden; }
+.expandable-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; background: var(--rh-gray-lighter); font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; border: none; width: 100%; text-align: left; color: var(--rh-gray-dark); transition: background var(--transition-fast); }
+.expandable-header:hover { background: #E8F0FF; color: var(--rh-blue-dark); }
+.expandable-header[aria-expanded="true"] { background: #EEF4FF; color: var(--rh-blue-dark); border-bottom: 1px solid var(--rh-blue-light); }
+.expand-icon { margin-left: auto; font-size: 0.9rem; transition: transform var(--transition-fast); flex-shrink: 0; }
+.expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+.expandable-content { display: none; padding: 18px; background: var(--rh-white); }
+.expandable-content.show { display: block; }
+.step-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--rh-blue); color: var(--rh-white); border-radius: 50%; font-size: 0.82rem; font-weight: 700; font-family: var(--font-display); flex-shrink: 0; }
+.checklist { list-style: none; padding: 0; }
+.checklist li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-family: var(--font-display); font-size: 0.9rem; border-bottom: 1px solid var(--rh-gray-lighter); }
+.checklist li:last-child { border-bottom: none; }
+.check-icon { color: var(--rh-green); font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.cmd-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+.cmd-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; font-family: var(--font-display); font-weight: 700; text-align: left; }
+.cmd-table td { padding: 8px 14px; border-bottom: 1px solid var(--rh-gray-lighter); }
+.cmd-table tr:nth-child(even) td { background: #F5F8FF; }
+.chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin: 30px 0; flex-wrap: wrap; }
+.nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+.nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+.nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+.nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+.nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+.nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+.nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
+footer { background: var(--rh-gray-dark); color: rgba(255,255,255,0.7); text-align: center; padding: 28px 20px; font-family: var(--font-display); font-size: 0.8rem; line-height: 1.8; }
+footer strong { color: var(--rh-white); }
+/* Tooltip */
+.tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; }
+.tooltip-content { display: none; }
+#tooltip-bubble { position: fixed; max-width: 300px; background: var(--rh-blue-dark); color: var(--rh-white); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; padding: 10px 14px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); z-index: 9999; pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+#tooltip-bubble.visible { opacity: 1; }
+/* Lab summary cards */
+.lab-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin: 1rem 0; }
+.lab-card { background: var(--rh-white); border: 2px solid var(--rh-blue-light); border-radius: var(--radius-md); padding: 16px; text-align: center; }
+.lab-card-num { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--rh-blue); }
+.lab-card-title { font-family: var(--font-display); font-size: 0.88rem; font-weight: 700; color: var(--rh-blue-dark); margin: 4px 0; }
+.lab-card-time { font-family: var(--font-display); font-size: 0.8rem; color: var(--rh-gray); }
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; } }
+@media (prefers-contrast: high) { .content-section { border: 2px solid var(--rh-black); } .note-box { border-width: 3px; } }
+@media (max-width: 768px) { .section-body { padding: 16px; } .section-nav { top: 0; } .chapter-nav { flex-direction: column; } .nav-chapter-btn { justify-content: center; } .lab-grid { grid-template-columns: 1fr 1fr; } }
+@media print { .section-nav, .progress-container, .quiz-btn, .chapter-nav { display: none; } .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); } }
+/* ── Modal overlay ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 1000; align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 760px; width: 100%; max-height: 88vh; display: flex; flex-direction: column; overflow: hidden; }
+.modal-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%); padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.modal-header h3 { color: var(--rh-white); font-family: var(--font-display); font-size: 1rem; font-weight: 700; margin: 0; }
+.modal-close { background: rgba(255,255,255,0.2); border: none; color: var(--rh-white); font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background var(--transition-fast); flex-shrink: 0; }
+.modal-close:hover { background: rgba(255,255,255,0.35); }
+.modal-body { overflow-y: auto; padding: 20px 22px; }
+.modal-body .cmd-table { margin: 0; }
+/* ── Quick-ref trigger button ── */
+.qref-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.4); color: var(--rh-white); font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; border-radius: 20px; cursor: pointer; transition: background var(--transition-fast); white-space: nowrap; margin-left: auto; flex-shrink: 0; }
+.qref-btn:hover { background: rgba(255,255,255,0.32); }
+.qref-btn:focus-visible { outline: 3px solid rgba(255,255,255,0.8); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header class="main-header" role="banner">
+  <div class="header-tag">RH134 &bull; RHEL 10 &bull; RHCSA Prep</div>
+  <h1 class="header-title">Chapter 19: Comprehensive Review Labs</h1>
+  <p class="header-subtitle">Four timed practice labs covering all major RHCSA exam objectives</p>
+  <div class="header-meta">
+    <span>&#x1F4DA; RH134 Red Hat System Administration II</span>
+    <span>&#x23F1; 2 hours total (4 &times; 30 min)</span>
+    <span>&#x1F3AF; RHCSA EX200 Exam Prep</span>
+  </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-label="Reading progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+  <div class="progress-bar-outer"><div id="progress-fill"></div></div>
+  <div class="progress-text" id="progress-text">0% complete</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+  <div class="section-nav-inner">
+    <button class="nav-btn active" data-section="objectives" onclick="scrollToSection('objectives')">Objectives</button>
+    <button class="nav-btn" data-section="lab1" onclick="scrollToSection('lab1')">Lab 1: Boot &amp; Services</button>
+    <button class="nav-btn" data-section="lab2" onclick="scrollToSection('lab2')">Lab 2: Storage</button>
+    <button class="nav-btn" data-section="lab3" onclick="scrollToSection('lab3')">Lab 3: Security</button>
+    <button class="nav-btn" data-section="lab4" onclick="scrollToSection('lab4')">Lab 4: Containers</button>
+    <button class="nav-btn" data-section="summary" onclick="scrollToSection('summary')">Summary</button>
+  </div>
+</nav>
+
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<main id="main-content">
+
+<!-- ==================== SECTION 1: OBJECTIVES ==================== -->
+<section id="objectives" class="content-section" aria-labelledby="objectives-heading">
+  <div class="section-header">
+    <span class="section-number" aria-hidden="true">1</span>
+    <h2 id="objectives-heading">Learning Objectives &amp; Lab Overview</h2>
+  </div>
+  <div class="section-body">
+    <p>This chapter is a comprehensive review consisting of four graded labs that integrate skills from the entire RH134 course. Each lab is designed to be completed in <strong>30 minutes</strong> under exam conditions. Together, they cover every major domain of the
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rhcsa">RHCSA EX200</span>
+    <span class="tooltip-content" id="tt-rhcsa">Red Hat Certified System Administrator (RHCSA) exam, exam code EX200. A performance-based exam of 2.5 hours where candidates configure a live RHEL system. Passing score is 210 out of 300 points.</span>
+    exam.</p>
+
+    <div class="lab-grid" role="list" aria-label="Lab summary">
+      <div class="lab-card" role="listitem">
+        <div class="lab-card-num">1</div>
+        <div class="lab-card-title">Fix Boot Issues &amp; Maintain Servers</div>
+        <div class="lab-card-time">&#x23F1; 30 min &bull; serverb</div>
+      </div>
+      <div class="lab-card" role="listitem">
+        <div class="lab-card-num">2</div>
+        <div class="lab-card-title">Configure File Systems &amp; Storage</div>
+        <div class="lab-card-time">&#x23F1; 30 min &bull; serverb</div>
+      </div>
+      <div class="lab-card" role="listitem">
+        <div class="lab-card-num">3</div>
+        <div class="lab-card-title">Configure &amp; Manage Server Security</div>
+        <div class="lab-card-time">&#x23F1; 30 min &bull; servera + serverb</div>
+      </div>
+      <div class="lab-card" role="listitem">
+        <div class="lab-card-num">4</div>
+        <div class="lab-card-title">Run Containers</div>
+        <div class="lab-card-time">&#x23F1; 30 min &bull; serverb</div>
+      </div>
+    </div>
+
+    <h3>After completing these labs, you will be able to:</h3>
+    <ul>
+      <li>Diagnose and repair boot failures caused by invalid
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fstab1">/etc/fstab</span>
+        <span class="tooltip-content" id="tt-fstab1">/etc/fstab defines all filesystems mounted at boot. A syntax error here can drop the system into emergency mode. Always run mount -a after editing to test before rebooting.</span>
+        entries and misconfigured
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-systemd1">systemd</span>
+        <span class="tooltip-content" id="tt-systemd1">systemd is the init system and service manager for RHEL. It manages the boot process using units (services, targets, timers, mounts). It replaces the older SysV init and upstart systems.</span>
+        targets</li>
+      <li>Create and mount
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvm1">LVM</span>
+        <span class="tooltip-content" id="tt-lvm1">Logical Volume Manager lets you pool physical storage into volume groups and create flexible logical volumes. You can resize LVs online without unmounting (for XFS: grow only).</span>
+        logical volumes, NFS shares, and swap partitions persistently via /etc/fstab</li>
+      <li>Manage local users and groups, and configure
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfiles1">systemd-tmpfiles</span>
+        <span class="tooltip-content" id="tt-tmpfiles1">systemd-tmpfiles manages temporary file and directory creation/deletion. Rules in /etc/tmpfiles.d/*.conf are applied at boot and on demand with systemd-tmpfiles --create.</span>
+        rules</li>
+      <li>Configure
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ssh1">SSH key-based authentication</span>
+        <span class="tooltip-content" id="tt-ssh1">SSH public key authentication eliminates password prompts by placing the client public key in ~/.ssh/authorized_keys on the target server. Generated with ssh-keygen; deployed with ssh-copy-id.</span>
+        between hosts</li>
+      <li>Set
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux1">SELinux</span>
+        <span class="tooltip-content" id="tt-selinux1">Security-Enhanced Linux enforces mandatory access control policies on top of standard Linux permissions. Three modes: enforcing (blocks violations), permissive (logs only), disabled (off). Persistent mode is set in /etc/selinux/config.</span>
+        modes persistently, manage SELinux booleans, and resolve AVC denials with semanage</li>
+      <li>Configure
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autofs1">autofs</span>
+        <span class="tooltip-content" id="tt-autofs1">autofs automatically mounts filesystems on demand when accessed and unmounts them after a timeout. Configured via /etc/auto.master.d/ drop-in files and separate map files.</span>
+        to automount NFS home directories on demand</li>
+      <li>Manage
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-firewalld1">firewalld</span>
+        <span class="tooltip-content" id="tt-firewalld1">firewalld uses zones and rich rules to manage iptables/nftables firewall rules dynamically. Changes are runtime (immediate, lost on reload) or permanent (--permanent, requires --reload).</span>
+        zones, port rules, and source-based blocking</li>
+      <li>Build
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-podman1">Podman</span>
+        <span class="tooltip-content" id="tt-podman1">Podman is a daemonless container engine compatible with Docker CLI syntax. On RHEL it supports rootless containers (no root required) and integrates with systemd for service management.</span>
+        container images from a Containerfile, push to a registry, and run detached containers with port mapping</li>
+    </ul>
+
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Exam Conditions Apply</span></div>
+      <p>Run <code>lab start compreview-review<em>N</em></code> before each lab and <code>lab grade compreview-review<em>N</em></code> before <code>lab finish</code>. Do not close SSH sessions or reboot unexpectedly during grading. Each lab is independent&mdash;finish and grade one before starting the next.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 2: LAB 1 ==================== -->
+<section id="lab1" class="content-section" aria-labelledby="lab1-heading">
+  <div class="section-header lab-header-1">
+    <span class="section-number" aria-hidden="true">2</span>
+    <h2 id="lab1-heading">Lab 1: Fix Boot Issues &amp; Maintain Servers</h2>
+    <button class="qref-btn" onclick="openModal('modal-lab1')" aria-haspopup="dialog" aria-label="Open Lab 1 command reference">&#x1F4CB; Quick Reference</button>
+  </div>
+  <div class="section-body">
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x23F1;</span><span>Time Limit: 30 Minutes</span></div>
+      <p>Run <code>lab start compreview-review1</code> on <strong>workstation</strong> before beginning. The lab script configures break scenarios on serverb that you must diagnose and fix.</p>
+    </div>
+
+    <p>In this lab you will fix a broken
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-emergency">emergency mode</span>
+    <span class="tooltip-content" id="tt-emergency">Emergency mode is a minimal recovery shell systemd drops into when a critical error (such as a bad /etc/fstab entry) prevents normal boot. The root filesystem is often mounted read-only. Use mount -o remount,rw / to make it writable.</span>
+    boot, correct a persistent
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-target">systemd target</span>
+    <span class="tooltip-content" id="tt-target">systemd targets are milestone units that group services. multi-user.target is the standard multi-user text mode (runlevel 3). graphical.target adds a GUI (runlevel 5). The default target is a symlink managed by systemctl set-default.</span>
+    , and schedule a
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cron1">cron job</span>
+    <span class="tooltip-content" id="tt-cron1">cron is a time-based job scheduler. User jobs are stored in /var/spool/cron/. Edit with crontab -e. Each line specifies: minute hour day-of-month month day-of-week command. Ranges like 19-21 and lists like 1-5 are valid.</span>
+    .</p>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-1">
+        <span class="step-number">1</span><span>Run the break script and observe serverb enter emergency mode</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-1">
+        <p>On <strong>workstation</strong>, run the first break script. It inserts a bad entry into serverb&#39;s <code>/etc/fstab</code>, then reboots serverb.</p>
+        <div class="code-block" role="region" aria-label="Run break script 1">
+          <div class="code-title">workstation &mdash; run break script</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab start compreview-review1</span>
+<span class="code-output">...setting up lab environment...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+<span class="code-output">...serverb drops to emergency mode on next reboot...</span></code>
+        </div>
+        <div class="note-box note">
+          <div class="note-box-header"><span aria-hidden="true">&#x2139;</span><span>What to expect</span></div>
+          <p>After the break script runs and serverb reboots, you will see a message like <em>"Welcome to emergency mode!"</em> with a prompt to enter the root password for maintenance.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-2">
+        <span class="step-number">2</span><span>Remount root read-write and find the bad fstab entry</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-2">
+        <p>In emergency mode, the root filesystem is mounted read-only. Remount it writable, then run <code>mount -a</code> to reveal which fstab entry is invalid.</p>
+        <div class="code-block" role="region" aria-label="Remount root and find bad entry">
+          <div class="code-title">serverb (emergency mode, as root) &mdash; remount and diagnose</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">mount -o remount,rw /</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mount -a</span>
+<span class="code-output">mount: /badbadmount: can&#39;t read superblock
+...error indicates the device or path does not exist...</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Reading mount -a errors</span></div>
+          <p>The error from <code>mount -a</code> identifies the failing mount point. Look for device names that do not exist (<code>/dev/sdX</code> that is absent) or incorrect UUID values. The error line tells you exactly which entry to remove.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-3">
+        <span class="step-number">3</span><span>Edit /etc/fstab to remove the invalid entry and reboot</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-3">
+        <p>Use <code>vi</code> to remove the line causing the mount failure, then run <code>systemctl daemon-reload</code> and reboot. Verify serverb boots normally.</p>
+        <div class="code-block" role="region" aria-label="Fix fstab and reboot">
+          <div class="code-title">serverb (emergency mode, as root) &mdash; edit fstab and reboot</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">vi /etc/fstab</span>
+<span class="code-comment"># Find the bad line (e.g., /badbadmount entry) and delete it: dd in vi normal mode</span>
+<span class="code-comment"># Save and exit:  :wq</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mount -a</span>
+<span class="code-output">(no errors)</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">reboot</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">Essential vi commands for exam use</caption>
+          <thead><tr><th>vi Command</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><code>dd</code></td><td>Delete the current line</td></tr>
+            <tr><td><code>i</code></td><td>Enter insert mode (before cursor)</td></tr>
+            <tr><td><code>Esc</code></td><td>Return to normal mode</td></tr>
+            <tr><td><code>:wq</code></td><td>Write (save) and quit</td></tr>
+            <tr><td><code>:q!</code></td><td>Quit without saving</td></tr>
+          </tbody>
+        </table>
+        <div class="note-box warning">
+          <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Always test fstab edits</span></div>
+          <p>Run <code>mount -a</code> after <em>every</em> fstab edit and confirm there are no errors before rebooting. A bad fstab entry is one of the most common causes of boot failure on the RHCSA exam.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-4">
+        <span class="step-number">4</span><span>Run break script 2: fix the default systemd target</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-4">
+        <p>The second break script sets <code>graphical.target</code> as the default on serverb. Because the lab environment has no GUI, serverb appears to hang at boot. Change the default target back to
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-multiuser">multi-user.target</span>
+        <span class="tooltip-content" id="tt-multiuser">multi-user.target is the equivalent of runlevel 3: a fully operational, multi-user, network-enabled system without a graphical interface. It is the standard target for servers.</span>
+        persistently.</p>
+        <div class="code-block" role="region" aria-label="Fix default target">
+          <div class="code-title">workstation &mdash; run break script 2</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb /tmp/rhcsa-break2</span>
+<span class="code-comment"># serverb reboots; wait, then reconnect:</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Fix default target on serverb">
+          <div class="code-title">serverb (as root) &mdash; check and correct default target</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">graphical.target</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl set-default multi-user.target</span>
+<span class="code-output">Removed "/etc/systemd/system/default.target".
+Created symlink /etc/systemd/system/default.target
+  -> /usr/lib/systemd/system/multi-user.target.</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl get-default</span>
+<span class="code-output">multi-user.target</span></code>
+        </div>
+        <p><code>systemctl set-default</code> updates the symlink at <code>/etc/systemd/system/default.target</code> pointing to the chosen target. The symlink survives reboots, making the change persistent. <code>systemctl isolate multi-user.target</code> switches immediately but is <em>not</em> persistent.</p>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-5">
+        <span class="step-number">5</span><span>Make the backup script executable and create a cron job</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-5">
+        <p>Log into <strong>serverb</strong> as <code>student</code>. Verify the backup script exists and add execute permission, then schedule it to run hourly between 7&nbsp;PM and 9&nbsp;PM, Monday through Friday.</p>
+        <div class="code-block" role="region" aria-label="Make script executable">
+          <div class="code-title">serverb (as student) &mdash; set execute permission</div>
+          <code><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ls -l ~/RH134/labs/compreview-review1/backup-home.sh</span>
+<span class="code-output">-rw-r--r--. 1 student student 212 Jul 21 18:00 backup-home.sh</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">chmod +x ~/RH134/labs/compreview-review1/backup-home.sh</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ls -l ~/RH134/labs/compreview-review1/backup-home.sh</span>
+<span class="code-output">-rwxr-xr-x. 1 student student 212 Jul 21 18:00 backup-home.sh</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Create cron job">
+          <div class="code-title">serverb (as student) &mdash; edit crontab</div>
+          <code><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">crontab -e</span>
+<span class="code-comment"># Add this single line, then save and exit (:wq in vi):</span>
+<span class="code-highlight">0 19-21 * * 1-5 /home/student/RH134/labs/compreview-review1/backup-home.sh</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">crontab -l</span>
+<span class="code-output">0 19-21 * * 1-5 /home/student/RH134/labs/compreview-review1/backup-home.sh</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">Crontab field breakdown</caption>
+          <thead><tr><th>Field</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Minute</td><td><code>0</code></td><td>At the top of the hour (minute 0)</td></tr>
+            <tr><td>Hour</td><td><code>19-21</code></td><td>Hours 19, 20, and 21 (7 PM, 8 PM, 9 PM)</td></tr>
+            <tr><td>Day of Month</td><td><code>*</code></td><td>Every day of the month</td></tr>
+            <tr><td>Month</td><td><code>*</code></td><td>Every month</td></tr>
+            <tr><td>Day of Week</td><td><code>1-5</code></td><td>Monday through Friday</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t1-6">
+        <span class="step-number">6</span><span>Grade and finish Lab 1</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t1-6">
+        <div class="code-block" role="region" aria-label="Grade and finish lab 1">
+          <div class="code-title">workstation &mdash; grade and finish</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade compreview-review1</span>
+<span class="code-output">...grading output...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish compreview-review1</span></code>
+        </div>
+        <h4 style="font-family:var(--font-display);margin:1rem 0 0.5rem;">Lab 1 Completion Checklist</h4>
+        <ul class="checklist">
+          <li><span class="check-icon">&#x2713;</span><span>serverb boots successfully without emergency mode</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Invalid /etc/fstab line removed; mount -a shows no errors</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Default target is multi-user.target (persistent)</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>backup-home.sh has execute permission</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Cron job scheduled: top of hour, 7-9 PM, Mon-Fri, as student</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== SECTION 3: LAB 2 ==================== -->
+<section id="lab2" class="content-section" aria-labelledby="lab2-heading">
+  <div class="section-header lab-header-2">
+    <span class="section-number" aria-hidden="true">3</span>
+    <h2 id="lab2-heading">Lab 2: Configure File Systems &amp; Storage</h2>
+    <button class="qref-btn" onclick="openModal('modal-lab2')" aria-haspopup="dialog" aria-label="Open Lab 2 command reference">&#x1F4CB; Quick Reference</button>
+  </div>
+  <div class="section-body">
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x23F1;</span><span>Time Limit: 30 Minutes</span></div>
+      <p>Run <code>lab start compreview-review2</code> on <strong>workstation</strong> before beginning. This provisions
+      <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sdb">/dev/sdb and /dev/sdc</span>
+      <span class="tooltip-content" id="tt-sdb">/dev/sdb and /dev/sdc are additional virtual disk devices attached to serverb. They are unpartitioned at the start of the lab.</span>
+      on serverb and creates the production5 user account on servera.</p>
+    </div>
+
+    <p>This lab exercises
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvm2">LVM</span>
+    <span class="tooltip-content" id="tt-lvm2">Logical Volume Manager pools physical disk partitions into volume groups, then carves flexible logical volumes. LVs can be grown online without unmounting (XFS supports online grow).</span>
+    storage creation, persistent
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nfs2">NFS</span>
+    <span class="tooltip-content" id="tt-nfs2">Network File System allows Linux clients to mount directories exported by a server. Configure in /etc/fstab for persistent mounts. Use the nfs filesystem type and rw,sync options for read-write synchronous access.</span>
+    mounts,
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-swap2">swap</span>
+    <span class="tooltip-content" id="tt-swap2">Swap space extends effective RAM by using disk. A swap partition is identified by type "swap" in /etc/fstab. Reference by UUID (not device name) for reliability. Activate immediately with swapon -a.</span>
+    , user management, and
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfiles2">systemd-tmpfiles</span>
+    <span class="tooltip-content" id="tt-tmpfiles2">Rules in /etc/tmpfiles.d/*.conf tell systemd-tmpfiles what directories and files to create or clean up. Type 'd' creates a directory. Applies at boot via tmpfiles-setup.service and on demand with systemd-tmpfiles --create.</span>
+    .</p>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-1">
+        <span class="step-number">1</span><span>Create an LVM logical volume and mount it at /user-homes</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-1">
+        <p>On <strong>serverb</strong>: partition <code>/dev/sdb</code>, create a
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pv">physical volume</span>
+        <span class="tooltip-content" id="tt-pv">A physical volume (PV) is a partition initialized for LVM with pvcreate. It stores LVM metadata and contributes its space to a volume group.</span>
+        , build volume group <code>extra_storage</code>, carve a 1&nbsp;GiB logical volume <code>vol_home</code>, format
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-xfs">XFS</span>
+        <span class="tooltip-content" id="tt-xfs">XFS is the default RHEL data filesystem. It is a high-performance 64-bit journaling filesystem. Use mkfs.xfs to format; xfs_admin and xfs_info for inspection.</span>
+        , and add a persistent fstab entry.</p>
+        <div class="code-block" role="region" aria-label="Partition /dev/sdb for LVM">
+          <div class="code-title">serverb (as root) &mdash; partition /dev/sdb</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mklabel gpt</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb mkpart primary 1MiB 100%</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdb set 1 lvm on</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Create LVM stack">
+          <div class="code-title">serverb (as root) &mdash; build PV, VG, LV, format</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">pvcreate /dev/sdb1</span>
+<span class="code-output">  Physical volume "/dev/sdb1" successfully created.</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">vgcreate extra_storage /dev/sdb1</span>
+<span class="code-output">  Volume group "extra_storage" successfully created</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">lvcreate -L 1GiB -n vol_home extra_storage</span>
+<span class="code-output">  Logical volume "vol_home" created.</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mkfs.xfs /dev/extra_storage/vol_home</span>
+<span class="code-output">meta-data=/dev/extra_storage/vol_home  isize=512  agcount=4 ...
+...filesystem created successfully</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Mount LVM volume">
+          <div class="code-title">serverb (as root) &mdash; mount point and fstab entry</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">mkdir -p /user-homes</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo '/dev/extra_storage/vol_home  /user-homes  xfs  defaults  0 0' >> /etc/fstab</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mount -a</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">df -h /user-homes</span>
+<span class="code-output">Filesystem                          Size  Used Avail Use% Mounted on
+/dev/mapper/extra_storage-vol_home  1.0G   40M  960M   4% /user-homes</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Why udevadm settle?</span></div>
+          <p><code>udevadm settle</code> waits for udev to finish processing device events. After partitioning, this ensures <code>/dev/sdb1</code> exists in <code>/dev</code> before you run <code>pvcreate</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-2">
+        <span class="step-number">2</span><span>Mount the NFS share /local-share from servera persistently</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-2">
+        <p>Create the mount point <code>/local-share</code> and add a persistent fstab entry to mount <code>servera:/share</code> with <code>rw,sync</code> options.</p>
+        <div class="code-block" role="region" aria-label="Mount NFS share">
+          <div class="code-title">serverb (as root) &mdash; mount NFS share</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">mkdir -p /local-share</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo 'servera:/share  /local-share  nfs  rw,sync  0 0' >> /etc/fstab</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mount -a</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">df -h /local-share</span>
+<span class="code-output">Filesystem      Size  Used Avail Use% Mounted on
+servera:/share   10G  2.1G  7.9G  21% /local-share</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">NFS mount options</caption>
+          <thead><tr><th>Option</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>rw</code></td><td>Read-write access</td></tr>
+            <tr><td><code>sync</code></td><td>Writes complete on server before returning; safer than async</td></tr>
+            <tr><td><code>0 0</code></td><td>No dump; no fsck (correct for network filesystems)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-3">
+        <span class="step-number">3</span><span>Add a swap partition on /dev/sdc</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-3">
+        <p>Partition <code>/dev/sdc</code>, initialize it as swap, and add it to <code>/etc/fstab</code> using its
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-uuid">UUID</span>
+        <span class="tooltip-content" id="tt-uuid">UUID (Universally Unique Identifier) is a 128-bit value assigned to each filesystem. Using UUID in /etc/fstab is safer than device names (/dev/sdc1) because device names can change when disks are added or removed.</span>
+        for reliability.</p>
+        <div class="code-block" role="region" aria-label="Create swap partition">
+          <div class="code-title">serverb (as root) &mdash; create swap partition</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdc mklabel gpt</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">parted /dev/sdc mkpart primary linux-swap 1MiB 513MiB</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">udevadm settle</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">mkswap /dev/sdc1</span>
+<span class="code-output">Setting up swapspace version 1, size = 512 MiB
+UUID=a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>
+
+<span class="code-comment"># Use YOUR UUID from mkswap output or blkid:</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">blkid /dev/sdc1</span>
+<span class="code-output">/dev/sdc1: UUID="a1b2c3d4-..." TYPE="swap"</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo 'UUID=a1b2c3d4-e5f6-7890-abcd-ef1234567890  none  swap  defaults  0 0' >> /etc/fstab</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">swapon -a</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">swapon --show</span>
+<span class="code-output">NAME      TYPE      SIZE   USED PRIO
+/dev/sdc1 partition 512M     0B   -2</span></code>
+        </div>
+        <div class="note-box warning">
+          <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Use YOUR actual UUID</span></div>
+          <p>The UUID shown above is an example. Copy the UUID from your own <code>mkswap</code> or <code>blkid</code> output&mdash;never type an example value from documentation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-4">
+        <span class="step-number">4</span><span>Create the production group and users production1-4</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-4">
+        <p>On <strong>serverb</strong>: create group <code>production</code>, create users <code>production1</code> through <code>production4</code> each belonging to that group, and set each password to <code>redhat</code>.</p>
+        <div class="code-block" role="region" aria-label="Create production group and users">
+          <div class="code-title">serverb (as root) &mdash; group and users</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">groupadd production</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">for i in 1 2 3 4; do</span>
+<span class="code-command">    useradd -G production production${i}</span>
+<span class="code-command">    echo "redhat" | passwd --stdin production${i}</span>
+<span class="code-command">done</span>
+<span class="code-output">Changing password for user production1.
+passwd: all authentication tokens updated successfully.
+... (repeated for production2-4)</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">grep production /etc/group</span>
+<span class="code-output">production:x:1005:production1,production2,production3,production4</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>useradd -G vs -g</span></div>
+          <p><code>-G production</code> adds <code>production</code> as a
+          <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-suppgrp">supplementary group</span>
+          <span class="tooltip-content" id="tt-suppgrp">A supplementary (secondary) group is listed in /etc/group and grants additional access. The primary group is stored in /etc/passwd and is applied to new files the user creates.</span>
+          while keeping the default primary group. <code>-g production</code> would set it as the primary group.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-5">
+        <span class="step-number">5</span><span>Configure a systemd-tmpfiles rule for /run/volatile</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-5">
+        <p>Create a
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpconf2">tmpfiles.d rule</span>
+        <span class="tooltip-content" id="tt-tmpconf2">Rules in /etc/tmpfiles.d/*.conf follow the format: type path mode user group age. Type 'd' creates a directory. The age field tells systemd-tmpfiles to remove files not accessed within that duration (e.g., 30s = 30 seconds).</span>
+        that creates <code>/run/volatile</code> owned by root with mode 0700, and cleans files older than 30 seconds.</p>
+        <div class="code-block" role="region" aria-label="Create tmpfiles rule">
+          <div class="code-title">serverb (as root) &mdash; create tmpfiles.d rule</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo "d /run/volatile 0700 root root 30s" > /etc/tmpfiles.d/volatile.conf</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">cat /etc/tmpfiles.d/volatile.conf</span>
+<span class="code-output">d /run/volatile 0700 root root 30s</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemd-tmpfiles --create /etc/tmpfiles.d/volatile.conf</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ls -ld /run/volatile</span>
+<span class="code-output">drwx------. 2 root root 40 Jul 21 18:15 /run/volatile</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">tmpfiles.d field breakdown</caption>
+          <thead><tr><th>Field</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Type</td><td><code>d</code></td><td>Create directory if absent</td></tr>
+            <tr><td>Path</td><td><code>/run/volatile</code></td><td>Target path</td></tr>
+            <tr><td>Mode</td><td><code>0700</code></td><td>Owner rwx only</td></tr>
+            <tr><td>User/Group</td><td><code>root root</code></td><td>Owned by root</td></tr>
+            <tr><td>Age</td><td><code>30s</code></td><td>Purge files not accessed in 30 seconds</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t2-6">
+        <span class="step-number">6</span><span>Grade and finish Lab 2</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t2-6">
+        <div class="code-block" role="region" aria-label="Grade and finish lab 2">
+          <div class="code-title">workstation &mdash; grade and finish</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade compreview-review2</span>
+<span class="code-output">...grading output...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish compreview-review2</span></code>
+        </div>
+        <h4 style="font-family:var(--font-display);margin:1rem 0 0.5rem;">Lab 2 Completion Checklist</h4>
+        <ul class="checklist">
+          <li><span class="check-icon">&#x2713;</span><span>LVM: <code>vol_home</code> in VG <code>extra_storage</code>, formatted XFS, mounted at <code>/user-homes</code></span></li>
+          <li><span class="check-icon">&#x2713;</span><span>NFS: <code>servera:/share</code> mounted persistently at <code>/local-share</code> with rw,sync</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Swap: <code>/dev/sdc1</code> active and in <code>/etc/fstab</code> by UUID</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Users <code>production1</code>&ndash;<code>production4</code> exist in group <code>production</code></span></li>
+          <li><span class="check-icon">&#x2713;</span><span><code>/run/volatile</code> created by tmpfiles.d rule; rule persists in <code>/etc/tmpfiles.d/volatile.conf</code></span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== SECTION 4: LAB 3 ==================== -->
+<section id="lab3" class="content-section" aria-labelledby="lab3-heading">
+  <div class="section-header lab-header-3">
+    <span class="section-number" aria-hidden="true">4</span>
+    <h2 id="lab3-heading">Lab 3: Configure &amp; Manage Server Security</h2>
+    <button class="qref-btn" onclick="openModal('modal-lab3')" aria-haspopup="dialog" aria-label="Open Lab 3 command reference">&#x1F4CB; Quick Reference</button>
+  </div>
+  <div class="section-body">
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x23F1;</span><span>Time Limit: 30 Minutes</span></div>
+      <p>Run <code>lab start compreview-review3</code> on <strong>workstation</strong> before beginning. This lab requires work on <strong>both servera and serverb</strong>. Read each task to confirm which host to use.</p>
+    </div>
+
+    <p>This lab covers
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sshkeys3">SSH key authentication</span>
+    <span class="tooltip-content" id="tt-sshkeys3">SSH key authentication uses a public/private key pair. The private key stays on the client; the public key is installed in ~/.ssh/authorized_keys on the target server. No password is needed for login once configured.</span>
+    , persistent
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-selinux3">SELinux mode</span>
+    <span class="tooltip-content" id="tt-selinux3">The SELinux mode in /etc/selinux/config is read at boot. enforcing=blocks violations; permissive=logs only; disabled=SELinux off. setenforce changes the runtime mode but not the boot-time setting in the config file.</span>
+    changes,
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autofs3">autofs</span>
+    <span class="tooltip-content" id="tt-autofs3">autofs mounts network filesystems on demand when a path is accessed and unmounts them after a timeout. Master map drop-ins go in /etc/auto.master.d/; each .autofs file references a map file listing the actual mounts.</span>
+    , SELinux booleans, firewalld zones, and SELinux port labeling.</p>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-1">
+        <span class="step-number">1</span><span>Generate SSH key pair on serverb and copy public key to servera</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-1">
+        <p>As <code>student</code> on <strong>serverb</strong>: run <code>ssh-keygen</code> with no passphrase, then deploy the public key to <strong>servera</strong> with <code>ssh-copy-id</code>. Verify passwordless login.</p>
+        <div class="code-block" role="region" aria-label="Generate and deploy SSH keys">
+          <div class="code-title">serverb (as student) &mdash; generate key and copy to servera</div>
+          <code><span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ssh-keygen</span>
+<span class="code-output">Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/student/.ssh/id_ed25519): <em>(press Enter)</em>
+Enter passphrase (empty for no passphrase): <em>(press Enter)</em>
+Enter same passphrase again: <em>(press Enter)</em>
+Your identification has been saved in /home/student/.ssh/id_ed25519</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ssh-copy-id student@servera</span>
+<span class="code-output">Number of key(s) added: 1</span>
+
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">ssh student@servera hostname</span>
+<span class="code-output">servera.lab.example.com</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>No passphrase = grading requirement</span></div>
+          <p>Press <kbd>Enter</kbd> twice when prompted for a passphrase. The grading script tests passwordless connectivity; a passphrase would cause the test to fail.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-2">
+        <span class="step-number">2</span><span>Set SELinux to permissive mode on servera (persistent)</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-2">
+        <p>On <strong>servera</strong>: edit <code>/etc/selinux/config</code>, change <code>SELINUX=enforcing</code> to <code>SELINUX=permissive</code>, and reboot. Verify with <code>getenforce</code>.</p>
+        <div class="code-block" role="region" aria-label="Set SELinux permissive">
+          <div class="code-title">servera (as root) &mdash; edit config and reboot</div>
+          <code><span class="code-root">[root@servera ~]#</span> <span class="code-command">grep ^SELINUX= /etc/selinux/config</span>
+<span class="code-output">SELINUX=enforcing</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">sed -i 's/^SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">grep ^SELINUX= /etc/selinux/config</span>
+<span class="code-output">SELINUX=permissive</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">reboot</span>
+<span class="code-comment"># After reboot, verify:</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">getenforce</span>
+<span class="code-output">Permissive</span></code>
+        </div>
+        <div class="note-box warning">
+          <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>setenforce is not persistent</span></div>
+          <p><code>setenforce 0</code> changes the runtime mode instantly but is lost on reboot. The exam grader checks the value in <code>/etc/selinux/config</code> and the actual mode after reboot. Both must be permissive.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-3">
+        <span class="step-number">3</span><span>Configure autofs to automount production5 home directory on serverb</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-3">
+        <p>On <strong>serverb</strong>: install autofs, create the master map drop-in and direct map file so that <code>/localhome/production5</code> automounts from <code>servera:/user-homes/production5</code>.</p>
+        <div class="code-block" role="region" aria-label="Install and configure autofs">
+          <div class="code-title">serverb (as root) &mdash; install autofs and create map files</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">dnf install -y autofs</span>
+<span class="code-output">...Installing: autofs ...</span>
+
+<span class="code-comment"># Create the master map drop-in (note: /- = direct map):</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo '/- /etc/auto.production5' > /etc/auto.master.d/production5.autofs</span>
+
+<span class="code-comment"># Create the direct map file:</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo '/localhome/production5 -rw servera.lab.example.com:/user-homes/production5' > /etc/auto.production5</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">systemctl enable --now autofs</span>
+<span class="code-output">Created symlink /etc/systemd/system/multi-user.target.wants/autofs.service</span>
+
+<span class="code-comment"># Test by accessing the path (triggers the automount):</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">ls /localhome/production5</span>
+<span class="code-output">(contents of production5 home from servera)</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">autofs direct map syntax breakdown</caption>
+          <thead><tr><th>Component</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Master key</td><td><code>/-</code></td><td>Direct map: paths in map file are absolute</td></tr>
+            <tr><td>Map file</td><td><code>/etc/auto.production5</code></td><td>File containing mount entries</td></tr>
+            <tr><td>Mount point</td><td><code>/localhome/production5</code></td><td>Full path; autofs creates it on demand</td></tr>
+            <tr><td>Mount option</td><td><code>-rw</code></td><td>Read-write</td></tr>
+            <tr><td>Source</td><td><code>servera.lab.example.com:/user-homes/production5</code></td><td>NFS export to mount</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-4">
+        <span class="step-number">4</span><span>SSH keys for production5 and enable the NFS home dirs boolean</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-4">
+        <p>Log in as <code>production5</code> on <strong>servera</strong>, generate an SSH key pair, and copy the public key to <strong>serverb</strong>. Then enable the
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nfshome">use_nfs_home_dirs</span>
+        <span class="tooltip-content" id="tt-nfshome">The use_nfs_home_dirs SELinux boolean allows processes to access NFS-mounted home directories. Without it, SELinux blocks access to files in NFS home dirs even when the filesystem is mounted. Enable persistently with setsebool -P.</span>
+        SELinux boolean on serverb.</p>
+        <div class="code-block" role="region" aria-label="Production5 SSH keys on servera">
+          <div class="code-title">servera &mdash; generate key for production5</div>
+          <code><span class="code-root">[root@servera ~]#</span> <span class="code-command">su - production5</span>
+<span class="code-prompt">[production5@servera ~]$</span> <span class="code-command">ssh-keygen</span>
+<span class="code-output">Enter file ... id_ed25519: <em>(Enter)</em>
+Enter passphrase: <em>(Enter twice)</em></span>
+
+<span class="code-prompt">[production5@servera ~]$</span> <span class="code-command">ssh-copy-id production5@serverb</span>
+<span class="code-output">Number of key(s) added: 1</span>
+
+<span class="code-prompt">[production5@servera ~]$</span> <span class="code-command">ssh production5@serverb hostname</span>
+<span class="code-output">serverb.lab.example.com</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Enable NFS home dirs SELinux boolean">
+          <div class="code-title">serverb (as root) &mdash; enable SELinux boolean</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">setsebool -P use_nfs_home_dirs true</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">getsebool use_nfs_home_dirs</span>
+<span class="code-output">use_nfs_home_dirs --&gt; on</span></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-5">
+        <span class="step-number">5</span><span>Block source IP 172.25.250.10 with firewalld on servera</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-5">
+        <p>On <strong>servera</strong>: assign source IP <code>172.25.250.10/32</code> to the
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-blockzone">block zone</span>
+        <span class="tooltip-content" id="tt-blockzone">The firewalld block zone rejects all incoming connections with an ICMP host-prohibited message. Assigning a source IP to this zone effectively bans that address from all services on the host.</span>
+        permanently, then reload.</p>
+        <div class="code-block" role="region" aria-label="Block source IP in firewalld">
+          <div class="code-title">servera (as root) &mdash; assign source to block zone</div>
+          <code><span class="code-root">[root@servera ~]#</span> <span class="code-command">firewall-cmd --add-source=172.25.250.10/32 --zone=block --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">firewall-cmd --zone=block --list-sources</span>
+<span class="code-output">172.25.250.10/32</span></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-6">
+        <span class="step-number">6</span><span>Fix httpd: add SELinux port label for port 30080 and open firewall</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-6">
+        <p>On <strong>servera</strong>, <code>httpd</code> is configured to listen on port 30080 but fails because SELinux does not recognize this port as web traffic. Use
+        <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sealert">sealert</span>
+        <span class="tooltip-content" id="tt-sealert">sealert reads the SELinux audit log and translates raw AVC denials into plain-English explanations with suggested remediation commands. Run: sealert -a /var/log/audit/audit.log</span>
+        to diagnose, <code>semanage port</code> to fix, and <code>firewall-cmd</code> to open the port.</p>
+        <div class="code-block" role="region" aria-label="Diagnose httpd failure">
+          <div class="code-title">servera (as root) &mdash; diagnose with sealert</div>
+          <code><span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart httpd</span>
+<span class="code-output">Job for httpd.service failed. See 'journalctl -xe' for details.</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">sealert -a /var/log/audit/audit.log</span>
+<span class="code-output">SELinux is preventing httpd from name_bind access on port 30080.
+...
+If you want to allow httpd to listen on port 30080:
+  semanage port -a -t http_port_t -p tcp 30080</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Fix SELinux port and open firewall">
+          <div class="code-title">servera (as root) &mdash; add port label and firewall rule</div>
+          <code><span class="code-root">[root@servera ~]#</span> <span class="code-command">semanage port -a -t http_port_t -p tcp 30080</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">systemctl restart httpd</span>
+<span class="code-output">(no error &mdash; service starts successfully)</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">firewall-cmd --add-port=30080/tcp --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+
+<span class="code-root">[root@servera ~]#</span> <span class="code-command">ss -tlnp | grep 30080</span>
+<span class="code-output">LISTEN  0  511  *:30080  *:*  users:(("httpd",...))</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Why semanage port?</span></div>
+          <p>SELinux restricts <code>httpd</code> to ports labeled
+          <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-httpportt">http_port_t</span>
+          <span class="tooltip-content" id="tt-httpportt">http_port_t is the SELinux port type that httpd is allowed to bind to. By default it includes ports 80, 443, 8080, and a few others. Use semanage port -a to add new ports; semanage port -l to list all labeled ports.</span>
+          (80, 443 by default). Port 30080 has no label, so the bind is denied. <code>semanage port -a</code> permanently adds the label and survives reboots.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t3-7">
+        <span class="step-number">7</span><span>Grade and finish Lab 3</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t3-7">
+        <div class="code-block" role="region" aria-label="Grade and finish lab 3">
+          <div class="code-title">workstation &mdash; grade and finish</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade compreview-review3</span>
+<span class="code-output">...grading output...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish compreview-review3</span></code>
+        </div>
+        <h4 style="font-family:var(--font-display);margin:1rem 0 0.5rem;">Lab 3 Completion Checklist</h4>
+        <ul class="checklist">
+          <li><span class="check-icon">&#x2713;</span><span>student SSH key on serverb; public key deployed to servera; passwordless login works</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>servera: SELinux=permissive in /etc/selinux/config; getenforce returns Permissive after reboot</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>serverb: autofs installed; production5 home automounts from servera on demand</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>production5 SSH keys on servera; passwordless login to serverb works</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>serverb: SELinux boolean use_nfs_home_dirs=on (persistent)</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>servera: 172.25.250.10/32 in firewalld block zone (permanent)</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>servera: httpd running on port 30080; SELinux port label added; firewall port open</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== SECTION 5: LAB 4 ==================== -->
+<section id="lab4" class="content-section" aria-labelledby="lab4-heading">
+  <div class="section-header lab-header-4">
+    <span class="section-number" aria-hidden="true">5</span>
+    <h2 id="lab4-heading">Lab 4: Run Containers</h2>
+    <button class="qref-btn" onclick="openModal('modal-lab4')" aria-haspopup="dialog" aria-label="Open Lab 4 command reference">&#x1F4CB; Quick Reference</button>
+  </div>
+  <div class="section-body">
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x23F1;</span><span>Time Limit: 30 Minutes &bull; Critical Warning</span></div>
+      <p>Run <code>lab start compreview-review4</code> on <strong>workstation</strong> before beginning. All container work is done as the <code>podmgr</code> user via SSH on <strong>serverb</strong>. <strong>Do NOT close the podmgr SSH session before grading</strong> &mdash; the grading script verifies the running container from within that session context.</p>
+    </div>
+
+    <p>In this lab you will create a
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-podmgr">rootless container</span>
+    <span class="tooltip-content" id="tt-podmgr">A rootless container runs without root privileges. Podman on RHEL fully supports rootless mode; containers are owned by the user who started them. This improves security but limits some capabilities like binding to privileged ports below 1024.</span>
+    user, build a custom
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-containerfile">Containerfile</span>
+    <span class="tooltip-content" id="tt-containerfile">A Containerfile (or Dockerfile) is a text file with instructions for building a container image. Key directives: FROM (base image), RUN (execute command during build), COPY/ADD (add files), CMD/ENTRYPOINT (default command). Podman uses it with: podman build -t name:tag .</span>
+    image, push it to a
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-registry">registry</span>
+    <span class="tooltip-content" id="tt-registry">A container registry is a server that stores and distributes container images. Examples: Docker Hub, quay.io, and private registries. Podman uses podman login to authenticate and podman push to upload images.</span>
+    , and run a
+    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-detached">detached container</span>
+    <span class="tooltip-content" id="tt-detached">A detached container (podman run -d) runs in the background and returns immediately. The container process is not attached to your terminal. Use podman ps to see running containers; podman logs to view output.</span>
+    with port mapping.</p>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-1">
+        <span class="step-number">1</span><span>Create the podmgr user, set password, and open firewall port 30000</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-1">
+        <p>On <strong>serverb as root</strong>: create user <code>podmgr</code> with password <code>redhat</code>, then open port 30000/tcp permanently in the firewall.</p>
+        <div class="code-block" role="region" aria-label="Create podmgr user and open firewall">
+          <div class="code-title">serverb (as root) &mdash; user and firewall setup</div>
+          <code><span class="code-root">[root@serverb ~]#</span> <span class="code-command">useradd podmgr</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">echo "redhat" | passwd --stdin podmgr</span>
+<span class="code-output">Changing password for user podmgr.
+passwd: all authentication tokens updated successfully.</span>
+
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --add-port=30000/tcp --permanent</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --reload</span>
+<span class="code-output">success</span>
+<span class="code-root">[root@serverb ~]#</span> <span class="code-command">firewall-cmd --list-ports</span>
+<span class="code-output">30000/tcp</span></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-2">
+        <span class="step-number">2</span><span>SSH as podmgr and log in to the container registry</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-2">
+        <p>From <strong>workstation</strong>, open an SSH session as <code>podmgr</code> (keep this terminal open throughout). Log in to the course registry with the student credentials.</p>
+        <div class="code-block" role="region" aria-label="SSH as podmgr and login to registry">
+          <div class="code-title">workstation &mdash; SSH as podmgr</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh podmgr@serverb</span>
+
+<span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman login registry.lab.example.com:5000</span>
+<span class="code-output">Username: student
+Password: redhat
+Login Succeeded!</span></code>
+        </div>
+        <div class="note-box warning">
+          <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Keep this SSH session open</span></div>
+          <p>All remaining tasks in this lab are performed as <code>podmgr</code> in this same terminal session. Do not exit or close until after running <code>lab grade compreview-review4</code>.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-3">
+        <span class="step-number">3</span><span>Create the ~/http-dev/Containerfile with a custom index.html</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-3">
+        <p>As <code>podmgr</code>: create the build directory and write a Containerfile that extends the <code>httpd-24</code> base image and places a custom welcome message in the web root.</p>
+        <div class="code-block" role="region" aria-label="Create Containerfile">
+          <div class="code-title">podmgr@serverb &mdash; create build directory and Containerfile</div>
+          <code><span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">mkdir -p ~/http-dev</span>
+<span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">cat > ~/http-dev/Containerfile << 'EOF'</span>
+<span class="code-highlight">FROM registry.lab.example.com:5000/rhel10/httpd-24</span>
+<span class="code-highlight">RUN echo "Welcome to the Supernova containerized webserver." > /var/www/html/index.html</span>
+<span class="code-highlight">EOF</span>
+
+<span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">cat ~/http-dev/Containerfile</span>
+<span class="code-output">FROM registry.lab.example.com:5000/rhel10/httpd-24
+RUN echo "Welcome to the Supernova containerized webserver." &gt; /var/www/html/index.html</span></code>
+        </div>
+        <div class="note-box tip">
+          <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Containerfile vs Dockerfile</span></div>
+          <p>Podman supports both <code>Containerfile</code> (the OCI standard name) and <code>Dockerfile</code> (the Docker convention). Either filename works with <code>podman build</code>. Using <code>Containerfile</code> is preferred in RHEL documentation.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-4">
+        <span class="step-number">4</span><span>Build the custom image and push it to the registry</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-4">
+        <p>Build the image as <code>http-server:9.0</code>, then push it to the course registry for use in the final run step.</p>
+        <div class="code-block" role="region" aria-label="Build and push container image">
+          <div class="code-title">podmgr@serverb &mdash; build image</div>
+          <code><span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman build -t http-server:9.0 ~/http-dev/</span>
+<span class="code-output">STEP 1/2: FROM registry.lab.example.com:5000/rhel10/httpd-24
+STEP 2/2: RUN echo "Welcome to the Supernova containerized webserver." &gt; /var/www/html/index.html
+COMMIT http-server:9.0
+Successfully tagged localhost/http-server:9.0</span>
+
+<span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman images</span>
+<span class="code-output">REPOSITORY              TAG   IMAGE ID       CREATED        SIZE
+localhost/http-server   9.0   abc123def456   2 minutes ago  356 MB</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Push image to registry">
+          <div class="code-title">podmgr@serverb &mdash; push image to registry</div>
+          <code><span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman image push localhost/http-server:9.0     registry.lab.example.com:5000/http-server:9.0</span>
+<span class="code-output">Getting image source signatures
+Copying blob ...
+Writing manifest to image destination
+Storing signatures</span></code>
+        </div>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-5">
+        <span class="step-number">5</span><span>Run the container as http-srv01 with port mapping 30000:8080</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-5">
+        <p>Start the container from the registry image in detached mode, name it <code>http-srv01</code>, and map host port 30000 to container port 8080.</p>
+        <div class="code-block" role="region" aria-label="Run container with port mapping">
+          <div class="code-title">podmgr@serverb &mdash; run detached container</div>
+          <code><span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman run -d --name http-srv01     -p 30000:8080     registry.lab.example.com:5000/http-server:9.0</span>
+<span class="code-output">a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234</span>
+
+<span class="code-prompt">[podmgr@serverb ~]$</span> <span class="code-command">podman ps</span>
+<span class="code-output">CONTAINER ID  IMAGE                                        COMMAND           STATUS        PORTS
+a1b2c3d4e5f6  .../http-server:9.0  /usr/bin/run-http...  Up 10 seconds     0.0.0.0:30000-&gt;8080/tcp  http-srv01</span></code>
+        </div>
+        <table class="cmd-table">
+          <caption class="sr-only">podman run options breakdown</caption>
+          <thead><tr><th>Option</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>-d</code></td><td>&mdash;</td><td>Detached: run in background</td></tr>
+            <tr><td><code>--name</code></td><td><code>http-srv01</code></td><td>Assign a human-readable container name</td></tr>
+            <tr><td><code>-p</code></td><td><code>30000:8080</code></td><td>Map host port 30000 to container port 8080</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="expandable">
+      <button class="expandable-header" aria-expanded="false" aria-controls="t4-6">
+        <span class="step-number">6</span><span>Verify the container and grade Lab 4</span><span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+      </button>
+      <div class="expandable-content" id="t4-6">
+        <p>From <strong>workstation</strong> (a separate terminal), verify the container responds with the correct message. Then grade and finish the lab.</p>
+        <div class="code-block" role="region" aria-label="Verify container and grade">
+          <div class="code-title">workstation &mdash; verify container response</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://serverb.lab.example.com:30000</span>
+<span class="code-output">Welcome to the Supernova containerized webserver.</span></code>
+        </div>
+        <div class="code-block" role="region" aria-label="Grade and finish lab 4">
+          <div class="code-title">workstation &mdash; grade and finish</div>
+          <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab grade compreview-review4</span>
+<span class="code-output">...grading output...</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">lab finish compreview-review4</span></code>
+        </div>
+        <h4 style="font-family:var(--font-display);margin:1rem 0 0.5rem;">Lab 4 Completion Checklist</h4>
+        <ul class="checklist">
+          <li><span class="check-icon">&#x2713;</span><span>User <code>podmgr</code> exists on serverb with password redhat</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Port 30000/tcp open in firewalld (permanent)</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>~/http-dev/Containerfile exists with correct FROM and RUN lines</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Image <code>http-server:9.0</code> built and pushed to registry</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>Container <code>http-srv01</code> running detached with -p 30000:8080</span></li>
+          <li><span class="check-icon">&#x2713;</span><span>curl http://serverb.lab.example.com:30000 returns the Supernova message</span></li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ==================== SECTION 7: CHAPTER SUMMARY ==================== -->
+<section id="summary" class="content-section" aria-labelledby="summary-heading">
+  <div class="section-header">
+    <span class="section-number" aria-hidden="true">6</span>
+    <h2 id="summary-heading">Chapter Summary &amp; Command Reference</h2>
+  </div>
+  <div class="section-body">
+    <p>These four labs represent the full breadth of the RHCSA EX200 exam. Each domain below corresponds to one lab, with the essential commands and concepts you must be able to apply under timed conditions.</p>
+
+    <h3>Lab 1 &mdash; Boot &amp; Service Management</h3>
+    <table class="cmd-table">
+      <caption class="sr-only">Lab 1 command reference</caption>
+      <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>mount -o remount,rw /</code></td><td>Make root filesystem writable in emergency mode</td></tr>
+        <tr><td><code>mount -a</code></td><td>Test all fstab entries; reveals errors without rebooting</td></tr>
+        <tr><td><code>systemctl get-default</code></td><td>Show the current default boot target</td></tr>
+        <tr><td><code>systemctl set-default multi-user.target</code></td><td>Persistently set the default target</td></tr>
+        <tr><td><code>systemctl isolate &lt;target&gt;</code></td><td>Switch target immediately (not persistent)</td></tr>
+        <tr><td><code>chmod +x &lt;script&gt;</code></td><td>Add execute permission to a file</td></tr>
+        <tr><td><code>crontab -e</code></td><td>Edit the current user&#39;s crontab</td></tr>
+        <tr><td><code>crontab -l</code></td><td>List the current user&#39;s crontab</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Lab 2 &mdash; Storage &amp; User Management</h3>
+    <table class="cmd-table">
+      <caption class="sr-only">Lab 2 command reference</caption>
+      <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>parted /dev/sdX mklabel gpt</code></td><td>Create a GPT partition table on a disk</td></tr>
+        <tr><td><code>parted /dev/sdX mkpart primary 1MiB 100%</code></td><td>Create a partition spanning the disk</td></tr>
+        <tr><td><code>udevadm settle</code></td><td>Wait for udev to process new device events</td></tr>
+        <tr><td><code>pvcreate / vgcreate / lvcreate</code></td><td>Build the LVM stack: PV, VG, LV</td></tr>
+        <tr><td><code>mkfs.xfs &lt;device&gt;</code></td><td>Format a device with XFS</td></tr>
+        <tr><td><code>mkswap / swapon -a</code></td><td>Initialize swap and activate all fstab swap entries</td></tr>
+        <tr><td><code>blkid &lt;device&gt;</code></td><td>Show UUID and filesystem type of a device</td></tr>
+        <tr><td><code>useradd -G &lt;group&gt; &lt;user&gt;</code></td><td>Create user with supplementary group</td></tr>
+        <tr><td><code>echo "pass" | passwd --stdin &lt;user&gt;</code></td><td>Set password non-interactively</td></tr>
+        <tr><td><code>systemd-tmpfiles --create &lt;file&gt;</code></td><td>Apply a tmpfiles.d rule immediately</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Lab 3 &mdash; Security</h3>
+    <table class="cmd-table">
+      <caption class="sr-only">Lab 3 command reference</caption>
+      <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>ssh-keygen</code></td><td>Generate SSH public/private key pair</td></tr>
+        <tr><td><code>ssh-copy-id &lt;user@host&gt;</code></td><td>Install local public key on remote host</td></tr>
+        <tr><td><code>grep ^SELINUX= /etc/selinux/config</code></td><td>Check persistent SELinux mode</td></tr>
+        <tr><td><code>getenforce</code></td><td>Show current (runtime) SELinux mode</td></tr>
+        <tr><td><code>setsebool -P &lt;boolean&gt; on</code></td><td>Enable SELinux boolean persistently</td></tr>
+        <tr><td><code>sealert -a /var/log/audit/audit.log</code></td><td>Translate AVC denials to human-readable fixes</td></tr>
+        <tr><td><code>semanage port -a -t http_port_t -p tcp &lt;port&gt;</code></td><td>Add SELinux port label for httpd</td></tr>
+        <tr><td><code>firewall-cmd --add-source=&lt;ip/mask&gt; --zone=block --permanent</code></td><td>Block a source IP address</td></tr>
+        <tr><td><code>firewall-cmd --add-port=&lt;port&gt;/tcp --permanent</code></td><td>Open a TCP port permanently</td></tr>
+        <tr><td><code>firewall-cmd --reload</code></td><td>Apply permanent rules to the running firewall</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Lab 4 &mdash; Containers</h3>
+    <table class="cmd-table">
+      <caption class="sr-only">Lab 4 command reference</caption>
+      <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>podman login &lt;registry&gt;</code></td><td>Authenticate to a container registry</td></tr>
+        <tr><td><code>podman build -t &lt;name:tag&gt; &lt;dir&gt;</code></td><td>Build an image from a Containerfile</td></tr>
+        <tr><td><code>podman images</code></td><td>List locally stored container images</td></tr>
+        <tr><td><code>podman image push &lt;local&gt; &lt;remote&gt;</code></td><td>Push an image to a remote registry</td></tr>
+        <tr><td><code>podman run -d --name &lt;n&gt; -p &lt;host:ctr&gt; &lt;image&gt;</code></td><td>Run a detached container with port mapping</td></tr>
+        <tr><td><code>podman ps</code></td><td>List running containers</td></tr>
+        <tr><td><code>podman logs &lt;container&gt;</code></td><td>View container log output</td></tr>
+        <tr><td><code>curl http://&lt;host&gt;:&lt;port&gt;</code></td><td>Test HTTP response from a container</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note-box important">
+      <div class="note-box-header"><span aria-hidden="true">&#x1F3AF;</span><span>RHCSA Exam Strategy</span></div>
+      <p>On the EX200 exam, each task is graded independently after you submit. Focus on correctness and persistence: changes that survive a reboot score full points; runtime-only changes score zero. Always confirm with <code>mount -a</code>, <code>swapon --show</code>, <code>systemctl is-enabled</code>, and <code>getenforce</code> before moving on.</p>
+    </div>
+
+    <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+      <a href="rh134_chapter18_image_mode.html" class="nav-chapter-btn prev">&#8592; Chapter 18: Image Mode RHEL</a>
+      <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+      <a href="rhcsa_exam_simulator.html" class="nav-chapter-btn next">RHCSA Exam Simulator &#8594;</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== COMMAND REFERENCE MODALS ==================== -->
+<div id="modal-lab1" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lab1-title">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-lab1-title">&#x1F4CB; Lab 1 &mdash; Boot &amp; Service Management</h3>
+      <button class="modal-close" onclick="closeModal('modal-lab1')" aria-label="Close command reference">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="cmd-table">
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>mount -o remount,rw /</code></td><td>Make root filesystem writable in emergency mode</td></tr>
+          <tr><td><code>mount -a</code></td><td>Test all fstab entries; reveals errors without rebooting</td></tr>
+          <tr><td><code>vi /etc/fstab</code></td><td>Edit the filesystem table; <code>dd</code> deletes a line, <code>:wq</code> saves</td></tr>
+          <tr><td><code>systemctl daemon-reload</code></td><td>Re-read unit files after editing fstab or unit files</td></tr>
+          <tr><td><code>systemctl get-default</code></td><td>Show the current default boot target</td></tr>
+          <tr><td><code>systemctl set-default multi-user.target</code></td><td>Persistently set the default target (updates symlink)</td></tr>
+          <tr><td><code>systemctl isolate &lt;target&gt;</code></td><td>Switch target immediately &mdash; not persistent</td></tr>
+          <tr><td><code>chmod +x &lt;script&gt;</code></td><td>Add execute permission to a file</td></tr>
+          <tr><td><code>crontab -e</code></td><td>Edit the current user&#39;s crontab</td></tr>
+          <tr><td><code>crontab -l</code></td><td>List the current user&#39;s crontab entries</td></tr>
+        </tbody>
+      </table>
+      <p style="font-family:var(--font-display);font-size:0.82rem;color:var(--rh-gray);margin-top:14px;">Cron format: <code>minute hour day-of-month month day-of-week command</code><br>Example: <code>0 19-21 * * 1-5</code> = top of hour, 7&ndash;9 PM, Mon&ndash;Fri</p>
+    </div>
+  </div>
+</div>
+
+<div id="modal-lab2" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lab2-title">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-lab2-title">&#x1F4CB; Lab 2 &mdash; Storage &amp; User Management</h3>
+      <button class="modal-close" onclick="closeModal('modal-lab2')" aria-label="Close command reference">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="cmd-table">
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>parted /dev/sdX mklabel gpt</code></td><td>Create a GPT partition table</td></tr>
+          <tr><td><code>parted /dev/sdX mkpart primary 1MiB 100%</code></td><td>Create a partition using all available space</td></tr>
+          <tr><td><code>parted /dev/sdX set 1 lvm on</code></td><td>Set the LVM flag on partition 1</td></tr>
+          <tr><td><code>parted /dev/sdX mkpart primary linux-swap 1MiB 513MiB</code></td><td>Create a 512 MiB swap partition</td></tr>
+          <tr><td><code>udevadm settle</code></td><td>Wait for udev to create the new device node</td></tr>
+          <tr><td><code>pvcreate /dev/sdX1</code></td><td>Initialize a partition as an LVM physical volume</td></tr>
+          <tr><td><code>vgcreate &lt;vgname&gt; /dev/sdX1</code></td><td>Create a volume group from one or more PVs</td></tr>
+          <tr><td><code>lvcreate -L 1GiB -n &lt;lvname&gt; &lt;vgname&gt;</code></td><td>Create a logical volume of a specific size</td></tr>
+          <tr><td><code>mkfs.xfs /dev/&lt;vg&gt;/&lt;lv&gt;</code></td><td>Format a logical volume with XFS</td></tr>
+          <tr><td><code>mkswap /dev/sdX1</code></td><td>Initialize a partition as swap space</td></tr>
+          <tr><td><code>blkid /dev/sdX1</code></td><td>Display UUID and filesystem type</td></tr>
+          <tr><td><code>swapon -a &amp;&amp; swapon --show</code></td><td>Activate all fstab swap entries and verify</td></tr>
+          <tr><td><code>groupadd &lt;group&gt;</code></td><td>Create a new group</td></tr>
+          <tr><td><code>useradd -G &lt;group&gt; &lt;user&gt;</code></td><td>Create user with supplementary group</td></tr>
+          <tr><td><code>echo "pass" | passwd --stdin &lt;user&gt;</code></td><td>Set password non-interactively</td></tr>
+          <tr><td><code>systemd-tmpfiles --create &lt;conf&gt;</code></td><td>Apply a tmpfiles.d rule immediately</td></tr>
+        </tbody>
+      </table>
+      <p style="font-family:var(--font-display);font-size:0.82rem;color:var(--rh-gray);margin-top:14px;">fstab format: <code>device &nbsp; mount-point &nbsp; fstype &nbsp; options &nbsp; dump &nbsp; fsck-order</code><br>Swap entry: <code>UUID=... &nbsp; none &nbsp; swap &nbsp; defaults &nbsp; 0 0</code></p>
+    </div>
+  </div>
+</div>
+
+<div id="modal-lab3" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lab3-title">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-lab3-title">&#x1F4CB; Lab 3 &mdash; Server Security</h3>
+      <button class="modal-close" onclick="closeModal('modal-lab3')" aria-label="Close command reference">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="cmd-table">
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>ssh-keygen</code></td><td>Generate SSH key pair (press Enter twice for no passphrase)</td></tr>
+          <tr><td><code>ssh-copy-id &lt;user@host&gt;</code></td><td>Deploy public key to remote host&#39;s authorized_keys</td></tr>
+          <tr><td><code>grep ^SELINUX= /etc/selinux/config</code></td><td>Check the persistent SELinux mode</td></tr>
+          <tr><td><code>sed -i 's/enforcing/permissive/' /etc/selinux/config</code></td><td>Set SELinux permissive persistently</td></tr>
+          <tr><td><code>getenforce</code></td><td>Show current runtime SELinux mode</td></tr>
+          <tr><td><code>dnf install -y autofs</code></td><td>Install the autofs automount daemon</td></tr>
+          <tr><td><code>systemctl enable --now autofs</code></td><td>Start autofs and enable at boot</td></tr>
+          <tr><td><code>setsebool -P use_nfs_home_dirs true</code></td><td>Allow NFS-mounted home directories (persistent)</td></tr>
+          <tr><td><code>getsebool use_nfs_home_dirs</code></td><td>Verify the boolean is on</td></tr>
+          <tr><td><code>sealert -a /var/log/audit/audit.log</code></td><td>Translate AVC denials into fix recommendations</td></tr>
+          <tr><td><code>semanage port -a -t http_port_t -p tcp &lt;port&gt;</code></td><td>Add SELinux port label for httpd</td></tr>
+          <tr><td><code>semanage port -l | grep http</code></td><td>List all ports labeled for httpd</td></tr>
+          <tr><td><code>firewall-cmd --add-source=&lt;ip/mask&gt; --zone=block --permanent</code></td><td>Block a source IP address permanently</td></tr>
+          <tr><td><code>firewall-cmd --add-port=&lt;port&gt;/tcp --permanent</code></td><td>Open a TCP port permanently</td></tr>
+          <tr><td><code>firewall-cmd --reload</code></td><td>Apply permanent rules to the running firewall</td></tr>
+        </tbody>
+      </table>
+      <p style="font-family:var(--font-display);font-size:0.82rem;color:var(--rh-gray);margin-top:14px;">autofs direct map: master key <code>/-</code> &rarr; map file with absolute paths<br>Map line: <code>/localhome/user5 -rw server:/exports/user5</code></p>
+    </div>
+  </div>
+</div>
+
+<div id="modal-lab4" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lab4-title">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-lab4-title">&#x1F4CB; Lab 4 &mdash; Containers</h3>
+      <button class="modal-close" onclick="closeModal('modal-lab4')" aria-label="Close command reference">&times;</button>
+    </div>
+    <div class="modal-body">
+      <table class="cmd-table">
+        <thead><tr><th>Command</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>podman login &lt;registry&gt;</code></td><td>Authenticate to a container registry</td></tr>
+          <tr><td><code>podman build -t &lt;name:tag&gt; &lt;dir&gt;</code></td><td>Build an image from a Containerfile in &lt;dir&gt;</td></tr>
+          <tr><td><code>podman images</code></td><td>List locally stored container images</td></tr>
+          <tr><td><code>podman image push &lt;local&gt; &lt;remote&gt;</code></td><td>Push a local image to a remote registry</td></tr>
+          <tr><td><code>podman run -d --name &lt;n&gt; -p &lt;host:ctr&gt; &lt;image&gt;</code></td><td>Run a detached container with port mapping</td></tr>
+          <tr><td><code>podman ps</code></td><td>List running containers</td></tr>
+          <tr><td><code>podman logs &lt;container&gt;</code></td><td>View container stdout/stderr output</td></tr>
+          <tr><td><code>podman stop &lt;container&gt;</code></td><td>Gracefully stop a running container</td></tr>
+          <tr><td><code>podman rm &lt;container&gt;</code></td><td>Remove a stopped container</td></tr>
+          <tr><td><code>curl http://&lt;host&gt;:&lt;port&gt;</code></td><td>Test HTTP response from the container</td></tr>
+        </tbody>
+      </table>
+      <p style="font-family:var(--font-display);font-size:0.82rem;color:var(--rh-gray);margin-top:14px;">Containerfile format: <code>FROM &lt;base-image&gt;</code> then <code>RUN</code>, <code>COPY</code>, <code>CMD</code> instructions<br>Port flag: <code>-p host-port:container-port</code> (e.g., <code>-p 30000:8080</code>)</p>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer role="contentinfo">
+  <strong>RH134: Red Hat System Administration II</strong> &bull; Chapter 19: Comprehensive Review Labs<br>
+  Red Hat Enterprise Linux 10 &bull; RHCSA EX200 Exam Preparation<br>
+  &copy; 2025 Course Materials. Red Hat and RHEL are trademarks of Red Hat, Inc.
+</footer>
+
+<script>
+/* ============================================================
+   TOOLTIP SYSTEM
+   ============================================================ */
+(function() {
+    var bubble = document.getElementById('tooltip-bubble');
+
+    function showTooltip(term) {
+        var ttId = term.getAttribute('aria-describedby');
+        var contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+        var text = contentEl.textContent.trim();
+        if (!text) return;
+
+        bubble.textContent = text;
+        bubble.style.cssText = '';
+        bubble.classList.remove('tip-top','tip-bottom','tip-left','tip-right','visible');
+
+        requestAnimationFrame(function() {
+            var rect = term.getBoundingClientRect();
+            var bW = bubble.offsetWidth || 280;
+            var bH = bubble.offsetHeight || 80;
+            var vW = window.innerWidth;
+            var vH = window.innerHeight;
+            var margin = 8;
+            var top, left, placement;
+
+            if (rect.top - bH - 12 >= margin) {
+                placement = 'tip-top';
+                top = rect.top - bH - 12;
+                left = rect.left + rect.width / 2 - bW / 2;
+            } else if (vH - rect.bottom - bH - 12 >= margin) {
+                placement = 'tip-bottom';
+                top = rect.bottom + 12;
+                left = rect.left + rect.width / 2 - bW / 2;
+            } else if (vW - rect.right - bW - 12 >= margin) {
+                placement = 'tip-right';
+                left = rect.right + 12;
+                top = rect.top + rect.height / 2 - bH / 2;
+            } else {
+                placement = 'tip-left';
+                left = rect.left - bW - 12;
+                top = rect.top + rect.height / 2 - bH / 2;
+            }
+
+            left = Math.max(margin, Math.min(left, vW - bW - margin));
+            top  = Math.max(margin, Math.min(top,  vH - bH - margin));
+
+            bubble.style.left = left + 'px';
+            bubble.style.top  = top  + 'px';
+            bubble.classList.add(placement, 'visible');
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        term.addEventListener('mouseenter', function() { showTooltip(term); });
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus',      function() { showTooltip(term); });
+        term.addEventListener('blur',       hideTooltip);
+        term.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideTooltip();
+        });
+    });
+})();
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+(function() {
+    var sections = document.querySelectorAll('.content-section');
+    var bar = document.getElementById('progress-fill');
+    var txt = document.getElementById('progress-text');
+    var visited = new Set();
+
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) visited.add(e.target.id);
+        });
+        var pct = Math.round((visited.size / sections.length) * 100);
+        bar.style.width = pct + '%';
+        bar.setAttribute('aria-valuenow', pct);
+        if (txt) txt.textContent = pct + '% complete';
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   SECTION NAV ACTIVE STATE
+   ============================================================ */
+(function() {
+    var navBtns = document.querySelectorAll('.nav-btn[data-section]');
+    var sections = document.querySelectorAll('.content-section');
+
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                navBtns.forEach(function(b) { b.classList.remove('active'); });
+                var btn = document.querySelector('.nav-btn[data-section="' + e.target.id + '"]');
+                if (btn) btn.classList.add('active');
+            }
+        });
+    }, { threshold: 0.4 });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   SCROLL TO SECTION
+   ============================================================ */
+function scrollToSection(id) {
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+/* ============================================================
+   EXPANDABLE SECTIONS
+   ============================================================ */
+document.querySelectorAll('.expandable-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+        var expanded = header.getAttribute('aria-expanded') === 'true';
+        header.setAttribute('aria-expanded', String(!expanded));
+        var bodyId = header.getAttribute('aria-controls');
+        var body = document.getElementById(bodyId);
+        if (body) body.classList.toggle('show', !expanded);
+    });
+    header.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+    });
+});
+
+/* ============================================================
+   MODAL SYSTEM
+   ============================================================ */
+window.openModal = function(id) {
+    var overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.add('open');
+    // Focus the close button for keyboard users
+    var closeBtn = overlay.querySelector('.modal-close');
+    if (closeBtn) { setTimeout(function() { closeBtn.focus(); }, 50); }
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeModal = function(id) {
+    var overlay = document.getElementById(id);
+    if (!overlay) return;
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    // Return focus to the button that opened it
+    var trigger = document.querySelector('[onclick*="openModal(\''+id+'\')"]');
+    if (trigger) trigger.focus();
+};
+
+// Close on overlay click (outside modal-box) and Escape key
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeModal(overlay.id);
+    });
+});
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open').forEach(function(o) {
+            closeModal(o.id);
+        });
+    }
+});
+</script>
+</body>
+</html>
