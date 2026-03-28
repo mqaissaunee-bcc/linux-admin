@@ -3255,36 +3255,85 @@
                     <div class="card-header">
                         <div class="card-icon" aria-hidden="true">
                             <svg viewBox="0 0 24 24">
-                                <path d="M21 4H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-9 3c1.93 0 3.5 1.57 3.5 3.5S13.93 14 12 14s-3.5-1.57-3.5-3.5S10.07 7 12 7zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 17.82 9.64 17 12 17s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V20z"/>
+                                <path d="M21 3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h5v2h8v-2h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 14H3V5h18v12zM8 15l1.5-2 2 2.5 2.5-3.5 3 4H8z"/>
                             </svg>
                         </div>
                         <span class="card-number">RH134 &mdash; Chapter 18</span>
                         <h3 class="card-title" id="card-rh134-ch18-title">Working with Image-based RHEL</h3>
-                        <p class="card-subtitle">Build, deploy, and manage bootable container images</p>
+                        <p class="card-subtitle">Deploy and manage image-mode Red Hat Enterprise Linux</p>
                     </div>
                     <div class="card-body">
                         <p class="card-description">
-                            Use
+                            Explore
                             <span class="tooltip-container">
                                 <button type="button" class="tooltip-trigger" aria-describedby="tooltip-imagemode18">image mode</button>
-                                <span class="tooltip-content" id="tooltip-imagemode18" role="tooltip">A container-native approach to deploying and managing RHEL where the entire OS is defined in a Containerfile, built with Podman, and delivered as a bootable container image. Updates are atomic, rollbacks are instant, and the root filesystem is immutable.</span>
+                                <span class="tooltip-content" id="tooltip-imagemode18" role="tooltip">Image mode RHEL treats the entire operating system as an immutable container image. Updates are applied atomically by deploying a new image, and changes survive only via layered customization, providing predictable, reproducible deployments.</span>
                             </span>
-                            for RHEL to build the OS as a
+                            RHEL, where the OS is managed as an immutable
                             <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-bootc18">bootc image</button>
-                                <span class="tooltip-content" id="tooltip-bootc18" role="tooltip">A bootable container image that includes the Linux kernel, GRUB2 boot loader, and systemd alongside application software. Deployed with Anaconda Kickstart or bootc-image-builder for bare metal, cloud, and virtualization targets.</span>
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-bootc18">bootc</button>
+                                <span class="tooltip-content" id="tooltip-bootc18" role="tooltip">bootc (boot container) is a tool that lets you deploy a full RHEL operating system from a container image. The image is pulled, verified, and written to disk so the system boots directly into the container-defined OS.</span>
                             </span>
-                            , deploy with
+                            container image. Learn to build, deploy, and update systems using
                             <span class="tooltip-container">
-                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-kickstart18">Kickstart</button>
-                                <span class="tooltip-content" id="tooltip-kickstart18" role="tooltip">An automated RHEL installation system. In image mode, the %packages section is replaced by the ostreecontainer command pointing to the registry URL of the bootc image to deploy.</span>
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-iib18">Image Builder</button>
+                                <span class="tooltip-content" id="tooltip-iib18" role="tooltip">Image Builder (osbuild/composer) is a Red Hat tool for creating customized RHEL disk images, ISO files, cloud images, and container images from a declarative blueprint, enabling repeatable, automated system provisioning.</span>
                             </span>
-                            or <code>bootc-image-builder</code>, and manage with <code>bootc upgrade</code> and <code>bootc rollback</code>.
+                            and atomic updates.
                         </p>
                         <ul class="card-topics">
-                            <li>Writing Containerfiles for bootable RHEL images</li>
-                            <li>Deploying via Kickstart and generating cloud disk images</li>
-                            <li>Managing updates and rollbacks with the bootc tool</li>
+                            <li>Understanding image mode vs. package mode RHEL</li>
+                            <li>Building bootc container images with Image Builder</li>
+                            <li>Deploying and updating image-based systems atomically</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 19 Card -->
+                <a href="rh134_chapter19_comprehensive_review.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch19-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 19</span>
+                        <h3 class="card-title" id="card-rh134-ch19-title">Comprehensive Review Labs</h3>
+                        <p class="card-subtitle">Capstone labs integrating all RH134 skills for RHCSA preparation</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Apply everything learned across RH134 in four integrated lab scenarios covering
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-boot19">boot and service management</button>
+                                <span class="tooltip-content" id="tooltip-boot19" role="tooltip">RHCSA boot tasks include recovering from boot failures by interrupting GRUB, remounting the root filesystem, resetting the root password, and managing systemd targets and service unit files.</span>
+                            </span>
+                            , storage,
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-selinux19">SELinux</button>
+                                <span class="tooltip-content" id="tooltip-selinux19" role="tooltip">Security-Enhanced Linux (SELinux) is a mandatory access control (MAC) framework built into the Linux kernel. It enforces policies that restrict what processes can do, using labels (contexts) on files, ports, and processes.</span>
+                            </span>
+                            security, and containers. These scenarios mirror the format and difficulty of the RHCSA EX200 performance-based exam.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Lab 1: Fix boot issues and maintain servers</li>
+                            <li>Lab 2: Configure file systems and storage</li>
+                            <li>Lab 3: Configure and manage server security</li>
+                            <li>Lab 4: Run containers with Podman</li>
                         </ul>
                     </div>
                     <div class="card-footer">
@@ -3720,7 +3769,17 @@
                     <div class="path-content">
                         <h3 class="path-title">Work with Image-based RHEL</h3>
                         <p class="path-description">
-                            RH134 Chapter 18 covers image mode for RHEL&mdash;building bootable container images with Podman and a Containerfile, deploying with Anaconda Kickstart or bootc-image-builder, and managing deployed systems with the bootc tool for upgrades and rollbacks.
+                            RH134 Chapter 18 introduces image mode RHEL&mdash;understanding how bootc container images replace traditional package management, building custom OS images with Image Builder, and performing atomic system updates for predictable, reproducible deployments.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">41</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Complete Comprehensive Review Labs</h3>
+                        <p class="path-description">
+                            RH134 Chapter 19 consolidates the entire course with four RHCSA-style capstone labs covering boot recovery, storage configuration, server security, and container management&mdash;preparing you for the performance-based EX200 certification exam.
                         </p>
                     </div>
                 </div>
@@ -3835,6 +3894,7 @@
                 <a href="rh134_chapter16_installing_rhel.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 16</a>
                 <a href="rh134_chapter17_containers.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 17</a>
                 <a href="rh134_chapter18_image_mode.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 18</a>
+                <a href="rh134_chapter19_comprehensive_review.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 19</a>
             </nav>
         </div>
     </footer>
