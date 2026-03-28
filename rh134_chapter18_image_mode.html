@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 18: Working with Image-based Red Hat Enterprise Linux | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .header-tag { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); padding: 4px 14px; border-radius: 20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .header-title { font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; margin-bottom: 10px; line-height: 1.2; }
+        .header-subtitle { font-family: var(--font-body); font-size: 1rem; opacity: 0.85; max-width: 600px; margin: 0 auto 20px; }
+        .header-meta { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .header-meta span { font-family: var(--font-display); font-size: 0.82rem; opacity: 0.8; }
+
+        /* PROGRESS BAR */
+        .progress-container { background: var(--rh-gray-dark); padding: 6px 0; position: sticky; top: 0; z-index: 100; }
+        .progress-bar { height: 4px; background: rgba(255,255,255,0.2); max-width: var(--max-width); margin: 0 auto; border-radius: 2px; overflow: hidden; }
+        #progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--rh-blue-light), #66CCFF); transition: width var(--transition-med); border-radius: 2px; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.72rem; color: rgba(255,255,255,0.6); padding-top: 3px; }
+
+        /* NAV */
+        .section-nav { background: var(--rh-white); border-bottom: 2px solid var(--rh-blue); box-shadow: var(--shadow-sm); position: sticky; top: 36px; z-index: 99; overflow-x: auto; }
+        .section-nav-inner { display: flex; gap: 0; max-width: var(--max-width); margin: 0 auto; }
+        .nav-btn { flex-shrink: 0; padding: 10px 16px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; color: var(--rh-gray); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all var(--transition-fast); white-space: nowrap; text-decoration: none; display: inline-block; }
+        .nav-btn:hover { color: var(--rh-blue); border-bottom-color: var(--rh-blue-light); background: rgba(0,102,204,0.05); }
+        .nav-btn.active { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue); font-weight: 700; }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px 16px 48px; }
+
+        /* SECTIONS */
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 28px; overflow: hidden; border: 1px solid rgba(0,102,204,0.1); }
+        .section-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 100%); padding: 20px 28px; display: flex; align-items: center; gap: 16px; }
+        .section-number { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); color: var(--rh-white); font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .section-header h2 { color: var(--rh-white); font-family: var(--font-display); font-size: clamp(1rem, 2.5vw, 1.3rem); font-weight: 700; }
+        .section-body { padding: 28px; }
+        .section-body p { margin-bottom: 1rem; font-size: 0.97rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-blue-dark); margin: 1.5rem 0 0.6rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; color: var(--rh-gray-dark); margin: 1rem 0 0.4rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; font-size: 0.97rem; }
+        code { font-family: var(--font-mono); font-size: 0.88em; background: #EEF4FF; color: #003399; padding: 2px 6px; border-radius: 3px; }
+
+        /* CODE BLOCKS */
+        .code-block { background: #0D1117; border-radius: var(--radius-md); padding: 18px 20px; margin: 1rem 0; overflow-x: auto; }
+        .code-title { color: #8B949E; font-family: var(--font-display); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; border-bottom: 1px solid #30363D; padding-bottom: 8px; }
+        .code-block code { display: block; background: none; color: #C9D1D9; font-size: 0.84rem; line-height: 1.7; padding: 0; }
+        .code-comment { color: #6A9955; }
+        .code-prompt { color: #58A6FF; }
+        .code-command { color: #79C0FF; }
+        .code-output { color: #A8FF78; }
+        .code-keyword { color: #FF79C6; }
+        .code-string { color: #F1FA8C; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 18px; margin: 1.2rem 0; border-left: 4px solid; }
+        .note-box-header { font-family: var(--font-display); font-weight: 700; font-size: 0.88rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .note-box p { margin: 0; font-size: 0.92rem; }
+        .note-box.tip { background: #F0FFF4; border-color: var(--rh-green); }
+        .note-box.tip .note-box-header { color: var(--rh-green-dark); }
+        .note-box.warning { background: #FFFBF0; border-color: var(--rh-gold); }
+        .note-box.warning .note-box-header { color: #997700; }
+        .note-box.important { background: #FFF5F0; border-color: var(--rh-orange); }
+        .note-box.important .note-box-header { color: #CC4400; }
+        .note-box.note { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.note .note-box-header { color: var(--rh-blue-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1rem 0; }
+        .tab-list { display: flex; gap: 0; border-bottom: 2px solid var(--rh-gray-light); overflow-x: auto; }
+        .tab-btn { flex-shrink: 0; padding: 10px 18px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-gray); background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; cursor: pointer; transition: all var(--transition-fast); }
+        .tab-btn:hover { color: var(--rh-blue); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue); }
+        .tab-panel { display: none; padding: 20px 0; }
+        .tab-panel.active { display: block; }
+
+        /* CARDS */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 1rem 0; }
+        .card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 18px; border: 2px solid var(--rh-gray-light); cursor: pointer; transition: all var(--transition-fast); }
+        .card:hover, .card:focus { border-color: var(--rh-blue); box-shadow: var(--shadow-md); transform: translateY(-2px); outline: none; }
+        .card-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .card-title { font-family: var(--font-display); font-weight: 700; font-size: 0.92rem; color: var(--rh-blue-dark); margin-bottom: 6px; }
+        .card-body { font-size: 0.85rem; color: var(--rh-gray-dark); }
+
+        /* EXPANDABLE */
+        .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 0.5rem 0; overflow: hidden; }
+        .expandable-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; background: var(--rh-gray-lighter); font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; border: none; width: 100%; text-align: left; color: var(--rh-gray-dark); transition: background var(--transition-fast); }
+        .expandable-header:hover { background: #E8F0FF; color: var(--rh-blue-dark); }
+        .expandable-header[aria-expanded="true"] { background: #EEF4FF; color: var(--rh-blue-dark); border-bottom: 1px solid var(--rh-blue-light); }
+        .expandable-icon { font-size: 0.9rem; transition: transform var(--transition-fast); flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 18px; background: var(--rh-white); }
+        .expandable-content.show { display: block; }
+
+        /* DIAGRAM */
+        .diagram-container { background: #EEF4FF; border-radius: var(--radius-lg); padding: 24px; overflow-x: auto; margin: 1rem 0; }
+        .diagram-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; margin: 8px 0; }
+        .diagram-box { background: var(--rh-white); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 12px 18px; text-align: center; font-family: var(--font-display); font-size: 0.83rem; font-weight: 600; color: var(--rh-blue-dark); min-width: 110px; box-shadow: var(--shadow-sm); }
+        .diagram-box.stage { background: #EEF6FF; border-color: var(--rh-blue-dark); }
+        .diagram-box.action { background: #F0FFF0; border-color: var(--rh-green-dark); color: var(--rh-green-dark); }
+        .diagram-box.result { background: #FFF8F0; border-color: var(--rh-orange); color: #CC4400; }
+        .diagram-box.registry { background: #F5F0FF; border-color: var(--rh-purple); color: var(--rh-purple); }
+        .diagram-arrow { font-size: 1.4rem; color: var(--rh-blue); flex-shrink: 0; }
+        .diagram-caption { text-align: center; font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray); font-style: italic; margin-top: 10px; }
+
+        /* WORKFLOW STEPS */
+        .workflow-steps { counter-reset: step; list-style: none; margin: 1rem 0; padding: 0; }
+        .workflow-steps li { counter-increment: step; display: flex; gap: 14px; align-items: flex-start; margin-bottom: 14px; }
+        .workflow-steps li::before { content: counter(step); min-width: 28px; height: 28px; background: var(--rh-blue); color: var(--rh-white); border-radius: 50%; font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+        .comparison-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 10px 14px; font-family: var(--font-display); font-weight: 700; text-align: left; }
+        .comparison-table td { padding: 9px 14px; border-bottom: 1px solid var(--rh-gray-light); vertical-align: top; }
+        .comparison-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .comparison-table tr:hover td { background: #EEF4FF; }
+
+        /* BOOTC COMMAND EXPLORER */
+        .cmd-explorer { background: #0D1117; border-radius: var(--radius-lg); padding: 20px; margin: 1.2rem 0; }
+        .cmd-explorer-title { color: #58A6FF; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+        .cmd-btn-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .cmd-btn { padding: 7px 14px; background: #161B22; border: 1px solid #30363D; color: #C9D1D9; font-family: var(--font-mono); font-size: 0.82rem; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); }
+        .cmd-btn:hover, .cmd-btn.active { background: #1F4068; border-color: #58A6FF; color: #79C0FF; }
+        .cmd-detail { background: #161B22; border: 1px solid #30363D; border-radius: var(--radius-md); padding: 14px; min-height: 90px; }
+        .cmd-detail-title { color: #79C0FF; font-family: var(--font-mono); font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+        .cmd-detail-desc { color: #C9D1D9; font-family: var(--font-display); font-size: 0.85rem; line-height: 1.5; margin-bottom: 8px; }
+        .cmd-detail-syntax { color: #A8FF78; font-family: var(--font-mono); font-size: 0.82rem; }
+
+        /* QUIZ */
+        .quiz-question { border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px; transition: border-color var(--transition-fast); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF4; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; font-size: 0.92rem; margin-bottom: 10px; }
+        .quiz-option { display: block; margin: 6px 0; font-size: 0.9rem; cursor: pointer; padding: 6px 8px; border-radius: var(--radius-sm); }
+        .quiz-option:hover { background: var(--rh-gray-lighter); }
+        .quiz-option input { margin-right: 8px; }
+        .quiz-feedback { display: none; padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.85rem; margin-top: 8px; }
+        .quiz-feedback.show { display: block; }
+        .correct-fb { background: #E6F4EA; color: #1B5E20; }
+        .incorrect-fb { background: #FDECEA; color: #B71C1C; }
+        #quiz-score { display: none; background: var(--rh-blue-dark); color: var(--rh-white); padding: 14px 20px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 700; font-size: 1rem; margin-top: 16px; text-align: center; }
+        .quiz-btn { padding: 11px 24px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); margin-right: 10px; margin-top: 10px; }
+        .quiz-btn.check { background: var(--rh-blue); color: var(--rh-white); }
+        .quiz-btn.check:hover { background: var(--rh-blue-dark); }
+        .quiz-btn.reset { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); border: 1px solid var(--rh-gray-light); }
+        .quiz-btn.reset:hover { background: var(--rh-gray-light); }
+
+        /* LAB */
+        .lab-header { background: linear-gradient(135deg, var(--rh-green-dark), var(--rh-green)); color: var(--rh-white); padding: 18px 22px; border-radius: var(--radius-md); margin-bottom: 18px; }
+        .lab-header h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+        .lab-header p { font-size: 0.9rem; opacity: 0.9; margin: 0; }
+        .completion-checklist { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px 20px; margin-top: 20px; }
+        .completion-checklist h4 { font-family: var(--font-display); font-weight: 700; margin-bottom: 10px; color: var(--rh-green-dark); }
+        .completion-checklist li { list-style: none; padding: 4px 0; font-size: 0.9rem; }
+        .completion-checklist li::before { content: '\2713  '; color: var(--rh-green); font-weight: 700; }
+
+        /* SUMMARY TABLE */
+        .summary-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.88rem; }
+        .summary-table th { background: var(--rh-blue); color: var(--rh-white); padding: 10px 14px; font-family: var(--font-display); font-weight: 700; text-align: left; }
+        .summary-table td { padding: 9px 14px; border-bottom: 1px solid var(--rh-gray-light); vertical-align: top; font-family: var(--font-mono); font-size: 0.83rem; }
+        .summary-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin: 30px 0; flex-wrap: wrap; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
+
+        /* TOOLTIP */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* FOOTER */
+        footer { background: var(--rh-gray-dark); color: rgba(255,255,255,0.7); text-align: center; padding: 28px 20px; font-family: var(--font-display); font-size: 0.8rem; line-height: 1.8; }
+        footer strong { color: var(--rh-white); }
+
+        @media (max-width: 768px) {
+            .section-body { padding: 18px; }
+            .card-grid { grid-template-columns: 1fr; }
+            .diagram-row { flex-direction: column; }
+            .diagram-arrow { transform: rotate(90deg); }
+            .chapter-nav { flex-direction: column; }
+            .nav-chapter-btn { justify-content: center; }
+        }
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .chapter-nav { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F3E0;</span>
+        <div class="header-tag">RH134 &bull; RHEL 10 &bull; Chapter 18</div>
+        <h1 class="header-title">Working with Image-based Red Hat Enterprise Linux</h1>
+        <p class="header-subtitle">Build, deploy, and manage RHEL systems using bootable container images and image-mode operations.</p>
+        <div class="header-meta">
+            <span>&#x23F1; Estimated Study Time: 2&ndash;3 hours</span>
+            <span>&#x1F3AF; RHCSA Exam Relevant</span>
+            <span>&#x1F4E6; RHEL 10</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar">
+        <div id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter reading progress"></div>
+    </div>
+    <div class="progress-text" id="progress-text" aria-live="polite">0% complete</div>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <div class="section-nav-inner">
+        <button class="nav-btn" onclick="scrollToSection('section-objectives')" data-section="section-objectives">&#x1F3AF; Objectives</button>
+        <button class="nav-btn" onclick="scrollToSection('section-image-mode')" data-section="section-image-mode">&#x1F4E6; Image Mode</button>
+        <button class="nav-btn" onclick="scrollToSection('section-containerfile')" data-section="section-containerfile">&#x1F4C4; Containerfile</button>
+        <button class="nav-btn" onclick="scrollToSection('section-building')" data-section="section-building">&#x1F6E0; Building Images</button>
+        <button class="nav-btn" onclick="scrollToSection('section-deploying')" data-section="section-deploying">&#x1F680; Deploying</button>
+        <button class="nav-btn" onclick="scrollToSection('section-managing')" data-section="section-managing">&#x2699; Managing</button>
+        <button class="nav-btn" onclick="scrollToSection('section-filesystem')" data-section="section-filesystem">&#x1F4C1; File System</button>
+        <button class="nav-btn" onclick="scrollToSection('section-quiz')" data-section="section-quiz">&#x1F4DD; Quiz</button>
+        <button class="nav-btn" onclick="scrollToSection('section-lab')" data-section="section-lab">&#x1F52C; Lab</button>
+        <button class="nav-btn" onclick="scrollToSection('section-summary')" data-section="section-summary">&#x1F4CB; Summary</button>
+    </div>
+</nav>
+
+<main id="main-content">
+
+<!-- SECTION 1: OBJECTIVES -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Compare and contrast <strong>image mode</strong> for RHEL with traditional package mode installations.</li>
+            <li>Prepare a <strong>bootable container image</strong> that can be used by image mode for Red Hat Enterprise Linux.</li>
+            <li>Install Red Hat Enterprise Linux on a new server by using <strong>image mode</strong>.</li>
+            <li>Manage, inspect, modify, and update a server that uses <strong>image mode</strong> for Red Hat Enterprise Linux.</li>
+            <li>Use the <code>bootc</code> tool to query status, fetch updates, and perform rollbacks.</li>
+            <li>Understand the <strong>file-system layout</strong> differences in image mode, including immutable and mutable directories.</li>
+            <li>Generate <strong>disk images</strong> for cloud and virtualization environments using <code>bootc-image-builder</code>.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- SECTION 2: IMAGE MODE OVERVIEW -->
+<section id="section-image-mode" class="content-section" aria-labelledby="image-mode-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="image-mode-heading">Image Mode for Red Hat Enterprise Linux</h2>
+    </div>
+    <div class="section-body">
+        <h3>Introduction to Image Mode</h3>
+        <p>
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-imagemode">Image mode</span>
+            <span class="tooltip-content" id="tt-imagemode">A deployment and management approach for RHEL 10 that uses container-native tools to build, deploy, and manage the entire operating system as a bootable container image rather than installing individual RPM packages.</span>
+            for Red Hat Enterprise Linux 10 is a new deployment approach that uses container-native tools to build, deploy, and manage the operating system. With this method, you can deploy the operating system from a
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bootc">bootable container (bootc) image</span>
+            <span class="tooltip-content" id="tt-bootc">A container image that includes not just application software but also the Linux kernel, boot loader, and systemd service manager &mdash; all components needed to boot a full operating system, not just run an application.</span>.
+        </p>
+        <p>
+            Container technology has proven successful at deploying applications. The same efficient technique of using layered images can be applied to entire hosts. A bootable container image must include the kernel, a
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bootloader">boot loader</span>
+            <span class="tooltip-content" id="tt-bootloader">Software that runs during system startup before the OS loads. GRUB2 is the standard boot loader in RHEL. It reads configuration, presents the boot menu, and transfers control to the Linux kernel.</span>,
+            and other OS components typically excluded from application containers. Red Hat provides bootc base images for AMD/Intel x86_64 and 64-bit ARM architectures.
+        </p>
+
+        <h3>Package Mode vs. Image Mode</h3>
+        <div class="tabs-container" role="region" aria-label="Package Mode vs Image Mode comparison">
+            <div class="tab-list" role="tablist" aria-label="Mode comparison tabs">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-pkgmode" id="tbtn-pkgmode">Package Mode</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-imgmode" id="tbtn-imgmode">Image Mode</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-compare" id="tbtn-compare">Side-by-Side</button>
+            </div>
+            <div id="tab-pkgmode" role="tabpanel" aria-labelledby="tbtn-pkgmode" class="tab-panel active">
+                <p><strong>Package mode</strong> is the traditional RHEL installation method. The operating system is assembled from individual
+                    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rpm">RPM packages</span>
+                    <span class="tooltip-content" id="tt-rpm">Red Hat Package Manager format. RPM packages contain compiled software, metadata, and installation scripts. The dnf command manages these packages in RHEL.</span>
+                    managed by <code>dnf</code>. System administrators can install, update, or remove individual components at any time. The root filesystem is mutable, meaning files can be changed on the running system.
+                </p>
+                <ul>
+                    <li><strong>Flexibility:</strong> Install or remove any package at any time.</li>
+                    <li><strong>Granular control:</strong> Each component can be updated independently.</li>
+                    <li><strong>Mutable root:</strong> Configuration files can be modified directly.</li>
+                    <li><strong>Risk of drift:</strong> Systems can diverge over time from their intended state.</li>
+                </ul>
+            </div>
+            <div id="tab-imgmode" role="tabpanel" aria-labelledby="tbtn-imgmode" class="tab-panel">
+                <p><strong>Image mode</strong> treats the entire OS as a single versioned container image. Updates are delivered as new container images, not as individual package changes. The root filesystem is
+                    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-immutable">immutable</span>
+                    <span class="tooltip-content" id="tt-immutable">Read-only; cannot be modified at runtime. In image mode RHEL, the root file system is immutable, meaning you cannot install or remove packages on the live system &mdash; all changes must be made by rebuilding the container image.</span>
+                    by default.
+                </p>
+                <ul>
+                    <li><strong>Consistency:</strong> Every deployed system runs the exact same image.</li>
+                    <li><strong>Atomic updates:</strong> All changes apply as a single unit; no partial upgrades.</li>
+                    <li><strong>Rollback support:</strong> Instantly revert to a previous working image.</li>
+                    <li><strong>Immutable OS:</strong> Runtime tampering is prevented by design.</li>
+                </ul>
+            </div>
+            <div id="tab-compare" role="tabpanel" aria-labelledby="tbtn-compare" class="tab-panel">
+                <table class="comparison-table" aria-label="Package mode vs image mode comparison">
+                    <thead>
+                        <tr><th>Feature</th><th>Package Mode</th><th>Image Mode</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Update mechanism</td><td>dnf update (per-package)</td><td>Container image pull + reboot</td></tr>
+                        <tr><td>Root filesystem</td><td>Mutable (writable)</td><td>Immutable (read-only)</td></tr>
+                        <tr><td>Rollback</td><td>Manual (complex)</td><td>bootc rollback (simple)</td></tr>
+                        <tr><td>System definition</td><td>Accumulated dnf history</td><td>Containerfile in version control</td></tr>
+                        <tr><td>Configuration drift</td><td>High risk over time</td><td>Minimized by design</td></tr>
+                        <tr><td>Update consistency</td><td>Per-host variability possible</td><td>All hosts get identical image</td></tr>
+                        <tr><td>Build tooling</td><td>Kickstart + Anaconda</td><td>Podman + Containerfile</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h3>The Image Mode Workflow</h3>
+        <p>Image mode introduces a container-native approach to system administration with three phases:</p>
+        <div class="diagram-container" role="img" aria-label="Image mode workflow diagram showing Build, Deploy, and Update phases">
+            <div class="diagram-row">
+                <div class="diagram-box stage">&#x1F4C4;<br>Containerfile</div>
+                <div class="diagram-arrow" aria-hidden="true">&#x2192;</div>
+                <div class="diagram-box">Podman Build</div>
+                <div class="diagram-arrow" aria-hidden="true">&#x2192;</div>
+                <div class="diagram-box registry">&#x1F4E6;<br>Container Registry</div>
+            </div>
+            <div class="diagram-row">
+                <div class="diagram-arrow" aria-hidden="true">&#x2193;</div>
+                <div style="width:80px"></div>
+                <div style="width:80px"></div>
+                <div class="diagram-arrow" aria-hidden="true">&#x2193;</div>
+            </div>
+            <div class="diagram-row">
+                <div class="diagram-box action">Update:<br>Rebuild &amp; Push</div>
+                <div style="width: 160px"></div>
+                <div class="diagram-box result">Deploy:<br>Anaconda / bootc-image-builder</div>
+            </div>
+            <div class="diagram-caption">Figure 18.1: The image mode workflow &mdash; Build, Deploy, and Update phases</div>
+        </div>
+
+        <h3>Benefits of Image Mode</h3>
+        <div class="card-grid" role="list" aria-label="Benefits of image mode">
+            <div class="card" tabindex="0" role="listitem">
+                <span class="card-icon" aria-hidden="true">&#x1F4CF;</span>
+                <div class="card-title">Limited Infrastructure Drift</div>
+                <div class="card-body">Well-established container tools prevent systems from deviating from their intended state over time.</div>
+            </div>
+            <div class="card" tabindex="0" role="listitem">
+                <span class="card-icon" aria-hidden="true">&#x1F512;</span>
+                <div class="card-title">Immutable Operating System</div>
+                <div class="card-body">The root filesystem is read-only by default. Application updates are atomic, enhancing stability and security.</div>
+            </div>
+            <div class="card" tabindex="0" role="listitem">
+                <span class="card-icon" aria-hidden="true">&#x1F4C2;</span>
+                <div class="card-title">Version-controlled System Definition</div>
+                <div class="card-body">A Containerfile is the simplified blueprint for the entire OS, stored in version control like any other code.</div>
+            </div>
+            <div class="card" tabindex="0" role="listitem">
+                <span class="card-icon" aria-hidden="true">&#x1F4CA;</span>
+                <div class="card-title">Better Scalability</div>
+                <div class="card-body">Build a handful of images and deploy them identically across thousands of systems in large data center environments.</div>
+            </div>
+            <div class="card" tabindex="0" role="listitem">
+                <span class="card-icon" aria-hidden="true">&#x1F527;</span>
+                <div class="card-title">Simplified Troubleshooting</div>
+                <div class="card-body">Atomic, versioned updates can be rolled back instantly if a problem is discovered after deployment.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: CONTAINERFILE FORMAT -->
+<section id="section-containerfile" class="content-section" aria-labelledby="containerfile-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="containerfile-heading">Creating Installable Images &mdash; The Containerfile Format</h2>
+    </div>
+    <div class="section-body">
+        <p>
+            When using image mode for RHEL, you deploy software and configuration to hosts by using container images that conform to the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-oci">Open Container Initiative (OCI)</span>
+            <span class="tooltip-content" id="tt-oci">A governance organization that defines open standards for container image formats and runtimes. OCI compliance ensures images work across different engines and platforms.</span>
+            standard. A key piece of the build process is the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-containerfile">Containerfile</span>
+            <span class="tooltip-content" id="tt-containerfile">A text file containing a series of instructions used by Podman to build a container image layer by layer. Based on the Dockerfile format but follows the OCI standard. Each instruction creates a new image layer.</span>,
+            a text file with build instructions. Each line in the Containerfile creates an image
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-layer">layer</span>
+            <span class="tooltip-content" id="tt-layer">A read-only component of a container image representing a specific set of changes (packages installed, files copied, etc.). Layers stack on each other to form the complete image, enabling efficient storage and reuse.</span>.
+        </p>
+
+        <h3>Application Container Containerfile</h3>
+        <p>The following is a standard application container Containerfile using the UBI base image:</p>
+        <div class="code-block" role="region" aria-label="Application container Containerfile example">
+            <div class="code-title">Application Container Example</div>
+            <code>
+<span class="code-comment"># Use the UBI10 base image</span>
+<span class="code-keyword">FROM</span> <span class="code-string">registry.redhat.io/ubi10</span>
+
+<span class="code-comment"># Install httpd</span>
+<span class="code-keyword">RUN</span> <span class="code-command">dnf install -y httpd</span>
+
+<span class="code-comment"># Copy index.html to web root</span>
+<span class="code-keyword">COPY</span> <span class="code-string">index.html /var/www/html/index.html</span>
+
+<span class="code-comment"># Document the port the service listens on</span>
+<span class="code-keyword">EXPOSE</span> <span class="code-string">80</span>
+
+<span class="code-comment"># Run httpd in the foreground</span>
+<span class="code-keyword">ENTRYPOINT</span> <span class="code-string">["/usr/sbin/httpd", "-DFOREGROUND"]</span>
+            </code>
+        </div>
+
+        <h3>Bootable Container Containerfile</h3>
+        <p>
+            Building a bootable container requires a different base image. Red Hat provides the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rhelbootc">rhel-bootc</span>
+            <span class="tooltip-content" id="tt-rhelbootc">Red Hat&apos;s official bootable container base image for RHEL 10. It includes the Linux kernel, GRUB2 boot loader, systemd service manager, and OSTree/composefs tooling needed to boot a full operating system.</span>
+            base image, which incorporates tooling from the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ostree">OSTree</span>
+            <span class="tooltip-content" id="tt-ostree">An upgrade system for Linux-based operating systems that performs bootable, in-place upgrades of the OS, with rollback support. Used internally by bootc to store multiple file system deployments side by side.</span>,
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-composefs">composefs</span>
+            <span class="tooltip-content" id="tt-composefs">An overlay file system that enables a truly read-only root file system by composing files from the OSTree repository. Used in RHEL image mode to enforce immutability of the root filesystem.</span>,
+            and <code>bootc</code> upstream projects.
+        </p>
+
+        <div class="note-box important">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important</span></div>
+            <p>The <code>rhel-bootc</code> image is subject to the Red Hat Enterprise Linux EULA. You <strong>cannot</strong> publicly redistribute the base or any derivative user-created images.</p>
+        </div>
+
+        <div class="code-block" role="region" aria-label="Bootable container Containerfile example">
+            <div class="code-title">Bootable Container Containerfile (rhel-bootc base)</div>
+            <code>
+<span class="code-comment"># Use the rhel-bootc base image (includes kernel + boot loader)</span>
+<span class="code-keyword">FROM</span> <span class="code-string">registry.redhat.io/rhel10/rhel-bootc:latest</span>
+
+<span class="code-comment"># Install and clean packages in one layer</span>
+<span class="code-keyword">RUN</span> <span class="code-command">dnf -y install httpd mod_ssl &amp;&amp; dnf clean all</span>
+
+<span class="code-comment"># Enable service via systemd (not ENTRYPOINT)</span>
+<span class="code-keyword">RUN</span> <span class="code-command">systemctl enable httpd &amp;&amp; firewall-cmd --add-service=https</span>
+
+<span class="code-comment"># Add /etc configuration files</span>
+<span class="code-keyword">ADD</span> <span class="code-string">./etc/ /etc</span>
+
+<span class="code-comment"># Copy web content</span>
+<span class="code-keyword">COPY</span> <span class="code-string">./index.html /var/www/html/index.html</span>
+            </code>
+        </div>
+
+        <h3>Key Differences: Application vs. Bootable Containerfiles</h3>
+        <table class="comparison-table" aria-label="Containerfile differences between application and bootable images">
+            <thead>
+                <tr><th>Instruction</th><th>Application Container</th><th>Bootable Container (Image Mode)</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>FROM</code></td><td>UBI, minimal base images</td><td>Must use <code>rhel-bootc</code> base</td></tr>
+                <tr><td><code>ENTRYPOINT/CMD</code></td><td>Defines the main process</td><td>Not used &mdash; systemd manages services</td></tr>
+                <tr><td><code>EXPOSE</code></td><td>Documents container ports</td><td>Not used &mdash; use firewall-cmd instead</td></tr>
+                <tr><td><code>ENV</code></td><td>Sets runtime environment variables</td><td>Not used for services &mdash; configure via systemd</td></tr>
+                <tr><td><code>USER</code></td><td>Sets the runtime user</td><td>Not used &mdash; handled by runtime user management</td></tr>
+                <tr><td>Services</td><td>Defined by ENTRYPOINT</td><td>Enabled via <code>systemctl enable</code> in RUN</td></tr>
+                <tr><td>Firewall</td><td>EXPOSE documents ports</td><td><code>firewall-cmd</code> opens ports in RUN</td></tr>
+            </tbody>
+        </table>
+
+        <h3>ADD vs. COPY Instructions</h3>
+        <p>Both <code>ADD</code> and <code>COPY</code> place files into the image, but they behave differently:</p>
+        <ul>
+            <li><strong>COPY</strong> &mdash; Copies files or directories from the build context to the image. Does <em>not</em> unpack archives. Simple and predictable.</li>
+            <li><strong>ADD</strong> &mdash; More powerful: can fetch files over the network, and automatically unpacks compressed archives (tar.gz, etc.) into the destination. Also supports copying from local files.</li>
+        </ul>
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Note</span></div>
+            <p>The <code>Containerfile(5)</code> man page details the full specification. Many instructions accept additional options that allow significant image customization.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: BUILDING IMAGES -->
+<section id="section-building" class="content-section" aria-labelledby="building-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="building-heading">Building Bootable Container Images</h2>
+    </div>
+    <div class="section-body">
+        <p>
+            You use the <code>podman build</code> command to build a
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bootcimg">bootc image</span>
+            <span class="tooltip-content" id="tt-bootcimg">A container image built from the rhel-bootc base that contains a complete RHEL operating system including kernel, services, and configuration. Can be deployed directly to bare-metal or virtual machines.</span>
+            from the command line. Podman uses a Containerfile in the specified directory. The <code>--squash</code> option merges all new layers into a single layer, reducing complexity.
+        </p>
+
+        <div class="code-block" role="region" aria-label="Building and pushing a bootable container image">
+            <div class="code-title">Build and Push a Bootable Container Image</div>
+            <code>
+<span class="code-comment"># Build from Containerfile in current directory; squash into one layer</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">podman build --squash -t \
+  registry.example.com/user/webserver-bootc:latest .</span>
+<span class="code-output">STEP 1/4: FROM registry.redhat.io/rhel10/rhel-bootc:latest
+STEP 2/4: RUN dnf -y install httpd mod_ssl &amp;&amp; dnf clean all
+...output omitted...
+STEP 3/4: RUN systemctl enable httpd &amp;&amp; firewall-cmd --add-service=https
+STEP 4/4: COPY ./index.html /var/www/html/index.html
+COMMIT registry.example.com/user/webserver-bootc:latest
+Successfully tagged registry.example.com/user/webserver-bootc:latest</span>
+
+<span class="code-comment"># Push the built image to the registry</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">podman push registry.example.com/user/webserver-bootc:latest</span>
+<span class="code-output">Getting image source signatures
+Copying blob sha256:...
+...output omitted...</span>
+            </code>
+        </div>
+
+        <h3>Testing a Bootable Image in Application Mode</h3>
+        <p>
+            Before deploying to a real machine, you can test the bootable container by running it as an ordinary application container using <code>podman run</code>. This verifies that services start correctly and that installed software behaves as expected.
+        </p>
+        <div class="code-block" role="region" aria-label="Testing a bootc image as an application container">
+            <div class="code-title">Run and Test a Bootable Image Locally</div>
+            <code>
+<span class="code-comment"># Start the container, forwarding host port 8080 to container port 80</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">podman run -d -p 8080:80 registry.example.com/user/webserver-bootc</span>
+<span class="code-output">9622ab8c4f1e3b9d2a771e0f5c8d42b7e1a3f956c8d42b1a8b3c4d5e6f7a1b2c</span>
+
+<span class="code-comment"># Verify the web server responds on port 8080</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">curl http://localhost:8080</span>
+<span class="code-output">Hello image mode for RHEL!</span>
+
+<span class="code-comment"># Inspect running processes inside the container (note PID 1 = systemd)</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">podman exec -l ps -ef</span>
+<span class="code-output">UID        PID   CMD
+root         1   /sbin/init
+root        34   /usr/lib/systemd/systemd-journald
+root        69   /usr/sbin/NetworkManager --no-daemon
+apache     193   /usr/sbin/httpd -DFOREGROUND
+apache     194   /usr/sbin/httpd -DFOREGROUND
+root       207   sshd: /usr/sbin/sshd -D [listener]</span>
+            </code>
+        </div>
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>When running a bootc image in application mode, the included RHEL kernel does not start. Processes run in the context of the host Podman runtime, not as a booted system. PID 1 is <code>systemd</code> (init), but the kernel is the host kernel.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 5: DEPLOYING -->
+<section id="section-deploying" class="content-section" aria-labelledby="deploying-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="deploying-heading">Deploying Image Mode Systems</h2>
+    </div>
+    <div class="section-body">
+        <p>
+            A bootable container image must ultimately be deployed to a host that boots from it. Red Hat Enterprise Linux supports two primary deployment paths: bare-metal via
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kickstart">Kickstart</span>
+            <span class="tooltip-content" id="tt-kickstart">An automated installation system for Red Hat Enterprise Linux. A Kickstart file pre-answers all installer prompts (storage, users, network) so that installations proceed without manual interaction.</span>
+            automation, and cloud/virtualization via the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-bib">bootc-image-builder</span>
+            <span class="tooltip-content" id="tt-bib">A containerized Red Hat tool that converts a bootc container image into disk image formats (QCOW2, VMDK, VHD, AMI, raw) suitable for various cloud, virtualization, and edge environments.</span>
+            tool.
+        </p>
+
+        <h3>Bare-Metal Deployment with Anaconda Kickstart</h3>
+        <p>
+            For bare-metal servers, the recommended approach is the Anaconda installer&apos;s Kickstart feature. In image mode, you <em>replace</em> the traditional <code>%packages</code> section with the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ostreecontainer">ostreecontainer</span>
+            <span class="tooltip-content" id="tt-ostreecontainer">A Kickstart command that specifies a bootable container image registry URL to use as the source for an image-mode RHEL installation, replacing the traditional %packages section.</span>
+            command.
+        </p>
+
+        <div class="tabs-container" role="region" aria-label="Kickstart comparison">
+            <div class="tab-list" role="tablist" aria-label="Kickstart mode tabs">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-ks-pkg" id="tbtn-ks-pkg">Package Mode Kickstart</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-ks-img" id="tbtn-ks-img">Image Mode Kickstart</button>
+            </div>
+            <div id="tab-ks-pkg" role="tabpanel" aria-labelledby="tbtn-ks-pkg" class="tab-panel active">
+                <div class="code-block" role="region" aria-label="Traditional package mode Kickstart">
+                    <div class="code-title">Traditional Package Mode Kickstart (excerpt)</div>
+                    <code>
+<span class="code-keyword">%packages</span>
+<span class="code-string">@*minimal-environment</span>
+<span class="code-string">vim-enhanced</span>
+<span class="code-keyword">%end</span>
+
+<span class="code-comment"># rootpw and user creation work the same way</span>
+<span class="code-command">rootpw --iscrypted $6$KUnFfrTz...</span>
+<span class="code-command">user --name=student --groups=wheel --iscrypted --password=$6$JJL...</span>
+                    </code>
+                </div>
+            </div>
+            <div id="tab-ks-img" role="tabpanel" aria-labelledby="tbtn-ks-img" class="tab-panel">
+                <div class="code-block" role="region" aria-label="Image mode Kickstart">
+                    <div class="code-title">Image Mode Kickstart (excerpt)</div>
+                    <code>
+<span class="code-comment"># REPLACE %packages with ostreecontainer command</span>
+<span class="code-keyword">ostreecontainer</span> <span class="code-string">--url=registry.lab.example.com:5000/student/webserver-bootc</span>
+
+<span class="code-comment"># User management still uses standard Kickstart commands</span>
+<span class="code-command">rootpw --iscrypted $6$KUnFfrTz...</span>
+<span class="code-command">user --name=student --groups=wheel --iscrypted --password=$6$JJL...</span>
+
+<span class="code-comment"># %packages section is REMOVED entirely</span>
+                    </code>
+                </div>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Warning</span></div>
+                    <p>If the Kickstart file is not referenced correctly on the kernel command line with <code>inst.ks=URL</code>, Anaconda starts the graphical installer, which does <strong>not</strong> support image mode.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Generating Disk Images for Cloud &amp; Virtualization</h3>
+        <p>
+            The <code>bootc-image-builder</code> tool converts a bootc image into native disk formats for various platforms. It runs as a container and requires root privileges.
+        </p>
+        <table class="comparison-table" aria-label="bootc-image-builder disk image formats">
+            <thead>
+                <tr><th>Image Format</th><th>Target Environment</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>qcow2</code> (default)</td><td>QEMU / KVM hypervisors</td></tr>
+                <tr><td><code>vmdk</code></td><td>VMware vSphere</td></tr>
+                <tr><td><code>vhd</code></td><td>Microsoft Virtual PC / Hyper-V</td></tr>
+                <tr><td><code>ami</code></td><td>Amazon Machine Image (AWS)</td></tr>
+                <tr><td><code>gce</code></td><td>Google Compute Engine</td></tr>
+                <tr><td><code>raw</code></td><td>Unformatted raw disk</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Creating a QCOW2 Disk Image</h3>
+        <p>
+            First, create a <code>config.toml</code> file to define user accounts (the <code>rhel-bootc</code> base image has no default users):
+        </p>
+        <div class="code-block" role="region" aria-label="bootc-image-builder user configuration">
+            <div class="code-title">config.toml &mdash; User Customization File</div>
+            <code>
+<span class="code-comment"># Create user accounts for the generated disk image</span>
+<span class="code-string">[[customizations.user]]</span>
+<span class="code-string">name = "user1"</span>
+<span class="code-string">password = "password1"</span>
+<span class="code-string">groups = ["wheel"]</span>
+
+<span class="code-string">[[customizations.user]]</span>
+<span class="code-string">name = "user2"</span>
+<span class="code-string">password = "password2"</span>
+<span class="code-string">groups = ["wheel"]</span>
+            </code>
+        </div>
+        <div class="code-block" role="region" aria-label="Running bootc-image-builder to create a QCOW2 image">
+            <div class="code-title">Build QCOW2 Image with bootc-image-builder</div>
+            <code>
+<span class="code-comment"># Create output directory for the disk image</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">mkdir output</span>
+
+<span class="code-comment"># Run bootc-image-builder container (requires --privileged)</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">sudo podman run \
+  --rm -it \
+  --privileged \
+  --security-opt label=type:unconfined_t \
+  -v ./config.toml:/config.toml \
+  -v ./output:/output \
+  registry.redhat.io/rhel10/bootc-image-builder \
+  --type qcow2 \
+  registry.lab.example.com/user/bootc-httpd:latest</span>
+<span class="code-output">...output omitted...
+Build complete! Output written to ./output/qcow2/disk.qcow2</span>
+            </code>
+        </div>
+
+        <h3>Deploying to KVM</h3>
+        <div class="code-block" role="region" aria-label="Copy disk image and create KVM virtual machine">
+            <div class="code-title">Create and Start a KVM Virtual Machine from QCOW2</div>
+            <code>
+<span class="code-comment"># Copy the disk image to the libvirt images directory</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">sudo cp output/qcow2/disk.qcow2 /var/lib/libvirt/images/</span>
+
+<span class="code-comment"># Create the virtual machine</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">sudo virt-install \
+  --name bootc-webserver \
+  --memory 4096 \
+  --import --disk /var/lib/libvirt/images/disk.qcow2 \
+  --graphics none \
+  --osinfo rhel10.0 \
+  --noautoconsole \
+  --noreboot</span>
+<span class="code-output">Domain 'bootc-webserver' defined successfully.</span>
+
+<span class="code-comment"># Start the virtual machine</span>
+<span class="code-prompt">[user@host ~]$</span> <span class="code-command">sudo virsh start bootc-webserver</span>
+<span class="code-output">Domain 'bootc-webserver' started</span>
+            </code>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 6: MANAGING -->
+<section id="section-managing" class="content-section" aria-labelledby="managing-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="managing-heading">Managing Image Mode-based Systems</h2>
+    </div>
+    <div class="section-body">
+        <p>
+            After deployment, ongoing management uses the <code>bootc</code> command-line tool for
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-day2">Day 2 operations</span>
+            <span class="tooltip-content" id="tt-day2">Ongoing management tasks after initial deployment, including applying updates, monitoring, troubleshooting, and configuration changes. Contrasted with Day 0 (planning) and Day 1 (initial deployment).</span>.
+            Updates are
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-transactional">transactional</span>
+            <span class="tooltip-content" id="tt-transactional">An update that is applied as a single complete unit. Either the entire update succeeds or none of it is applied. Transactional updates prevent partial or broken system states.</span>,
+            atomic, and always require a reboot to take effect.
+        </p>
+
+        <h3>Interactive <code>bootc</code> Command Explorer</h3>
+        <div class="cmd-explorer" role="region" aria-label="bootc command reference explorer">
+            <div class="cmd-explorer-title">&#x1F50D; bootc Command Reference</div>
+            <div class="cmd-btn-grid" role="group" aria-label="Select a bootc command to view details">
+                <button class="cmd-btn active" onclick="showCmd('status')" aria-pressed="true">bootc status</button>
+                <button class="cmd-btn" onclick="showCmd('upgrade')" aria-pressed="false">bootc upgrade</button>
+                <button class="cmd-btn" onclick="showCmd('rollback')" aria-pressed="false">bootc rollback</button>
+                <button class="cmd-btn" onclick="showCmd('switch')" aria-pressed="false">bootc switch</button>
+            </div>
+            <div class="cmd-detail" id="cmd-detail-display">
+                <div class="cmd-detail-title">bootc status</div>
+                <div class="cmd-detail-desc">Displays the current state of the image mode system: the staged image (queued for next boot), the currently booted image, and the rollback image (if any). Output is YAML format.</div>
+                <div class="cmd-detail-syntax">bootc status [--format json|yaml]</div>
+            </div>
+        </div>
+
+        <h3>Checking System Status</h3>
+        <div class="code-block" role="region" aria-label="bootc status output example">
+            <div class="code-title">bootc status &mdash; Check Current Image State</div>
+            <code>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">bootc status</span>
+<span class="code-output">apiVersion: org.containers.bootc/v1
+kind: BootcHost
+metadata:
+  name: host
+spec:
+  image:
+    image: registry.lab.example.com/user/example-bootc
+    transport: registry
+    bootOrder: default
+status:
+  staged: null
+  booted:
+    image:
+      image: registry.lab.example.com/user/example-bootc
+      transport: registry
+      version: 10.20250116.0
+      imageDigest: sha256:87b02be441cda3d66c9c...71b092ce7b2311e2defbb93f
+  rollback: null</span>
+            </code>
+        </div>
+
+        <h3>Upgrading the System</h3>
+        <p>The update workflow for image mode systems consists of five steps:</p>
+        <ol class="workflow-steps">
+            <li>Edit the Containerfile in the bootc image project directory.</li>
+            <li>Rebuild the container image using <code>podman build --squash</code>.</li>
+            <li>Push the new image to the registry with the same name tag.</li>
+            <li>Fetch the update on the target system using <code>bootc upgrade</code>.</li>
+            <li>Reboot the system to apply the changes.</li>
+        </ol>
+
+        <p>
+            By default, automatic updates are enabled via the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autoupdate">bootc-fetch-apply-updates</span>
+            <span class="tooltip-content" id="tt-autoupdate">A systemd service and timer unit that automatically checks the container registry for newer versions of the deployed bootc image and applies them. Enabled by default in image mode RHEL deployments.</span>
+            systemd timer unit. To disable automatic updates and manage them manually:
+        </p>
+        <div class="code-block" role="region" aria-label="Disabling automatic updates and running manual upgrade">
+            <div class="code-title">Manage Automatic and Manual Updates</div>
+            <code>
+<span class="code-comment"># Check the automatic update timer</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl status bootc-fetch-apply-updates.timer</span>
+<span class="code-output">&#x25CF; bootc-fetch-apply-updates.timer - Apply bootc updates
+   Loaded: loaded (/usr/lib/systemd/system/bootc-fetch-apply-updates.timer; enabled)
+   Active: active (waiting) since Wed 2025-04-09 13:22:18 EDT; 5min ago</span>
+
+<span class="code-comment"># Permanently disable automatic updates</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl mask bootc-fetch-apply-updates.timer</span>
+<span class="code-output">Created symlink '/etc/systemd/system/bootc-fetch-apply-updates.timer' -> '/dev/null'.</span>
+
+<span class="code-comment"># Manually fetch and stage the latest update</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">bootc upgrade</span>
+<span class="code-output">layers already present: 69; layers needed: 2 (34.5 MB)
+Fetching layers 2/2
+Fetched layers: 32.95 MiB in 36 seconds (945.46 KiB/s)
+Queued for next boot: registry.lab.example.com/user/example-bootc
+Version: 10.20250116.0
+Digest: sha256:dc6a...27bc
+Total new layers: 71  Size: 739.4 MB
+Added layers: 2  Size: 34.5 MB</span>
+
+<span class="code-comment"># Reboot to activate the new deployment</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reboot</span>
+            </code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Note</span></div>
+            <p><code>bootc upgrade</code> and <code>bootc update</code> are aliases for the same operation. Use <code>--check</code> to inspect available updates without applying them, and <code>--apply</code> to reboot automatically after staging.</p>
+        </div>
+
+        <h3>Rolling Back a System</h3>
+        <p>
+            The <code>bootc rollback</code> command reverts the system to the previous available image version. When executed, the rollback deployment is queued for the next boot, and the
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-grub2">GRUB2</span>
+            <span class="tooltip-content" id="tt-grub2">GRand Unified Bootloader version 2 &mdash; the standard boot loader in RHEL. In image mode, each OSTree deployment gets its own GRUB2 menu entry, enabling boot selection of previous OS versions.</span>
+            menu is updated to show the previous deployment as the first entry.
+        </p>
+        <div class="code-block" role="region" aria-label="Rolling back an image mode system">
+            <div class="code-title">Roll Back to Previous Image Version</div>
+            <code>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">bootc rollback</span>
+<span class="code-output">bootfs is sufficient for calculated new size: 0 bytes
+Next boot: rollback deployment</span>
+
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl reboot</span>
+            </code>
+        </div>
+        <div class="note-box tip">
+            <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+            <p>During GRUB2 boot, you can also manually select a previous
+                <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-deployment">OSTree deployment</span>
+                <span class="tooltip-content" id="tt-deployment">A specific version of the OS file system stored by OSTree. Multiple deployments can coexist on a system, each with its own GRUB2 menu entry, enabling easy switching between OS versions.</span>
+                from the boot menu using the arrow keys.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 7: FILE SYSTEM -->
+<section id="section-filesystem" class="content-section" aria-labelledby="filesystem-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="filesystem-heading">File-System Layout in Image Mode</h2>
+    </div>
+    <div class="section-body">
+        <p>
+            Image mode systems use a combination of immutable and mutable volumes. Understanding which directories are writable &mdash; and how they behave during upgrades &mdash; is essential for managing these systems correctly.
+        </p>
+
+        <h3>The Root File System: <code>composefs</code></h3>
+        <p>
+            Image mode for RHEL uses
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-composefs2">composefs</span>
+            <span class="tooltip-content" id="tt-composefs2">An overlay filesystem that enforces a read-only root in RHEL image mode. Data comes from OSTree deployments in /ostree/repo. This prevents runtime modifications to OS files.</span>
+            for the root file system by default. The data comes from an
+            <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ostree2">OSTree deployment</span>
+            <span class="tooltip-content" id="tt-ostree2">A specific file system snapshot stored in /ostree/repo. OSTree can maintain multiple parallel deployments, allowing you to boot into different OS versions without removing the current one.</span>
+            stored in <code>/ostree/repo</code>. OSTree stores multiple file systems in parallel, enabling new images to be staged without deleting the running one.
+        </p>
+        <div class="code-block" role="region" aria-label="df output showing composefs mount">
+            <div class="code-title">Viewing the File System Layout with df -h</div>
+            <code>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">df -h</span>
+<span class="code-output">Filesystem        Size  Used Avail Use% Mounted on
+/dev/sda3         9.0G  1.9G  7.2G  21% /sysroot
+composefs         8.4M  8.4M     0 100% /
+devtmpfs          4.0M     0  4.0M   0% /dev
+tmpfs             983M     0  983M   0% /dev/shm
+tmpfs             394M  488K  393M   1% /run
+tmpfs             983M     0  983M   0% /tmp
+/dev/sda2         960M  153M  808M  16% /boot
+tmpfs             197M  4.0K  197M   1% /run/user/1000</span>
+            </code>
+        </div>
+        <p>Note that the root filesystem (<code>/</code>) is mounted on <code>composefs</code>, and it shows 100% used &mdash; because it is read-only with no free space. The actual persistent storage is on <code>/dev/sda3</code> mounted at <code>/sysroot</code>.</p>
+
+        <h3>Directory Behavior Reference</h3>
+        <div class="tabs-container" role="region" aria-label="Image mode directory behavior">
+            <div class="tab-list" role="tablist" aria-label="Directory behavior tabs">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-etc" id="tbtn-etc">/etc Directory</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-var" id="tbtn-var">/var Directory</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-usr" id="tbtn-usr">/usr Directory</button>
+            </div>
+            <div id="tab-etc" role="tabpanel" aria-labelledby="tbtn-etc" class="tab-panel active">
+                <p><strong>/etc is mutable and persistent.</strong> bootc performs a
+                    <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-3waymerge">3-way merge</span>
+                    <span class="tooltip-content" id="tt-3waymerge">A merge strategy that combines changes from three sources: the base version, local modifications, and the new upstream version. This preserves local customizations while still applying upstream changes to unmodified files.</span>
+                    during upgrades.
+                </p>
+                <ul>
+                    <li>Local changes to <code>/etc</code> are preserved across all future upgrades.</li>
+                    <li>Unmodified files in <code>/etc</code> get updated if the new bootc image provides a newer version.</li>
+                    <li>The <code>ostree-finalize-staged.service</code> executes these tasks during shutdown.</li>
+                </ul>
+                <div class="note-box tip">
+                    <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Tip</span></div>
+                    <p>Store all persistent configuration in <code>/etc</code>. Your custom configs survive upgrades, and upstream config improvements are automatically applied to unmodified files.</p>
+                </div>
+            </div>
+            <div id="tab-var" role="tabpanel" aria-labelledby="tbtn-var" class="tab-panel">
+                <p><strong>/var is mutable and persistent, but NOT merged during upgrades.</strong></p>
+                <ul>
+                    <li>Contents are copied from the container image during <em>initial installation only</em>.</li>
+                    <li>After installation, <code>/var</code> is shared between all deployments on the system.</li>
+                    <li>Existing files in <code>/var</code> are never changed or deleted during upgrades, even if the Containerfile instructs otherwise.</li>
+                    <li>Rolling back with <code>bootc rollback</code> does <em>not</em> roll back <code>/var</code> contents.</li>
+                </ul>
+                <div class="note-box warning">
+                    <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Warning</span></div>
+                    <p>You cannot push changes to <code>/var</code> content using image upgrades or rollbacks. Application data stored in <code>/var</code> (databases, logs, user data) is always preserved and never reverted.</p>
+                </div>
+            </div>
+            <div id="tab-usr" role="tabpanel" aria-labelledby="tbtn-usr" class="tab-panel">
+                <p><strong>/usr is immutable (read-only).</strong> All OS binaries, libraries, and system software live here.</p>
+                <ul>
+                    <li>Cannot be modified on a running image mode system.</li>
+                    <li>Changes to <code>/usr</code> require rebuilding the container image.</li>
+                    <li>This immutability prevents unauthorized software installation and configuration drift.</li>
+                    <li>After a <code>bootc upgrade</code> + reboot, <code>/usr</code> is atomically replaced by the new image version.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Summary: Image Mode Directory Mutability</h3>
+        <table class="comparison-table" aria-label="Image mode directory mutability summary">
+            <thead>
+                <tr><th>Directory</th><th>Mutable?</th><th>Upgrade Behavior</th><th>Rollback Behavior</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>/usr</code></td><td>No (read-only)</td><td>Replaced atomically by new image</td><td>Reverted to previous image</td></tr>
+                <tr><td><code>/etc</code></td><td>Yes</td><td>3-way merge (local changes preserved)</td><td>Reverted to deployment&apos;s /etc</td></tr>
+                <tr><td><code>/var</code></td><td>Yes</td><td>Never touched (shared across deployments)</td><td>NOT rolled back</td></tr>
+                <tr><td><code>/home</code></td><td>Yes (symlink to /var/home)</td><td>Not affected</td><td>Not affected</td></tr>
+                <tr><td><code>/tmp</code></td><td>Yes (tmpfs)</td><td>Cleared on reboot</td><td>Cleared on reboot</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- SECTION 8: QUIZ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of image-based RHEL. Select the best answer for each question.</p>
+
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. What command do you use to check the current booted image, staged image, and rollback image on an image mode RHEL system?</p>
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> a) <code>podman inspect</code></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> b) <code>bootc status</code></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> c) <code>ostree log</code></label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> d) <code>rpm-ostree status</code></label>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. In an image mode Kickstart file, what replaces the traditional <code>%packages</code> section?</p>
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> a) <code>%bootc-image</code></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> b) <code>imagecontainer --url=&lt;registry&gt;</code></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> c) <code>ostreecontainer --url=&lt;registry&gt;</code></label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> d) <code>%containers &lt;registry URL&gt;</code></label>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="quiz-question" data-question="3" data-correct="d">
+            <p>3. Which directory in image mode RHEL is <strong>NOT</strong> rolled back when you run <code>bootc rollback</code>?</p>
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> a) <code>/usr</code></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> b) <code>/etc</code></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> c) <code>/boot</code></label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> d) <code>/var</code></label>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="quiz-question" data-question="4" data-correct="a">
+            <p>4. What Containerfile instruction is used in bootable containers instead of <code>ENTRYPOINT</code> to start services?</p>
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> a) <code>RUN systemctl enable &lt;service&gt;</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> b) <code>CMD ["/usr/bin/systemctl", "start"]</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> c) <code>SERVICE enable &lt;service&gt;</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> d) <code>EXPOSE &lt;port&gt;</code></label>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. Which tool converts a bootc container image into disk formats like QCOW2, VMDK, or AMI?</p>
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> a) <code>podman image build</code></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> b) <code>bootc-image-builder</code></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> c) <code>virt-install</code></label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> d) <code>ostree-disk-builder</code></label>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="quiz-question" data-question="6" data-correct="c">
+            <p>6. What file system does image mode RHEL use for the root file system to enforce immutability?</p>
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> a) OverlayFS</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> b) XFS</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> c) composefs</label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> d) Btrfs</label>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="quiz-question" data-question="7" data-correct="d">
+            <p>7. A <code>bootc upgrade</code> has been staged but not applied. What must happen before the new image takes effect?</p>
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> a) Run <code>bootc apply</code></label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> b) Run <code>systemctl daemon-reload</code></label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> c) Log out and log back in</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> d) Reboot the system</label>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <div id="quiz-score" tabindex="-1" aria-live="assertive"></div>
+        <button class="quiz-btn check" onclick="checkQuiz()" aria-label="Check quiz answers">Check Answers</button>
+        <button class="quiz-btn reset" onclick="resetQuiz()" aria-label="Reset quiz">Reset Quiz</button>
+    </div>
+</section>
+
+<!-- SECTION 9: LAB -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="lab-heading">Hands-On Lab: Working with Image-based RHEL</h2>
+    </div>
+    <div class="section-body">
+        <div class="lab-header">
+            <h3>&#x1F52C; Lab Exercise: Build, Deploy, and Manage a bootc Image</h3>
+            <p>Complete the following tasks on <strong>workstation.lab.example.com</strong> (build host) and <strong>serverb.lab.example.com</strong> (target system).</p>
+        </div>
+
+        <div class="note-box warning">
+            <div class="note-box-header"><span aria-hidden="true">&#x26A0;</span><span>Warning</span></div>
+            <p>The <code>bootc upgrade</code> and <code>bootc rollback</code> commands will stage new OS deployments and require a reboot. Always verify that the registry image is correct before upgrading a production system.</p>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1-body" id="lab-task1-btn">
+                <span>Task 1: Create a Containerfile for a Bootable Container</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task1-body" role="region" aria-labelledby="lab-task1-btn">
+                <p><strong>Objective:</strong> Create a project directory and write a Containerfile that builds a bootable container with the <code>httpd</code> web server enabled.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Create the Project Directory and Containerfile</div>
+                    <code>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">mkdir ~/bootc-webserver && cd ~/bootc-webserver</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">cat > Containerfile &lt;&lt; 'EOF'
+FROM registry.redhat.io/rhel10/rhel-bootc:latest
+RUN dnf -y install httpd mod_ssl &amp;&amp; dnf clean all
+RUN systemctl enable httpd &amp;&amp; firewall-cmd --add-service=https
+COPY ./index.html /var/www/html/index.html
+EOF</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">echo 'Hello from Image Mode RHEL!' > index.html</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">cat Containerfile</span>
+<span class="code-output">FROM registry.redhat.io/rhel10/rhel-bootc:latest
+RUN dnf -y install httpd mod_ssl &amp;&amp; dnf clean all
+RUN systemctl enable httpd &amp;&amp; firewall-cmd --add-service=https
+COPY ./index.html /var/www/html/index.html</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2-body" id="lab-task2-btn">
+                <span>Task 2: Build and Push the Bootable Container Image</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task2-body" role="region" aria-labelledby="lab-task2-btn">
+                <p><strong>Objective:</strong> Authenticate to the registry, build the bootable image, and push it to a local registry.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Build and Push the bootc Image</div>
+                    <code>
+<span class="code-comment"># Log in to the Red Hat registry</span>
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">podman login registry.redhat.io</span>
+<span class="code-output">Username: your-username
+Password: your-password
+Login Succeeded!</span>
+
+<span class="code-comment"># Build the bootable container image (squash merges all layers)</span>
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">podman build --squash \
+  -t registry.lab.example.com:5000/student/webserver-bootc:latest .</span>
+<span class="code-output">STEP 1/4: FROM registry.redhat.io/rhel10/rhel-bootc:latest
+...output omitted...
+Successfully tagged registry.lab.example.com:5000/student/webserver-bootc:latest</span>
+
+<span class="code-comment"># Push the image to the local registry</span>
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">podman push registry.lab.example.com:5000/student/webserver-bootc:latest</span>
+<span class="code-output">Getting image source signatures
+Copying blob sha256:...
+...output omitted...</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3-body" id="lab-task3-btn">
+                <span>Task 3: Manage a Deployed Image Mode System</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task3-body" role="region" aria-labelledby="lab-task3-btn">
+                <p><strong>Objective:</strong> On <code>serverb.lab.example.com</code> (already deployed in image mode), check status, disable automatic updates, and manually stage an upgrade.</p>
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Manage the Deployed System on serverb</div>
+                    <code>
+<span class="code-comment"># SSH to the target server</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ssh student@serverb</span>
+
+<span class="code-comment"># Check the current bootc status</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo bootc status</span>
+<span class="code-output">apiVersion: org.containers.bootc/v1
+kind: BootcHost
+...
+booted:
+  image:
+    image: registry.lab.example.com:5000/student/webserver-bootc
+    version: 10.20250116.0
+staged: null
+rollback: null</span>
+
+<span class="code-comment"># Disable automatic updates</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo systemctl mask bootc-fetch-apply-updates.timer</span>
+<span class="code-output">Created symlink '/etc/systemd/system/bootc-fetch-apply-updates.timer' -> '/dev/null'.</span>
+
+<span class="code-comment"># Manually check for and stage updates</span>
+<span class="code-prompt">[student@serverb ~]$</span> <span class="code-command">sudo bootc upgrade --check</span>
+<span class="code-output">No update available.</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4-body" id="lab-task4-btn">
+                <span>Task 4: Inspect File System and Verify Immutability</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task4-body" role="region" aria-labelledby="lab-task4-btn">
+                <p><strong>Objective:</strong> Verify the image mode file system layout and confirm that the root filesystem is read-only.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Verify Filesystem Immutability on serverb</div>
+                    <code>
+<span class="code-comment"># View mount points and composefs root</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">df -h</span>
+<span class="code-output">Filesystem   Size  Used Avail Use% Mounted on
+composefs    8.4M  8.4M     0 100% /
+/dev/sda3    9.0G  1.9G  7.2G  21% /sysroot
+...</span>
+
+<span class="code-comment"># Attempt to install a package (should fail on immutable root)</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">dnf install -y wget</span>
+<span class="code-output">Error: This is an OSTree-based system. Direct package management is not supported.
+Use "bootc" or build a new bootc image with the desired packages.</span>
+
+<span class="code-comment"># Verify /etc is mutable</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">echo "# test" >> /etc/motd && echo "Success: /etc is writable"</span>
+<span class="code-output">Success: /etc is writable</span>
+
+<span class="code-comment"># Verify /var is mutable</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">touch /var/testfile && echo "Success: /var is writable"</span>
+<span class="code-output">Success: /var is writable</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable">
+            <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5-body" id="lab-task5-btn">
+                <span>Task 5: Generate a QCOW2 Disk Image with bootc-image-builder</span>
+                <span class="expandable-icon" aria-hidden="true">&#9660;</span>
+            </button>
+            <div class="expandable-content" id="lab-task5-body" role="region" aria-labelledby="lab-task5-btn">
+                <p><strong>Objective:</strong> Use <code>bootc-image-builder</code> to generate a QCOW2 disk image from the webserver bootc image.</p>
+                <div class="code-block" role="region" aria-label="Task 5 commands">
+                    <div class="code-title">Generate QCOW2 Disk Image</div>
+                    <code>
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">cat > config.toml &lt;&lt; 'EOF'
+[[customizations.user]]
+name = "student"
+password = "student"
+groups = ["wheel"]
+EOF</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">mkdir output</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">sudo podman run --rm -it \
+  --privileged \
+  --security-opt label=type:unconfined_t \
+  -v ./config.toml:/config.toml \
+  -v ./output:/output \
+  registry.redhat.io/rhel10/bootc-image-builder \
+  --type qcow2 \
+  registry.lab.example.com:5000/student/webserver-bootc:latest</span>
+<span class="code-output">...output omitted...
+Build complete! Output: ./output/qcow2/disk.qcow2</span>
+
+<span class="code-prompt">[student@workstation bootc-webserver]$</span> <span class="code-command">ls -lh output/qcow2/</span>
+<span class="code-output">-rw-r--r--. 1 root root 1.2G Apr  9 14:22 disk.qcow2</span>
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <div class="completion-checklist">
+            <h4>&#x2713; Lab Completion Checklist</h4>
+            <ul>
+                <li>Created a Containerfile using the <code>rhel-bootc</code> base image with httpd enabled.</li>
+                <li>Built and pushed a bootable container image to a registry using <code>podman build --squash</code>.</li>
+                <li>Checked bootc status, staged/booted/rollback images on a deployed system.</li>
+                <li>Disabled automatic updates using <code>systemctl mask</code> on the timer unit.</li>
+                <li>Verified the root filesystem is immutable (composefs) and /etc, /var are mutable.</li>
+                <li>Generated a QCOW2 disk image using <code>bootc-image-builder</code> with a config.toml customization file.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 10: SUMMARY -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>In this chapter, you learned to build, deploy, and manage Red Hat Enterprise Linux 10 in image mode.</p>
+        <ul>
+            <li><strong>Image mode</strong> is a container-native approach where the OS is deployed and managed as a bootable container image, enabling immutability, atomic updates, and easy rollbacks.</li>
+            <li>Use a <strong>Containerfile</strong> with the <code>rhel-bootc</code> base image to define the OS. Use <code>systemctl enable</code> instead of ENTRYPOINT, and <code>firewall-cmd</code> instead of EXPOSE.</li>
+            <li>Use <code>podman build --squash</code> to build the image and <code>podman push</code> to publish it to a registry.</li>
+            <li>Deploy to bare metal using <strong>Anaconda Kickstart</strong> with the <code>ostreecontainer</code> command (replace <code>%packages</code>).</li>
+            <li>Generate disk images for cloud/virtualization environments with <strong>bootc-image-builder</strong> using a <code>config.toml</code> for user customization.</li>
+            <li>The <strong>bootc</strong> command manages deployed systems: <code>status</code>, <code>upgrade</code>, <code>rollback</code>, and <code>switch</code>.</li>
+            <li>The <strong>root filesystem is immutable</strong> (composefs). <code>/etc</code> is mutable and 3-way merged on upgrade; <code>/var</code> is mutable and persistent but never updated by upgrades or rollbacks.</li>
+        </ul>
+
+        <h3>Command Reference</h3>
+        <table class="summary-table" aria-label="Chapter 18 key commands reference">
+            <thead>
+                <tr><th>Command</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>podman build --squash -t &lt;image&gt; .</td><td>Build a bootable container image, squashing layers</td></tr>
+                <tr><td>podman push &lt;image&gt;</td><td>Push image to container registry</td></tr>
+                <tr><td>podman run -d -p 8080:80 &lt;image&gt;</td><td>Test a bootc image in application mode</td></tr>
+                <tr><td>bootc status</td><td>Show booted, staged, and rollback image state</td></tr>
+                <tr><td>bootc upgrade</td><td>Fetch and stage updated image from registry</td></tr>
+                <tr><td>bootc upgrade --check</td><td>Check for available updates without applying</td></tr>
+                <tr><td>bootc rollback</td><td>Queue previous deployment for next boot</td></tr>
+                <tr><td>systemctl mask bootc-fetch-apply-updates.timer</td><td>Disable automatic image updates</td></tr>
+                <tr><td>sudo podman run ... bootc-image-builder --type qcow2 &lt;img&gt;</td><td>Generate QCOW2 disk image from bootc image</td></tr>
+                <tr><td>virt-install --import --disk disk.qcow2</td><td>Create a KVM VM from a QCOW2 disk image</td></tr>
+                <tr><td>virsh start &lt;vm-name&gt;</td><td>Start a defined KVM virtual machine</td></tr>
+            </tbody>
+        </table>
+
+        <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+            <a href="rh134_chapter17_containers.html" class="nav-chapter-btn prev">&#8592; Chapter 17: Managing Containers</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <strong>RH134: Red Hat System Administration II</strong><br>
+    Chapter 18 &mdash; Working with Image-based Red Hat Enterprise Linux<br>
+    Red Hat Enterprise Linux 10 &bull; RHCSA (EX200) Exam Preparation<br>
+    <em>Red Hat and Red Hat Enterprise Linux are trademarks of Red Hat, Inc. This material is for educational use.</em>
+</footer>
+
+<script>
+/* ============================================================
+   TOOLTIP SYSTEM
+   ============================================================ */
+(function() {
+    const bubble = document.getElementById('tooltip-bubble');
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : null;
+        if (!contentEl) return;
+        const text = contentEl.textContent.trim();
+        if (!text) return;
+
+        bubble.textContent = text;
+        bubble.style.cssText = '';
+        bubble.classList.remove('tip-top','tip-bottom','tip-left','tip-right','visible');
+
+        requestAnimationFrame(function() {
+            const rect = term.getBoundingClientRect();
+            const bW = bubble.offsetWidth || 280;
+            const bH = bubble.offsetHeight || 80;
+            const vW = window.innerWidth;
+            const vH = window.innerHeight;
+            const margin = 8;
+
+            let top, left, placement;
+
+            if (rect.top - bH - 12 >= margin) {
+                placement = 'tip-top';
+                top = rect.top - bH - 12;
+                left = rect.left + rect.width / 2 - bW / 2;
+            } else if (vH - rect.bottom - bH - 12 >= margin) {
+                placement = 'tip-bottom';
+                top = rect.bottom + 12;
+                left = rect.left + rect.width / 2 - bW / 2;
+            } else if (vW - rect.right - bW - 12 >= margin) {
+                placement = 'tip-right';
+                left = rect.right + 12;
+                top = rect.top + rect.height / 2 - bH / 2;
+            } else {
+                placement = 'tip-left';
+                left = rect.left - bW - 12;
+                top = rect.top + rect.height / 2 - bH / 2;
+            }
+
+            left = Math.max(margin, Math.min(left, vW - bW - margin));
+            top  = Math.max(margin, Math.min(top,  vH - bH - margin));
+
+            bubble.style.left = left + 'px';
+            bubble.style.top  = top  + 'px';
+            bubble.classList.add(placement, 'visible');
+        });
+    }
+
+    function hideTooltip() {
+        bubble.classList.remove('visible');
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(function(term) {
+        term.addEventListener('mouseenter', function() { showTooltip(term); });
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus',      function() { showTooltip(term); });
+        term.addEventListener('blur',       hideTooltip);
+        term.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') hideTooltip();
+        });
+    });
+})();
+
+/* ============================================================
+   PROGRESS BAR
+   ============================================================ */
+(function() {
+    var sections = document.querySelectorAll('.content-section');
+    var bar = document.getElementById('progress-fill');
+    var txt = document.getElementById('progress-text');
+    var visited = new Set();
+
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) visited.add(e.target.id);
+        });
+        var pct = Math.round((visited.size / sections.length) * 100);
+        bar.style.width = pct + '%';
+        bar.setAttribute('aria-valuenow', pct);
+        txt.textContent = pct + '% complete';
+    }, { threshold: 0.3 });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   SECTION NAV ACTIVE STATE
+   ============================================================ */
+(function() {
+    var navBtns = document.querySelectorAll('.nav-btn[data-section]');
+    var sections = document.querySelectorAll('.content-section');
+
+    var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+            if (e.isIntersecting) {
+                navBtns.forEach(function(b) { b.classList.remove('active'); });
+                var btn = document.querySelector('.nav-btn[data-section="' + e.target.id + '"]');
+                if (btn) btn.classList.add('active');
+            }
+        });
+    }, { threshold: 0.4 });
+
+    sections.forEach(function(s) { obs.observe(s); });
+})();
+
+/* ============================================================
+   SCROLL TO SECTION
+   ============================================================ */
+function scrollToSection(id) {
+    var el = document.getElementById(id);
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+/* ============================================================
+   TAB SYSTEM
+   ============================================================ */
+document.querySelectorAll('.tabs-container').forEach(function(container) {
+    var tabs = container.querySelectorAll('.tab-btn');
+    var panels = container.querySelectorAll('.tab-panel');
+
+    tabs.forEach(function(tab, idx) {
+        tab.addEventListener('click', function() {
+            tabs.forEach(function(t) { t.setAttribute('aria-selected','false'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+            tab.setAttribute('aria-selected','true');
+            var panelId = tab.getAttribute('aria-controls');
+            var panel = document.getElementById(panelId);
+            if (panel) panel.classList.add('active');
+        });
+        tab.addEventListener('keydown', function(e) {
+            var newIdx = idx;
+            if (e.key === 'ArrowRight') newIdx = (idx + 1) % tabs.length;
+            else if (e.key === 'ArrowLeft') newIdx = (idx - 1 + tabs.length) % tabs.length;
+            else return;
+            e.preventDefault();
+            tabs[newIdx].click();
+            tabs[newIdx].focus();
+        });
+    });
+});
+
+/* ============================================================
+   EXPANDABLE SECTIONS
+   ============================================================ */
+document.querySelectorAll('.expandable-header').forEach(function(header) {
+    header.addEventListener('click', function() {
+        var expanded = header.getAttribute('aria-expanded') === 'true';
+        header.setAttribute('aria-expanded', String(!expanded));
+        var bodyId = header.getAttribute('aria-controls');
+        var body = document.getElementById(bodyId);
+        if (body) body.classList.toggle('show', !expanded);
+    });
+    header.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+    });
+});
+
+/* ============================================================
+   BOOTC COMMAND EXPLORER
+   ============================================================ */
+var cmdData = {
+    status: {
+        title: 'bootc status',
+        desc: 'Displays the current state of the image mode system: the staged image (queued for next boot), the currently booted image, and the rollback image (if any). Output is YAML by default.',
+        syntax: 'bootc status [--format json|yaml]'
+    },
+    upgrade: {
+        title: 'bootc upgrade',
+        desc: 'Fetches the latest version of the deployed container image from the registry and stages it for the next boot. The running system is unaffected until you reboot. Use --check to preview updates without downloading. Alias: bootc update.',
+        syntax: 'bootc upgrade [--check] [--apply]'
+    },
+    rollback: {
+        title: 'bootc rollback',
+        desc: 'Queues the previous deployment (rollback image) for the next boot. The current deployment becomes the new rollback. The GRUB2 menu is updated to reflect the change. Any staged image is discarded.',
+        syntax: 'bootc rollback'
+    },
+    switch: {
+        title: 'bootc switch',
+        desc: 'Switches the system to track a different container image from a registry. Useful when migrating to a different bootc image source without full reinstallation. Requires a reboot to take effect.',
+        syntax: 'bootc switch <image-reference>'
+    }
+};
+
+function showCmd(key) {
+    var data = cmdData[key];
+    if (!data) return;
+    var display = document.getElementById('cmd-detail-display');
+    display.innerHTML =
+        '<div class="cmd-detail-title">' + data.title + '</div>' +
+        '<div class="cmd-detail-desc">' + data.desc + '</div>' +
+        '<div class="cmd-detail-syntax">' + data.syntax + '</div>';
+    document.querySelectorAll('.cmd-btn').forEach(function(b) {
+        var isActive = b.textContent.trim().toLowerCase().replace('bootc ','') === key;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', String(isActive));
+    });
+}
+
+/* ============================================================
+   QUIZ
+   ============================================================ */
+var quizData = {
+    1: { correct: 'b', feedback: { correct: '&#x2713; Correct! <code>bootc status</code> shows the staged, booted, and rollback image information in YAML format.', incorrect: 'Incorrect. Use <code>bootc status</code> to view the full deployment status including staged and rollback images.' } },
+    2: { correct: 'c', feedback: { correct: '&#x2713; Correct! The <code>ostreecontainer --url=&lt;registry&gt;</code> command replaces <code>%packages</code> in an image mode Kickstart file.', incorrect: 'Incorrect. The correct command is <code>ostreecontainer --url=&lt;registry&gt;</code>, which references the libostree project that bootc depends on.' } },
+    3: { correct: 'd', feedback: { correct: '&#x2713; Correct! <code>/var</code> is shared across all deployments and is never rolled back by <code>bootc rollback</code>.', incorrect: 'Incorrect. <code>/var</code> is not rolled back &mdash; it is persistent and shared across all deployments on the system.' } },
+    4: { correct: 'a', feedback: { correct: '&#x2713; Correct! In a bootable container Containerfile, <code>RUN systemctl enable &lt;service&gt;</code> replaces ENTRYPOINT because systemd manages all services.', incorrect: 'Incorrect. In image mode, services are started by systemd. Use <code>RUN systemctl enable &lt;service&gt;</code> in the Containerfile.' } },
+    5: { correct: 'b', feedback: { correct: '&#x2713; Correct! <code>bootc-image-builder</code> is a containerized tool that converts bootc images into disk formats like QCOW2, VMDK, VHD, AMI, and raw.', incorrect: 'Incorrect. The <code>bootc-image-builder</code> tool (run as a container) converts bootc images into native disk image formats.' } },
+    6: { correct: 'c', feedback: { correct: '&#x2713; Correct! composefs is the overlay file system used in image mode RHEL to enforce an immutable, truly read-only root file system.', incorrect: 'Incorrect. Image mode RHEL uses <strong>composefs</strong> for the root file system, which creates a truly read-only root from OSTree deployments.' } },
+    7: { correct: 'd', feedback: { correct: '&#x2713; Correct! A reboot is always required in image mode RHEL for staged updates to take effect, because the new OS deployment must be loaded at boot time.', incorrect: 'Incorrect. In image mode, a reboot is always required. Updates are transactional and only applied when the new deployment is loaded at boot.' } }
+};
+
+window.checkQuiz = function() {
+    var correct = 0;
+    var total = Object.keys(quizData).length;
+    Object.keys(quizData).forEach(function(n) {
+        var q = document.querySelector('[data-question="' + n + '"]');
+        var selected = q.querySelector('input[name="q' + n + '"]:checked');
+        var data = quizData[n];
+        var feedback = document.getElementById('feedback-' + n);
+        if (!selected) {
+            q.classList.remove('correct','incorrect');
+            feedback.innerHTML = 'Please select an answer.';
+            feedback.className = 'quiz-feedback show incorrect-fb';
+            return;
+        }
+        if (selected.value === data.correct) {
+            correct++;
+            q.classList.add('correct'); q.classList.remove('incorrect');
+            feedback.innerHTML = data.feedback.correct;
+            feedback.className = 'quiz-feedback show correct-fb';
+        } else {
+            q.classList.add('incorrect'); q.classList.remove('correct');
+            feedback.innerHTML = data.feedback.incorrect;
+            feedback.className = 'quiz-feedback show incorrect-fb';
+        }
+    });
+    var scoreDiv = document.getElementById('quiz-score');
+    var pct = Math.round((correct / total) * 100);
+    var msg = correct === total ? ' &#127881; Perfect score!' : (correct >= total * 0.7 ? ' Good work!' : ' Review the sections above and try again.');
+    scoreDiv.innerHTML = 'Score: ' + correct + ' / ' + total + ' (' + pct + '%)' + msg;
+    scoreDiv.style.display = 'block';
+    scoreDiv.focus();
+};
+
+window.resetQuiz = function() {
+    document.querySelectorAll('.quiz-question').forEach(function(q) {
+        q.classList.remove('correct','incorrect');
+        q.querySelectorAll('input[type="radio"]').forEach(function(r) { r.checked = false; });
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(function(f) { f.className = 'quiz-feedback'; });
+    var scoreDiv = document.getElementById('quiz-score');
+    scoreDiv.style.display = 'none';
+    scoreDiv.textContent = '';
+};
+</script>
+</body>
+</html>
