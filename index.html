@@ -2359,7 +2359,7 @@
                             RH134
                         </span>
                         <span class="accordion-label">Red Hat System Administration II &mdash; Advanced Topics</span>
-                        <span class="accordion-count" id="accordion-count-rh134">14 chapters</span>
+                        <span class="accordion-count" id="accordion-count-rh134">17 chapters</span>
                         <span class="accordion-chevron" aria-hidden="true">
                             <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                         </span>
@@ -3090,6 +3090,166 @@
                         </span>
                     </div>
                 </a>
+
+                <!-- RH134 Chapter 15 Card -->
+                <a href="rh134_chapter15_nfs.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch15-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 6H12l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H9v-1c0-1.33 2.67-2 4-2s4 .67 4 2v1z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 15</span>
+                        <h3 class="card-title" id="card-rh134-ch15-title">Accessing Network-Attached Storage</h3>
+                        <p class="card-subtitle">Mount and manage NFS shares for centralized file access</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Configure clients to access
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-nfs15">NFS shares</button>
+                                <span class="tooltip-content" id="tooltip-nfs15" role="tooltip">Network File System (NFS) allows a server to export directories over the network. Clients mount these exports as if they were local file systems, enabling centralized storage and shared access.</span>
+                            </span>
+                            using manual mounts, persistent
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-fstab15">/etc/fstab</button>
+                                <span class="tooltip-content" id="tooltip-fstab15" role="tooltip">The file system table defines which file systems are mounted at boot. For NFS entries, options such as _netdev ensure the mount waits for network availability before attempting to connect.</span>
+                            </span>
+                            entries, and on-demand
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-autofs15">autofs</button>
+                                <span class="tooltip-content" id="tooltip-autofs15" role="tooltip">A service that automatically mounts file systems when they are accessed and unmounts them after a period of inactivity. Autofs reduces network load and avoids mount failures when servers are temporarily unavailable.</span>
+                            </span>
+                            automounting.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Mounting NFS exports manually and via /etc/fstab</li>
+                            <li>Configuring autofs direct and indirect maps</li>
+                            <li>Using automount wildcards for home directories</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 16 Card -->
+                <a href="rh134_chapter16_installing_rhel.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch16-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l7.59-7.59L21 8l-9 9z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 16</span>
+                        <h3 class="card-title" id="card-rh134-ch16-title">Installing Red Hat Enterprise Linux</h3>
+                        <p class="card-subtitle">Manual and automated RHEL installation methods</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Install RHEL interactively using
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-anaconda16">Anaconda</button>
+                                <span class="tooltip-content" id="tooltip-anaconda16" role="tooltip">The Red Hat installer that provides both a graphical and text-based interface for configuring disk layout, software selection, network settings, and user accounts during a fresh RHEL installation.</span>
+                            </span>
+                            or automate large-scale deployments with
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-kickstart16">Kickstart</button>
+                                <span class="tooltip-content" id="tooltip-kickstart16" role="tooltip">A Kickstart file is a plain-text script that pre-answers every installer prompt. It can be served over HTTP, NFS, or stored on removable media, enabling fully unattended, repeatable RHEL installations.</span>
+                            </span>
+                            answer files for repeatable, unattended installs.
+                        </p>
+                        <ul class="card-topics">
+                            <li>Interactive installation with Anaconda</li>
+                            <li>Creating and using Kickstart answer files</li>
+                            <li>Registering and configuring new systems post-install</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
+                <!-- RH134 Chapter 17 Card -->
+                <a href="rh134_chapter17_containers.html" target="_blank" rel="noopener noreferrer" class="nav-card card-chapter card-chapter-rh134" role="listitem" aria-labelledby="card-rh134-ch17-title">
+                    <div class="card-header">
+                        <div class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 6H4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-5 7H9v-2h6v2zm4-4H5V8h14v1z"/>
+                            </svg>
+                        </div>
+                        <span class="card-number">RH134 &mdash; Chapter 17</span>
+                        <h3 class="card-title" id="card-rh134-ch17-title">Managing Containers with Podman</h3>
+                        <p class="card-subtitle">Run, manage, and persist containerized applications</p>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-description">
+                            Use
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-podman17">Podman</button>
+                                <span class="tooltip-content" id="tooltip-podman17" role="tooltip">A daemonless container engine that is compatible with Docker commands. Podman runs containers as the invoking user (rootless) and integrates with systemd for service management, improving security over traditional Docker deployments.</span>
+                            </span>
+                            to pull images from registries, run
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-container17">containers</button>
+                                <span class="tooltip-content" id="tooltip-container17" role="tooltip">A container is a lightweight, isolated process that packages an application and its dependencies into a portable image. Unlike virtual machines, containers share the host kernel, making them fast to start and efficient in resource usage.</span>
+                            </span>
+                            with persistent
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-volumes17">volumes</button>
+                                <span class="tooltip-content" id="tooltip-volumes17" role="tooltip">Podman volumes or bind mounts map a directory on the host into the container, preserving data across container restarts and enabling containers to share files with the host system.</span>
+                            </span>
+                            , and configure them as
+                            <span class="tooltip-container">
+                                <button type="button" class="tooltip-trigger" aria-describedby="tooltip-systemd17">systemd services</button>
+                                <span class="tooltip-content" id="tooltip-systemd17" role="tooltip">Podman can generate systemd unit files with podman generate systemd, enabling containers to start automatically at boot, be managed with systemctl, and restart on failure like any other system service.</span>
+                            </span>
+                            .
+                        </p>
+                        <ul class="card-topics">
+                            <li>Pulling images and running containers with Podman</li>
+                            <li>Mapping ports and attaching persistent storage</li>
+                            <li>Running rootless containers as systemd services</li>
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                            </svg>
+                            2-3 Hours
+                        </span>
+                        <span class="card-action">
+                            Begin Chapter
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
                     </div><!-- /.accordion-inner (end RH134) -->
                 </div><!-- /.accordion-body#accordion-body-rh134 -->
             </div><!-- /.nav-grid -->
@@ -3472,6 +3632,36 @@
                     </div>
                 </div>
 
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">37</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Access Network-Attached Storage</h3>
+                        <p class="path-description">
+                            RH134 Chapter 15 covers NFS client configuration&mdash;mounting remote exports manually, configuring persistent /etc/fstab entries, and automating on-demand access with autofs direct and indirect maps.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">38</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Install Red Hat Enterprise Linux</h3>
+                        <p class="path-description">
+                            RH134 Chapter 16 covers RHEL installation methods&mdash;performing interactive installs with the Anaconda installer, and creating Kickstart answer files to automate repeatable, unattended deployments at scale.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="path-item rh134-step" role="listitem">
+                    <div class="path-marker" aria-hidden="true">39</div>
+                    <div class="path-content">
+                        <h3 class="path-title">Manage Containers with Podman</h3>
+                        <p class="path-description">
+                            RH134 Chapter 17 introduces container management&mdash;pulling images, running rootless containers with Podman, attaching persistent storage with volumes, mapping network ports, and configuring containers to run as systemd services at boot.
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Final capstone step -->
                 <div class="path-item rh134-step" role="listitem">
                     <div class="path-marker" style="background:var(--rh-gold);color:#000;border-color:var(--rh-gold);font-size:1.1rem;" aria-hidden="true">&#x1F3C6;</div>
@@ -3578,6 +3768,9 @@
                 <a href="rh134_chapter12_boot.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 12</a>
                 <a href="rh134_chapter13_superuser_recovery.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 13</a>
                 <a href="rh134_chapter14_network_security.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 14</a>
+                <a href="rh134_chapter15_nfs.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 15</a>
+                <a href="rh134_chapter16_installing_rhel.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 16</a>
+                <a href="rh134_chapter17_containers.html" target="_blank" rel="noopener noreferrer">RH134 Ch. 17</a>
             </nav>
         </div>
     </footer>

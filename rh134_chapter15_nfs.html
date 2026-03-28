@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 15: Accessing Network-attached Storage | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue-dark); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-output { color: #E2E8F0; opacity: 0.85; }
+        .code-highlight { color: #F6E05E; }
+        .code-error { color: #FC8181; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); margin-bottom: 0; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; color: var(--rh-gray); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all var(--transition-fast); margin-bottom: -2px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue-dark); background: var(--rh-white); }
+        .tab-panel { display: none; padding: 20px; background: var(--rh-gray-lighter); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { margin: 1rem 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; width: 100%; text-align: left; transition: background var(--transition-fast); color: var(--rh-black); }
+        .expandable-header:hover { background: #E8E8E8; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expand-icon { font-size: 0.85rem; transition: transform var(--transition-fast); flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* QUIZ */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; border-left: 4px solid var(--rh-blue); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; }
+        .quiz-option { display: block; padding: 8px 12px; margin: 6px 0; font-family: var(--font-display); font-size: 0.9rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: rgba(0,102,204,0.1); }
+        .quiz-option input { margin-right: 8px; }
+        .quiz-feedback { font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm); display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #D4EDDA; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background: #F8D7DA; color: var(--rh-red-dark); }
+        .quiz-btn { padding: 10px 24px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); }
+        .quiz-btn.primary { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue); }
+        .quiz-btn.secondary { background: var(--rh-gray-light); color: var(--rh-black); margin-left: 10px; }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-medium); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; padding: 14px 20px; border-radius: var(--radius-md); margin-top: 16px; text-align: center; display: none; }
+        .quiz-score.show { display: block; }
+        .quiz-score.pass { background: #D4EDDA; color: var(--rh-green-dark); }
+        .quiz-score.fail { background: #F8D7DA; color: var(--rh-red-dark); }
+
+        /* DIAGRAM */
+        .diagram-container { margin: 1.5rem 0; background: var(--rh-gray-lighter); border-radius: var(--radius-lg); padding: 24px; overflow-x: auto; }
+        .diagram-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; margin: 8px 0; }
+        .diagram-box { background: var(--rh-white); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 12px 18px; text-align: center; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-blue-dark); min-width: 120px; box-shadow: var(--shadow-sm); }
+        .diagram-box.server { background: #EEF6FF; border-color: var(--rh-blue-dark); }
+        .diagram-box.client { background: #F0FFF0; border-color: var(--rh-green-dark); color: var(--rh-green-dark); border-width: 2px; }
+        .diagram-box.protocol { background: #FFF8F0; border-color: var(--rh-orange); color: #CC4400; font-size: 0.78rem; min-width: 90px; }
+        .diagram-arrow { font-size: 1.5rem; color: var(--rh-gray-medium); flex-shrink: 0; }
+        .diagram-label { font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); text-align: center; margin-top: 4px; }
+
+        /* NFS SIMULATOR */
+        .simulator { background: #0D1117; border-radius: var(--radius-lg); padding: 20px; margin: 1.5rem 0; box-shadow: var(--shadow-lg); }
+        .sim-title { color: #58A6FF; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .sim-scenario { background: #161B22; border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 16px; color: #8B949E; font-family: var(--font-display); font-size: 0.85rem; border-left: 3px solid #30363D; }
+        .sim-output { background: #0D1117; border: 1px solid #30363D; border-radius: var(--radius-md); padding: 16px; font-family: var(--font-mono); font-size: 0.85rem; color: #C9D1D9; min-height: 120px; margin: 12px 0; white-space: pre-wrap; overflow-y: auto; max-height: 240px; }
+        .sim-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .sim-btn { padding: 8px 16px; background: #21262D; border: 1px solid #30363D; color: #C9D1D9; font-family: var(--font-mono); font-size: 0.82rem; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); }
+        .sim-btn:hover { background: #30363D; border-color: #58A6FF; color: #58A6FF; }
+        .sim-btn.active { background: #1F6FEB; border-color: #58A6FF; color: #FFFFFF; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; font-family: var(--font-display); font-size: 0.88rem; margin: 1rem 0; }
+        .comparison-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-weight: 600; }
+        .comparison-table td { padding: 10px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .comparison-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .comparison-table tr:hover td { background: #EEF6FF; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+        .badge-green { background: #D4EDDA; color: var(--rh-green-dark); }
+        .badge-blue { background: #CCE5FF; color: var(--rh-blue-dark); }
+        .badge-orange { background: #FFE8CC; color: #CC4400; }
+
+        /* COMMAND REFERENCE */
+        .cmd-ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 1rem 0; }
+        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px 16px; border-left: 4px solid var(--rh-blue-dark); }
+        .cmd-card code { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--rh-blue-dark); display: block; margin-bottom: 4px; }
+        .cmd-card p { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray); margin: 0; }
+
+        /* LAB CHECKLIST */
+        .lab-checklist { list-style: none; margin: 1rem 0; }
+        .lab-checklist li { padding: 8px 12px; margin: 4px 0; background: var(--rh-gray-lighter); border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .lab-checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 900; font-size: 1rem; flex-shrink: 0; }
+
+        /* CHAPTER NAV */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-top: 30px; padding: 20px; background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); }
+        .nav-chapter-btn.prev { background: var(--rh-gray-lighter); color: var(--rh-gray-dark); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-light); }
+        .nav-chapter-btn.home { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue); }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 30px 24px; text-align: center; margin-top: 40px; }
+        footer p { font-family: var(--font-display); font-size: 0.82rem; margin-bottom: 6px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .diagram-row { flex-direction: column; }
+            .diagram-arrow { transform: rotate(90deg); }
+            .chapter-nav { flex-direction: column; align-items: stretch; }
+            .nav-chapter-btn { justify-content: center; }
+            .cmd-ref-grid { grid-template-columns: 1fr; }
+        }
+
+        /* PRINT */
+        @media print {
+            .section-nav, .progress-container, .quiz-btn, .completion-btn { display: none; }
+            .content-section { break-inside: avoid; box-shadow: none; border: 1px solid var(--rh-gray-light); }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#x1F5A7;</span>
+        <div class="course-tag">RH134 &bull; RHEL 10</div>
+        <h1 class="chapter-title">Chapter 15: Accessing Network-attached Storage</h1>
+        <p class="chapter-subtitle">Mount, manage, and automount NFS exports on RHEL 10</p>
+        <div class="header-meta">
+            <span>&#x1F4DA; Red Hat System Administration II</span>
+            <span>&#x23F1; Estimated Time: 2&ndash;3 Hours</span>
+            <span>&#x1F3AF; RHCSA Exam Topic</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter reading progress" id="progress-bar">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+    <p class="progress-text" id="progress-text">0% complete</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" id="nav-list">
+        <li><a href="#section-objectives" class="nav-btn">1. Objectives</a></li>
+        <li><a href="#section-nfs-overview" class="nav-btn">2. NFS Overview</a></li>
+        <li><a href="#section-query-exports" class="nav-btn">3. Querying Exports</a></li>
+        <li><a href="#section-manual-mount" class="nav-btn">4. Manual Mounting</a></li>
+        <li><a href="#section-persistent-mount" class="nav-btn">5. Persistent Mounting</a></li>
+        <li><a href="#section-guided-nfs" class="nav-btn">6. Guided Exercise: NFS</a></li>
+        <li><a href="#section-automounter" class="nav-btn">7. Automounter</a></li>
+        <li><a href="#section-autofs-config" class="nav-btn">8. Configuring autofs</a></li>
+        <li><a href="#section-direct-indirect" class="nav-btn">9. Direct vs Indirect</a></li>
+        <li><a href="#section-guided-autofs" class="nav-btn">10. Guided Exercise: autofs</a></li>
+        <li><a href="#section-quiz" class="nav-btn">11. Knowledge Check</a></li>
+        <li><a href="#section-lab" class="nav-btn">12. Hands-On Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn">13. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+    <!-- SECTION 1: OBJECTIVES -->
+    <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">1</span>
+            <h2 id="objectives-heading">Learning Objectives</h2>
+        </div>
+        <div class="section-body">
+            <p>After completing this chapter, you will be able to:</p>
+            <ul>
+                <li>Describe the purpose and architecture of the Network File System (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nfs-main">NFS</span><span class="tooltip-content" role="tooltip" id="tt-nfs-main">Network File System &mdash; an internet-standard protocol that lets Linux and UNIX systems share directories over a network as if they were local file systems.</span>) protocol on RHEL 10.</li>
+                <li>Identify available NFS exports from a remote server using <code>showmount</code> and NFSv4 export tree browsing.</li>
+                <li>Manually mount and unmount NFS exported directories using the <code>mount</code> and <code>umount</code> commands.</li>
+                <li>Persistently mount NFS exports at boot by creating entries in <code>/etc/fstab</code>.</li>
+                <li>Configure the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autofs-intro">automounter</span><span class="tooltip-content" role="tooltip" id="tt-autofs-intro">The automounter (autofs) service automatically mounts file systems and NFS exports on demand and unmounts them when no longer in use &mdash; no root privileges required for users.</span> service (autofs) to mount NFS exports on demand.</li>
+                <li>Create and manage both direct and indirect automount map files.</li>
+                <li>Use wildcards in indirect map files to automount multiple subdirectories from a single entry.</li>
+                <li>Describe the alternative automount method using <code>systemd.automount</code> unit files.</li>
+            </ul>
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>RHCSA Exam Relevance</span></div>
+                <p>Mounting NFS exports and configuring the automounter are directly tested on the RHCSA exam. You should be comfortable with both manual <code>/etc/fstab</code> entries and <code>autofs</code> map files, and be able to write them from memory.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: NFS OVERVIEW -->
+    <section id="section-nfs-overview" class="content-section" aria-labelledby="nfs-overview-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">2</span>
+            <h2 id="nfs-overview-heading">NFS Overview</h2>
+        </div>
+        <div class="section-body">
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-nfs-protocol">Network File System (NFS)</span><span class="tooltip-content" role="tooltip" id="tt-nfs-protocol">NFS is an open internet-standard protocol originally developed by Sun Microsystems that allows file sharing across a network. It supports native Linux file permissions and attributes.</span> is an internet-standard protocol that Linux, UNIX, and similar operating systems use as their native network file system. NFS is an open standard that supports native Linux permissions and file-system attributes, making it a first-class file system for RHEL environments.</p>
+
+            <h3>NFS Protocol Versions</h3>
+            <p>By default, Red Hat Enterprise Linux 10 uses <strong>NFS version 4.2</strong>. RHEL 10 fully supports both NFSv3 and NFSv4 protocols. Understanding the differences between these versions is important when working in heterogeneous environments.</p>
+
+            <div class="tabs-container" id="tabs-nfsversions">
+                <div class="tab-list" role="tablist" aria-label="NFS Protocol Versions">
+                    <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-nfsv3" id="btn-nfsv3">NFSv3</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-nfsv4" id="btn-nfsv4">NFSv4 / NFSv4.2</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-smb" id="btn-smb">SMB / CIFS</button>
+                </div>
+                <div id="tab-nfsv3" class="tab-panel active" role="tabpanel" aria-labelledby="btn-nfsv3">
+                    <h4>NFSv3 &mdash; Legacy RPC-Based Protocol</h4>
+                    <ul>
+                        <li>Uses the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rpc">Remote Procedure Call (RPC)</span><span class="tooltip-content" role="tooltip" id="tt-rpc">RPC is a protocol that allows a program on one computer to execute code on another computer over the network without the programmer explicitly managing network details.</span> protocol for all NFS transactions.</li>
+                        <li>Requires the <code>rpcbind</code> service to run on the NFS server (TCP/UDP port 111).</li>
+                        <li>Supports both <strong>TCP and UDP</strong> transport protocols.</li>
+                        <li>Clients use the <code>showmount</code> command to discover available exports.</li>
+                        <li>Stateless by design &mdash; server does not track open files.</li>
+                    </ul>
+                    <div class="note-box warning">
+                        <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Legacy Warning</span></div>
+                        <p>NFSv3 is considered legacy. New deployments should use NFSv4 or NFSv4.2 unless compatibility with older systems specifically requires NFSv3.</p>
+                    </div>
+                </div>
+                <div id="tab-nfsv4" class="tab-panel" role="tabpanel" aria-labelledby="btn-nfsv4" hidden>
+                    <h4>NFSv4 / NFSv4.2 &mdash; Modern Stateful Protocol</h4>
+                    <ul>
+                        <li>Eliminates the use of the legacy RPC protocol and <code>rpcbind</code> service.</li>
+                        <li>Uses <strong>TCP only</strong> (port 2049) &mdash; no UDP support.</li>
+                        <li>Introduces an <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-export-tree">export tree</span><span class="tooltip-content" role="tooltip" id="tt-export-tree">The NFSv4 export tree is a browseable pseudo-filesystem rooted at / on the NFS server that contains all paths of exported directories, allowing clients to discover available exports.</span> containing all paths for the server&rsquo;s exported directories.</li>
+                        <li>Supports Kerberos security for encrypted, authenticated mounts.</li>
+                        <li>NFSv4.2 (RHEL 10 default) adds: server-side copy, sparse file support, labelled NFS with SELinux.</li>
+                        <li>Stateful protocol &mdash; server tracks open files and client state.</li>
+                    </ul>
+                    <div class="note-box tip">
+                        <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Best Practice</span></div>
+                        <p>Always use NFSv4.2 in new RHEL 10 deployments. The RHCSA exam tests NFSv4 knowledge. Use <code>nfsvers=4.2</code> or <code>fstype=nfs4</code> mount options to explicitly request NFSv4.</p>
+                    </div>
+                </div>
+                <div id="tab-smb" class="tab-panel" role="tabpanel" aria-labelledby="btn-smb" hidden>
+                    <h4>SMB / CIFS &mdash; Windows File Sharing</h4>
+                    <ul>
+                        <li>RHEL 10 supports mounting shared directories from Microsoft Windows systems.</li>
+                        <li>Uses the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-smb">Server Message Block (SMB)</span><span class="tooltip-content" role="tooltip" id="tt-smb">SMB is a network file-sharing protocol developed by Microsoft. The Common Internet File System (CIFS) is an older dialect of SMB. Linux can access SMB shares using the cifs-utils package.</span> or Common Internet File System (CIFS) protocols.</li>
+                        <li>Requires the <code>cifs-utils</code> package; uses <code>-t cifs</code> mount type.</li>
+                        <li>Mounting options are protocol-specific and depend on your Windows Server or Samba configuration.</li>
+                        <li>Mounting SMB/CIFS shares from Microsoft Windows systems is <strong>beyond the scope of this course</strong>, but the same general mounting methods apply.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>NFS Architecture: Server and Client Roles</h3>
+            <p>NFS follows a classic client-server model. <strong>NFS servers export directories</strong>, making them available to the network. <strong>NFS clients mount exported directories</strong> to an existing local mount point directory on the client system.</p>
+
+            <div class="diagram-container" role="img" aria-label="NFS client-server architecture diagram showing server exporting a directory over the network to a client mount point">
+                <div class="diagram-row">
+                    <div>
+                        <div class="diagram-box server">
+                            <strong>NFS Server</strong><br>
+                            <small>serverb.lab.example.com</small>
+                            <div class="diagram-label">/shares/docs (exported)</div>
+                        </div>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x2194;</div>
+                    <div>
+                        <div class="diagram-box protocol">
+                            <strong>NFS v4.2</strong><br>
+                            TCP Port 2049
+                        </div>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x2194;</div>
+                    <div>
+                        <div class="diagram-box client">
+                            <strong>NFS Client</strong><br>
+                            <small>servera.lab.example.com</small>
+                            <div class="diagram-label">/mnt/docs (mount point)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Three Ways to Mount NFS Exports</h3>
+            <p>NFS clients can mount exported directories using one of three methods. Each has trade-offs in terms of persistence, fault tolerance, and user permissions:</p>
+
+            <table class="comparison-table" aria-label="NFS mounting methods comparison">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Command / File</th>
+                        <th>Persists on Reboot</th>
+                        <th>Root Required</th>
+                        <th>Best Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Manual</strong></td>
+                        <td><code>mount</code></td>
+                        <td><span class="badge badge-orange">No</span></td>
+                        <td><span class="badge badge-orange">Yes</span></td>
+                        <td>Temporary access, testing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Persistent</strong></td>
+                        <td><code>/etc/fstab</code></td>
+                        <td><span class="badge badge-green">Yes</span></td>
+                        <td><span class="badge badge-orange">Yes</span></td>
+                        <td>Always-available storage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Automounter</strong></td>
+                        <td><code>autofs</code></td>
+                        <td><span class="badge badge-green">Yes</span></td>
+                        <td><span class="badge badge-green">No*</span></td>
+                        <td>On-demand, user homedirs</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="font-size:0.82rem; color:var(--rh-gray); font-family:var(--font-display);">* Users do not need root to access automounted directories; the autofs service handles mounting as root in the background.</p>
+
+            <h3>Installing the Required Package</h3>
+            <p>Before manually mounting or automounting NFS exports, you must install the <code>nfs-utils</code> package, which provides the necessary tools and kernel modules.</p>
+            <div class="code-block" role="region" aria-label="Installing nfs-utils package">
+                <div class="code-title">Install nfs-utils</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">dnf install nfs-utils</span>
+<span class="code-output">...output omitted...
+Is this ok [y/N]: y
+...output omitted...
+Complete!</span></code>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: QUERYING EXPORTS -->
+    <section id="section-query-exports" class="content-section" aria-labelledby="query-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">3</span>
+            <h2 id="query-heading">Querying NFS Exports</h2>
+        </div>
+        <div class="section-body">
+            <p>Before mounting an NFS export, you need to know what directories the server is making available. The method for discovering these exports differs between NFSv3 and NFSv4 because of fundamental differences in how the two protocol versions operate.</p>
+
+            <h3>Querying NFSv3 Exports with showmount</h3>
+            <p>NFSv3 uses the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rpcbind">rpcbind</span><span class="tooltip-content" role="tooltip" id="tt-rpcbind">rpcbind is a service that maps RPC program numbers to network ports. NFSv3 servers require rpcbind to run on TCP/UDP port 111 so clients can discover which port the NFS service is using.</span> service as a port mapper. Clients connect to port 111 on the server, learn which port NFS is using, then connect to that port. The <code>showmount</code> command handles this discovery automatically.</p>
+            <div class="code-block" role="region" aria-label="Using showmount to query NFSv3 exports">
+                <div class="code-title">Query NFSv3 Exports with showmount</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">showmount --exports server</span>
+<span class="code-output">Export list for server:
+/shares/test1
+/shares/test2</span></code>
+            </div>
+
+            <h3>Querying NFSv4 Exports by Browsing the Export Tree</h3>
+            <p>NFSv4 eliminates the need for <code>rpcbind</code> and introduces an <strong>export tree</strong>. To discover what a server exports, you mount the root (<code>/</code>) of the server&rsquo;s export tree. This gives you a browseable view of all available exports without actually mounting any of them.</p>
+            <div class="code-block" role="region" aria-label="Browsing NFSv4 export tree">
+                <div class="code-title">Browse NFSv4 Export Tree</div>
+                <code><span class="code-comment"># Mount the server's export tree root to a temporary mount point</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount server:/ /mnt</span>
+
+<span class="code-comment"># Browse available exports (no actual data mounted yet)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">ls /mnt</span>
+<span class="code-output">docs  home  shared</span>
+
+<span class="code-comment"># Navigate into an export to trigger a real mount</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">cd /mnt/docs</span></code>
+            </div>
+
+            <div class="note-box important">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Kerberos-Protected Exports</span></div>
+                <p>Exported directories that use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kerberos">Kerberos</span><span class="tooltip-content" role="tooltip" id="tt-kerberos">Kerberos is a network authentication protocol that uses tickets to allow nodes to prove their identity securely over a non-secure network. NFS can use Kerberos (sec=krb5) for strong authentication and encryption.</span> security (<code>sec=krb5</code>) will appear in the export tree but <strong>cannot be accessed</strong> without valid Kerberos credentials. Their path names are visible but their content is not accessible during export tree browsing.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: MANUAL MOUNTING -->
+    <section id="section-manual-mount" class="content-section" aria-labelledby="manual-mount-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">4</span>
+            <h2 id="manual-mount-heading">Manually Mounting NFS Exports</h2>
+        </div>
+        <div class="section-body">
+            <p>Manual mounting provides temporary access to an NFS export. This is useful for testing connectivity, verifying permissions, or providing short-term access without modifying system configuration files. Manual mounts <strong>do not survive a reboot</strong>.</p>
+
+            <h3>Step 1: Create a Mount Point</h3>
+            <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mountpoint">mount point</span><span class="tooltip-content" role="tooltip" id="tt-mountpoint">A mount point is a directory on the local file system where a remote file system is attached. The directory must exist before you can mount something to it. While /mnt exists by default, creating dedicated directories is best practice.</span> must exist before you can mount to it. Although <code>/mnt</code> is available as a temporary mount point, the recommended practice is to create a dedicated directory for long-term or persistent mounting.</p>
+            <div class="code-block" role="region" aria-label="Creating a mount point directory">
+                <div class="code-title">Create Mount Point</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">mkdir -p /mnt/nfsdocs</span></code>
+            </div>
+
+            <h3>Step 2: Mount the NFS Export</h3>
+            <p>Use the <code>mount</code> command with the <code>-t nfs</code> type flag and mount options. The <code>server:/export</code> syntax tells the mount command this is an NFS share.</p>
+            <div class="code-block" role="region" aria-label="Manually mounting an NFS export">
+                <div class="code-title">Mount NFS Export</div>
+                <code><span class="code-comment"># Full syntax: mount -t nfs -o options server:/export mountpoint</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount -t nfs -o rw,sync serverb:/shares/docs /mnt/nfsdocs</span>
+
+<span class="code-comment"># Verify the mount</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount | grep nfs</span>
+<span class="code-output">serverb:/shares/docs on /mnt/nfsdocs type nfs4 (rw,relatime,sync,vers=4.2,...)</span></code>
+            </div>
+
+            <h4>Key Mount Options Explained</h4>
+            <table class="comparison-table" aria-label="NFS mount options reference">
+                <thead>
+                    <tr><th>Option</th><th>Meaning</th><th>When to Use</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>rw</code></td><td>Read/write access</td><td>When clients need to write data</td></tr>
+                    <tr><td><code>ro</code></td><td>Read-only access</td><td>Shared config/data that should not be modified</td></tr>
+                    <tr><td><code>sync</code></td><td>Writes complete before returning to caller</td><td><strong>Recommended for all production mounts</strong> &mdash; prevents data loss</td></tr>
+                    <tr><td><code>async</code></td><td>Writes may be buffered</td><td>Higher performance, but risk of data loss on failure</td></tr>
+                    <tr><td><code>nfsvers=4.2</code></td><td>Force specific NFS version</td><td>Explicitly require NFSv4.2 features</td></tr>
+                    <tr><td><code>_netdev</code></td><td>Network device required</td><td>/etc/fstab entries &mdash; delays mount until network is available</td></tr>
+                    <tr><td><code>soft</code></td><td>Return errors if server unreachable</td><td>Non-critical mounts; prevents hangs</td></tr>
+                    <tr><td><code>hard</code></td><td>Retry indefinitely if server unreachable</td><td>Critical data mounts (default behavior)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Why Use sync?</span></div>
+                <p>The <code>sync</code> option forces all write operations to complete on the server before returning success to the calling process. This is <strong>strongly recommended for all production network mounts</strong> where transactions must be completed or returned as failed. Without <code>sync</code>, a server crash could cause silent data loss.</p>
+            </div>
+
+            <h3>Unmounting NFS Exports</h3>
+            <p>Unmount an NFS export with the <code>umount</code> command (note: no &ldquo;n&rdquo; in <code>umount</code>). You must not be inside the mounted directory when unmounting.</p>
+            <div class="code-block" role="region" aria-label="Unmounting an NFS export">
+                <div class="code-title">Unmount NFS Export</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">umount /mnt/nfsdocs</span></code>
+            </div>
+
+            <h4>Handling &ldquo;Device is Busy&rdquo; Errors</h4>
+            <p>Sometimes <code>umount</code> fails with a &ldquo;device is busy&rdquo; error. This means a process has an open file or a shell has its current working directory inside the mounted file system. Use <code>lsof</code> to find the culprit:</p>
+            <div class="code-block" role="region" aria-label="Finding processes that prevent unmounting">
+                <div class="code-title">Find Open Files Preventing Unmount</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">lsof /mnt/nfsdocs</span>
+<span class="code-output">COMMAND   PID  USER  FD   TYPE DEVICE SIZE/OFF NODE NAME
+program  5534  user  txt  REG  252,4   910704  128  /mnt/nfsdocs/program</span>
+
+<span class="code-comment"># After closing the process, retry unmount</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">umount /mnt/nfsdocs</span>
+
+<span class="code-comment"># Last resort: force unmount (RISK OF DATA LOSS)</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">umount -f /mnt/nfsdocs</span></code>
+            </div>
+            <div class="note-box warning">
+                <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning: Force Unmount</span></div>
+                <p>The <code>-f</code> force option can cause <strong>loss of unwritten data</strong> for all open files on the mount. Use it only as a last resort in critical scenarios when an application cannot be closed gracefully.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: PERSISTENT MOUNTING -->
+    <section id="section-persistent-mount" class="content-section" aria-labelledby="persistent-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">5</span>
+            <h2 id="persistent-heading">Persistently Mounting NFS Exports</h2>
+        </div>
+        <div class="section-body">
+            <p>To have an NFS export mounted automatically every time the system boots, add an entry to the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-fstab">/etc/fstab</span><span class="tooltip-content" role="tooltip" id="tt-fstab">/etc/fstab is the file system table &mdash; a configuration file that defines how disk partitions and remote file systems should be automatically mounted during system startup.</span> file. This file uses syntax similar to local file system entries, with the addition of NFS-specific options.</p>
+
+            <h3>/etc/fstab Entry Format for NFS</h3>
+            <div class="code-block" role="region" aria-label="NFS fstab entry format">
+                <div class="code-title">/etc/fstab &mdash; NFS Entry Syntax</div>
+                <code><span class="code-comment"># Format: server:/export  mountpoint  fstype  options  dump  pass</span>
+<span class="code-highlight">serverb:/shares/docs  /mnt/nfsdocs  nfs  rw,sync,_netdev  0  0</span>
+
+<span class="code-comment"># After editing /etc/fstab, mount the new entry:</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">mount /mnt/nfsdocs</span></code>
+            </div>
+
+            <h4>Understanding the /etc/fstab Fields</h4>
+            <table class="comparison-table" aria-label="fstab field explanations">
+                <thead>
+                    <tr><th>Field</th><th>Example Value</th><th>Explanation</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Device/Source</td><td><code>serverb:/shares/docs</code></td><td>NFS server hostname and exported path</td></tr>
+                    <tr><td>Mount Point</td><td><code>/mnt/nfsdocs</code></td><td>Local directory to mount to (must exist)</td></tr>
+                    <tr><td>File System Type</td><td><code>nfs</code></td><td>NFS file system type (or <code>nfs4</code> for NFSv4 only)</td></tr>
+                    <tr><td>Options</td><td><code>rw,sync,_netdev</code></td><td>Mount options; <code>_netdev</code> waits for network before mounting</td></tr>
+                    <tr><td>Dump</td><td><code>0</code></td><td>Legacy backup flag; always <code>0</code> for NFS</td></tr>
+                    <tr><td>Pass</td><td><code>0</code></td><td>fsck order; always <code>0</code> for NFS (no fsck on network FS)</td></tr>
+                </tbody>
+            </table>
+
+            <div class="note-box important">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Important: Boot-Time Risks with /etc/fstab</span></div>
+                <p>Mounting NFS exports via <code>/etc/fstab</code> can cause problems if the network is unavailable at boot time or if the NFS server is unreachable. Storage timeouts may increase significantly, potentially causing very slow boots or boot failures. Always include the <code>_netdev</code> option and consider whether the automounter is a better choice for network file systems.</p>
+            </div>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Removing a Persistent Mount</span></div>
+                <p>Unmounting with <code>umount</code> does <strong>not</strong> remove the entry from <code>/etc/fstab</code>. The mount will return on the next reboot. To permanently remove a persistent NFS mount, delete or comment out its line in <code>/etc/fstab</code>, then run <code>umount</code>.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: GUIDED EXERCISE NFS -->
+    <section id="section-guided-nfs" class="content-section" aria-labelledby="guided-nfs-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">6</span>
+            <h2 id="guided-nfs-heading">Guided Exercise: Mount NFS File Systems</h2>
+        </div>
+        <div class="section-body">
+            <p>In this guided exercise, you will manually mount an NFS export and add a persistent entry to <code>/etc/fstab</code>. You will perform these tasks on <strong>servera</strong>, connecting to the NFS server at <strong>serverb</strong>.</p>
+
+            <div class="note-box note">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Lab Environment</span></div>
+                <p>Run <code>lab start nfsmount-review</code> on the workstation machine to prepare your environment before starting this exercise.</p>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge1-step1">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 1: Install nfs-utils and Verify Connectivity</span>
+                </button>
+                <div class="expandable-content" id="ge1-step1">
+                    <p>Log in to <code>servera</code> and install the required package.</p>
+                    <div class="code-block" role="region" aria-label="Install nfs-utils on servera">
+                        <div class="code-title">servera: Install Package</div>
+                        <code><span class="code-prompt">student@workstation:~$</span> <span class="code-command">ssh student@servera</span>
+<span class="code-prompt">[student@servera ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">dnf install nfs-utils -y</span>
+<span class="code-output">...output omitted...
+Complete!</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge1-step2">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 2: Browse the NFSv4 Export Tree</span>
+                </button>
+                <div class="expandable-content" id="ge1-step2">
+                    <p>Mount the export tree root to see what <code>serverb</code> is sharing.</p>
+                    <div class="code-block" role="region" aria-label="Browse NFSv4 export tree on serverb">
+                        <div class="code-title">servera: Browse Export Tree</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount serverb:/ /mnt</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">ls /mnt</span>
+<span class="code-output">docs  shared  home</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">umount /mnt</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge1-step3">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 3: Manually Mount the NFS Export</span>
+                </button>
+                <div class="expandable-content" id="ge1-step3">
+                    <p>Create a mount point and mount <code>serverb:/shares/docs</code> with read-write and sync options.</p>
+                    <div class="code-block" role="region" aria-label="Create mount point and mount NFS export">
+                        <div class="code-title">servera: Manual NFS Mount</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mkdir -p /mnt/nfsdocs</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount -t nfs -o rw,sync serverb:/shares/docs /mnt/nfsdocs</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">ls /mnt/nfsdocs</span>
+<span class="code-output">report.txt  data</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge1-step4">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 4: Add Persistent /etc/fstab Entry</span>
+                </button>
+                <div class="expandable-content" id="ge1-step4">
+                    <p>Unmount the manual mount, add an <code>/etc/fstab</code> entry, then remount using the fstab definition.</p>
+                    <div class="code-block" role="region" aria-label="Add fstab entry for NFS mount">
+                        <div class="code-title">servera: Persistent NFS in /etc/fstab</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">umount /mnt/nfsdocs</span>
+
+<span class="code-comment"># Add to /etc/fstab (use vi, nano, or echo >>):</span>
+<span class="code-highlight">serverb:/shares/docs  /mnt/nfsdocs  nfs  rw,sync,_netdev  0  0</span>
+
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount /mnt/nfsdocs</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">df -h /mnt/nfsdocs</span>
+<span class="code-output">Filesystem              Size  Used Avail Use% Mounted on
+serverb:/shares/docs    10G  2.1G  7.9G  21% /mnt/nfsdocs</span></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 7: AUTOMOUNTER -->
+    <section id="section-automounter" class="content-section" aria-labelledby="automounter-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">7</span>
+            <h2 id="automounter-heading">The Automounter Service (autofs)</h2>
+        </div>
+        <div class="section-body">
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-autofs-detail">automounter service (autofs)</span><span class="tooltip-content" role="tooltip" id="tt-autofs-detail">autofs is a kernel and user-space service that mounts file systems on demand when accessed and unmounts them automatically after a configurable idle timeout. It replaces the need for static /etc/fstab entries for network file systems.</span> is a service that automatically mounts file systems and NFS exports <em>on demand</em>, and automatically unmounts them when the mounted resources are no longer in use. Understanding why the automounter exists &mdash; not just how to use it &mdash; is essential to appreciating its role in system administration.</p>
+
+            <h3>Why Does the Automounter Exist?</h3>
+            <p>The automounter was created to solve two related problems:</p>
+            <ol>
+                <li><strong>Non-privileged user access:</strong> Regular users do not have permission to use the <code>mount</code> command. Without the automounter, non-privileged users cannot access removable media or unmounted network shares &mdash; even if they have permissions on the remote file system itself.</li>
+                <li><strong>On-demand mounting:</strong> File systems mounted in <code>/etc/fstab</code> are mounted at boot and remain mounted until shutdown. If the NFS server is unavailable at boot, the system may hang. The automounter only mounts when access is actually needed.</li>
+            </ol>
+
+            <h3>How the Automounter Works</h3>
+            <p>The autofs service uses configuration files populated with mount information, similar to <code>/etc/fstab</code>. The key difference is <em>when</em> mounting occurs:</p>
+
+            <div class="diagram-container" role="img" aria-label="Automounter workflow diagram showing user access triggering mount and idle timeout triggering unmount">
+                <div class="diagram-row">
+                    <div class="diagram-box" style="background:#F0FFF0;border-color:var(--rh-green-dark);color:var(--rh-green-dark);">
+                        <strong>User accesses</strong><br>
+                        <small>/remote/docs</small>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x27A1;</div>
+                    <div class="diagram-box" style="background:#FFF8F0;border-color:var(--rh-orange);color:#CC4400;">
+                        <strong>autofs detects</strong><br>
+                        <small>path access event</small>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x27A1;</div>
+                    <div class="diagram-box server">
+                        <strong>autofs mounts</strong><br>
+                        <small>server:/docs &#x2192; /remote/docs</small>
+                    </div>
+                </div>
+                <div class="diagram-row">
+                    <div class="diagram-box" style="background:#F0FFF0;border-color:var(--rh-green-dark);color:var(--rh-green-dark);">
+                        <strong>No activity for</strong><br>
+                        <small>timeout period</small>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x27A1;</div>
+                    <div class="diagram-box" style="background:#FFF8F0;border-color:var(--rh-orange);color:#CC4400;">
+                        <strong>autofs detects</strong><br>
+                        <small>idle timeout</small>
+                    </div>
+                    <div class="diagram-arrow" aria-hidden="true">&#x27A1;</div>
+                    <div class="diagram-box" style="background:#EEF6FF;border-color:var(--rh-blue);">
+                        <strong>autofs unmounts</strong><br>
+                        <small>cleans up mount point</small>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Key Advantages of the Automounter</h3>
+            <div class="tabs-container" id="tabs-autofs-benefits">
+                <div class="tab-list" role="tablist" aria-label="Automounter advantages">
+                    <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-protect" id="btn-protect">Protection</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-fresh" id="btn-fresh">Fresh Config</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-userperm" id="btn-userperm">User Access</button>
+                    <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-redundant" id="btn-redundant">Redundancy</button>
+                </div>
+                <div id="tab-protect" class="tab-panel active" role="tabpanel" aria-labelledby="btn-protect">
+                    <h4>Protection from Unexpected Corruption</h4>
+                    <p>By unmounting a file system each time it is no longer in use, the automounter protects it from unexpected corruption when open files are kept open unnecessarily. A file system that is not mounted cannot be corrupted by crashes or power failures &mdash; the kernel has no open buffers for it.</p>
+                </div>
+                <div id="tab-fresh" class="tab-panel" role="tabpanel" aria-labelledby="btn-fresh" hidden>
+                    <h4>Always Uses Current Mount Configuration</h4>
+                    <p>When the automounter remounts a file system, it reads the current mount configuration. This is in contrast to <code>/etc/fstab</code>, which may still be using a configuration from months ago at the last system boot. Configuration changes take effect on the next mount cycle without a reboot.</p>
+                </div>
+                <div id="tab-userperm" class="tab-panel" role="tabpanel" aria-labelledby="btn-userperm" hidden>
+                    <h4>Non-Privileged User Access</h4>
+                    <p>File systems mounted through the automounter are available by default to all users without requiring root privileges. The autofs service performs the actual <code>mount</code> and <code>umount</code> calls as root in the background, transparently to the accessing user. This is essential for user home directories stored on NFS servers.</p>
+                </div>
+                <div id="tab-redundant" class="tab-panel" role="tabpanel" aria-labelledby="btn-redundant" hidden>
+                    <h4>Redundant Server Support</h4>
+                    <p>If your NFS server configuration includes redundant servers and paths, the automounter can select the <strong>fastest available connection</strong> each time a new file system mount is requested. This provides basic load balancing and fault tolerance that static <code>/etc/fstab</code> entries cannot achieve.</p>
+                </div>
+            </div>
+
+            <h3>Direct vs. Indirect Mounts</h3>
+            <p>The autofs service supports two types of mount-point mapping to handle the two common use cases for automounting:</p>
+            <table class="comparison-table" aria-label="Direct vs indirect automount comparison">
+                <thead>
+                    <tr><th>Type</th><th>Mount Point</th><th>When Created</th><th>Use Case</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Direct Map</strong></td>
+                        <td>Absolute path (e.g., <code>/mnt/docs</code>)</td>
+                        <td>Permanent directory; exists even when unmounted</td>
+                        <td>Known, fixed mount locations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Indirect Map</strong></td>
+                        <td>Relative name under a base (e.g., <code>/shares/docs</code>)</td>
+                        <td>Created by autofs on demand; removed when unmounted</td>
+                        <td>Dynamic sets of mounts (user homedirs, project dirs)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- SECTION 8: CONFIGURING AUTOFS -->
+    <section id="section-autofs-config" class="content-section" aria-labelledby="autofs-config-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">8</span>
+            <h2 id="autofs-config-heading">Configuring the Automounter Service</h2>
+        </div>
+        <div class="section-body">
+            <p>Configuring the automounter requires installing packages, editing the master map file, and creating one or more map files. The configuration uses a two-level structure: a master map that identifies base directories, and map files that specify individual mounts.</p>
+
+            <h3>Step 1: Install Required Packages</h3>
+            <div class="code-block" role="region" aria-label="Install autofs and nfs-utils packages">
+                <div class="code-title">Install autofs and nfs-utils</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">dnf install autofs nfs-utils</span>
+<span class="code-output">...output omitted...
+Is this ok [y/N]: y
+...output omitted...
+Complete!</span></code>
+            </div>
+
+            <h3>Step 2: The Master Map File</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mastermap">master map file</span><span class="tooltip-content" role="tooltip" id="tt-mastermap">The autofs master map file ties together base mount directories with their corresponding map files. Each line associates a base mount point directory with a map file that contains the detailed mount information for that directory.</span> is the top-level configuration for autofs. By default, autofs uses <code>/etc/auto.master</code>. The recommended location for custom entries is the <code>/etc/auto.master.d/</code> directory, which autofs reads automatically.</p>
+
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>Naming Convention</span></div>
+                <p>Files in <code>/etc/auto.master.d/</code> must have the <code>.autofs</code> extension to be recognized by autofs. The name itself is mostly arbitrary (e.g., <code>shares.autofs</code>, <code>home.autofs</code>), but should be meaningful.</p>
+            </div>
+
+            <div class="code-block" role="region" aria-label="Master map file format example">
+                <div class="code-title">/etc/auto.master.d/demo.autofs &mdash; Master Map Format</div>
+                <code><span class="code-comment"># Format: mountpoint  map-file  [options]</span>
+<span class="code-highlight">/shares  /etc/auto.shares</span>
+
+<span class="code-comment"># mountpoint: Base directory for this group of automounts</span>
+<span class="code-comment"># map-file:   File that contains the individual mount details</span></code>
+            </div>
+
+            <h3>Step 3: The Map File</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-mapfile">map file</span><span class="tooltip-content" role="tooltip" id="tt-mapfile">An autofs map file specifies the individual mount points, their mount options, and source locations. It is the equivalent of individual /etc/fstab lines, but only for the automounted directory tree defined in the master map.</span> specifies the individual mount points within the base directory defined in the master map. The automounter creates directories automatically if they do not exist.</p>
+
+            <div class="code-block" role="region" aria-label="Map file format example">
+                <div class="code-title">/etc/auto.shares &mdash; Map File Format</div>
+                <code><span class="code-comment"># Format: mountpoint  -options  source-location</span>
+<span class="code-highlight">work  -rw,sync  hosta:/shares/work</span>
+<span class="code-highlight">docs  -rw,sync  hosta:/shares/docs</span>
+
+<span class="code-comment"># Mount options start with a dash (-) and are comma-separated</span>
+<span class="code-comment"># Source location uses the host:/path format for NFS</span></code>
+            </div>
+
+            <div class="note-box note">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Naming Convention for Map Files</span></div>
+                <p>The naming convention for a map file is <code>/etc/auto.<em>name</em></code>, where <em>name</em> reflects the content of the map. For example, <code>/etc/auto.shares</code> for share mounts, <code>/etc/auto.home</code> for home directories.</p>
+            </div>
+
+            <h3>Step 4: Start and Enable the autofs Service</h3>
+            <p>After creating the master map and map files, start and enable the autofs service using <code>systemctl</code>.</p>
+            <div class="code-block" role="region" aria-label="Enable and start autofs service">
+                <div class="code-title">Enable and Start autofs</div>
+                <code><span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl enable --now autofs</span>
+<span class="code-output">Created symlink /etc/systemd/system/multi-user.target.wants/autofs.service
+    &#x2192; /usr/lib/systemd/system/autofs.service.</span>
+
+<span class="code-comment"># Verify autofs is running</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl status autofs</span>
+<span class="code-output">&#x25CF; autofs.service - Automounts filesystems on demand
+     Loaded: loaded (/usr/lib/systemd/system/autofs.service; enabled)
+     Active: active (running) since ...</span></code>
+            </div>
+
+            <h3>Alternative: systemd.automount</h3>
+            <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-systemd-automount">systemd.automount</span><span class="tooltip-content" role="tooltip" id="tt-systemd-automount">systemd.automount is a systemd unit type that creates on-demand mount points from /etc/fstab entries. It is simpler to configure than autofs but only supports absolute path (direct) mounts.</span> unit type provides an alternative automount method by using <code>/etc/fstab</code> entries with the <code>x-systemd.automount</code> option. This can be simpler than the full autofs configuration.</p>
+            <div class="code-block" role="region" aria-label="systemd automount via fstab">
+                <div class="code-title">/etc/fstab &mdash; systemd.automount Method</div>
+                <code><span class="code-comment"># Add x-systemd.automount to the options in /etc/fstab:</span>
+<span class="code-highlight">serverb:/remote/finance  /remote/finance  nfs  rw,sync,x-systemd.automount  0  0</span>
+
+<span class="code-comment"># Reload systemd to pick up the new fstab entry</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl daemon-reload</span>
+
+<span class="code-comment"># Enable the generated automount unit</span>
+<span class="code-comment"># Unit name is based on mount path: / becomes - and path separators become -</span>
+<span class="code-prompt">[root@host ~]#</span> <span class="code-command">systemctl start remote-finance.automount</span></code>
+            </div>
+            <div class="note-box tip">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4A1;</span><span>systemd.automount Limitation</span></div>
+                <p>The <code>systemd.automount</code> method supports <strong>only absolute path mount points</strong>, similar to autofs direct maps. It cannot create dynamic indirect mounts or use wildcards. For home directories or large sets of dynamic mounts, use the full autofs service.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 9: DIRECT AND INDIRECT MAPS -->
+    <section id="section-direct-indirect" class="content-section" aria-labelledby="direct-indirect-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">9</span>
+            <h2 id="direct-indirect-heading">Direct and Indirect Map Files</h2>
+        </div>
+        <div class="section-body">
+            <p>Mastering the difference between direct and indirect map files is essential for the RHCSA exam and for real-world autofs administration. The two types serve different use cases and use different configuration syntax.</p>
+
+            <h3>Direct Map Files</h3>
+            <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-direct-map">direct map</span><span class="tooltip-content" role="tooltip" id="tt-direct-map">A direct map mounts an NFS export at a specific absolute path that is always visible in the file system, even when unmounted. The actual content appears when accessed. Direct maps use /- as the base directory in the master map.</span> maps an NFS export to an absolute, known mount point location. The directory <em>appears to exist</em> permanently, even when the file system is not mounted. The content becomes visible when accessed.</p>
+
+            <p>To use direct maps, use <code>/-</code> as the base directory in the master map file:</p>
+            <div class="code-block" role="region" aria-label="Direct map configuration example">
+                <div class="code-title">Direct Map &mdash; Master Map Entry</div>
+                <code><span class="code-comment"># /etc/auto.master.d/direct.autofs</span>
+<span class="code-comment"># Base directory /- means: use absolute paths from the map file</span>
+<span class="code-highlight">/-  /etc/auto.direct</span></code>
+            </div>
+            <div class="code-block" role="region" aria-label="Direct map file example">
+                <div class="code-title">/etc/auto.direct &mdash; Direct Map File</div>
+                <code><span class="code-comment"># Format: /absolute/path  -options  server:/export</span>
+<span class="code-highlight">/mnt/docs  -rw,sync  hosta:/shares/docs</span>
+<span class="code-highlight">/mnt/apps  -ro,sync  hosta:/shares/apps</span>
+
+<span class="code-comment"># /mnt must exist; autofs creates/removes /mnt/docs and /mnt/apps</span></code>
+            </div>
+
+            <h3>Indirect Map Files</h3>
+            <p>An <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-indirect-map">indirect map</span><span class="tooltip-content" role="tooltip" id="tt-indirect-map">An indirect map mounts NFS exports as subdirectories under a specified base directory. The subdirectories do not exist until accessed, at which point autofs creates them, mounts the export, and removes them again when the export is unmounted.</span> uses a base directory under which subdirectories appear dynamically when accessed. The directories appear to exist when you <code>ls</code> the base directory, but the actual NFS mount happens only when you enter one of them.</p>
+            <div class="code-block" role="region" aria-label="Indirect map configuration example">
+                <div class="code-title">Indirect Map &mdash; Master Map Entry</div>
+                <code><span class="code-comment"># /etc/auto.master.d/indirect.autofs</span>
+<span class="code-highlight">/shares  /etc/auto.indirect</span>
+<span class="code-comment"># /shares is the base; autofs creates /shares/work, /shares/docs, etc.</span></code>
+            </div>
+            <div class="code-block" role="region" aria-label="Indirect map file example">
+                <div class="code-title">/etc/auto.indirect &mdash; Indirect Map File</div>
+                <code><span class="code-comment"># Format: relative-name  -options  server:/export</span>
+<span class="code-highlight">work  -rw,sync  hosta:/shares/work</span>
+<span class="code-highlight">docs  -rw,sync  hosta:/shares/docs</span>
+
+<span class="code-comment"># Results in:  /shares/work  and  /shares/docs</span>
+<span class="code-comment"># autofs creates and removes these directories automatically</span></code>
+            </div>
+
+            <h3>Using Wildcards in Indirect Maps</h3>
+            <p>When an NFS server exports multiple subdirectories within a parent directory, you can use a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-wildcard">wildcard entry</span><span class="tooltip-content" role="tooltip" id="tt-wildcard">An autofs wildcard entry uses * as the mount point key and &amp; as a placeholder in the source location. When a user accesses /base/anything, the * matches &quot;anything&quot; and &amp; substitutes it into the source path, so autofs mounts server:/export/anything automatically.</span> to handle all subdirectories with a single line:</p>
+            <div class="code-block" role="region" aria-label="Wildcard indirect map entry example">
+                <div class="code-title">/etc/auto.indirect &mdash; Wildcard Entry</div>
+                <code><span class="code-comment"># Format: *  -options  server:/export/&amp;</span>
+<span class="code-comment"># * = any subdirectory name</span>
+<span class="code-comment"># &amp; = substituted with the actual name used by the user</span>
+<span class="code-highlight">*  -rw,sync  hosta:/shares/&amp;</span>
+
+<span class="code-comment"># User accesses: /shares/work</span>
+<span class="code-comment"># autofs mounts: hosta:/shares/work  -&gt;  /shares/work</span>
+<span class="code-comment"># User accesses: /shares/reports</span>
+<span class="code-comment"># autofs mounts: hosta:/shares/reports  -&gt;  /shares/reports</span></code>
+            </div>
+
+            <div class="note-box important">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F534;</span><span>Wildcard Requirement</span></div>
+                <p>For a wildcard entry to work, the directory accessed must actually exist as an export on the NFS server. If a user accesses <code>/shares/nonexistent</code> and the server does not export that path, the mount will fail. Wildcards do not automatically create server-side exports.</p>
+            </div>
+
+            <!-- INTERACTIVE SIMULATOR -->
+            <h3>Interactive: Autofs Configuration Explorer</h3>
+            <p>Use the simulator below to explore how different autofs configurations result in different mount behaviors. Select a scenario to see the required configuration files and the resulting mount point structure.</p>
+            <div class="simulator" role="region" aria-label="Autofs configuration simulator">
+                <div class="sim-title">&#x1F4BB; Autofs Configuration Simulator</div>
+                <div class="sim-scenario" id="sim-scenario-text">Select a scenario below to explore the configuration and resulting mounts.</div>
+                <div class="sim-output" id="sim-output" aria-live="polite" aria-label="Simulator output">Click a scenario button to see the configuration...</div>
+                <div class="sim-controls">
+                    <button class="sim-btn" id="sim-btn-direct" onclick="runSimScenario('direct')">&#x1F4C1; Direct Map</button>
+                    <button class="sim-btn" id="sim-btn-indirect" onclick="runSimScenario('indirect')">&#x1F4C2; Indirect Map</button>
+                    <button class="sim-btn" id="sim-btn-wildcard" onclick="runSimScenario('wildcard')">&#x1F52E; Wildcard Map</button>
+                    <button class="sim-btn" id="sim-btn-systemd" onclick="runSimScenario('systemd')">&#x2699;&#xFE0F; systemd.automount</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 10: GUIDED EXERCISE AUTOFS -->
+    <section id="section-guided-autofs" class="content-section" aria-labelledby="guided-autofs-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">10</span>
+            <h2 id="guided-autofs-heading">Guided Exercise: Automount Storage Devices</h2>
+        </div>
+        <div class="section-body">
+            <p>In this guided exercise, you will configure autofs to automatically mount NFS exports from <strong>serverb</strong> on <strong>servera</strong> using an indirect wildcard map. This mirrors the approach used in the full lab exercise.</p>
+
+            <div class="note-box note">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Lab Environment</span></div>
+                <p>Run <code>lab start nfsautomount-review</code> on the workstation machine to prepare your environment before starting this exercise.</p>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge2-step1">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 1: Install autofs and nfs-utils</span>
+                </button>
+                <div class="expandable-content" id="ge2-step1">
+                    <div class="code-block" role="region" aria-label="Install autofs packages">
+                        <div class="code-title">servera: Install Packages</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">dnf install autofs nfs-utils -y</span>
+<span class="code-output">...output omitted...
+Complete!</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge2-step2">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 2: Create the Master Map File</span>
+                </button>
+                <div class="expandable-content" id="ge2-step2">
+                    <p>Create the master map file that specifies <code>/remote</code> as the base directory and <code>/etc/auto.shares</code> as the map file.</p>
+                    <div class="code-block" role="region" aria-label="Create master map file">
+                        <div class="code-title">Create /etc/auto.master.d/shares.autofs</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">vi /etc/auto.master.d/shares.autofs</span>
+<span class="code-comment"># Add the following line:</span>
+<span class="code-highlight">/remote  /etc/auto.shares</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge2-step3">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 3: Create the Indirect Wildcard Map File</span>
+                </button>
+                <div class="expandable-content" id="ge2-step3">
+                    <p>Create the map file that uses a wildcard entry to automount any subdirectory of <code>serverb:/shares/</code>.</p>
+                    <div class="code-block" role="region" aria-label="Create indirect wildcard map file">
+                        <div class="code-title">Create /etc/auto.shares</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">vi /etc/auto.shares</span>
+<span class="code-comment"># Add the following wildcard entry:</span>
+<span class="code-highlight">*  -rw,sync,fstype=nfs4  serverb:/shares/&amp;</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="ge2-step4">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Step 4: Start autofs and Test the Automount</span>
+                </button>
+                <div class="expandable-content" id="ge2-step4">
+                    <div class="code-block" role="region" aria-label="Start autofs and test automount">
+                        <div class="code-title">Enable autofs and Test</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">systemctl enable --now autofs</span>
+
+<span class="code-comment"># Verify: no NFS mounts yet (nothing has been accessed)</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount | grep nfs</span>
+<span class="code-output">rpc_pipefs on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw,relatime)</span>
+
+<span class="code-comment"># Access a subdirectory to trigger automount</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">ls /remote/management</span>
+<span class="code-output">Welcome.txt</span>
+
+<span class="code-comment"># Now the mount is active:</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount | grep nfs</span>
+<span class="code-output">serverb:/shares/management on /remote/management type nfs4 (rw,sync,...)</span></code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 11: QUIZ -->
+    <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">11</span>
+            <h2 id="quiz-heading">Knowledge Check</h2>
+        </div>
+        <div class="section-body">
+            <p>Test your understanding of NFS mounting and the automounter. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+            <div class="quiz-question" data-question="1" data-correct="b">
+                <p>1. What is the default NFS version used by RHEL 10?</p>
+                <label class="quiz-option"><input type="radio" name="q1" value="a"> NFS version 3 (NFSv3)</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="b"> NFS version 4.2 (NFSv4.2)</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="c"> NFS version 4.0 (NFSv4.0)</label>
+                <label class="quiz-option"><input type="radio" name="q1" value="d"> NFS version 2 (NFSv2)</label>
+                <div class="quiz-feedback" id="feedback-1"></div>
+            </div>
+
+            <div class="quiz-question" data-question="2" data-correct="c">
+                <p>2. Which command queries the available NFS exports on an NFSv3 server?</p>
+                <label class="quiz-option"><input type="radio" name="q2" value="a"> <code>nfsstat --exports server</code></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="b"> <code>mount server:/ /mnt</code></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="c"> <code>showmount --exports server</code></label>
+                <label class="quiz-option"><input type="radio" name="q2" value="d"> <code>rpcinfo -p server</code></label>
+                <div class="quiz-feedback" id="feedback-2"></div>
+            </div>
+
+            <div class="quiz-question" data-question="3" data-correct="a">
+                <p>3. Which mount option is strongly recommended for all production NFS mounts to prevent silent data loss?</p>
+                <label class="quiz-option"><input type="radio" name="q3" value="a"> <code>sync</code></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="b"> <code>async</code></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="c"> <code>hard</code></label>
+                <label class="quiz-option"><input type="radio" name="q3" value="d"> <code>rw</code></label>
+                <div class="quiz-feedback" id="feedback-3"></div>
+            </div>
+
+            <div class="quiz-question" data-question="4" data-correct="d">
+                <p>4. What is the correct base directory to use in the autofs master map for direct map entries?</p>
+                <label class="quiz-option"><input type="radio" name="q4" value="a"> <code>/auto</code></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="b"> <code>/direct</code></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="c"> <code>/etc/autofs</code></label>
+                <label class="quiz-option"><input type="radio" name="q4" value="d"> <code>/-</code></label>
+                <div class="quiz-feedback" id="feedback-4"></div>
+            </div>
+
+            <div class="quiz-question" data-question="5" data-correct="b">
+                <p>5. In an autofs indirect map wildcard entry <code>* -rw,sync hosta:/shares/&amp;</code>, what does the <code>&amp;</code> character represent?</p>
+                <label class="quiz-option"><input type="radio" name="q5" value="a"> A literal ampersand character in the path</label>
+                <label class="quiz-option"><input type="radio" name="q5" value="b"> The actual subdirectory name matched by the <code>*</code> wildcard</label>
+                <label class="quiz-option"><input type="radio" name="q5" value="c"> The NFS server&rsquo;s hostname</label>
+                <label class="quiz-option"><input type="radio" name="q5" value="d"> An environment variable placeholder</label>
+                <div class="quiz-feedback" id="feedback-5"></div>
+            </div>
+
+            <div class="quiz-question" data-question="6" data-correct="c">
+                <p>6. Which package must be installed to use the autofs automounter service?</p>
+                <label class="quiz-option"><input type="radio" name="q6" value="a"> <code>nfs-client</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="b"> <code>rpcbind</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="c"> <code>autofs</code></label>
+                <label class="quiz-option"><input type="radio" name="q6" value="d"> <code>nfsd</code></label>
+                <div class="quiz-feedback" id="feedback-6"></div>
+            </div>
+
+            <div class="quiz-question" data-question="7" data-correct="a">
+                <p>7. What happens to an indirect automount directory when the automounter unmounts the file system after its idle timeout?</p>
+                <label class="quiz-option"><input type="radio" name="q7" value="a"> The directory is automatically deleted by autofs</label>
+                <label class="quiz-option"><input type="radio" name="q7" value="b"> The directory remains as an empty directory</label>
+                <label class="quiz-option"><input type="radio" name="q7" value="c"> The directory is moved to /tmp</label>
+                <label class="quiz-option"><input type="radio" name="q7" value="d"> The directory is preserved but flagged as unmounted</label>
+                <div class="quiz-feedback" id="feedback-7"></div>
+            </div>
+
+            <div class="quiz-question" data-question="8" data-correct="d">
+                <p>8. Which /etc/fstab option tells systemd to wait for the network to be available before attempting to mount the entry?</p>
+                <label class="quiz-option"><input type="radio" name="q8" value="a"> <code>noauto</code></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="b"> <code>nofail</code></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="c"> <code>x-systemd.automount</code></label>
+                <label class="quiz-option"><input type="radio" name="q8" value="d"> <code>_netdev</code></label>
+                <div class="quiz-feedback" id="feedback-8"></div>
+            </div>
+
+            <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="quiz-btn primary" onclick="checkQuiz()" id="check-quiz-btn">Check Answers</button>
+                <button class="quiz-btn secondary" onclick="resetQuiz()" id="reset-quiz-btn">Reset Quiz</button>
+            </div>
+            <div class="quiz-score" id="quiz-score"></div>
+        </div>
+    </section>
+
+    <!-- SECTION 12: HANDS-ON LAB -->
+    <section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">12</span>
+            <h2 id="lab-heading">Hands-On Lab: Access Network-attached Storage</h2>
+        </div>
+        <div class="section-body">
+            <h3>Lab Scenario</h3>
+            <p>An IT support company uses the <strong>serverb</strong> machine to share the <code>management</code>, <code>production</code>, and <code>operation</code> subdirectories of the <code>/shares</code> directory. Your task is to configure the <strong>servera</strong> machine to access these exported directories in the <code>/remote</code> directory using the automounter.</p>
+            <p>Users in the <code>managers</code>, <code>production</code>, and <code>operators</code> groups must have read/write access to their respective shares. The automounter must use an indirect wildcard map with NFSv4 and synchronous writes.</p>
+
+            <div class="note-box note">
+                <div class="note-box-header"><span aria-hidden="true">&#x1F4D6;</span><span>Preparation</span></div>
+                <p>On the workstation machine, run: <code>student@workstation:~$ lab start nfsclient-review</code></p>
+            </div>
+
+            <div class="note-box warning">
+                <div class="note-box-header"><span aria-hidden="true">&#x26A0;&#xFE0F;</span><span>Warning: Production Impact</span></div>
+                <p>All commands in this lab are run on <strong>servera</strong> (not serverb). Modifying <code>/etc/fstab</code> or autofs configuration on the wrong machine can disrupt system access. Verify your hostname before executing commands.</p>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task1">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Task 1: Install the autofs Package on servera</span>
+                </button>
+                <div class="expandable-content" id="lab-task1">
+                    <p><strong>Objective:</strong> Connect to servera and install the required automounter package.</p>
+                    <div class="code-block" role="region" aria-label="Lab task 1: Install autofs on servera">
+                        <div class="code-title">Task 1: Install autofs</div>
+                        <code><span class="code-comment"># From workstation, SSH to servera</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ssh student@servera</span>
+<span class="code-output">...output omitted...</span>
+
+<span class="code-prompt">[student@servera ~]$</span> <span class="code-command">sudo -i</span>
+<span class="code-output">[sudo] password for student: student</span>
+
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">dnf install autofs</span>
+<span class="code-output">...output omitted...
+Is this ok [y/N]: y
+...output omitted...
+Complete!</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task2">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Task 2: Verify NFS Exports with a Manual Test Mount</span>
+                </button>
+                <div class="expandable-content" id="lab-task2">
+                    <p><strong>Objective:</strong> Manually mount <code>serverb:/shares</code> on <code>/mnt</code> to verify the exports exist and have the correct permissions before configuring autofs. Then unmount.</p>
+                    <div class="code-block" role="region" aria-label="Lab task 2: Test mount NFS export">
+                        <div class="code-title">Task 2: Test Mount and Verify Exports</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount -t nfs serverb:/shares /mnt</span>
+
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">ls -l /mnt</span>
+<span class="code-output">total 0
+drwxrws---. 2 manager1   managers   25 Jul 14 20:23 management
+drwxrws---. 2 contractor1 operators 25 Jul 14 20:23 operation
+drwxrws---. 2 dbuser1    production 25 Jul 14 20:23 production</span>
+
+<span class="code-comment"># Exports look correct; unmount the test mount</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">umount /mnt</span></code>
+                    </div>
+                    <p>The output confirms three subdirectories exist and are owned by the expected users and groups. The <code>s</code> in <code>drwxrws---</code> is the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-sgid">setgid bit</span><span class="tooltip-content" role="tooltip" id="tt-sgid">The setgid bit on a directory causes new files and subdirectories created within it to inherit the directory&rsquo;s group, rather than the creating user&rsquo;s primary group. This ensures all files in a shared directory belong to the correct group.</span>, ensuring new files inherit the group of the directory.</p>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task3">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Task 3: Create the Master Map and Indirect Wildcard Map Files</span>
+                </button>
+                <div class="expandable-content" id="lab-task3">
+                    <p><strong>Objective:</strong> Create an autofs indirect wildcard map that mounts all subdirectories of <code>serverb:/shares</code> under <code>/remote</code> with NFSv4 and synchronous writes.</p>
+                    <div class="code-block" role="region" aria-label="Lab task 3: Create autofs configuration files">
+                        <div class="code-title">Task 3: Create autofs Configuration Files</div>
+                        <code><span class="code-comment"># Step 3.1: Create the master map file</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">vi /etc/auto.master.d/shares.autofs</span>
+<span class="code-comment"># Add this single line:</span>
+<span class="code-highlight">/remote  /etc/auto.shares</span>
+
+<span class="code-comment"># Step 3.2: Create the indirect wildcard map file</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">vi /etc/auto.shares</span>
+<span class="code-comment"># Add this single line:</span>
+<span class="code-highlight">*  -rw,sync,fstype=nfs4  serverb:/shares/&amp;</span>
+
+<span class="code-comment"># Step 3.3: Enable and start autofs</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">systemctl enable --now autofs</span>
+<span class="code-output">Created symlink '/etc/systemd/system/multi-user.target.wants/autofs.service'
+    &#x2192; '/usr/lib/systemd/system/autofs.service'.</span>
+
+<span class="code-comment"># Step 3.4: Verify no mounts yet (demand-based)</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount | grep nfs</span>
+<span class="code-output">rpc_pipefs on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw,relatime)</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task4">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Task 4: Verify Access as Each User Group</span>
+                </button>
+                <div class="expandable-content" id="lab-task4">
+                    <p><strong>Objective:</strong> Switch to each user (<code>manager1</code>, <code>dbuser1</code>, <code>contractor1</code>) and verify read/write access to their respective NFS subdirectory.</p>
+                    <div class="code-block" role="region" aria-label="Lab task 4: Verify user access to NFS shares">
+                        <div class="code-title">Task 4: Verify User Access</div>
+                        <code><span class="code-comment"># Test manager1 access to /remote/management</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">su - manager1</span>
+<span class="code-prompt">[manager1@servera ~]$</span> <span class="code-command">ls -l /remote/management</span>
+<span class="code-output">-rw-r--r--. 1 manager1 managers 58 Jul 14 20:23 Welcome.txt</span>
+
+<span class="code-prompt">[manager1@servera ~]$</span> <span class="code-command">echo TEST1 &gt; /remote/management/test.txt</span>
+<span class="code-prompt">[manager1@servera ~]$</span> <span class="code-command">exit</span>
+
+<span class="code-comment"># Test dbuser1 access to /remote/production</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">su - dbuser1</span>
+<span class="code-prompt">[dbuser1@servera ~]$</span> <span class="code-command">echo TEST2 &gt; /remote/production/test.txt</span>
+<span class="code-prompt">[dbuser1@servera ~]$</span> <span class="code-command">exit</span>
+
+<span class="code-comment"># Test contractor1 access to /remote/operation</span>
+<span class="code-prompt">[root@servera ~]#</span> <span class="code-command">su - contractor1</span>
+<span class="code-prompt">[contractor1@servera ~]$</span> <span class="code-command">echo TEST3 &gt; /remote/operation/test.txt</span>
+<span class="code-prompt">[contractor1@servera ~]$</span> <span class="code-command">exit</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="expandable">
+                <button class="expandable-header" aria-expanded="false" aria-controls="lab-task5">
+                    <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
+                    <span>Task 5: Confirm All Three NFS Mounts Are Active</span>
+                </button>
+                <div class="expandable-content" id="lab-task5">
+                    <p><strong>Objective:</strong> After accessing all three directories, verify that autofs has mounted all three NFS exports from serverb.</p>
+                    <div class="code-block" role="region" aria-label="Lab task 5: Verify all NFS mounts active">
+                        <div class="code-title">Task 5: Verify Active Mounts</div>
+                        <code><span class="code-prompt">[root@servera ~]#</span> <span class="code-command">mount | grep nfs</span>
+<span class="code-output">rpc_pipefs on /var/lib/nfs/rpc_pipefs type rpc_pipefs (rw,relatime)
+serverb:/shares/management on /remote/management type nfs4 (rw,relatime,sync,
+    vers=4.2,rsize=262144,wsize=262144,namlen=255,hard,proto=tcp,timeo=600,
+    retrans=2,sec=sys,clientaddr=172.25.250.10,local_lock=none,addr=172.25.250.11)
+serverb:/shares/production on /remote/production type nfs4 (rw,relatime,sync,...)
+serverb:/shares/operation on /remote/operation type nfs4 (rw,relatime,sync,...)</span>
+
+<span class="code-comment"># Grade and finish the lab on workstation</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">lab grade nfsclient-review</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">lab finish nfsclient-review</span></code>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Lab Completion Checklist</h3>
+            <ul class="lab-checklist" aria-label="Lab completion checklist">
+                <li>autofs and nfs-utils packages installed on servera</li>
+                <li>Manual test mount of serverb:/shares verified correct exports and permissions</li>
+                <li>Master map file created at /etc/auto.master.d/shares.autofs with /remote /etc/auto.shares</li>
+                <li>Indirect map file created at /etc/auto.shares with wildcard entry * -rw,sync,fstype=nfs4 serverb:/shares/&amp;</li>
+                <li>autofs service enabled and started with systemctl enable --now autofs</li>
+                <li>manager1 can list and write to /remote/management</li>
+                <li>dbuser1 can list and write to /remote/production</li>
+                <li>contractor1 can list and write to /remote/operation</li>
+                <li>All three NFS exports confirmed active with mount | grep nfs</li>
+                <li>Lab graded and finished with lab grade/finish commands on workstation</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 13: SUMMARY -->
+    <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+        <div class="section-header">
+            <span class="section-number" aria-hidden="true">13</span>
+            <h2 id="summary-heading">Chapter Summary</h2>
+        </div>
+        <div class="section-body">
+            <p>In this chapter, you learned about the Network File System protocol and how to mount and manage NFS exports on RHEL 10, both manually and through the automounter service.</p>
+
+            <h3>Key Concepts Review</h3>
+            <ul>
+                <li>NFS is an open-standard network file system protocol. RHEL 10 defaults to <strong>NFSv4.2</strong>, which uses TCP only (port 2049) and includes an export tree for discovering available shares.</li>
+                <li><strong>NFSv3</strong> uses the RPC protocol and <code>rpcbind</code> (port 111). Use <code>showmount --exports server</code> to query NFSv3 exports.</li>
+                <li>NFS exports can be mounted <strong>manually</strong> (<code>mount</code> command, temporary), <strong>persistently</strong> (<code>/etc/fstab</code>, survives reboot), or <strong>on-demand</strong> (autofs service).</li>
+                <li>The <code>sync</code> mount option ensures write operations complete before returning to the caller and is strongly recommended for all production NFS mounts.</li>
+                <li>Use <code>lsof mountpoint</code> to identify processes preventing an unmount. Use <code>umount -f</code> only as a last resort.</li>
+                <li>The autofs service mounts file systems <strong>on demand</strong> and unmounts them after an idle timeout, protecting file systems and requiring no root permissions from users.</li>
+                <li><strong>Direct maps</strong> use <code>/-</code> as the base in the master map and absolute paths in the map file. <strong>Indirect maps</strong> use a base directory and relative names.</li>
+                <li><strong>Wildcard entries</strong> (<code>* -options host:/path/&amp;</code>) mount any subdirectory from a server automatically.</li>
+                <li>The <code>systemd.automount</code> alternative uses <code>/etc/fstab</code> with the <code>x-systemd.automount</code> option but supports only absolute paths.</li>
+            </ul>
+
+            <h3>Command Reference</h3>
+            <div class="cmd-ref-grid">
+                <div class="cmd-card">
+                    <code>dnf install nfs-utils</code>
+                    <p>Install NFS client tools and kernel modules required for mounting</p>
+                </div>
+                <div class="cmd-card">
+                    <code>dnf install autofs nfs-utils</code>
+                    <p>Install the automounter service and NFS utilities</p>
+                </div>
+                <div class="cmd-card">
+                    <code>showmount --exports server</code>
+                    <p>Query available NFS exports on an NFSv3 server</p>
+                </div>
+                <div class="cmd-card">
+                    <code>mount -t nfs -o rw,sync server:/path /mnt</code>
+                    <p>Manually mount an NFS export with read-write and sync options</p>
+                </div>
+                <div class="cmd-card">
+                    <code>umount /mountpoint</code>
+                    <p>Unmount a mounted NFS export (must not be in use)</p>
+                </div>
+                <div class="cmd-card">
+                    <code>lsof /mountpoint</code>
+                    <p>List open files preventing an unmount; find blocking processes</p>
+                </div>
+                <div class="cmd-card">
+                    <code>systemctl enable --now autofs</code>
+                    <p>Start and enable the autofs automounter service at boot</p>
+                </div>
+                <div class="cmd-card">
+                    <code>mount | grep nfs</code>
+                    <p>Show currently mounted NFS file systems</p>
+                </div>
+            </div>
+
+            <h3>autofs Configuration File Summary</h3>
+            <table class="comparison-table" aria-label="autofs configuration files reference">
+                <thead>
+                    <tr><th>File / Location</th><th>Purpose</th><th>Example Content</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/etc/auto.master</code></td>
+                        <td>Default master map file</td>
+                        <td><code>/shares /etc/auto.shares</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/auto.master.d/*.autofs</code></td>
+                        <td>Drop-in master map files (preferred)</td>
+                        <td><code>/remote /etc/auto.shares</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/auto.<em>name</em></code></td>
+                        <td>Map files for individual automounts</td>
+                        <td><code>* -rw,sync server:/path/&amp;</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>/etc/autofs.conf</code></td>
+                        <td>Global autofs service configuration</td>
+                        <td>timeout, browse_mode, etc.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="chapter-nav" aria-label="Chapter navigation">
+                <a href="rh134_chapter14_network_security.html" class="nav-chapter-btn prev">&#x2190; Chapter 14: Managing Network Security</a>
+                <a href="index.html" class="nav-chapter-btn home">&#x1F4DA; Course Home</a>
+                <a href="rh134_chapter16_storage_kerberos.html" class="nav-chapter-btn next">Chapter 16: Storage with Kerberos &#x2192;</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer role="contentinfo">
+    <p>&copy; 2025 Red Hat, Inc. Red Hat Enterprise Linux is a registered trademark of Red Hat, Inc.</p>
+    <p>RH134 &bull; Red Hat System Administration II &bull; RHEL 10 &bull; Chapter 15</p>
+    <p style="font-size:0.75rem; opacity:0.6; margin-top:8px;">This educational material is intended for course use only. Always refer to official Red Hat documentation for production deployments.</p>
+</footer>
+
+<script>
+// =============================================
+// TOOLTIP SYSTEM
+// =============================================
+const tooltipBubble = document.getElementById('tooltip-bubble');
+let activeTooltipTerm = null;
+
+function positionTooltip(term) {
+    const rect = term.getBoundingClientRect();
+    const ttId = term.getAttribute('aria-describedby');
+    const contentEl = ttId ? document.getElementById(ttId) : null;
+    if (!contentEl) return;
+
+    tooltipBubble.textContent = contentEl.textContent;
+    tooltipBubble.className = '';
+    tooltipBubble.style.cssText = '';
+    tooltipBubble.classList.add('visible');
+
+    requestAnimationFrame(() => {
+        const bw = tooltipBubble.offsetWidth;
+        const bh = tooltipBubble.offsetHeight;
+        const margin = 8;
+        const spaceAbove = rect.top;
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceLeft = rect.left;
+        const spaceRight = window.innerWidth - rect.right;
+
+        let top, left, placement;
+
+        if (spaceAbove >= bh + margin + 10) {
+            placement = 'tip-top';
+            top = rect.top - bh - 10;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceBelow >= bh + margin + 10) {
+            placement = 'tip-bottom';
+            top = rect.bottom + 10;
+            left = rect.left + rect.width / 2 - bw / 2;
+        } else if (spaceRight >= bw + margin + 10) {
+            placement = 'tip-right';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.right + 10;
+        } else {
+            placement = 'tip-left';
+            top = rect.top + rect.height / 2 - bh / 2;
+            left = rect.left - bw - 10;
+        }
+
+        left = Math.max(margin, Math.min(left, window.innerWidth - bw - margin));
+        top = Math.max(margin, Math.min(top, window.innerHeight - bh - margin));
+
+        tooltipBubble.classList.add(placement);
+        tooltipBubble.style.top = top + 'px';
+        tooltipBubble.style.left = left + 'px';
+
+        // Reposition arrow for top/bottom placements
+        if (placement === 'tip-top' || placement === 'tip-bottom') {
+            const arrowTarget = rect.left + rect.width / 2;
+            const arrowOffset = Math.max(12, Math.min(bw - 12, arrowTarget - left));
+            tooltipBubble.style.setProperty('--arrow-left', arrowOffset + 'px');
+        }
+    });
+}
+
+function hideTooltip() {
+    tooltipBubble.classList.remove('visible');
+    tooltipBubble.className = '';
+    tooltipBubble.style.cssText = '';
+}
+
+document.querySelectorAll('.tooltip-term').forEach(term => {
+    term.addEventListener('mouseenter', () => { activeTooltipTerm = term; positionTooltip(term); });
+    term.addEventListener('mouseleave', () => { activeTooltipTerm = null; hideTooltip(); });
+    term.addEventListener('focus', () => { activeTooltipTerm = term; positionTooltip(term); });
+    term.addEventListener('blur', () => { activeTooltipTerm = null; hideTooltip(); });
+    term.addEventListener('keydown', e => { if (e.key === 'Escape') { hideTooltip(); term.blur(); } });
+});
+
+// =============================================
+// PROGRESS BAR
+// =============================================
+const sections = document.querySelectorAll('.content-section');
+const progressFill = document.getElementById('progress-fill');
+const progressText = document.getElementById('progress-text');
+const progressBar = document.getElementById('progress-bar');
+const visited = new Set();
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) visited.add(e.target.id); });
+    const pct = Math.round((visited.size / sections.length) * 100);
+    progressFill.style.width = pct + '%';
+    progressBar.setAttribute('aria-valuenow', pct);
+    progressText.textContent = pct + '% complete';
+}, { threshold: 0.3 });
+
+sections.forEach(s => observer.observe(s));
+
+// =============================================
+// SECTION NAV ACTIVE STATE
+// =============================================
+const navBtns = document.querySelectorAll('.nav-btn');
+const sectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+        const btn = document.querySelector(`.nav-btn[href="#${e.target.id}"]`);
+        if (!btn) return;
+        if (e.isIntersecting) {
+            navBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            btn.classList.add('visited');
+        }
+    });
+}, { rootMargin: '-30% 0px -60% 0px' });
+
+sections.forEach(s => sectionObserver.observe(s));
+
+// =============================================
+// TAB SYSTEM
+// =============================================
+document.querySelectorAll('.tabs-container').forEach(container => {
+    const tabs = container.querySelectorAll('.tab-btn');
+    const panels = container.querySelectorAll('.tab-panel');
+
+    function activateTab(idx) {
+        tabs.forEach((t, i) => {
+            t.setAttribute('aria-selected', i === idx ? 'true' : 'false');
+        });
+        panels.forEach((p, i) => {
+            if (i === idx) { p.classList.add('active'); p.removeAttribute('hidden'); }
+            else { p.classList.remove('active'); p.setAttribute('hidden', ''); }
+        });
+    }
+
+    tabs.forEach((tab, idx) => {
+        tab.addEventListener('click', () => activateTab(idx));
+        tab.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') { e.preventDefault(); activateTab((idx + 1) % tabs.length); tabs[(idx + 1) % tabs.length].focus(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); activateTab((idx - 1 + tabs.length) % tabs.length); tabs[(idx - 1 + tabs.length) % tabs.length].focus(); }
+            if (e.key === 'Home') { e.preventDefault(); activateTab(0); tabs[0].focus(); }
+            if (e.key === 'End') { e.preventDefault(); activateTab(tabs.length - 1); tabs[tabs.length - 1].focus(); }
+        });
+    });
+});
+
+// =============================================
+// EXPANDABLE SECTIONS
+// =============================================
+document.querySelectorAll('.expandable-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const expanded = header.getAttribute('aria-expanded') === 'true';
+        header.setAttribute('aria-expanded', !expanded);
+        const content = document.getElementById(header.getAttribute('aria-controls'));
+        if (content) content.classList.toggle('show', !expanded);
+    });
+    header.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
+    });
+});
+
+// =============================================
+// QUIZ LOGIC
+// =============================================
+function checkQuiz() {
+    const questions = document.querySelectorAll('.quiz-question');
+    let correct = 0;
+    let answered = 0;
+
+    questions.forEach(q => {
+        const qn = q.dataset.question;
+        const correctAnswer = q.dataset.correct;
+        const selected = q.querySelector(`input[name="q${qn}"]:checked`);
+        const feedback = document.getElementById(`feedback-${qn}`);
+        if (!feedback) return;
+
+        if (!selected) {
+            feedback.textContent = 'Please select an answer.';
+            feedback.className = 'quiz-feedback show incorrect';
+            return;
+        }
+
+        answered++;
+        if (selected.value === correctAnswer) {
+            correct++;
+            q.classList.add('correct'); q.classList.remove('incorrect');
+            feedback.textContent = '&#x2713; Correct!';
+            feedback.className = 'quiz-feedback show correct';
+            feedback.innerHTML = '&#x2713; Correct!';
+        } else {
+            q.classList.add('incorrect'); q.classList.remove('correct');
+            const correctLabel = q.querySelector(`input[value="${correctAnswer}"]`);
+            const correctText = correctLabel ? correctLabel.parentElement.textContent.trim() : '';
+            feedback.innerHTML = '&#x2717; Incorrect. Correct answer: ' + correctText;
+            feedback.className = 'quiz-feedback show incorrect';
+        }
+    });
+
+    const score = document.getElementById('quiz-score');
+    if (answered === questions.length) {
+        const pct = Math.round((correct / questions.length) * 100);
+        score.textContent = `Score: ${correct} / ${questions.length} (${pct}%)`;
+        score.className = 'quiz-score show ' + (pct >= 70 ? 'pass' : 'fail');
+        score.classList.add('show');
+    }
+}
+window.checkQuiz = checkQuiz;
+
+function resetQuiz() {
+    document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('correct', 'incorrect');
+        q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+    });
+    document.querySelectorAll('.quiz-feedback').forEach(f => {
+        f.className = 'quiz-feedback'; f.textContent = '';
+    });
+    const score = document.getElementById('quiz-score');
+    score.className = 'quiz-score'; score.textContent = '';
+}
+window.resetQuiz = resetQuiz;
+
+// =============================================
+// AUTOFS SIMULATOR
+// =============================================
+const simScenarios = {
+    direct: {
+        scenario: 'Goal: Mount /shares/docs from hosta at a fixed, known path /mnt/docs (direct map).',
+        output: `# Step 1: Create master map file
+# /etc/auto.master.d/direct.autofs
+/-  /etc/auto.direct
+
+# Step 2: Create the direct map file
+# /etc/auto.direct
+/mnt/docs  -rw,sync  hosta:/shares/docs
+
+# Step 3: Enable autofs
+systemctl enable --now autofs
+
+# Result: /mnt/docs appears as a permanent directory.
+# Accessing /mnt/docs triggers: mount hosta:/shares/docs /mnt/docs
+# When idle: autofs unmounts, but /mnt/docs directory remains visible.
+
+# Verify active mount after access:
+[root@host ~]# mount | grep docs
+hosta:/shares/docs on /mnt/docs type nfs4 (rw,sync,...)`
+    },
+    indirect: {
+        scenario: 'Goal: Mount specific subdirectories from hosta under /shares base directory (indirect map).',
+        output: `# Step 1: Create master map file
+# /etc/auto.master.d/shares.autofs
+/shares  /etc/auto.shares
+
+# Step 2: Create the indirect map file
+# /etc/auto.shares
+work  -rw,sync  hosta:/shares/work
+docs  -rw,sync  hosta:/shares/docs
+
+# Step 3: Enable autofs
+systemctl enable --now autofs
+
+# Result: /shares/work and /shares/docs appear dynamically.
+# Accessing /shares/work triggers: mount hosta:/shares/work /shares/work
+# When idle: autofs unmounts AND removes /shares/work directory.
+
+# Verify active mounts after access:
+[root@host ~]# mount | grep shares
+hosta:/shares/work on /shares/work type nfs4 (rw,sync,...)
+hosta:/shares/docs on /shares/docs type nfs4 (rw,sync,...)`
+    },
+    wildcard: {
+        scenario: 'Goal: Mount ANY subdirectory of hosta:/shares dynamically under /shares (wildcard indirect map).',
+        output: `# Step 1: Create master map file
+# /etc/auto.master.d/shares.autofs
+/shares  /etc/auto.shares
+
+# Step 2: Create the wildcard map file
+# /etc/auto.shares
+*  -rw,sync  hosta:/shares/&
+
+# Step 3: Enable autofs
+systemctl enable --now autofs
+
+# How wildcards work:
+# User accesses: /shares/engineering
+# *  matches:    "engineering"
+# &  expands to: "engineering"
+# autofs mounts: hosta:/shares/engineering -> /shares/engineering
+
+# User accesses: /shares/marketing
+# autofs mounts: hosta:/shares/marketing -> /shares/marketing
+
+# Any subdirectory exported by hosta will be mountable!
+# NOTE: The export must exist on hosta - wildcards don't create server exports.`
+    },
+    systemd: {
+        scenario: 'Goal: Use systemd.automount (simpler alternative) for a single known mount point.',
+        output: `# Method: Add x-systemd.automount to /etc/fstab entry
+# /etc/fstab entry:
+hosta:/shares/docs  /mnt/docs  nfs  rw,sync,_netdev,x-systemd.automount  0  0
+
+# Step 1: Create mount point
+mkdir -p /mnt/docs
+
+# Step 2: Reload systemd to recognize new fstab entry
+systemctl daemon-reload
+
+# Step 3: Enable the generated automount unit
+# Unit name = mount path with / replaced by - (drop leading -)
+systemctl start mnt-docs.automount
+systemctl enable mnt-docs.automount
+
+# Limitations vs autofs:
+# - Only supports absolute paths (like direct maps)
+# - Cannot use wildcards or create dynamic indirect mounts
+# - Best for: single known mount points
+# - Use autofs for: home directories, sets of project shares`
+    }
+};
+
+function runSimScenario(type) {
+    const data = simScenarios[type];
+    if (!data) return;
+    document.getElementById('sim-scenario-text').textContent = data.scenario;
+    document.getElementById('sim-output').textContent = data.output;
+    document.querySelectorAll('.sim-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('sim-btn-' + type);
+    if (btn) btn.classList.add('active');
+}
+window.runSimScenario = runSimScenario;
+
+</script>
+</body>
+</html>

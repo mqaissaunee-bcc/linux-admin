@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 16: Installing Red Hat Enterprise Linux | RH134</title>
+    <style>
+        :root {
+            --rh-red: #CC0000;          --rh-red-dark: #990000;
+            --rh-red-light: #FF3333;    --rh-black: #1A1A1A;
+            --rh-gray-dark: #333333;    --rh-gray: #666666;
+            --rh-gray-medium: #999999;  --rh-gray-light: #CCCCCC;
+            --rh-gray-lighter: #F0F0F0; --rh-white: #FFFFFF;
+            --rh-blue: #0066CC;         --rh-blue-dark: #003366;
+            --rh-blue-light: #3399FF;   --rh-teal: #009999;
+            --rh-teal-dark: #006666;    --rh-gold: #CC9900;
+            --rh-green: #339933;        --rh-green-dark: #006600;
+            --rh-purple: #663399;       --rh-orange: #FF6600;
+            --status-success: #339933;  --status-warning: #CC9900;
+            --status-error: #CC0000;    --status-info: #0066CC;
+            --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            --font-body: Georgia, 'Times New Roman', serif;
+            --font-mono: 'Consolas', 'Monaco', 'Courier New', monospace;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.2);
+            --radius-sm: 4px;  --radius-md: 8px;
+            --radius-lg: 16px; --radius-xl: 24px;
+            --transition-fast: 0.15s ease;
+            --transition-med: 0.3s ease;
+            --transition-slow: 0.5s ease;
+            --max-width: 1200px; --content-width: 900px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { font-family: var(--font-body); background: linear-gradient(180deg, var(--rh-gray-lighter) 0%, var(--rh-white) 100%); color: var(--rh-black); line-height: 1.7; min-height: 100vh; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        *:focus:not(:focus-visible) { outline: none; }
+        *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link:focus { top: 10px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+        @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
+
+        /* HEADER */
+        .main-header { background: linear-gradient(135deg, var(--rh-blue-dark) 0%, var(--rh-blue) 60%, #0055AA 100%); color: var(--rh-white); padding: 40px 24px 32px; text-align: center; position: relative; overflow: hidden; }
+        .main-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px); }
+        .header-content { position: relative; z-index: 1; max-width: var(--content-width); margin: 0 auto; }
+        .header-logo { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .course-tag { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 18px; border-radius: 20px; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .chapter-title { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 700; margin-bottom: 8px; }
+        .chapter-subtitle { font-family: var(--font-display); font-size: clamp(1rem, 2vw, 1.2rem); font-weight: 300; opacity: 0.9; margin-bottom: 16px; }
+        .header-meta { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; font-family: var(--font-display); font-size: 0.85rem; opacity: 0.85; }
+        .header-meta span { display: flex; align-items: center; gap: 6px; }
+
+        /* PROGRESS */
+        .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
+        .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
+
+        /* SECTION NAV */
+        .section-nav { background: var(--rh-white); padding: 12px 24px; box-shadow: var(--shadow-sm); border-bottom: 1px solid var(--rh-gray-lighter); overflow-x: auto; }
+        .nav-list { display: flex; gap: 6px; max-width: var(--content-width); margin: 0 auto; list-style: none; flex-wrap: wrap; justify-content: center; }
+        .nav-btn { display: inline-block; padding: 6px 12px; font-family: var(--font-display); font-size: 0.78rem; font-weight: 500; color: var(--rh-gray); text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); border: 1px solid transparent; white-space: nowrap; }
+        .nav-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .nav-btn.active { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-btn.visited { color: var(--rh-blue-dark); border-color: var(--rh-gray-light); }
+
+        /* MAIN */
+        main { max-width: var(--content-width); margin: 0 auto; padding: 24px; }
+        .content-section { background: var(--rh-white); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); margin-bottom: 30px; overflow: hidden; }
+        .section-header { background: linear-gradient(135deg, var(--rh-gray-dark), var(--rh-black)); color: var(--rh-white); padding: 20px 30px; display: flex; align-items: center; gap: 16px; }
+        .section-number { background: var(--rh-blue-dark); color: var(--rh-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+        .section-header h2 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; }
+        .section-body { padding: 30px; }
+        .section-body p { margin-bottom: 1rem; }
+        .section-body h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; color: var(--rh-blue-dark); margin: 1.5rem 0 0.75rem; border-left: 4px solid var(--rh-blue); padding-left: 12px; }
+        .section-body h4 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--rh-gray-dark); margin: 1.2rem 0 0.5rem; }
+        .section-body ul, .section-body ol { margin: 0.5rem 0 1rem 1.5rem; }
+        .section-body li { margin-bottom: 0.4rem; }
+
+        /* NOTE BOXES */
+        .note-box { border-radius: var(--radius-md); padding: 16px 20px; margin: 1.5rem 0; border-left: 5px solid; }
+        .note-box.tip { background: #F0F8FF; border-color: var(--rh-blue); }
+        .note-box.warning { background: #FFF8F0; border-color: var(--rh-orange); }
+        .note-box.important { background: #FFF0F0; border-color: var(--rh-red); }
+        .note-box.note { background: #F0FFF0; border-color: var(--rh-green); }
+        .note-box-header { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .note-box.tip .note-box-header { color: var(--rh-blue-dark); }
+        .note-box.warning .note-box-header { color: #CC4400; }
+        .note-box.important .note-box-header { color: var(--rh-red-dark); }
+        .note-box.note .note-box-header { color: var(--rh-green-dark); }
+
+        /* CODE BLOCKS */
+        .code-block { background: #1A1A2E; border-radius: var(--radius-md); overflow: hidden; margin: 1.2rem 0; box-shadow: var(--shadow-md); }
+        .code-title { background: #16213E; color: #A0AEC0; font-family: var(--font-display); font-size: 0.78rem; font-weight: 600; padding: 8px 16px; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1px solid #2D3748; }
+        .code-block code { display: block; padding: 16px; font-family: var(--font-mono); font-size: 0.88rem; line-height: 1.6; color: #E2E8F0; white-space: pre; overflow-x: auto; }
+        .code-prompt { color: #68D391; font-weight: 600; }
+        .code-command { color: #90CDF4; }
+        .code-comment { color: #718096; font-style: italic; }
+        .code-output { color: #E2E8F0; opacity: 0.85; }
+        .code-highlight { color: #F6E05E; }
+        .code-error { color: #FC8181; }
+
+        /* TOOLTIPS */
+        .tooltip-term { color: var(--rh-blue); border-bottom: 1px dashed var(--rh-blue); cursor: help; position: relative; display: inline; }
+        .tooltip-term:hover, .tooltip-term:focus { color: var(--rh-blue-dark); }
+        .tooltip-content { display: none; }
+        #tooltip-bubble { position: fixed; background: var(--rh-gray-dark); color: var(--rh-white); padding: 10px 14px; border-radius: var(--radius-md); font-family: var(--font-display); font-size: 0.82rem; line-height: 1.5; max-width: 280px; z-index: 9999; box-shadow: var(--shadow-lg); pointer-events: none; opacity: 0; transition: opacity var(--transition-fast); }
+        #tooltip-bubble.visible { opacity: 1; }
+        #tooltip-bubble::after { content: ''; position: absolute; border: 6px solid transparent; }
+        #tooltip-bubble.tip-top::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-bottom::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-left::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: var(--rh-gray-dark); }
+        #tooltip-bubble.tip-right::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: var(--rh-gray-dark); }
+
+        /* TABS */
+        .tabs-container { margin: 1.5rem 0; }
+        .tab-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); margin-bottom: 0; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; color: var(--rh-gray); background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: all var(--transition-fast); margin-bottom: -2px; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+        .tab-btn:hover { background: var(--rh-gray-lighter); color: var(--rh-black); }
+        .tab-btn[aria-selected="true"] { color: var(--rh-blue-dark); border-bottom-color: var(--rh-blue-dark); background: var(--rh-white); }
+        .tab-panel { display: none; padding: 20px; background: var(--rh-gray-lighter); border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md); }
+        .tab-panel.active { display: block; }
+
+        /* EXPANDABLE */
+        .expandable { margin: 1rem 0; border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); overflow: hidden; }
+        .expandable-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; border: none; width: 100%; text-align: left; transition: background var(--transition-fast); color: var(--rh-black); }
+        .expandable-header:hover { background: #E8E8E8; }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .expand-icon { font-size: 0.85rem; transition: transform var(--transition-fast); flex-shrink: 0; }
+        .expandable-header[aria-expanded="true"] .expand-icon { transform: rotate(180deg); }
+        .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
+        .expandable-content.show { display: block; }
+
+        /* QUIZ */
+        .quiz-question { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 20px; margin-bottom: 16px; border-left: 4px solid var(--rh-blue); }
+        .quiz-question.correct { border-color: var(--rh-green); background: #F0FFF0; }
+        .quiz-question.incorrect { border-color: var(--rh-red); background: #FFF0F0; }
+        .quiz-question p { font-family: var(--font-display); font-weight: 600; margin-bottom: 12px; }
+        .quiz-option { display: block; padding: 8px 12px; margin: 6px 0; font-family: var(--font-display); font-size: 0.9rem; cursor: pointer; border-radius: var(--radius-sm); transition: background var(--transition-fast); }
+        .quiz-option:hover { background: rgba(0,102,204,0.1); }
+        .quiz-option input { margin-right: 8px; }
+        .quiz-feedback { font-family: var(--font-display); font-size: 0.88rem; font-weight: 600; margin-top: 10px; padding: 8px 12px; border-radius: var(--radius-sm); display: none; }
+        .quiz-feedback.show { display: block; }
+        .quiz-feedback.correct { background: #D4EDDA; color: var(--rh-green-dark); }
+        .quiz-feedback.incorrect { background: #F8D7DA; color: var(--rh-red-dark); }
+        .quiz-btn { padding: 10px 24px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; border: none; border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); }
+        .quiz-btn.primary { background: var(--rh-blue-dark); color: var(--rh-white); }
+        .quiz-btn.primary:hover { background: var(--rh-blue); }
+        .quiz-btn.secondary { background: var(--rh-gray-light); color: var(--rh-black); margin-left: 10px; }
+        .quiz-btn.secondary:hover { background: var(--rh-gray-medium); }
+        .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; padding: 14px 20px; border-radius: var(--radius-md); margin-top: 16px; text-align: center; display: none; }
+        .quiz-score.show { display: block; }
+        .quiz-score.pass { background: #D4EDDA; color: var(--rh-green-dark); }
+        .quiz-score.fail { background: #F8D7DA; color: var(--rh-red-dark); }
+
+        /* DIAGRAM */
+        .diagram-container { margin: 1.5rem 0; background: var(--rh-gray-lighter); border-radius: var(--radius-lg); padding: 24px; overflow-x: auto; }
+        .diagram-row { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; margin: 8px 0; }
+        .diagram-box { background: var(--rh-white); border: 2px solid var(--rh-blue); border-radius: var(--radius-md); padding: 12px 18px; text-align: center; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; color: var(--rh-blue-dark); min-width: 120px; box-shadow: var(--shadow-sm); }
+        .diagram-box.stage { background: #EEF6FF; border-color: var(--rh-blue-dark); }
+        .diagram-box.action { background: #F0FFF0; border-color: var(--rh-green-dark); color: var(--rh-green-dark); }
+        .diagram-box.result { background: #FFF8F0; border-color: var(--rh-orange); color: #CC4400; }
+        .diagram-arrow { font-size: 1.5rem; color: var(--rh-gray-medium); flex-shrink: 0; }
+
+        /* KICKSTART BUILDER */
+        .ks-builder { background: #0D1117; border-radius: var(--radius-lg); padding: 20px; margin: 1.5rem 0; box-shadow: var(--shadow-lg); }
+        .ks-title { color: #58A6FF; font-family: var(--font-display); font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .ks-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+        .ks-group { display: flex; flex-direction: column; gap: 4px; }
+        .ks-label { color: #8B949E; font-family: var(--font-display); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ks-select, .ks-input { background: #161B22; border: 1px solid #30363D; color: #C9D1D9; font-family: var(--font-mono); font-size: 0.85rem; padding: 8px 10px; border-radius: var(--radius-sm); }
+        .ks-select:focus, .ks-input:focus { outline: 2px solid #58A6FF; border-color: #58A6FF; }
+        .ks-output { background: #0D1117; border: 1px solid #30363D; border-radius: var(--radius-md); padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; color: #C9D1D9; min-height: 200px; white-space: pre-wrap; overflow-y: auto; max-height: 320px; line-height: 1.6; }
+        .ks-btn { padding: 8px 18px; background: #1F6FEB; border: 1px solid #58A6FF; color: #FFFFFF; font-family: var(--font-display); font-size: 0.85rem; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); margin-top: 12px; }
+        .ks-btn:hover { background: #388BFD; }
+
+        /* COMPARISON TABLE */
+        .comparison-table { width: 100%; border-collapse: collapse; font-family: var(--font-display); font-size: 0.88rem; margin: 1rem 0; }
+        .comparison-table th { background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 16px; text-align: left; font-weight: 600; }
+        .comparison-table td { padding: 10px 16px; border-bottom: 1px solid var(--rh-gray-lighter); vertical-align: top; }
+        .comparison-table tr:nth-child(even) td { background: var(--rh-gray-lighter); }
+        .comparison-table tr:hover td { background: #EEF6FF; }
+
+        /* COMMAND REFERENCE */
+        .cmd-ref-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 1rem 0; }
+        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px 16px; border-left: 4px solid var(--rh-blue-dark); }
+        .cmd-card code { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--rh-blue-dark); display: block; margin-bottom: 4px; }
+        .cmd-card p { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray); margin: 0; }
+
+        /* LAB CHECKLIST */
+        .lab-checklist { list-style: none; margin: 1rem 0; }
+        .lab-checklist li { padding: 8px 12px; margin: 4px 0; background: var(--rh-gray-lighter); border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 0.9rem; display: flex; align-items: center; gap: 10px; }
+        .lab-checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 900; font-size: 1rem; flex-shrink: 0; }
+
+        /* FOOTER */
+        footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; margin-top: 40px; }
+        .footer-inner { max-width: var(--content-width); margin: 0 auto; }
+        .footer-nav { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+        .footer-nav a { color: var(--rh-blue-light); text-decoration: none; font-family: var(--font-display); font-size: 0.88rem; }
+        .footer-nav a:hover { color: var(--rh-white); }
+        .footer-copy { font-family: var(--font-display); font-size: 0.82rem; line-height: 1.6; opacity: 0.7; }
+
+        @media (max-width: 768px) {
+            .section-body { padding: 20px; }
+            .diagram-row { flex-wrap: wrap; }
+            .ks-controls { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 375px) {
+            .section-body { padding: 14px; }
+            .code-block code { font-size: 0.78rem; }
+        }
+    </style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+
+<header class="main-header" role="banner">
+    <div class="header-content">
+        <span class="header-logo" aria-hidden="true">&#127371;</span>
+        <span class="course-tag">RH134 &bull; RHEL 10</span>
+        <h1 class="chapter-title">Chapter 16: Installing Red Hat Enterprise Linux</h1>
+        <p class="chapter-subtitle">Interactive and automated installation with Anaconda and Kickstart</p>
+        <div class="header-meta">
+            <span>&#128337; 2&ndash;3 Hours</span>
+            <span>&#128218; RH134 &mdash; System Administration II</span>
+            <span>&#127891; RHCSA Exam Prep</span>
+        </div>
+    </div>
+</header>
+
+<div class="progress-container" role="region" aria-label="Reading progress">
+    <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Chapter reading progress"></div>
+    </div>
+    <p class="progress-text" id="progress-text" aria-live="polite">0% complete</p>
+</div>
+
+<nav class="section-nav" aria-label="Chapter sections">
+    <ul class="nav-list" role="list">
+        <li><a href="#section-objectives" class="nav-btn" aria-label="Go to Learning Objectives">1. Objectives</a></li>
+        <li><a href="#section-media" class="nav-btn" aria-label="Go to Installation Media">2. Install Media</a></li>
+        <li><a href="#section-anaconda" class="nav-btn" aria-label="Go to Interactive Installation">3. Interactive Install</a></li>
+        <li><a href="#section-rdp" class="nav-btn" aria-label="Go to RDP Installation">4. RDP Mode</a></li>
+        <li><a href="#section-troubleshoot" class="nav-btn" aria-label="Go to Troubleshooting">5. Troubleshoot</a></li>
+        <li><a href="#section-kickstart-intro" class="nav-btn" aria-label="Go to Kickstart Introduction">6. Kickstart Intro</a></li>
+        <li><a href="#section-ks-commands" class="nav-btn" aria-label="Go to Kickstart Commands">7. KS Commands</a></li>
+        <li><a href="#section-ks-workflow" class="nav-btn" aria-label="Go to Kickstart Workflow">8. KS Workflow</a></li>
+        <li><a href="#section-quiz" class="nav-btn" aria-label="Go to Knowledge Check Quiz">9. Quiz</a></li>
+        <li><a href="#section-lab" class="nav-btn" aria-label="Go to Hands-On Lab">10. Lab</a></li>
+        <li><a href="#section-summary" class="nav-btn" aria-label="Go to Chapter Summary">11. Summary</a></li>
+    </ul>
+</nav>
+
+<main id="main-content">
+
+<!-- SECTION 1: LEARNING OBJECTIVES -->
+<section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">1</span>
+        <h2 id="objectives-heading">Learning Objectives</h2>
+    </div>
+    <div class="section-body">
+        <p>After completing this chapter, you will be able to:</p>
+        <ul>
+            <li>Identify the types of Red Hat Enterprise Linux installation media and choose the appropriate one for your scenario.</li>
+            <li>Understand disk and memory requirements for RHEL 10 installation.</li>
+            <li>Perform an interactive graphical installation of RHEL 10 using Anaconda, configuring all mandatory installation summary items.</li>
+            <li>Use Remote Desktop Protocol (RDP) mode to perform a remote interactive installation.</li>
+            <li>Use virtual console keyboard shortcuts to troubleshoot an active installation.</li>
+            <li>Explain the structure of a Kickstart file, including the command, packages, pre-script, and post-script sections.</li>
+            <li>Write Kickstart configuration using essential commands for storage, networking, locale, security, and user creation.</li>
+            <li>Validate a Kickstart file using <code>ksvalidator</code> and inspect version differences with <code>ksverdiff</code>.</li>
+            <li>Publish a Kickstart file and launch an automated Anaconda installation by passing the <code>inst.ks=</code> kernel argument.</li>
+        </ul>
+        <div class="note-box tip">
+            <div class="note-box-header">&#128218; RHCSA Exam Relevance</div>
+            <p>The ability to install RHEL, especially using Kickstart automation, is a foundational skill tested on the Red Hat Certified System Administrator (RHCSA) exam. Understanding both interactive and automated methods ensures you can deploy systems efficiently in enterprise environments.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 2: INSTALLATION MEDIA -->
+<section id="section-media" class="content-section" aria-labelledby="media-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">2</span>
+        <h2 id="media-heading">Installation Media and Requirements</h2>
+    </div>
+    <div class="section-body">
+        <p>Before installing Red Hat Enterprise Linux, you must choose the correct installation media and verify your hardware meets minimum requirements. Red Hat provides different media types depending on whether you have network access during installation and how much flexibility you need.</p>
+
+        <h3>Installation Media Types</h3>
+        <p>Red Hat distributes installation media through the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-customer-portal">Customer Portal</span> for subscribers. Three primary forms are available:
+        <span class="tooltip-content" id="tt-customer-portal">The Red Hat Customer Portal (access.redhat.com) is the central hub for Red Hat subscribers to download software, access documentation, manage subscriptions, and open support cases.</span></p>
+
+        <div class="tabs-container" role="region" aria-label="Installation media types">
+            <div class="tab-list" role="tablist" aria-label="Choose media type">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="tab-binary" id="tbtn-binary">Binary DVD ISO</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-boot" id="tbtn-boot">Boot ISO</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-source" id="tbtn-source">Source DVD</button>
+            </div>
+            <div class="tab-panel active" role="tabpanel" id="tab-binary" aria-labelledby="tbtn-binary">
+                <h4>Binary DVD ISO (Full Installer)</h4>
+                <p>An <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-iso">ISO 9660</span> image file containing the complete <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-anaconda">Anaconda</span> installer plus the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-baseos">BaseOS</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-appstream">AppStream</span> package repositories.
+                <span class="tooltip-content" id="tt-iso">ISO 9660 is the standard file system format used for optical disc media. An ISO image is a single file that represents the entire contents of a disc, used to create bootable USB drives or DVDs.</span>
+                <span class="tooltip-content" id="tt-anaconda">Anaconda is the installation program used by Red Hat Enterprise Linux and Fedora. It handles disk partitioning, package selection, user creation, and all configuration tasks during RHEL installation.</span>
+                <span class="tooltip-content" id="tt-baseos">BaseOS is the core RHEL content repository providing the underlying operating system components: the kernel, libraries, and foundational packages required to run the system.</span>
+                <span class="tooltip-content" id="tt-appstream">AppStream is a RHEL content repository containing user-space applications, runtime languages, and database tools. It supplements BaseOS with additional application software.</span>
+                </p>
+                <ul>
+                    <li><strong>Best for:</strong> Offline or air-gapped environments; no network required during install.</li>
+                    <li><strong>Size:</strong> Several gigabytes (full repository included).</li>
+                    <li><strong>Flexibility:</strong> Self-contained; installs minimal to full graphical environments.</li>
+                </ul>
+            </div>
+            <div class="tab-panel" role="tabpanel" id="tab-boot" aria-labelledby="tbtn-boot">
+                <h4>Boot ISO (Network Installer)</h4>
+                <p>A smaller image containing only the Anaconda installer. Package repositories must be accessed over the network during installation from HTTP, HTTPS, FTP, or NFS servers.</p>
+                <ul>
+                    <li><strong>Best for:</strong> Network-based deployments; smaller initial download.</li>
+                    <li><strong>Requirement:</strong> Network connectivity to a package repository during install.</li>
+                    <li><strong>Use case:</strong> PXE boot environments or when deploying many systems from a central server.</li>
+                </ul>
+                <div class="note-box tip">
+                    <div class="note-box-header">&#128161; Tip</div>
+                    <p>In classroom environments, the content server at <code>content.example.com</code> hosts a mirrored repository, making the boot ISO practical for lab exercises without requiring internet access.</p>
+                </div>
+            </div>
+            <div class="tab-panel" role="tabpanel" id="tab-source" aria-labelledby="tbtn-source">
+                <h4>Source DVD</h4>
+                <p>Contains the human-readable source code for RHEL packages. This is not used for system installation.</p>
+                <ul>
+                    <li><strong>Purpose:</strong> Transparency and compliance with open-source licenses; developers can review and compile their own builds.</li>
+                    <li><strong>Contains:</strong> Source RPMs (.src.rpm) for all packages included in RHEL.</li>
+                    <li><strong>Does not include:</strong> Documentation or the Anaconda installer.</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Supported Architectures</h3>
+        <p>RHEL 10 supports four processor architectures:</p>
+        <ul>
+            <li><strong>x86-64-v3</strong> &mdash; AMD and Intel 64-bit processors (requires at least Haswell-generation microarchitecture)</li>
+            <li><strong>ARMv8.0-A</strong> &mdash; 64-bit ARM processors (common in cloud and edge deployments)</li>
+            <li><strong>POWER9</strong> &mdash; IBM Power Systems, Little Endian</li>
+            <li><strong>z14</strong> &mdash; 64-bit IBM Z mainframe architecture</li>
+        </ul>
+
+        <h3>Disk and Memory Requirements</h3>
+        <p>RHEL 10 requires a minimum of <strong>10 GiB</strong> of disk space on the partition where it will be installed. RAM requirements depend on the installation method:</p>
+
+        <table class="comparison-table" aria-label="RAM requirements by installation type">
+            <thead>
+                <tr>
+                    <th scope="col">Installation Type</th>
+                    <th scope="col">x86-64-v3, ARMv8.0-A, z14</th>
+                    <th scope="col">POWER9</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Local media (USB/DVD)</td>
+                    <td>1.5 GiB</td>
+                    <td>3 GiB</td>
+                </tr>
+                <tr>
+                    <td>NFS network installation</td>
+                    <td>1.5 GiB</td>
+                    <td>3 GiB</td>
+                </tr>
+                <tr>
+                    <td>HTTP, HTTPS, or FTP network</td>
+                    <td>3 GiB (x86-64-v3, z14) / 4 GiB (ARMv8.0-A)</td>
+                    <td>4 GiB</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>RHEL Image Builder</h3>
+        <p>For specialized deployments, Red Hat provides the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-imagebuilder">RHEL Image Builder</span> tool to create customized images for cloud platforms and virtual environments.
+        <span class="tooltip-content" id="tt-imagebuilder">RHEL Image Builder is a tool that creates customized RHEL images pre-configured for specific use cases. It can produce images in formats like QCOW2, AMI, VMware VMDK, or Azure VHD, enabling consistent deployments to cloud and virtual platforms.</span>
+        Access it through the <code>composer-cli</code> command or the Red Hat web console.</p>
+    </div>
+</section>
+
+<!-- SECTION 3: INTERACTIVE INSTALLATION (ANACONDA) -->
+<section id="section-anaconda" class="content-section" aria-labelledby="anaconda-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">3</span>
+        <h2 id="anaconda-heading">Interactive Installation with Anaconda</h2>
+    </div>
+    <div class="section-body">
+        <p>The Anaconda graphical installer is launched when you boot from the binary DVD or boot ISO. It presents an <strong>Installation Summary</strong> window that serves as a central dashboard for all configuration decisions. You can configure items in any order and return to the summary at any time.</p>
+
+        <h3>Installation Summary Window</h3>
+        <p>The Installation Summary window organizes configuration items into three groups: <strong>Localization</strong>, <strong>Software</strong>, and <strong>System</strong>. Items marked with an orange triangle warning symbol are mandatory before installation can begin.</p>
+
+        <div class="diagram-container" role="img" aria-label="Anaconda Installation Summary layout diagram">
+            <div style="text-align:center; font-family:var(--font-display); font-weight:700; color:var(--rh-blue-dark); margin-bottom:16px;">Anaconda Installation Summary Window</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 700px; margin: 0 auto;">
+                <div style="background:#EEF6FF; border:2px solid var(--rh-blue-dark); border-radius:var(--radius-md); padding:14px; text-align:center;">
+                    <div style="font-family:var(--font-display); font-weight:700; color:var(--rh-blue-dark); margin-bottom:8px;">LOCALIZATION</div>
+                    <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray-dark);">Keyboard<br>Language Support<br>Time &amp; Date</div>
+                </div>
+                <div style="background:#F0FFF0; border:2px solid var(--rh-green-dark); border-radius:var(--radius-md); padding:14px; text-align:center;">
+                    <div style="font-family:var(--font-display); font-weight:700; color:var(--rh-green-dark); margin-bottom:8px;">SOFTWARE</div>
+                    <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray-dark);">Connect to Red Hat<br>Installation Source<br>Software Selection</div>
+                </div>
+                <div style="background:#FFF8F0; border:2px solid var(--rh-orange); border-radius:var(--radius-md); padding:14px; text-align:center;">
+                    <div style="font-family:var(--font-display); font-weight:700; color:#CC4400; margin-bottom:8px;">SYSTEM</div>
+                    <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray-dark);">Installation Destination<br>Kdump<br>Network &amp; Host Name</div>
+                </div>
+                <div style="grid-column: 1 / -1; background:#FFF0F8; border:2px solid var(--rh-purple); border-radius:var(--radius-md); padding:14px; text-align:center;">
+                    <div style="font-family:var(--font-display); font-weight:700; color:var(--rh-purple); margin-bottom:8px;">USER SETTINGS</div>
+                    <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray-dark);">Root Account &nbsp;&bull;&nbsp; User Creation</div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Configuration Items Explained</h3>
+        <p>Each item in the Installation Summary window corresponds to a system configuration decision. Understanding each one helps you install RHEL correctly the first time.</p>
+
+        <div class="expandable" role="region" aria-labelledby="exp-keyboard-hdr">
+            <button class="expandable-header" id="exp-keyboard-hdr" aria-expanded="false" aria-controls="exp-keyboard-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128195; Keyboard &amp; Language Support
+            </button>
+            <div class="expandable-content" id="exp-keyboard-body" role="region">
+                <p><strong>Keyboard:</strong> Add one or more keyboard layouts. The default is usually US English (us). Multiple layouts can be added for multilingual systems.</p>
+                <p><strong>Language Support:</strong> Select additional languages to install alongside the primary language. These affect available fonts, locale data, and input methods, but individual users can change their language preference post-installation.</p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-time-hdr">
+            <button class="expandable-header" id="exp-time-hdr" aria-expanded="false" aria-controls="exp-time-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128336; Time &amp; Date
+            </button>
+            <div class="expandable-content" id="exp-time-body" role="region">
+                <p>Select the system's time zone from a world map or dropdown list. Even when using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-ntp">NTP</span> for automatic time synchronization, you must still specify the correct local time zone.
+                <span class="tooltip-content" id="tt-ntp">Network Time Protocol (NTP) automatically synchronizes a computer's clock with internet time servers, ensuring consistent, accurate time across networked systems.</span>
+                </p>
+                <p>You may leave NTP enabled (recommended) or disable it and set the date and time manually. In production environments, NTP is strongly recommended.</p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-connect-hdr">
+            <button class="expandable-header" id="exp-connect-hdr" aria-expanded="false" aria-controls="exp-connect-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128279; Connect to Red Hat
+            </button>
+            <div class="expandable-content" id="exp-connect-body" role="region">
+                <p>Register the system with your Red Hat account and select the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-syspurpose">system purpose</span>.
+                <span class="tooltip-content" id="tt-syspurpose">System purpose describes the intended role of a RHEL system (e.g., Server, Desktop, Workstation) and helps subscription manager attach the most appropriate subscription automatically.</span>
+                The system purpose feature enables the registration process to automatically attach the most appropriate subscription.</p>
+                <p>You must first configure networking (via Network &amp; Host Name) before this step can succeed. By default, the system may also be enrolled in <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-insights">Red Hat Insights</span>.
+                <span class="tooltip-content" id="tt-insights">Red Hat Insights is a proactive analytics service that continuously analyzes your RHEL systems for configuration drift, security vulnerabilities, and performance issues, providing actionable recommendations.</span>
+                Registration can be deferred until after installation.</p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-source-hdr">
+            <button class="expandable-header" id="exp-source-hdr" aria-expanded="false" aria-controls="exp-source-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128190; Installation Source &amp; Software Selection
+            </button>
+            <div class="expandable-content" id="exp-source-body" role="region">
+                <p><strong>Installation Source:</strong> Specifies where Anaconda retrieves packages. When using the binary DVD, this is already set to the disc. For a boot ISO, point to an HTTP, FTP, or NFS server.</p>
+                <p><strong>Software Selection:</strong> Choose a base environment such as:</p>
+                <ul>
+                    <li><strong>Minimal Install</strong> &mdash; Only essential packages; smallest footprint; ideal for servers.</li>
+                    <li><strong>Server</strong> &mdash; Common server tools and infrastructure packages.</li>
+                    <li><strong>Server with GUI</strong> &mdash; Server tools plus the GNOME desktop environment.</li>
+                    <li><strong>Workstation</strong> &mdash; Desktop-focused package set for developer workstations.</li>
+                </ul>
+                <p>Additional packages and add-ons can be selected from the right pane after choosing an environment.</p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-dest-hdr">
+            <button class="expandable-header" id="exp-dest-hdr" aria-expanded="false" aria-controls="exp-dest-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128190; Installation Destination (Storage)
+            </button>
+            <div class="expandable-content" id="exp-dest-body" role="region">
+                <p>Select at least one disk with enough space for RHEL. Two storage configuration modes are available:</p>
+                <ul>
+                    <li><strong>Automatic partitioning:</strong> Anaconda creates an optimal layout using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-lvm">LVM</span>.
+                    <span class="tooltip-content" id="tt-lvm">Logical Volume Management (LVM) is a flexible disk management system that creates an abstraction layer between physical storage and file systems, enabling easy resizing, snapshots, and spanning volumes across multiple physical disks.</span>
+                    This is recommended for most installations because Anaconda considers total disk and RAM size to size partitions optimally.</li>
+                    <li><strong>Custom partitioning:</strong> Manually define partition sizes, mount points, file systems, and LVM configurations. Anaconda can still auto-generate a suggested layout as a starting point.</li>
+                </ul>
+                <div class="note-box note">
+                    <div class="note-box-header">&#128203; Note</div>
+                    <p>The default automatic configuration allocates all available space. Even in custom mode, you can have Anaconda suggest partitions and then modify them as needed.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-kdump-hdr">
+            <button class="expandable-header" id="exp-kdump-hdr" aria-expanded="false" aria-controls="exp-kdump-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#128268; Kdump
+            </button>
+            <div class="expandable-content" id="exp-kdump-body" role="region">
+                <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kdump">kdump</span> feature captures a memory dump when the kernel crashes.
+                <span class="tooltip-content" id="tt-kdump">Kdump is a kernel crash dumping mechanism that captures the state of system memory when the kernel panics. Red Hat engineers can analyze the dump file to determine the root cause of crashes, making kdump essential for enterprise support.</span>
+                Red Hat engineers analyze these crash dump files to identify failure root causes. Enabling kdump reserves memory specifically for the dump kernel, which slightly reduces available RAM. Use this Anaconda item to enable or disable the feature.</p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-network-hdr">
+            <button class="expandable-header" id="exp-network-hdr" aria-expanded="false" aria-controls="exp-network-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#127760; Network &amp; Host Name
+            </button>
+            <div class="expandable-content" id="exp-network-body" role="region">
+                <p>Detected network interfaces are listed on the left panel. Select a connection to view its details. Anaconda activates network connections automatically by default.</p>
+                <p>Set the system's <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-hostname">fully qualified domain name (FQDN)</span> in the host name field at the bottom.
+                <span class="tooltip-content" id="tt-hostname">A Fully Qualified Domain Name (FQDN) is a complete, unambiguous domain name that specifies the exact location in the DNS hierarchy, e.g., serverb.lab.example.com. It includes both the host name and the domain name.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="exp-root-hdr">
+            <button class="expandable-header" id="exp-root-hdr" aria-expanded="false" aria-controls="exp-root-body">
+                <span class="expand-icon" aria-hidden="true">&#128274;</span>
+                Root Account &amp; User Creation
+            </button>
+            <div class="expandable-content" id="exp-root-body" role="region">
+                <p><strong>Root Account (RHEL 10 Change):</strong> Starting in RHEL 10, the <code>root</code> account is <em>disabled by default</em>. To enable it, check "Enable root account" and set a password. By default, even an enabled root account does not allow password-based SSH login, though this can be permitted during installation.</p>
+                <p><strong>User Creation:</strong> Because root is disabled by default, creating a non-root user with administrative privileges is <strong>mandatory</strong> unless you explicitly enable root. This user is added to the <code>wheel</code> group and can use <code>sudo</code> to run privileged commands.</p>
+                <div class="note-box important">
+                    <div class="note-box-header">&#9888; Important</div>
+                    <p>If you lock the root account during installation and do not create a wheel group user, you will be unable to administer the system after installation. Always ensure at least one administrative account exists before proceeding.</p>
+                </div>
+            </div>
+        </div>
+
+        <h3>Completing the Installation</h3>
+        <p>Once all mandatory items are configured (no orange warning triangles remain), click <strong>Begin Installation</strong>. Clicking <strong>Quit</strong> halts without making any disk changes.</p>
+        <p>When installation finishes, click <strong>Reboot</strong>. On the first graphical login, RHEL may present an Initial Setup screen to accept license information and optionally register with subscription manager. System registration can be skipped until later.</p>
+    </div>
+</section>
+
+<!-- SECTION 4: RDP INSTALLATION -->
+<section id="section-rdp" class="content-section" aria-labelledby="rdp-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">4</span>
+        <h2 id="rdp-heading">Remote Installation with RDP</h2>
+    </div>
+    <div class="section-body">
+        <p>RHEL 10 introduces support for using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rdp">Remote Desktop Protocol (RDP)</span> to perform installations on headless or remote systems.
+        <span class="tooltip-content" id="tt-rdp">Remote Desktop Protocol (RDP) is a proprietary protocol developed by Microsoft that provides a user with a graphical interface to connect to another computer over a network connection. In RHEL 10, Anaconda uses RDP to enable remote graphical installation sessions.</span>
+        This replaces the deprecated <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-vnc">VNC</span> method used in earlier RHEL versions.
+        <span class="tooltip-content" id="tt-vnc">Virtual Network Computing (VNC) is a graphical desktop-sharing system previously used to perform remote RHEL installations. It is deprecated as of RHEL 10 in favor of RDP, which offers better performance.</span>
+        </p>
+
+        <h3>Enabling RDP Mode</h3>
+        <p>To start an installation in RDP mode, pass the <code>inst.rdp</code> option on the kernel command line in the boot loader stage:</p>
+
+        <div class="code-block" role="region" aria-label="RDP boot parameter example">
+            <div class="code-title">Boot Loader Kernel Arguments &mdash; RDP Mode</div>
+            <code><span class="code-comment"># At the GRUB boot menu, press 'e' to edit the selected entry</span>
+<span class="code-comment"># Add these arguments to the linux line:</span>
+<span class="code-command">linux /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=RHEL-10 quiet \
+    inst.rdp inst.rdp.username=rdpuser inst.rdp.password=Redhat123</span>
+
+<span class="code-comment"># Press Ctrl+X to boot with these arguments</span></code>
+        </div>
+
+        <p>If no authentication details are provided via <code>inst.rdp.username</code> and <code>inst.rdp.password</code>, Anaconda will interactively prompt for credentials before starting the RDP service.</p>
+
+        <div class="note-box note">
+            <div class="note-box-header">&#128203; Note</div>
+            <p>Once the installer starts in RDP mode, it displays the IP address the RDP client should connect to. The default TCP port is <strong>5900</strong>. Multiple RDP clients can connect simultaneously, enabling collaborative installation sessions.</p>
+        </div>
+
+        <h3>RDP Client Connection</h3>
+        <p>Use any standard RDP client application (such as <code>xfreerdp</code> on Linux, Microsoft Remote Desktop on Windows/macOS, or Remmina) to connect to the installer:</p>
+
+        <div class="code-block" role="region" aria-label="Connecting to RDP installer">
+            <div class="code-title">Connecting an RDP Client to Anaconda</div>
+            <code><span class="code-comment"># Connect using xfreerdp (replace IP with actual installer address)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">xfreerdp /v:192.168.1.50:5900 /u:rdpuser /p:Redhat123</span>
+<span class="code-output">Connected to 192.168.1.50:5900
+Anaconda graphical interface is now available.</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 5: TROUBLESHOOTING -->
+<section id="section-troubleshoot" class="content-section" aria-labelledby="troubleshoot-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">5</span>
+        <h2 id="troubleshoot-heading">Troubleshooting the Installation</h2>
+    </div>
+    <div class="section-body">
+        <p>Anaconda provides access to multiple virtual consoles and a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmux">tmux</span> terminal multiplexer during installation.
+        <span class="tooltip-content" id="tt-tmux">tmux is a terminal multiplexer that allows multiple terminal sessions within a single window. It supports splitting panes, detaching/reattaching sessions, and running commands in parallel &mdash; essential for managing multiple views during RHEL installation troubleshooting.</span>
+        These tools allow you to examine log files, run diagnostic commands, and monitor installation progress in real time.</p>
+
+        <h3>Virtual Console Access</h3>
+        <p>Two primary virtual consoles are available during installation. The first (accessed via <kbd>Ctrl+Alt+F1</kbd>) runs tmux with six windows of diagnostic information. The second (accessed via <kbd>Ctrl+Alt+F6</kbd>, the default view) shows the Anaconda graphical interface.</p>
+
+        <h3>Tmux Window Reference</h3>
+        <p>Inside the first virtual console's tmux session, press <kbd>Ctrl+B</kbd> followed by a number key to switch windows:</p>
+
+        <table class="comparison-table" aria-label="Tmux window key sequences during installation">
+            <thead>
+                <tr>
+                    <th scope="col">Key Sequence</th>
+                    <th scope="col">Content / Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><kbd>Ctrl+Alt+F1</kbd></td>
+                    <td>Switch to the tmux virtual console (all tmux windows)</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+Alt+F6</kbd></td>
+                    <td>Return to the Anaconda graphical interface</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>1</kbd></td>
+                    <td>Main installation information page</td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>2</kbd></td>
+                    <td>Root shell prompt &mdash; logs are in <code>/tmp/</code></td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>3</kbd></td>
+                    <td>Live view of <code>/tmp/anaconda.log</code></td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>4</kbd></td>
+                    <td>Live view of <code>/tmp/storage.log</code></td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>5</kbd></td>
+                    <td>Live view of <code>/tmp/program.log</code></td>
+                </tr>
+                <tr>
+                    <td><kbd>Ctrl+B</kbd> then <kbd>6</kbd></td>
+                    <td>Live view of <code>/tmp/packaging.log</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="note-box tip">
+            <div class="note-box-header">&#128161; Compatibility Note</div>
+            <p>For compatibility with earlier RHEL versions, <kbd>Ctrl+Alt+F2</kbd> through <kbd>Ctrl+Alt+F5</kbd> also provide root shell prompts during installation. You can also press <kbd>Alt+Tab</kbd> inside tmux to rotate focus between windows.</p>
+        </div>
+
+        <h3>Common Troubleshooting Scenarios</h3>
+        <p>The shell in tmux window 2 is your primary debugging tool. Use it to:</p>
+        <ul>
+            <li>Examine <code>/tmp/anaconda.log</code> for errors in the installation sequence.</li>
+            <li>Check <code>/tmp/storage.log</code> when partitioning or LVM configuration fails.</li>
+            <li>Review <code>/tmp/packaging.log</code> for package dependency or repository errors.</li>
+            <li>Run <code>ip addr show</code> to verify network configuration during a network installation.</li>
+            <li>Use <code>ping</code> to test connectivity to installation servers.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- SECTION 6: KICKSTART INTRO -->
+<section id="section-kickstart-intro" class="content-section" aria-labelledby="ks-intro-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">6</span>
+        <h2 id="ks-intro-heading">Introduction to Kickstart</h2>
+    </div>
+    <div class="section-body">
+        <p>The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-kickstart">Kickstart</span> feature automates RHEL installation by providing answers to all installer questions in a single text file.
+        <span class="tooltip-content" id="tt-kickstart">Kickstart is a Red Hat technology that enables unattended, automated RHEL installations. A Kickstart file contains all installation parameters (disk layout, packages, network config, users) that Anaconda would otherwise prompt for interactively.</span>
+        Instead of clicking through the graphical installer, Anaconda reads the Kickstart file and performs the entire installation without user intervention. This is conceptually similar to Microsoft Windows answer files for unattended installations.</p>
+
+        <p>Kickstart is essential in enterprise environments where dozens or hundreds of systems need to be deployed consistently and quickly. A single well-crafted Kickstart file ensures every deployed system has identical configuration.</p>
+
+        <h3>Kickstart File Structure</h3>
+        <p>A Kickstart file has three types of content:</p>
+
+        <div class="diagram-container" role="img" aria-label="Kickstart file structure diagram">
+            <div style="text-align:center; font-family:var(--font-display); font-weight:700; color:var(--rh-blue-dark); margin-bottom:16px;">Kickstart File Structure</div>
+            <div style="max-width:600px; margin:0 auto;">
+                <div style="background:#EEF6FF; border:2px solid var(--rh-blue-dark); border-radius:var(--radius-md); padding:14px 20px; margin-bottom:8px;">
+                    <div style="font-family:var(--font-mono); font-weight:700; color:var(--rh-blue-dark);">Command Section</div>
+                    <div style="font-family:var(--font-display); font-size:0.85rem; color:var(--rh-gray); margin-top:4px;">Installation commands (lang, keyboard, timezone, network, storage, users&hellip;). Lines starting with <code>#</code> are comments.</div>
+                </div>
+                <div style="text-align:center; font-size:1.4rem; color:var(--rh-gray-medium);">&#9660;</div>
+                <div style="background:#F0FFF0; border:2px solid var(--rh-green-dark); border-radius:var(--radius-md); padding:14px 20px; margin-bottom:8px;">
+                    <div style="font-family:var(--font-mono); font-weight:700; color:var(--rh-green-dark);">%packages &hellip; %end</div>
+                    <div style="font-family:var(--font-display); font-size:0.85rem; color:var(--rh-gray); margin-top:4px;">Software selection: individual packages, groups (<code>@group-name</code>), and environments (<code>@^env-name</code>). Prefix with <code>-</code> to exclude.</div>
+                </div>
+                <div style="text-align:center; font-size:1.4rem; color:var(--rh-gray-medium);">&#9660;</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div style="background:#FFF8F0; border:2px solid var(--rh-orange); border-radius:var(--radius-md); padding:14px 20px;">
+                        <div style="font-family:var(--font-mono); font-weight:700; color:#CC4400);">%pre &hellip; %end</div>
+                        <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray); margin-top:4px;">Runs BEFORE disk partitioning. Limited tools available (outside chroot).</div>
+                    </div>
+                    <div style="background:#F8F0FF; border:2px solid var(--rh-purple); border-radius:var(--radius-md); padding:14px 20px;">
+                        <div style="font-family:var(--font-mono); font-weight:700; color:var(--rh-purple);">%post &hellip; %end</div>
+                        <div style="font-family:var(--font-display); font-size:0.82rem; color:var(--rh-gray); margin-top:4px;">Runs AFTER installation. Full access to newly installed system (chroot environment).</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Pre- vs. Post-Installation Scripts</h3>
+        <p>The timing of script execution matters significantly:</p>
+
+        <p><strong>%pre scripts</strong> execute before any disk partitioning occurs. They run outside the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-chroot">chroot</span> environment and have limited tool availability.
+        <span class="tooltip-content" id="tt-chroot">A chroot (change root) environment changes the apparent root directory for a process, confining it to a subtree of the filesystem. During Kickstart, %post scripts run inside the chroot of the newly installed system, giving them full access to installed packages.</span>
+        Use %pre for initializing storage devices or network interfaces needed by the rest of the installation.</p>
+
+        <p><strong>%post scripts</strong> execute after installation is complete. They run inside the chroot of the installed system and have access to all installed packages and tools. Common uses include configuring applications, downloading additional content, or adding custom files to <code>/etc</code>.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header">&#9888; Caution</div>
+            <p>Copying files from the installation media does not work inside the %post chroot environment. Tasks requiring access to the installation media (such as copying scripts from a USB drive) must be done in a %pre script instead.</p>
+        </div>
+
+        <p>You can include multiple sections of the same type, and they execute in order of appearance in the file. For example, two %post sections are both executed sequentially.</p>
+
+        <h3>A Minimal Kickstart Example</h3>
+        <div class="code-block" role="region" aria-label="Minimal Kickstart file example">
+            <div class="code-title">Minimal Kickstart File Structure</div>
+            <code><span class="code-comment"># version=RHEL10</span>
+<span class="code-comment"># ── Command Section ──────────────────────────────────</span>
+<span class="code-highlight">graphical</span>                          <span class="code-comment"># graphical installation</span>
+<span class="code-highlight">keyboard --vckeymap=us --xlayouts='us'</span>
+<span class="code-highlight">lang en_US.UTF-8</span>
+<span class="code-highlight">timezone America/New_York --utc</span>
+<span class="code-highlight">network --bootproto=dhcp --device=enp1s0 --activate</span>
+<span class="code-highlight">network --hostname=serverb.lab.example.com</span>
+<span class="code-highlight">url --url="http://content.example.com/rhel10.0/x86_64/dvd/"</span>
+<span class="code-highlight">zerombr</span>
+<span class="code-highlight">clearpart --all</span>
+<span class="code-highlight">autopart</span>
+<span class="code-highlight">ignoredisk --only-use=vda</span>
+<span class="code-highlight">rootpw --lock</span>
+<span class="code-highlight">user --groups=wheel --name=student --gecos="student"</span>
+<span class="code-highlight">reboot</span>
+
+<span class="code-comment"># ── Packages Section ──────────────────────────────────</span>
+<span class="code-highlight">%packages</span>
+<span class="code-command">@minimal-environment</span>
+<span class="code-command">vim-enhanced</span>
+<span class="code-highlight">%end</span>
+
+<span class="code-comment"># ── Post Section ──────────────────────────────────────</span>
+<span class="code-highlight">%post</span>
+<span class="code-command">echo "Deployed via Kickstart on $(date)" > /etc/motd</span>
+<span class="code-highlight">%end</span></code>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 7: KICKSTART COMMANDS -->
+<section id="section-ks-commands" class="content-section" aria-labelledby="ks-commands-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">7</span>
+        <h2 id="ks-commands-heading">Kickstart Command Reference</h2>
+    </div>
+    <div class="section-body">
+        <p>Kickstart commands are organized by function. Some commands are required for installation to succeed; others are optional configuration. Understanding the most common commands allows you to write Kickstart files from scratch or modify existing ones confidently.</p>
+
+        <div class="tabs-container" role="region" aria-label="Kickstart command categories">
+            <div class="tab-list" role="tablist" aria-label="Command categories">
+                <button class="tab-btn" role="tab" aria-selected="true" aria-controls="ks-tab-install" id="ks-tbtn-install">Installation</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="ks-tab-storage" id="ks-tbtn-storage">Storage</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="ks-tab-network" id="ks-tbtn-network">Network</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="ks-tab-locale" id="ks-tbtn-locale">Locale &amp; Security</button>
+                <button class="tab-btn" role="tab" aria-selected="false" aria-controls="ks-tab-misc" id="ks-tbtn-misc">Misc</button>
+            </div>
+
+            <div class="tab-panel active" role="tabpanel" id="ks-tab-install" aria-labelledby="ks-tbtn-install">
+                <h4>Installation Source Commands</h4>
+                <div class="code-block" role="region" aria-label="Installation source Kickstart commands">
+                    <div class="code-title">url, repo, text</div>
+                    <code><span class="code-comment"># url: installation source (HTTP or FTP)</span>
+<span class="code-command">url --url="http://classroom.example.com/rhel10.0/x86_64/dvd/"</span>
+
+<span class="code-comment"># repo: additional package repository (must be a valid DNF repo)</span>
+<span class="code-command">repo --name="appstream" --baseurl=http://classroom.example.com/rhel10.0/x86_64/dvd/AppStream/</span>
+
+<span class="code-comment"># text: force text-mode installation (no graphical UI)</span>
+<span class="code-command">text</span></code>
+                </div>
+                <h4>Package Selection</h4>
+                <div class="code-block" role="region" aria-label="Kickstart packages section examples">
+                    <div class="code-title">%packages section</div>
+                    <code><span class="code-highlight">%packages</span>
+<span class="code-comment"># Install an environment group (note: @^ prefix)</span>
+<span class="code-command">@^graphical-server-environment</span>
+<span class="code-comment"># Install a package group (note: @ prefix)</span>
+<span class="code-command">@development-tools</span>
+<span class="code-comment"># Individual package (wildcards supported)</span>
+<span class="code-command">vim*</span>
+<span class="code-comment"># Exclude a package</span>
+<span class="code-command">-hyperv-tools</span>
+<span class="code-highlight">%end</span></code>
+                </div>
+            </div>
+
+            <div class="tab-panel" role="tabpanel" id="ks-tab-storage" aria-labelledby="ks-tbtn-storage">
+                <h4>Storage and Partitioning Commands</h4>
+                <div class="code-block" role="region" aria-label="Storage Kickstart commands">
+                    <div class="code-title">clearpart, part, autopart, volgroup, logvol, bootloader</div>
+                    <code><span class="code-comment"># zerombr: initialize disks with unrecognized formatting</span>
+<span class="code-command">zerombr</span>
+
+<span class="code-comment"># clearpart: remove existing partitions before install</span>
+<span class="code-command">clearpart --all --drives=vda,vdb</span>
+
+<span class="code-comment"># autopart: auto-create root, swap, and boot partitions (recommended)</span>
+<span class="code-command">autopart</span>
+
+<span class="code-comment"># ignoredisk: prevent Anaconda from touching specified disks</span>
+<span class="code-command">ignoredisk --only-use=vda</span>
+
+<span class="code-comment"># part: manually define a partition</span>
+<span class="code-command">part /home --fstype=xfs --label=homes --size=4096 --maxsize=8192 --grow</span>
+
+<span class="code-comment"># bootloader: define boot loader placement</span>
+<span class="code-command">bootloader --location=mbr --boot-drive=vda</span>
+
+<span class="code-comment"># LVM example: create VG and LVs</span>
+<span class="code-command">part pv.01 --size=8192
+volgroup myvg pv.01
+logvol / --vgname=myvg --fstype=xfs --size=4096 --name=rootvol --grow
+logvol /var --vgname=myvg --fstype=xfs --size=2048 --name=varvol</span></code>
+                </div>
+            </div>
+
+            <div class="tab-panel" role="tabpanel" id="ks-tab-network" aria-labelledby="ks-tbtn-network">
+                <h4>Network Commands</h4>
+                <div class="code-block" role="region" aria-label="Network Kickstart commands">
+                    <div class="code-title">network, firewall</div>
+                    <code><span class="code-comment"># network: configure a network device</span>
+<span class="code-command">network --device=enp1s0 --bootproto=dhcp --activate</span>
+
+<span class="code-comment"># Set the system hostname</span>
+<span class="code-command">network --hostname=serverb.lab.example.com</span>
+
+<span class="code-comment"># Static IP configuration</span>
+<span class="code-command">network --device=enp1s0 --bootproto=static \
+    --ip=172.25.250.10 --netmask=255.255.255.0 \
+    --gateway=172.25.250.254 --nameserver=172.25.250.254</span>
+
+<span class="code-comment"># firewall: configure firewall for installed system</span>
+<span class="code-command">firewall --enabled --service=ssh,http</span></code>
+                </div>
+            </div>
+
+            <div class="tab-panel" role="tabpanel" id="ks-tab-locale" aria-labelledby="ks-tbtn-locale">
+                <h4>Locale, Time, and Security Commands</h4>
+                <div class="code-block" role="region" aria-label="Locale and security Kickstart commands">
+                    <div class="code-title">lang, keyboard, timezone, rootpw, selinux, user, group</div>
+                    <code><span class="code-comment"># Required: system language</span>
+<span class="code-command">lang en_US.UTF-8</span>
+
+<span class="code-comment"># Required: keyboard layout</span>
+<span class="code-command">keyboard --vckeymap=us --xlayouts='us'</span>
+
+<span class="code-comment"># Required: time zone (use --utc for hardware clock in UTC)</span>
+<span class="code-command">timezone America/New_York --utc</span>
+
+<span class="code-comment"># Optional: NTP source</span>
+<span class="code-command">timesource --ntp-server classroom.example.com</span>
+
+<span class="code-comment"># rootpw: set root password (RHEL 10: root disabled by default)</span>
+<span class="code-command">rootpw --lock</span>                        <span class="code-comment"># lock root (recommended)</span>
+<span class="code-command">rootpw --plaintext redhat</span>            <span class="code-comment"># plaintext (avoid in prod)</span>
+<span class="code-command">rootpw --iscrypted $6$hash...</span>       <span class="code-comment"># hashed (recommended)</span>
+
+<span class="code-comment"># selinux: set SELinux mode</span>
+<span class="code-command">selinux --enforcing</span>
+
+<span class="code-comment"># services: adjust default services</span>
+<span class="code-command">services --disabled=rsyslog --enabled=NetworkManager,firewalld</span>
+
+<span class="code-comment"># Create a user (wheel group for admin; REQUIRED if rootpw --lock)</span>
+<span class="code-command">user --name=jdoe --gecos="John Doe" --groups=wheel --iscrypted \
+    --password=$6$hash...</span>
+
+<span class="code-comment"># Create a group</span>
+<span class="code-command">group --name=admins --gid=10001</span></code>
+                </div>
+                <div class="note-box important">
+                    <div class="note-box-header">&#9888; RHEL 10 Requirement</div>
+                    <p>In RHEL 10, if you use <code>rootpw --lock</code>, you <strong>must</strong> create at least one user that belongs to the <code>wheel</code> administrative group. Without this, no one can administer the system after installation.</p>
+                </div>
+            </div>
+
+            <div class="tab-panel" role="tabpanel" id="ks-tab-misc" aria-labelledby="ks-tbtn-misc">
+                <h4>Miscellaneous Commands</h4>
+                <div class="code-block" role="region" aria-label="Miscellaneous Kickstart commands">
+                    <div class="code-title">logging, firstboot, reboot/poweroff/halt, %addon</div>
+                    <code><span class="code-comment"># logging: send installation logs to a remote host</span>
+<span class="code-command">logging --host=loghost.example.com</span>
+
+<span class="code-comment"># firstboot: control GNOME Initial Setup on first boot</span>
+<span class="code-command">firstboot --disabled</span>
+
+<span class="code-comment"># Completion action (default: halt, waits for keypress)</span>
+<span class="code-command">reboot</span>           <span class="code-comment"># reboot automatically when done</span>
+<span class="code-command">poweroff</span>         <span class="code-comment"># power off when done</span>
+<span class="code-command">halt</span>             <span class="code-comment"># halt and wait (default)</span>
+
+<span class="code-comment"># %addon: configure optional components like kdump</span>
+<span class="code-highlight">%addon com_redhat_kdump --enable --reserve-mb='auto'</span>
+<span class="code-highlight">%end</span></code>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 8: KICKSTART WORKFLOW -->
+<section id="section-ks-workflow" class="content-section" aria-labelledby="ks-workflow-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">8</span>
+        <h2 id="ks-workflow-heading">Kickstart Installation Workflow</h2>
+    </div>
+    <div class="section-body">
+        <p>Deploying a system via Kickstart requires three sequential steps: creating the file, publishing it in a reachable location, and booting the target system while pointing the installer to that file.</p>
+
+        <div class="diagram-container" role="img" aria-label="Kickstart workflow steps diagram">
+            <div style="text-align:center; font-family:var(--font-display); font-weight:700; color:var(--rh-blue-dark); margin-bottom:16px;">Kickstart Deployment Workflow</div>
+            <div class="diagram-row">
+                <div class="diagram-box stage" style="min-width:140px;">
+                    <div style="font-size:1.5rem; margin-bottom:4px;" aria-hidden="true">&#9997;</div>
+                    <strong>Step 1</strong><br>Create KS File
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">&#8594;</div>
+                <div class="diagram-box stage" style="min-width:140px;">
+                    <div style="font-size:1.5rem; margin-bottom:4px;" aria-hidden="true">&#128279;</div>
+                    <strong>Step 2</strong><br>Publish File
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">&#8594;</div>
+                <div class="diagram-box stage" style="min-width:140px;">
+                    <div style="font-size:1.5rem; margin-bottom:4px;" aria-hidden="true">&#128640;</div>
+                    <strong>Step 3</strong><br>Boot + inst.ks=
+                </div>
+                <div class="diagram-arrow" aria-hidden="true">&#8594;</div>
+                <div class="diagram-box action" style="min-width:140px;">
+                    <div style="font-size:1.5rem; margin-bottom:4px;" aria-hidden="true">&#9989;</div>
+                    <strong>Result</strong><br>Automated Install
+                </div>
+            </div>
+        </div>
+
+        <h3>Step 1: Create the Kickstart File</h3>
+        <p>Three approaches are available:</p>
+        <ul>
+            <li><strong>Kickstart Generator website</strong> &mdash; <code>https://access.redhat.com/labs/kickstartconfig</code> presents dialog boxes and generates a Kickstart file based on your choices. Each dialog corresponds to an Anaconda installer screen.</li>
+            <li><strong>Copy and modify an existing file</strong> &mdash; Every RHEL installation creates <code>/root/anaconda-ks.cfg</code> that captures the exact settings used during that installation. This is the recommended starting point for creating new Kickstart files.</li>
+            <li><strong>Write from scratch with a text editor</strong> &mdash; Suitable once you understand the command syntax well.</li>
+        </ul>
+
+        <div class="code-block" role="region" aria-label="Finding the auto-generated anaconda-ks.cfg file">
+            <div class="code-title">Locating the Auto-Generated Kickstart File</div>
+            <code><span class="code-comment"># Every installation creates this file on the installed system</span>
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">ls -la /root/anaconda-ks.cfg</span>
+<span class="code-output">-rw-------. 1 root root 1842 Mar 15 14:30 /root/anaconda-ks.cfg</span>
+
+<span class="code-prompt">[root@serverb ~]#</span> <span class="code-command">cat /root/anaconda-ks.cfg</span>
+<span class="code-output"># Generated by Anaconda 34.25.0.58
+# version=RHEL10
+graphical
+...output omitted...</span></code>
+        </div>
+
+        <h3>Validating Your Kickstart File</h3>
+        <p>Before deploying, validate the Kickstart file with <code>ksvalidator</code>, provided by the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-pykickstart">pykickstart</span> package.
+        <span class="tooltip-content" id="tt-pykickstart">pykickstart is a Python library and set of utilities for parsing, validating, and generating Kickstart files. It includes ksvalidator (syntax check) and ksverdiff (version comparison).</span>
+        </p>
+
+        <div class="code-block" role="region" aria-label="Kickstart validation with ksvalidator">
+            <div class="code-title">Validating and Diffing Kickstart Files</div>
+            <code><span class="code-comment"># Install pykickstart (provides ksvalidator and ksverdiff)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo dnf install pykickstart -y</span>
+
+<span class="code-comment"># Validate syntax (checks keywords and options, not URLs or packages)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksvalidator /tmp/myserver.cfg</span>
+<span class="code-output">The following problem occurred on line 10 of the kickstart file:
+Unknown command: frewall</span>
+
+<span class="code-comment"># Show Kickstart syntax changes between versions</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksverdiff -f RHEL9 -t RHEL10</span>
+<span class="code-output">The following commands were removed in RHEL10:
+auth authconfig autostep btrfs method nvdimm
+
+The following commands were deprecated in RHEL10:
+vnc
+
+The following options were added to the autopart command in RHEL10:
+--hibernation
+...output omitted...</span></code>
+        </div>
+
+        <div class="note-box note">
+            <div class="note-box-header">&#128203; Validation Scope</div>
+            <p><code>ksvalidator</code> checks keyword spelling and option syntax. It does <em>not</em> validate URL paths, package names, group names, or the logic inside %pre/%post scripts. Always test Kickstart files in a VM before production use.</p>
+        </div>
+
+        <h3>Step 2: Publish the Kickstart File</h3>
+        <p>The file must be accessible to the target system during installation. Common publication methods:</p>
+        <ul>
+            <li><strong>HTTP/HTTPS server</strong> &mdash; Most common in enterprise. Copy to <code>/var/www/html/</code> on a web server.</li>
+            <li><strong>FTP server</strong> &mdash; Alternative network protocol, useful in some environments.</li>
+            <li><strong>NFS share</strong> &mdash; Network file system export accessible at install time.</li>
+            <li><strong>USB drive</strong> &mdash; Convenient for single-system rebuilds; write the .cfg file to a FAT32 USB drive.</li>
+            <li><strong>Local hard disk</strong> &mdash; For quick rebuilds on the same machine; place the file on a non-target partition.</li>
+        </ul>
+
+        <div class="code-block" role="region" aria-label="Publishing Kickstart file via HTTP">
+            <div class="code-title">Publishing via HTTP (Apache Example)</div>
+            <code><span class="code-comment"># Copy Kickstart file to web server document root</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">cp /root/serverb.cfg /var/www/html/ks/</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">chmod 644 /var/www/html/ks/serverb.cfg</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+
+<span class="code-comment"># Verify file is accessible from a client</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl http://classroom.example.com/ks/serverb.cfg</span>
+<span class="code-output"># version=RHEL10
+graphical
+...output omitted...</span></code>
+        </div>
+
+        <h3>Step 3: Boot and Pass inst.ks=</h3>
+        <p>When booting the target system from installation media, edit the boot loader entry to pass the <code>inst.ks=LOCATION</code> kernel argument:</p>
+
+        <table class="comparison-table" aria-label="inst.ks parameter examples">
+            <thead>
+                <tr>
+                    <th scope="col">Location Type</th>
+                    <th scope="col">inst.ks= Parameter Syntax</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>HTTP server</td>
+                    <td><code>inst.ks=http://server/dir/file.cfg</code></td>
+                </tr>
+                <tr>
+                    <td>FTP server</td>
+                    <td><code>inst.ks=ftp://server/dir/file.cfg</code></td>
+                </tr>
+                <tr>
+                    <td>NFS share</td>
+                    <td><code>inst.ks=nfs:server:/dir/file.cfg</code></td>
+                </tr>
+                <tr>
+                    <td>Local disk partition</td>
+                    <td><code>inst.ks=hd:device:/dir/file.cfg</code></td>
+                </tr>
+                <tr>
+                    <td>CD/DVD/USB media</td>
+                    <td><code>inst.ks=cdrom:device</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="code-block" role="region" aria-label="Adding inst.ks to GRUB boot entry">
+            <div class="code-title">Adding inst.ks= to the GRUB Boot Entry</div>
+            <code><span class="code-comment"># At the GRUB menu, highlight "Install Red Hat Enterprise Linux 10"</span>
+<span class="code-comment"># Press 'e' to edit. Find the line beginning with 'linux'</span>
+<span class="code-comment"># Append inst.ks= at the end of that line:</span>
+
+<span class="code-output">linux /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=RHEL-10 quiet \</span>
+<span class="code-command">  inst.ks=http://classroom.example.com/ks/serverb.cfg</span>
+
+<span class="code-comment"># Press Ctrl+X to boot</span></code>
+        </div>
+
+        <p>If the Kickstart file contains all required commands, Anaconda performs the entire installation without prompting. You can still use the virtual console shortcuts (<kbd>Ctrl+Alt+F1</kbd> through <kbd>Ctrl+Alt+F6</kbd>) to monitor progress or troubleshoot.</p>
+
+        <h3>Interactive Kickstart Builder</h3>
+        <p>Use the tool below to explore how different Kickstart settings generate corresponding configuration file entries:</p>
+
+        <div class="ks-builder" role="region" aria-label="Interactive Kickstart file builder">
+            <div class="ks-title">&#9881; Interactive Kickstart Builder</div>
+            <div class="ks-controls">
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-hostname">Hostname</label>
+                    <input class="ks-input" type="text" id="ks-hostname" value="serverb.lab.example.com" aria-label="System hostname">
+                </div>
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-timezone">Timezone</label>
+                    <select class="ks-select" id="ks-timezone" aria-label="Select timezone">
+                        <option value="America/New_York">America/New_York</option>
+                        <option value="America/Chicago">America/Chicago</option>
+                        <option value="America/Denver">America/Denver</option>
+                        <option value="America/Los_Angeles">America/Los_Angeles</option>
+                        <option value="Europe/London">Europe/London</option>
+                        <option value="UTC">UTC</option>
+                    </select>
+                </div>
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-env">Software Environment</label>
+                    <select class="ks-select" id="ks-env" aria-label="Select software environment">
+                        <option value="@^minimal-environment">Minimal Install</option>
+                        <option value="@^server-product-environment">Server</option>
+                        <option value="@^graphical-server-environment">Server with GUI</option>
+                        <option value="@^workstation-product-environment">Workstation</option>
+                    </select>
+                </div>
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-network">Network</label>
+                    <select class="ks-select" id="ks-network" aria-label="Select network configuration">
+                        <option value="dhcp">DHCP</option>
+                        <option value="static">Static IP</option>
+                    </select>
+                </div>
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-rootpw">Root Account</label>
+                    <select class="ks-select" id="ks-rootpw" aria-label="Select root account option">
+                        <option value="lock">Lock (recommended)</option>
+                        <option value="enable">Enable with password</option>
+                    </select>
+                </div>
+                <div class="ks-group">
+                    <label class="ks-label" for="ks-storage">Storage</label>
+                    <select class="ks-select" id="ks-storage" aria-label="Select storage configuration">
+                        <option value="auto">Automatic (autopart)</option>
+                        <option value="lvm">Custom LVM</option>
+                    </select>
+                </div>
+            </div>
+            <button class="ks-btn" id="ks-generate-btn" aria-label="Generate Kickstart file preview">&#9654; Generate Kickstart Preview</button>
+            <div class="ks-output" id="ks-output" aria-label="Generated Kickstart file" aria-live="polite">
+# Click "Generate Kickstart Preview" to build a sample file based on your selections above.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 9: QUIZ -->
+<section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">9</span>
+        <h2 id="quiz-heading">Knowledge Check Quiz</h2>
+    </div>
+    <div class="section-body">
+        <p>Test your understanding of RHEL installation concepts. Select the best answer for each question, then click <strong>Check Answers</strong>.</p>
+
+        <div class="quiz-question" data-question="1" data-correct="b">
+            <p>1. Which installation media type is best for deploying RHEL in an environment with no internet access?</p>
+            <label class="quiz-option"><input type="radio" name="q1" value="a"> Boot ISO (network installer)</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="b"> Binary DVD ISO (full installer)</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="c"> Source DVD</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="d"> RHEL Image Builder output</label>
+            <div class="quiz-feedback" id="feedback-1"></div>
+        </div>
+
+        <div class="quiz-question" data-question="2" data-correct="c">
+            <p>2. In RHEL 10, what is the default state of the root account after a fresh installation?</p>
+            <label class="quiz-option"><input type="radio" name="q2" value="a"> Enabled with a blank password</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="b"> Enabled but SSH access is blocked by the firewall</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="c"> Disabled by default</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="d"> Enabled with password-based SSH access allowed</label>
+            <div class="quiz-feedback" id="feedback-2"></div>
+        </div>
+
+        <div class="quiz-question" data-question="3" data-correct="a">
+            <p>3. Which keyboard shortcut provides access to a root shell inside the tmux terminal during installation?</p>
+            <label class="quiz-option"><input type="radio" name="q3" value="a"> Ctrl+Alt+F1, then Ctrl+B then 2</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="b"> Ctrl+Alt+F6</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="c"> Ctrl+Alt+F2 (the only way)</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="d"> Ctrl+B then 6</label>
+            <div class="quiz-feedback" id="feedback-3"></div>
+        </div>
+
+        <div class="quiz-question" data-question="4" data-correct="d">
+            <p>4. In a Kickstart file, which character prefix is used to denote an environment group (a group of package groups)?</p>
+            <label class="quiz-option"><input type="radio" name="q4" value="a"> <code>#</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="b"> <code>@</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="c"> <code>-</code></label>
+            <label class="quiz-option"><input type="radio" name="q4" value="d"> <code>@^</code></label>
+            <div class="quiz-feedback" id="feedback-4"></div>
+        </div>
+
+        <div class="quiz-question" data-question="5" data-correct="b">
+            <p>5. What does the <code>ksvalidator</code> utility check in a Kickstart file?</p>
+            <label class="quiz-option"><input type="radio" name="q5" value="a"> Whether all specified packages exist in the repository</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="b"> Keyword and option syntax for correctness</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="c"> Whether the specified URLs are reachable</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="d"> Whether %post scripts will execute without errors</label>
+            <div class="quiz-feedback" id="feedback-5"></div>
+        </div>
+
+        <div class="quiz-question" data-question="6" data-correct="a">
+            <p>6. Which Kickstart command prevents Anaconda from touching disks not listed?</p>
+            <label class="quiz-option"><input type="radio" name="q6" value="a"> <code>ignoredisk</code></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="b"> <code>clearpart</code></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="c"> <code>zerombr</code></label>
+            <label class="quiz-option"><input type="radio" name="q6" value="d"> <code>autopart</code></label>
+            <div class="quiz-feedback" id="feedback-6"></div>
+        </div>
+
+        <div class="quiz-question" data-question="7" data-correct="c">
+            <p>7. Where is the Kickstart file parameter passed to the Anaconda installer?</p>
+            <label class="quiz-option"><input type="radio" name="q7" value="a"> Inside the Kickstart file itself using the <code>ksfile=</code> command</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="b"> Via a <code>/etc/anaconda.conf</code> configuration file on the target system</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="c"> As a kernel argument (<code>inst.ks=LOCATION</code>) at the GRUB boot menu</label>
+            <label class="quiz-option"><input type="radio" name="q7" value="d"> Via the <code>network</code> command inside the Kickstart file</label>
+            <div class="quiz-feedback" id="feedback-7"></div>
+        </div>
+
+        <div class="quiz-question" data-question="8" data-correct="d">
+            <p>8. Which file does every RHEL installation automatically create as a record of the Anaconda configuration used?</p>
+            <label class="quiz-option"><input type="radio" name="q8" value="a"> <code>/etc/kickstart.cfg</code></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="b"> <code>/var/log/anaconda/ks.log</code></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="c"> <code>/etc/anaconda-ks.cfg</code></label>
+            <label class="quiz-option"><input type="radio" name="q8" value="d"> <code>/root/anaconda-ks.cfg</code></label>
+            <div class="quiz-feedback" id="feedback-8"></div>
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="quiz-btn primary" id="check-quiz-btn" aria-label="Check quiz answers">Check Answers</button>
+            <button class="quiz-btn secondary" id="reset-quiz-btn" aria-label="Reset quiz">Reset Quiz</button>
+        </div>
+        <div class="quiz-score" id="quiz-score" aria-live="polite"></div>
+    </div>
+</section>
+
+<!-- SECTION 10: HANDS-ON LAB -->
+<section id="section-lab" class="content-section" aria-labelledby="lab-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">10</span>
+        <h2 id="lab-heading">Hands-On Lab: Automate RHEL Installation with Kickstart</h2>
+    </div>
+    <div class="section-body">
+        <p><strong>Scenario:</strong> You are a system administrator at Example Corp. Your team frequently deploys new RHEL 10 servers for application development. You have been asked to create a Kickstart file that standardizes server deployment, validate it, and publish it on the classroom HTTP server so it can be used to provision <code>serverb.lab.example.com</code>.</p>
+
+        <div class="note-box warning">
+            <div class="note-box-header">&#9888; Warning</div>
+            <p>Kickstart deployments <strong>erase all data</strong> on the target disks. In lab environments, always verify you are targeting the correct virtual machine. Never run a Kickstart installation against a production system without a verified backup.</p>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="lab-task1-hdr">
+            <button class="expandable-header" id="lab-task1-hdr" aria-expanded="false" aria-controls="lab-task1-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#9312; Task 1 &mdash; Install pykickstart and Examine anaconda-ks.cfg
+            </button>
+            <div class="expandable-content" id="lab-task1-body" role="region">
+                <p><strong>Objective:</strong> Install the <code>pykickstart</code> package and review the auto-generated Kickstart file from the workstation's own installation as a starting reference.</p>
+                <div class="code-block" role="region" aria-label="Task 1 commands">
+                    <div class="code-title">Task 1: Install Tools and Review Existing KS File</div>
+                    <code><span class="code-comment"># Step 1: Install pykickstart (provides ksvalidator and ksverdiff)</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo dnf install pykickstart -y</span>
+<span class="code-output">...output omitted...
+Installed:
+  pykickstart-3.50-1.el10.noarch
+Complete!</span>
+
+<span class="code-comment"># Step 2: View the existing anaconda-ks.cfg from this system's install</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo cat /root/anaconda-ks.cfg</span>
+<span class="code-output"># Generated by Anaconda 34.25.0.58
+# version=RHEL10
+graphical
+...output omitted...
+user --name=student --groups=wheel ...</span>
+
+<span class="code-comment"># Step 3: Check RHEL 9 to RHEL 10 command differences</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksverdiff -f RHEL9 -t RHEL10</span>
+<span class="code-output">The following commands were removed in RHEL10:
+auth authconfig autostep btrfs method nvdimm
+The following commands were deprecated in RHEL10:
+vnc</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="lab-task2-hdr">
+            <button class="expandable-header" id="lab-task2-hdr" aria-expanded="false" aria-controls="lab-task2-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#9313; Task 2 &mdash; Create a Custom Kickstart File
+            </button>
+            <div class="expandable-content" id="lab-task2-body" role="region">
+                <p><strong>Objective:</strong> Create a Kickstart file for deploying <code>serverb.lab.example.com</code> with a locked root account, a wheel group user, and a minimal software environment.</p>
+                <div class="code-block" role="region" aria-label="Task 2 commands">
+                    <div class="code-title">Task 2: Create /root/serverb.cfg</div>
+                    <code><span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo vim /root/serverb.cfg</span>
+
+<span class="code-comment"># --- Begin file content ---</span>
+<span class="code-highlight"># version=RHEL10</span>
+<span class="code-highlight">graphical</span>
+<span class="code-highlight">keyboard --vckeymap=us --xlayouts='us'</span>
+<span class="code-highlight">lang en_US.UTF-8</span>
+<span class="code-highlight">timezone America/New_York --utc</span>
+<span class="code-highlight">network --device=enp1s0 --bootproto=dhcp --activate</span>
+<span class="code-highlight">network --hostname=serverb.lab.example.com</span>
+<span class="code-highlight">url --url="http://content.example.com/rhel10.0/x86_64/dvd/"</span>
+<span class="code-highlight">zerombr</span>
+<span class="code-highlight">clearpart --all --drives=vda</span>
+<span class="code-highlight">autopart</span>
+<span class="code-highlight">ignoredisk --only-use=vda</span>
+<span class="code-highlight">rootpw --lock</span>
+<span class="code-highlight">selinux --enforcing</span>
+<span class="code-highlight">firewall --enabled --service=ssh</span>
+<span class="code-highlight">firstboot --disabled</span>
+<span class="code-highlight">reboot</span>
+<span class="code-highlight">user --name=student --groups=wheel --gecos="student" \</span>
+<span class="code-highlight">     --password=$6$abc123... --iscrypted</span>
+<span class="code-highlight">%packages</span>
+<span class="code-highlight">@^minimal-environment</span>
+<span class="code-highlight">vim-enhanced</span>
+<span class="code-highlight">%end</span>
+<span class="code-highlight">%addon com_redhat_kdump --enable --reserve-mb='auto'</span>
+<span class="code-highlight">%end</span>
+<span class="code-highlight">%post</span>
+<span class="code-highlight">echo "Deployed via Kickstart: $(date)" > /etc/motd</span>
+<span class="code-highlight">%end</span>
+<span class="code-comment"># --- End file content --- save and exit vim with :wq</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="lab-task3-hdr">
+            <button class="expandable-header" id="lab-task3-hdr" aria-expanded="false" aria-controls="lab-task3-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#9314; Task 3 &mdash; Validate the Kickstart File
+            </button>
+            <div class="expandable-content" id="lab-task3-body" role="region">
+                <p><strong>Objective:</strong> Use <code>ksvalidator</code> to confirm there are no syntax errors in your new Kickstart file. Intentionally introduce an error, observe the output, then fix it.</p>
+                <div class="code-block" role="region" aria-label="Task 3 commands">
+                    <div class="code-title">Task 3: Validate and Debug the Kickstart File</div>
+                    <code><span class="code-comment"># Step 1: Run ksvalidator against the new file</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksvalidator /root/serverb.cfg</span>
+<span class="code-output">(no output = no errors detected)</span>
+
+<span class="code-comment"># Step 2: Introduce a deliberate typo to test error detection</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo sed -i 's/selinux/selinuxx/' /root/serverb.cfg</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksvalidator /root/serverb.cfg</span>
+<span class="code-output">The following problem occurred on line 12 of the kickstart file:
+Unknown command: selinuxx</span>
+
+<span class="code-comment"># Step 3: Fix the typo</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">sudo sed -i 's/selinuxx/selinux/' /root/serverb.cfg</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">ksvalidator /root/serverb.cfg</span>
+<span class="code-output">(no output = file is valid)</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="lab-task4-hdr">
+            <button class="expandable-header" id="lab-task4-hdr" aria-expanded="false" aria-controls="lab-task4-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#9315; Task 4 &mdash; Publish the Kickstart File via HTTP
+            </button>
+            <div class="expandable-content" id="lab-task4-body" role="region">
+                <p><strong>Objective:</strong> Copy the Kickstart file to the classroom HTTP server's document root so it can be accessed during a Kickstart installation via <code>inst.ks=http://...</code>.</p>
+                <div class="code-block" role="region" aria-label="Task 4 commands">
+                    <div class="code-title">Task 4: Publish KS File on HTTP Server</div>
+                    <code><span class="code-comment"># Step 1: Create directory for Kickstart files on the web server</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">mkdir -p /var/www/html/ks</span>
+
+<span class="code-comment"># Step 2: Copy and set permissions</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">cp /root/serverb.cfg /var/www/html/ks/</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">chmod 644 /var/www/html/ks/serverb.cfg</span>
+
+<span class="code-comment"># Step 3: Ensure Apache is running</span>
+<span class="code-prompt">[root@classroom ~]#</span> <span class="code-command">systemctl enable --now httpd</span>
+<span class="code-output">Created symlink /etc/systemd/system/multi-user.target.wants/httpd.service</span>
+
+<span class="code-comment"># Step 4: Verify accessibility from workstation</span>
+<span class="code-prompt">[student@workstation ~]$</span> <span class="code-command">curl -s http://classroom.example.com/ks/serverb.cfg | head -5</span>
+<span class="code-output"># version=RHEL10
+graphical
+keyboard --vckeymap=us --xlayouts='us'
+lang en_US.UTF-8
+timezone America/New_York --utc</span>
+
+<span class="code-comment"># Step 5 (On target system boot): Add to GRUB kernel arguments:</span>
+<span class="code-comment"># inst.ks=http://classroom.example.com/ks/serverb.cfg</span></code>
+                </div>
+            </div>
+        </div>
+
+        <div class="expandable" role="region" aria-labelledby="lab-task5-hdr">
+            <button class="expandable-header" id="lab-task5-hdr" aria-expanded="false" aria-controls="lab-task5-body">
+                <span class="expand-icon" aria-hidden="true">&#9660;</span>
+                &#9316; Task 5 &mdash; Monitor a Kickstart Installation
+            </button>
+            <div class="expandable-content" id="lab-task5-body" role="region">
+                <p><strong>Objective:</strong> Practice using the virtual console keyboard shortcuts to monitor an active Kickstart installation and review installation logs.</p>
+                <div class="code-block" role="region" aria-label="Task 5 commands">
+                    <div class="code-title">Task 5: Monitoring via Virtual Console During Installation</div>
+                    <code><span class="code-comment"># On the system being installed via Kickstart:</span>
+
+<span class="code-comment"># Access the tmux console (switch away from graphical installer)</span>
+<span class="code-output">Press: Ctrl+Alt+F1</span>
+
+<span class="code-comment"># Window 2 provides a root shell — examine logs in /tmp/</span>
+<span class="code-output">Press: Ctrl+B then 2</span>
+<span class="code-prompt">[root@localhost ~]#</span> <span class="code-command">ls /tmp/*.log</span>
+<span class="code-output">/tmp/anaconda.log  /tmp/packaging.log  /tmp/program.log  /tmp/storage.log</span>
+
+<span class="code-comment"># Tail the anaconda log for real-time installation progress</span>
+<span class="code-prompt">[root@localhost ~]#</span> <span class="code-command">tail -f /tmp/anaconda.log</span>
+<span class="code-output">...
+10:23:15,412 INFO anaconda: Running Kickstart: ks=http://classroom.example.com/ks/serverb.cfg
+10:23:18,041 INFO anaconda: Partitioning complete.
+10:23:45,222 INFO anaconda: Package installation started.
+...</span>
+
+<span class="code-comment"># Return to the graphical installer</span>
+<span class="code-output">Press: Ctrl+Alt+F6</span></code>
+                </div>
+            </div>
+        </div>
+
+        <h3>Lab Completion Checklist</h3>
+        <ul class="lab-checklist" aria-label="Lab completion checklist">
+            <li>Installed the <code>pykickstart</code> package and used <code>ksverdiff</code> to review RHEL 10 changes.</li>
+            <li>Created a valid Kickstart file with locked root, wheel-group user, and minimal environment.</li>
+            <li>Validated the Kickstart file with <code>ksvalidator</code> and tested error detection.</li>
+            <li>Published the Kickstart file on an HTTP server and verified accessibility with <code>curl</code>.</li>
+            <li>Identified the correct <code>inst.ks=</code> kernel argument syntax for HTTP, NFS, and local disk sources.</li>
+            <li>Practiced using virtual console shortcuts to monitor Anaconda logs during installation.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- SECTION 11: SUMMARY -->
+<section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+    <div class="section-header">
+        <span class="section-number" aria-hidden="true">11</span>
+        <h2 id="summary-heading">Chapter Summary</h2>
+    </div>
+    <div class="section-body">
+        <p>This chapter covered two methods of installing Red Hat Enterprise Linux 10: interactive installation through the Anaconda graphical installer, and fully automated deployment via Kickstart files.</p>
+
+        <h3>Key Concepts</h3>
+        <ul>
+            <li>RHEL 10 is distributed as a binary DVD ISO (self-contained) or a boot ISO (requires network access during install). Choose based on connectivity and storage constraints.</li>
+            <li>Minimum requirements: 10 GiB disk space; 1.5&ndash;4 GiB RAM depending on architecture and install method.</li>
+            <li>Anaconda's Installation Summary window provides a centralized dashboard for all pre-installation configuration. Mandatory items are marked with orange triangle warnings.</li>
+            <li>Starting in RHEL 10, the root account is <strong>disabled by default</strong>. Creating a <code>wheel</code> group user is mandatory when root remains locked.</li>
+            <li>RDP mode (<code>inst.rdp</code>) replaces the deprecated VNC mode for remote installation sessions.</li>
+            <li>Virtual consoles and tmux windows provide log files and a root shell for troubleshooting active installations.</li>
+            <li>Kickstart files automate unattended installations. They contain a command section, optional <code>%packages</code>, and optional <code>%pre</code>/<code>%post</code> scripts.</li>
+            <li>The <code>%pre</code> section runs before partitioning (outside chroot); <code>%post</code> runs after installation (inside chroot).</li>
+            <li><code>ksvalidator</code> checks Kickstart syntax; <code>ksverdiff</code> shows changes between RHEL versions.</li>
+            <li>Pass <code>inst.ks=LOCATION</code> as a kernel argument at the GRUB boot menu to start a Kickstart installation.</li>
+        </ul>
+
+        <h3>Quick Command Reference</h3>
+        <div class="cmd-ref-grid" role="list" aria-label="Quick command reference">
+            <div class="cmd-card" role="listitem">
+                <code>ksvalidator /path/file.cfg</code>
+                <p>Validate Kickstart file syntax for keyword and option errors.</p>
+            </div>
+            <div class="cmd-card" role="listitem">
+                <code>ksverdiff -f RHEL9 -t RHEL10</code>
+                <p>Show Kickstart command differences between RHEL versions.</p>
+            </div>
+            <div class="cmd-card" role="listitem">
+                <code>cat /root/anaconda-ks.cfg</code>
+                <p>View the auto-generated Kickstart file from this system's installation.</p>
+            </div>
+            <div class="cmd-card" role="listitem">
+                <code>inst.ks=http://server/ks.cfg</code>
+                <p>Kernel argument at GRUB to specify Kickstart file location.</p>
+            </div>
+            <div class="cmd-card" role="listitem">
+                <code>inst.rdp inst.rdp.username=user</code>
+                <p>Enable RDP mode for remote graphical installation (RHEL 10).</p>
+            </div>
+            <div class="cmd-card" role="listitem">
+                <code>Ctrl+Alt+F1 &rarr; Ctrl+B 2</code>
+                <p>Access a root shell in tmux window 2 during installation.</p>
+            </div>
+        </div>
+
+        <h3>What&#39;s Next</h3>
+        <p>This chapter completes the RH134 section on deploying Red Hat Enterprise Linux. Your knowledge of both interactive and automated installation is directly applicable to the RHCSA exam, where you may be asked to demonstrate Kickstart file creation, validation, and deployment. Review the <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html-single/automatically_installing_rhel/index" target="_blank" rel="noopener noreferrer">Automatically Installing RHEL guide</a> for the full Kickstart commands and options reference.</p>
+    </div>
+</section>
+
+</main>
+
+<footer role="contentinfo">
+    <div class="footer-inner">
+        <nav class="footer-nav" aria-label="Related chapter links">
+            <a href="rh134_chapter15_nfs.html">&#8592; Chapter 15: NFS</a>
+            <a href="index.html">&#127968; Course Index</a>
+        </nav>
+        <p class="footer-copy">
+            &copy; 2025 Red Hat, Inc. Red Hat Enterprise Linux is a registered trademark of Red Hat, Inc. in the United States and other countries.<br>
+            This educational material is intended for course use and RHCSA exam preparation. All commands reflect RHEL 10 current practices.
+        </p>
+    </div>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    // ── PROGRESS BAR ─────────────────────────────────────
+    const sections = document.querySelectorAll('.content-section');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const navBtns = document.querySelectorAll('.nav-btn');
+
+    const observer = new IntersectionObserver((entries) => {
+        let maxVisible = 0;
+        sections.forEach((sec, idx) => {
+            const rect = sec.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.6) maxVisible = idx + 1;
+        });
+        const pct = Math.round((maxVisible / sections.length) * 100);
+        progressBar.style.width = pct + '%';
+        progressBar.setAttribute('aria-valuenow', pct);
+        progressText.textContent = pct + '% complete';
+        navBtns.forEach((btn, i) => {
+            if (i < maxVisible) btn.classList.add('visited');
+        });
+    }, { threshold: 0.1 });
+    sections.forEach(s => observer.observe(s));
+
+    // ── ACTIVE NAV HIGHLIGHTING ───────────────────────────
+    const sectionIds = Array.from(sections).map(s => s.id);
+    const navMap = {};
+    navBtns.forEach(btn => {
+        const href = btn.getAttribute('href');
+        if (href) navMap[href.replace('#', '')] = btn;
+    });
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                navBtns.forEach(b => b.classList.remove('active'));
+                const btn = navMap[e.target.id];
+                if (btn) btn.classList.add('active');
+            }
+        });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(s => navObserver.observe(s));
+
+    // ── TOOLTIP SYSTEM ────────────────────────────────────
+    const bubble = document.getElementById('tooltip-bubble');
+    let activeTooltipTerm = null;
+
+    function showTooltip(term) {
+        const id = term.getAttribute('aria-describedby');
+        const contentEl = id ? document.getElementById(id) : null;
+        if (!contentEl) return;
+        bubble.textContent = contentEl.textContent;
+        bubble.className = 'visible';
+        requestAnimationFrame(() => {
+            const rect = term.getBoundingClientRect();
+            const bw = bubble.offsetWidth;
+            const bh = bubble.offsetHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const margin = 8;
+            let left, top, tipClass;
+            const spaceAbove = rect.top;
+            const spaceBelow = vh - rect.bottom;
+            const spaceRight = vw - rect.right;
+            if (spaceAbove >= bh + 16) {
+                tipClass = 'tip-top';
+                top = rect.top - bh - 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if (spaceBelow >= bh + 16) {
+                tipClass = 'tip-bottom';
+                top = rect.bottom + 12;
+                left = rect.left + (rect.width / 2) - (bw / 2);
+            } else if (spaceRight >= bw + 16) {
+                tipClass = 'tip-right';
+                left = rect.right + 12;
+                top = rect.top + (rect.height / 2) - (bh / 2);
+            } else {
+                tipClass = 'tip-left';
+                left = rect.left - bw - 12;
+                top = rect.top + (rect.height / 2) - (bh / 2);
+            }
+            left = Math.max(margin, Math.min(left, vw - bw - margin));
+            top = Math.max(margin, Math.min(top, vh - bh - margin));
+            bubble.style.left = left + 'px';
+            bubble.style.top = top + 'px';
+            bubble.className = 'visible ' + tipClass;
+        });
+        activeTooltipTerm = term;
+    }
+
+    function hideTooltip() {
+        bubble.className = '';
+        bubble.textContent = '';
+        activeTooltipTerm = null;
+    }
+
+    document.querySelectorAll('.tooltip-term').forEach(term => {
+        term.addEventListener('mouseenter', () => showTooltip(term));
+        term.addEventListener('mouseleave', hideTooltip);
+        term.addEventListener('focus', () => showTooltip(term));
+        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (activeTooltipTerm === term) hideTooltip();
+                else showTooltip(term);
+            }
+            if (e.key === 'Escape') hideTooltip();
+        });
+    });
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.tooltip-term')) hideTooltip();
+    });
+
+    // ── TABS ──────────────────────────────────────────────
+    document.querySelectorAll('[role="tablist"]').forEach(tablist => {
+        const tabs = tablist.querySelectorAll('[role="tab"]');
+        tabs.forEach((tab, idx) => {
+            tab.addEventListener('click', () => activateTab(tablist, tab));
+            tab.addEventListener('keydown', e => {
+                let newIdx = idx;
+                if (e.key === 'ArrowRight') newIdx = (idx + 1) % tabs.length;
+                else if (e.key === 'ArrowLeft') newIdx = (idx - 1 + tabs.length) % tabs.length;
+                else if (e.key === 'Home') newIdx = 0;
+                else if (e.key === 'End') newIdx = tabs.length - 1;
+                else return;
+                e.preventDefault();
+                tabs[newIdx].focus();
+                activateTab(tablist, tabs[newIdx]);
+            });
+        });
+    });
+
+    function activateTab(tablist, selectedTab) {
+        const tabs = tablist.querySelectorAll('[role="tab"]');
+        tabs.forEach(t => {
+            t.setAttribute('aria-selected', 'false');
+            const panel = document.getElementById(t.getAttribute('aria-controls'));
+            if (panel) panel.classList.remove('active');
+        });
+        selectedTab.setAttribute('aria-selected', 'true');
+        const panel = document.getElementById(selectedTab.getAttribute('aria-controls'));
+        if (panel) panel.classList.add('active');
+    }
+
+    // ── EXPANDABLES ───────────────────────────────────────
+    document.querySelectorAll('.expandable-header').forEach(hdr => {
+        hdr.addEventListener('click', () => {
+            const expanded = hdr.getAttribute('aria-expanded') === 'true';
+            hdr.setAttribute('aria-expanded', !expanded);
+            const content = document.getElementById(hdr.getAttribute('aria-controls'));
+            if (content) content.classList.toggle('show', !expanded);
+        });
+        hdr.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hdr.click(); }
+        });
+    });
+
+    // ── QUIZ ──────────────────────────────────────────────
+    document.getElementById('check-quiz-btn').addEventListener('click', () => {
+        const questions = document.querySelectorAll('.quiz-question');
+        let score = 0;
+        questions.forEach(q => {
+            const n = q.getAttribute('data-question');
+            const correct = q.getAttribute('data-correct');
+            const selected = q.querySelector(`input[name="q${n}"]:checked`);
+            const feedback = document.getElementById(`feedback-${n}`);
+            q.classList.remove('correct', 'incorrect');
+            feedback.classList.remove('show', 'correct', 'incorrect');
+            if (!selected) {
+                feedback.textContent = 'Please select an answer.';
+                feedback.classList.add('show', 'incorrect');
+                q.classList.add('incorrect');
+                return;
+            }
+            if (selected.value === correct) {
+                score++;
+                q.classList.add('correct');
+                feedback.textContent = '&#10003; Correct!';
+                feedback.classList.add('show', 'correct');
+            } else {
+                q.classList.add('incorrect');
+                const correctLabel = q.querySelector(`input[value="${correct}"]`);
+                const correctText = correctLabel ? correctLabel.parentElement.textContent.trim() : '';
+                feedback.textContent = '\u2717 Incorrect. Correct answer: ' + correctText;
+                feedback.classList.add('show', 'incorrect');
+            }
+            // Render HTML entities in feedback
+            feedback.innerHTML = feedback.textContent
+                .replace('&#10003;', '&#10003;')
+                .replace('\u2717', '&#10007;');
+        });
+        const total = questions.length;
+        const scoreDiv = document.getElementById('quiz-score');
+        scoreDiv.textContent = `Score: ${score} / ${total} correct`;
+        scoreDiv.classList.add('show');
+        scoreDiv.className = `quiz-score show ${score >= Math.ceil(total * 0.7) ? 'pass' : 'fail'}`;
+    });
+
+    document.getElementById('reset-quiz-btn').addEventListener('click', () => {
+        document.querySelectorAll('.quiz-question').forEach(q => {
+            q.classList.remove('correct', 'incorrect');
+            q.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            const n = q.getAttribute('data-question');
+            const fb = document.getElementById(`feedback-${n}`);
+            fb.classList.remove('show', 'correct', 'incorrect');
+            fb.textContent = '';
+        });
+        const scoreDiv = document.getElementById('quiz-score');
+        scoreDiv.classList.remove('show');
+        scoreDiv.textContent = '';
+    });
+
+    // ── KICKSTART BUILDER ─────────────────────────────────
+    document.getElementById('ks-generate-btn').addEventListener('click', generateKickstart);
+    window.generateKickstart = generateKickstart;
+
+    function generateKickstart() {
+        const hostname = document.getElementById('ks-hostname').value || 'serverb.lab.example.com';
+        const tz = document.getElementById('ks-timezone').value;
+        const env = document.getElementById('ks-env').value;
+        const net = document.getElementById('ks-network').value;
+        const rootpw = document.getElementById('ks-rootpw').value;
+        const storage = document.getElementById('ks-storage').value;
+
+        let netLine = net === 'dhcp'
+            ? 'network --device=enp1s0 --bootproto=dhcp --activate'
+            : 'network --device=enp1s0 --bootproto=static \\\n    --ip=172.25.250.10 --netmask=255.255.255.0 \\\n    --gateway=172.25.250.254 --nameserver=172.25.250.254';
+
+        let rootLine = rootpw === 'lock'
+            ? 'rootpw --lock'
+            : 'rootpw --iscrypted $6$SALTSALT$hash...';
+
+        let userLine = rootpw === 'lock'
+            ? '\n# Wheel user (REQUIRED since root is locked)\nuser --name=student --groups=wheel --gecos="student" --iscrypted --password=$6$HASH...'
+            : '# Optional non-root user\nuser --name=student --gecos="student"';
+
+        let storageLines = storage === 'auto'
+            ? 'zerombr\nclearpart --all --drives=vda\nautopart\nignoredisk --only-use=vda'
+            : 'zerombr\nclearpart --all --drives=vda\npart pv.01 --size=8192\nvolgroup myvg pv.01\nlogvol / --vgname=myvg --fstype=xfs --size=4096 --name=rootvol --grow\nlogvol /var --vgname=myvg --fstype=xfs --size=2048 --name=varvol\nbootloader --location=mbr --boot-drive=vda';
+
+        const output = `# version=RHEL10
+# Generated by interactive KS builder
+# ─── Localization ───────────────────────────
+keyboard --vckeymap=us --xlayouts='us'
+lang en_US.UTF-8
+timezone ${tz} --utc
+
+# ─── Network ────────────────────────────────
+${netLine}
+network --hostname=${hostname}
+
+# ─── Installation Source ─────────────────────
+url --url="http://content.example.com/rhel10.0/x86_64/dvd/"
+
+# ─── Storage ────────────────────────────────
+${storageLines}
+
+# ─── Security ───────────────────────────────
+${rootLine}
+selinux --enforcing
+firewall --enabled --service=ssh
+${userLine}
+
+# ─── Miscellaneous ──────────────────────────
+firstboot --disabled
+reboot
+
+# ─── Packages ───────────────────────────────
+%packages
+${env}
+vim-enhanced
+%end
+
+# ─── Post-install Script ─────────────────────
+%post
+echo "Deployed via Kickstart: $(date)" > /etc/motd
+%end`;
+        document.getElementById('ks-output').textContent = output;
+    }
+
+})();
+</script>
+</body>
+</html>
