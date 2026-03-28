@@ -205,6 +205,14 @@
         .cmd-ref-table code { background: #E8E8E8; padding: 2px 5px; border-radius: 3px; font-family: var(--font-mono); }
 
         /* FOOTER */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin: 30px 0; flex-wrap: wrap; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
         footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; margin-top: 40px; }
         .footer-inner { max-width: var(--content-width); margin: 0 auto; }
         .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin-bottom: 24px; }
@@ -1249,9 +1257,10 @@ http_port_t         tcp   80, 81, 443, 488, 8008, 8009, 8443, 9000</span>
         </div>
 
         <h3>Navigation</h3>
-        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px;">
-            <a href="rh134_chapter13_superuser_recovery.html" class="btn btn-secondary">&larr; Chapter 13: Recovering Superuser Access</a>
-            <a href="index.html" class="btn btn-primary">&#x1F3E0; Course Index</a>
+        <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+            <a href="rh134_chapter13_superuser_recovery.html" class="nav-chapter-btn prev">&#8592; Chapter 13: Recovering Superuser Access</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter15_nfs.html" class="nav-chapter-btn next">Chapter 15: Mounting Network File Systems &#8594;</a>
         </div>
     </div>
 </section>

@@ -197,6 +197,14 @@
         .lab-checklist li::before { content: '\2713'; color: var(--rh-green); font-weight: 900; font-size: 1rem; flex-shrink: 0; }
 
         /* FOOTER */
+        .chapter-nav { display: flex; gap: 12px; justify-content: space-between; margin: 30px 0; flex-wrap: wrap; }
+        .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 22px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; text-decoration: none; border-radius: var(--radius-md); transition: all var(--transition-fast); border: 2px solid; }
+        .nav-chapter-btn.prev { background: var(--rh-white); color: var(--rh-gray-dark); border-color: var(--rh-gray-light); }
+        .nav-chapter-btn.prev:hover { background: var(--rh-gray-lighter); border-color: var(--rh-gray); }
+        .nav-chapter-btn.home { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
+        .nav-chapter-btn.home:hover { background: var(--rh-blue-dark); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
+        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
         footer { background: var(--rh-black); color: var(--rh-gray-light); padding: 32px 24px; margin-top: 40px; }
         .footer-inner { max-width: var(--content-width); margin: 0 auto; }
         .footer-nav { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -1484,6 +1492,12 @@ timezone America/New_York --utc</span>
 
         <h3>What&#39;s Next</h3>
         <p>This chapter completes the RH134 section on deploying Red Hat Enterprise Linux. Your knowledge of both interactive and automated installation is directly applicable to the RHCSA exam, where you may be asked to demonstrate Kickstart file creation, validation, and deployment. Review the <a href="https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html-single/automatically_installing_rhel/index" target="_blank" rel="noopener noreferrer">Automatically Installing RHEL guide</a> for the full Kickstart commands and options reference.</p>
+
+        <div class="chapter-nav" role="navigation" aria-label="Chapter navigation">
+            <a href="rh134_chapter15_nfs.html" class="nav-chapter-btn prev">&#8592; Chapter 15: Mounting Network File Systems</a>
+            <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
+            <a href="rh134_chapter17_containers.html" class="nav-chapter-btn next">Chapter 17: Managing Containers &#8594;</a>
+        </div>
     </div>
 </section>
 
