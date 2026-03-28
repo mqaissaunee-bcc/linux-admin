@@ -49,7 +49,7 @@
         *:focus { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
         *:focus:not(:focus-visible) { outline: none; }
         *:focus-visible { outline: 3px solid var(--rh-blue); outline-offset: 2px; }
-        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue-dark); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
+        .skip-link { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); background: var(--rh-blue); color: var(--rh-white); padding: 12px 24px; text-decoration: none; font-family: var(--font-display); font-weight: 600; border-radius: var(--radius-md); z-index: 10000; transition: top var(--transition-fast); }
         .skip-link:focus { top: 10px; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
         @media (prefers-contrast: high) { :root { --rh-gray-light: #888888; --shadow-md: 0 4px 12px rgba(0,0,0,0.4); } }
@@ -80,7 +80,7 @@
         /* ==================== PROGRESS BAR ==================== */
         .progress-container { background: var(--rh-white); padding: 10px 24px; box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--rh-gray-lighter); }
         .progress-bar-track { background: var(--rh-gray-lighter); border-radius: 10px; height: 8px; max-width: var(--content-width); margin: 0 auto; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue-dark), var(--rh-blue)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rh-blue), var(--rh-blue-light)); border-radius: 10px; width: 0%; transition: width 0.4s ease; }
         .progress-text { text-align: center; font-family: var(--font-display); font-size: 0.75rem; color: var(--rh-gray); margin-top: 4px; }
 
         /* ==================== SECTION NAV ==================== */
@@ -105,8 +105,8 @@
         .section-body li { margin-bottom: 8px; }
 
         /* ==================== CODE BLOCKS ==================== */
-        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-red); }
-        .code-title { background: var(--rh-red-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+        .code-block { background: #1E1E1E; color: #D4D4D4; padding: 20px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.7; overflow-x: auto; margin: 16px 0; border-left: 4px solid var(--rh-blue); }
+        .code-title { background: var(--rh-blue-dark); color: var(--rh-white); padding: 6px 16px; margin: -20px -20px 16px -20px; font-family: var(--font-display); font-size: 0.8rem; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
         .code-prompt { color: #4EC9B0; }
         .code-root { color: #F44747; }
         .code-command { color: #FFFFFF; font-weight: 600; }
@@ -114,7 +114,7 @@
         .code-comment { color: #6A9955; font-style: italic; display: block; }
         .code-error { color: #F44747; display: block; }
         .code-highlight { color: #FFD700; font-weight: 600; }
-        code.inline { background: var(--rh-gray-lighter); color: var(--rh-red-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
+        code.inline { background: var(--rh-gray-lighter); color: var(--rh-blue-dark); padding: 2px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 0.9em; }
 
         /* ==================== TOOLTIPS ==================== */
         .tooltip-term { color: var(--rh-blue); text-decoration: underline dotted var(--rh-blue); text-underline-offset: 3px; cursor: help; font-weight: 600; }
@@ -155,7 +155,7 @@
         .tabs-list { display: flex; gap: 4px; border-bottom: 2px solid var(--rh-gray-lighter); overflow-x: auto; padding-bottom: 0; margin-bottom: 0; list-style: none; }
         .tab-btn { padding: 10px 18px; font-family: var(--font-display); font-size: 0.9rem; font-weight: 600; background: var(--rh-gray-lighter); color: var(--rh-gray); border: 1px solid var(--rh-gray-light); border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0; cursor: pointer; white-space: nowrap; transition: all var(--transition-fast); }
         .tab-btn:hover { background: #E0E0E0; color: var(--rh-black); }
-        .tab-btn[aria-selected="true"] { background: var(--rh-red); color: var(--rh-white); border-color: var(--rh-red); }
+        .tab-btn[aria-selected="true"] { background: var(--rh-blue); color: var(--rh-white); border-color: var(--rh-blue); }
         .tab-panel { display: none; padding: 24px; border: 1px solid var(--rh-gray-lighter); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md); }
         .tab-panel.active { display: block; }
 
@@ -163,7 +163,7 @@
         .expandable { border: 1px solid var(--rh-gray-light); border-radius: var(--radius-md); margin: 12px 0; overflow: hidden; }
         .expandable-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--rh-gray-lighter); cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 0.95rem; color: var(--rh-gray-dark); border: none; width: 100%; text-align: left; transition: background var(--transition-fast); }
         .expandable-header:hover { background: #E0E0E0; }
-        .expandable-header[aria-expanded="true"] { background: var(--rh-red-dark); color: var(--rh-white); }
+        .expandable-header[aria-expanded="true"] { background: var(--rh-blue-dark); color: var(--rh-white); }
         .expandable-icon { font-size: 1.1rem; transition: transform var(--transition-fast); }
         .expandable-header[aria-expanded="true"] .expandable-icon { transform: rotate(90deg); }
         .expandable-content { display: none; padding: 20px; border-top: 1px solid var(--rh-gray-light); }
@@ -182,8 +182,8 @@
         .quiz-feedback.show { display: block; }
         .quiz-feedback.correct { background: #E8FFE8; color: var(--rh-green-dark); }
         .quiz-feedback.incorrect { background: #FFE8E8; color: var(--rh-red-dark); }
-        .quiz-btn { padding: 12px 28px; background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 1rem; cursor: pointer; margin: 8px 8px 0 0; transition: background var(--transition-fast); }
-        .quiz-btn:hover { background: var(--rh-red-dark); }
+        .quiz-btn { padding: 12px 28px; background: var(--rh-blue); color: var(--rh-white); border: none; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 1rem; cursor: pointer; margin: 8px 8px 0 0; transition: background var(--transition-fast); }
+        .quiz-btn:hover { background: var(--rh-blue-dark); }
         .quiz-score { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--rh-gray-dark); margin-top: 16px; padding: 12px; background: var(--rh-gray-lighter); border-radius: var(--radius-md); display: none; }
         .quiz-score.show { display: block; }
 
@@ -213,7 +213,7 @@
         .journal-sim-toolbar { background: #2D2D2D; padding: 12px 16px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .journal-sim-toolbar label { color: #CCC; font-family: var(--font-display); font-size: 0.82rem; }
         .journal-sim-toolbar select, .journal-sim-toolbar input[type="text"] { background: #1E1E1E; color: #D4D4D4; border: 1px solid #555; border-radius: var(--radius-sm); padding: 5px 10px; font-family: var(--font-mono); font-size: 0.82rem; }
-        .journal-sim-toolbar button { background: var(--rh-red); color: var(--rh-white); border: none; border-radius: var(--radius-sm); padding: 6px 14px; font-family: var(--font-display); font-size: 0.82rem; cursor: pointer; font-weight: 600; }
+        .journal-sim-toolbar button { background: var(--rh-blue); color: var(--rh-white); border: none; border-radius: var(--radius-sm); padding: 6px 14px; font-family: var(--font-display); font-size: 0.82rem; cursor: pointer; font-weight: 600; }
         .journal-sim-output { padding: 16px; font-family: var(--font-mono); font-size: 0.82rem; color: #9CDCFE; max-height: 260px; overflow-y: auto; line-height: 1.7; }
         .journal-sim-output .j-ts { color: #6A9955; }
         .journal-sim-output .j-host { color: #4EC9B0; }
@@ -236,25 +236,23 @@
 
         /* ==================== LEARNING OBJECTIVES ==================== */
         .obj-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
-        .obj-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px; border-left: 4px solid var(--rh-red); }
+        .obj-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 16px; border-left: 4px solid var(--rh-blue); }
         .obj-card-icon { font-size: 1.5rem; margin-bottom: 8px; }
-        .obj-card h3 { font-family: var(--font-display); font-size: 0.9rem; color: var(--rh-red-dark); margin-bottom: 6px; }
+        .obj-card h3 { font-family: var(--font-display); font-size: 0.9rem; color: var(--rh-blue-dark); margin-bottom: 6px; }
         .obj-card p { font-family: var(--font-display); font-size: 0.85rem; color: var(--rh-gray-dark); margin: 0; }
 
         /* ==================== CHAPTER NAV ==================== */
         .chapter-nav { display: flex; gap: 12px; justify-content: space-between; flex-wrap: wrap; margin-top: 30px; }
         .nav-chapter-btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: var(--rh-white); border: 2px solid var(--rh-gray-light); border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; color: var(--rh-gray-dark); text-decoration: none; transition: all var(--transition-fast); }
         .nav-chapter-btn:hover { border-color: var(--rh-blue); color: var(--rh-blue); }
-        .nav-chapter-btn.next { background: var(--rh-blue-dark); color: var(--rh-white); border-color: var(--rh-blue-dark); }
-        .nav-chapter-btn.next:hover { background: var(--rh-blue); border-color: var(--rh-blue); }
         .nav-chapter-btn.home { background: var(--rh-gray-dark); color: var(--rh-white); border-color: var(--rh-gray-dark); }
         .nav-chapter-btn.home:hover { background: var(--rh-black); border-color: var(--rh-black); }
 
         /* ==================== COMMAND REFERENCE ==================== */
         .cmd-ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
         @media (max-width: 640px) { .cmd-ref-grid { grid-template-columns: 1fr; } }
-        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px; border-top: 3px solid var(--rh-red); }
-        .cmd-card code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--rh-red-dark); font-weight: 700; display: block; margin-bottom: 6px; }
+        .cmd-card { background: var(--rh-gray-lighter); border-radius: var(--radius-md); padding: 14px; border-top: 3px solid var(--rh-blue); }
+        .cmd-card code { font-family: var(--font-mono); font-size: 0.85rem; color: var(--rh-blue-dark); font-weight: 700; display: block; margin-bottom: 6px; }
         .cmd-card p { font-family: var(--font-display); font-size: 0.82rem; color: var(--rh-gray-dark); margin: 0; }
 
         /* ==================== FOOTER ==================== */
@@ -284,7 +282,7 @@
 <body>
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
-<div id="tooltip-bubble" role="tooltip" aria-live="polite"></div>
+<div id="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
 
 <!-- ==================== HEADER ==================== -->
 <header class="main-header" role="banner">
@@ -380,9 +378,7 @@
         <h2 id="logging-overview-heading">The RHEL 10 Logging Architecture</h2>
     </div>
     <div class="section-body">
-        <p>Log management is one of the most critical skills for any system administrator. Logs tell you what happened on a system, when it happened, which service or user triggered an event, and &mdash; crucially &mdash; why something went wrong. On RHEL 10, two complementary subsystems handle logging: <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-intro">systemd-journald</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-intro">rsyslog</span>.</p>
-        <span class="tooltip-content" id="tt-journald-intro">systemd-journald is the logging daemon built into systemd. It collects structured binary log entries from the kernel, boot messages, and all systemd-managed services, storing them in /run/log/journal.</span>
-        <span class="tooltip-content" id="tt-rsyslog-intro">rsyslog (Rocket-fast Syslog) is a traditional syslog daemon that receives messages from journald and other sources, then routes them to text log files under /var/log based on configurable rules.</span>
+        <p>Log management is one of the most critical skills for any system administrator. Logs tell you what happened on a system, when it happened, which service or user triggered an event, and &mdash; crucially &mdash; why something went wrong. On RHEL 10, two complementary subsystems handle logging: <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-intro">systemd-journald<span class="tooltip-content" id="tt-journald-intro">systemd-journald is the logging daemon built into systemd. It collects structured binary log entries from the kernel, boot messages, and all systemd-managed services, storing them in /run/log/journal.</span></span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-intro">rsyslog<span class="tooltip-content" id="tt-rsyslog-intro">rsyslog (Rocket-fast Syslog) is a traditional syslog daemon that receives messages from journald and other sources, then routes them to text log files under /var/log based on configurable rules.</span></span>.</p>
 
         <h3>Why Two Logging Subsystems?</h3>
         <p>RHEL 10 uses both systems because each has distinct strengths. systemd-journald captures structured, indexed metadata (unit name, PID, UID, message ID) that enables powerful filtering. rsyslog writes plain-text files compatible with legacy tools and UNIX conventions. The two systems are bridged: journald forwards messages to rsyslog via a socket, and rsyslog writes them to the traditional <code class="inline">/var/log/</code> hierarchy.</p>
@@ -401,7 +397,7 @@
                 <!-- Arrow -->
                 <div style="font-size: 1.6rem; color: var(--rh-gray); margin: 4px 0;" aria-hidden="true">&#8595;</div>
                 <!-- journald -->
-                <div style="background: var(--rh-red-dark); color: #FFF; padding: 14px 24px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; text-align: center; width: 100%; max-width: 340px;">&#128196; systemd-journald<br><span style="font-weight: 400; font-size: 0.8rem; opacity: 0.9;">Binary journal &bull; /run/log/journal</span></div>
+                <div style="background: var(--rh-blue-dark); color: #FFF; padding: 14px 24px; border-radius: var(--radius-md); font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; text-align: center; width: 100%; max-width: 340px;">&#128196; systemd-journald<br><span style="font-weight: 400; font-size: 0.8rem; opacity: 0.9;">Binary journal &bull; /run/log/journal</span></div>
                 <!-- Two arrows -->
                 <div style="display: flex; gap: 80px; margin: 2px 0;" aria-hidden="true">
                     <div style="font-size: 1.4rem; color: var(--rh-gray);">&#8601;</div>
@@ -440,8 +436,7 @@
 
         <div class="note-box tip">
             <div class="note-box-header"><span aria-hidden="true">&#128161;</span><span>Tip: Persistent Journal</span></div>
-            <p>By default, systemd-journald stores the journal in <code class="inline">/run/log/journal</code>, which is a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfs">tmpfs</span> filesystem and does <strong>not survive reboots</strong>. To persist the journal across reboots, create the directory <code class="inline">/var/log/journal</code> and restart journald. You can also set <code class="inline">Storage=persistent</code> in <code class="inline">/etc/systemd/journald.conf</code>.</p>
-            <span class="tooltip-content" id="tt-tmpfs">tmpfs is a temporary filesystem stored in RAM (and possibly swap). Its contents are lost when the system is powered off or rebooted, making it unsuitable for persistent log storage without extra configuration.</span>
+            <p>By default, systemd-journald stores the journal in <code class="inline">/run/log/journal</code>, which is a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-tmpfs">tmpfs<span class="tooltip-content" id="tt-tmpfs">tmpfs is a temporary filesystem stored in RAM (and possibly swap). Its contents are lost when the system is powered off or rebooted, making it unsuitable for persistent log storage without extra configuration.</span></span> filesystem and does <strong>not survive reboots</strong>. To persist the journal across reboots, create the directory <code class="inline">/var/log/journal</code> and restart journald. You can also set <code class="inline">Storage=persistent</code> in <code class="inline">/etc/systemd/journald.conf</code>.</p>
         </div>
     </div>
 </section>
@@ -453,8 +448,7 @@
         <h2 id="syslog-heading">The Syslog Protocol: Facilities and Priorities</h2>
     </div>
     <div class="section-body">
-        <p>Before log messages can be routed to the right destination, they must be categorized. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-syslog-proto">syslog protocol</span> classifies every message along two dimensions: its <strong>facility</strong> (what part of the system generated it) and its <strong>priority</strong> (how severe it is).</p>
-        <span class="tooltip-content" id="tt-syslog-proto">The syslog protocol (RFC 5424) is a standard for system logging that defines message format, classification by facility and severity, and transport over TCP/UDP. It dates back to the early days of UNIX and is still central to Linux logging.</span>
+        <p>Before log messages can be routed to the right destination, they must be categorized. The <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-syslog-proto">syslog protocol<span class="tooltip-content" id="tt-syslog-proto">The syslog protocol (RFC 5424) is a standard for system logging that defines message format, classification by facility and severity, and transport over TCP/UDP. It dates back to the early days of UNIX and is still central to Linux logging.</span></span> classifies every message along two dimensions: its <strong>facility</strong> (what part of the system generated it) and its <strong>priority</strong> (how severe it is).</p>
 
         <h3>Syslog Priorities (Severity Levels)</h3>
         <p>Priorities are ordered from most severe (0 = emerg) to least severe (7 = debug). In rsyslog rules, specifying a priority also matches all <em>higher-severity</em> levels (lower numbers) unless you use the <code class="inline">=</code> exact-match modifier.</p>
@@ -483,8 +477,7 @@
         </div>
 
         <h3>Syslog Facilities</h3>
-        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-facility">facility</span> identifies the subsystem or source that generated the message. Facilities allow rsyslog to route messages from different parts of the system to different log files.</p>
-        <span class="tooltip-content" id="tt-facility">A syslog facility is a numeric code (0&ndash;23) that identifies the source or subsystem of a log message, such as the kernel, mail system, or local applications. It is used as the basis for routing rules in rsyslog.</span>
+        <p>A <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-facility">facility<span class="tooltip-content" id="tt-facility">A syslog facility is a numeric code (0&ndash;23) that identifies the source or subsystem of a log message, such as the kernel, mail system, or local applications. It is used as the basis for routing rules in rsyslog.</span></span> identifies the subsystem or source that generated the message. Facilities allow rsyslog to route messages from different parts of the system to different log files.</p>
         <table class="data-table" aria-label="Common syslog facilities">
             <caption>Common syslog facilities</caption>
             <thead>
@@ -537,8 +530,7 @@
         <h2 id="rsyslog-heading">Configuring rsyslog</h2>
     </div>
     <div class="section-body">
-        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-full">rsyslog</span> is the default syslog implementation on RHEL 10. It provides both backward-compatible syslog functionality and powerful advanced features including property-based filtering, output buffering, and TLS-encrypted log forwarding.</p>
-        <span class="tooltip-content" id="tt-rsyslog-full">rsyslog (Rocket-fast SYStem LOGger) is an enhanced syslog daemon that extends traditional syslog with high-performance features, property-based filtering, and pluggable modules. It replaces older syslogd and syslog-ng implementations.</span>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-rsyslog-full">rsyslog<span class="tooltip-content" id="tt-rsyslog-full">rsyslog (Rocket-fast SYStem LOGger) is an enhanced syslog daemon that extends traditional syslog with high-performance features, property-based filtering, and pluggable modules. It replaces older syslogd and syslog-ng implementations.</span></span> is the default syslog implementation on RHEL 10. It provides both backward-compatible syslog functionality and powerful advanced features including property-based filtering, output buffering, and TLS-encrypted log forwarding.</p>
 
         <h3>Configuration File Structure</h3>
         <p>rsyslog is configured through <code class="inline">/etc/rsyslog.conf</code> and any files matching <code class="inline">/etc/rsyslog.d/*.conf</code>. The recommended practice is to place custom rules in separate files under <code class="inline">/etc/rsyslog.d/</code> rather than editing the main config file directly. This simplifies management and avoids issues during package updates.</p>
@@ -570,8 +562,7 @@
 
         <div class="note-box info">
             <div class="note-box-header"><span aria-hidden="true">&#8505;</span><span>The Minus (-) Prefix Explained</span></div>
-            <p>A <code class="inline">-</code> prefix before a log file path (as in <code class="inline">-/var/log/maillog</code>) tells rsyslog to use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-async-write">asynchronous writes</span>. This improves performance but means some messages could be lost if the system crashes before the write buffer is flushed to disk.</p>
-            <span class="tooltip-content" id="tt-async-write">Asynchronous (buffered) write mode allows rsyslog to accumulate log entries in memory and write them to disk in batches rather than after each individual message. This reduces disk I/O at the cost of potential data loss on a crash.</span>
+            <p>A <code class="inline">-</code> prefix before a log file path (as in <code class="inline">-/var/log/maillog</code>) tells rsyslog to use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-async-write">asynchronous writes<span class="tooltip-content" id="tt-async-write">Asynchronous (buffered) write mode allows rsyslog to accumulate log entries in memory and write them to disk in batches rather than after each individual message. This reduces disk I/O at the cost of potential data loss on a crash.</span></span>. This improves performance but means some messages could be lost if the system crashes before the write buffer is flushed to disk.</p>
         </div>
 
         <h3>Writing Custom rsyslog Rules</h3>
@@ -636,8 +627,7 @@
                 </div>
             </div>
             <div class="tab-panel" id="rp-tab4" role="tabpanel" aria-labelledby="rp-tab4-btn">
-                <p>Use a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-prop-filter">property-based filter</span> to match messages containing specific text:</p>
-                <span class="tooltip-content" id="tt-prop-filter">A property-based filter in rsyslog matches messages based on message content fields (properties) rather than just facility/priority. It uses the syntax :property, compare-op, "value" and supports regex matching.</span>
+                <p>Use a <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-prop-filter">property-based filter<span class="tooltip-content" id="tt-prop-filter">A property-based filter in rsyslog matches messages based on message content fields (properties) rather than just facility/priority. It uses the syntax :property, compare-op, "value" and supports regex matching.</span></span> to match messages containing specific text:</p>
                 <div class="code-block" role="region" aria-label="Property-based filter rule">
                     <div class="code-title">/etc/rsyslog.d/60-oom.conf</div>
                     <code>
@@ -652,8 +642,7 @@
         </div>
 
         <h3>Testing rsyslog Configuration</h3>
-        <p>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logger">logger</span> to send test messages to the syslog facility from the command line, and <code class="inline">rsyslogd -N1</code> to syntax-check your configuration without restarting the service.</p>
-        <span class="tooltip-content" id="tt-logger">The logger command is a shell command interface to the syslog(3) system call. It allows scripts and administrators to send messages to the system log from the command line, useful for testing rsyslog rules.</span>
+        <p>Use <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logger">logger<span class="tooltip-content" id="tt-logger">The logger command is a shell command interface to the syslog(3) system call. It allows scripts and administrators to send messages to the system log from the command line, useful for testing rsyslog rules.</span></span> to send test messages to the syslog facility from the command line, and <code class="inline">rsyslogd -N1</code> to syntax-check your configuration without restarting the service.</p>
 
         <div class="code-block" role="region" aria-label="rsyslog testing commands">
             <div class="code-title">Testing rsyslog rules</div>
@@ -688,8 +677,7 @@ Mar 14 10:22:08 servera myapp: Low disk space on /data</span>
         <h2 id="journald-heading">systemd-journald: Structured Binary Logging</h2>
     </div>
     <div class="section-body">
-        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-detail">systemd-journald</span> is a fundamental change from traditional text-file logging. Rather than appending plain text lines to files, journald stores messages as structured, indexed binary records. Each record includes metadata fields such as the systemd unit name, PID, UID, GID, hostname, and a message catalog ID that can link to documentation.</p>
-        <span class="tooltip-content" id="tt-journald-detail">systemd-journald is the logging component of systemd. It collects log entries from kernel messages, early boot output, stdout/stderr of services, and applications using the native journal API, storing them as indexed binary records rather than plain text.</span>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journald-detail">systemd-journald<span class="tooltip-content" id="tt-journald-detail">systemd-journald is the logging component of systemd. It collects log entries from kernel messages, early boot output, stdout/stderr of services, and applications using the native journal API, storing them as indexed binary records rather than plain text.</span></span> is a fundamental change from traditional text-file logging. Rather than appending plain text lines to files, journald stores messages as structured, indexed binary records. Each record includes metadata fields such as the systemd unit name, PID, UID, GID, hostname, and a message catalog ID that can link to documentation.</p>
 
         <h3>What journald Collects</h3>
         <p>journald is the single collection point for all system events, regardless of origin:</p>
@@ -734,8 +722,7 @@ Mar 14 10:22:08 servera myapp: Low disk space on /data</span>
         </div>
 
         <h3>Controlling Journal Size</h3>
-        <p>The journal automatically manages its own size using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journal-rotation">rotation limits</span> defined in <code class="inline">journald.conf</code>. Key size parameters:</p>
-        <span class="tooltip-content" id="tt-journal-rotation">The systemd journal maintains its disk usage within configured limits by automatically rotating (archiving old files) and deleting archived files when limits are reached. This is distinct from logrotate, which manages traditional text log files.</span>
+        <p>The journal automatically manages its own size using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journal-rotation">rotation limits<span class="tooltip-content" id="tt-journal-rotation">The systemd journal maintains its disk usage within configured limits by automatically rotating (archiving old files) and deleting archived files when limits are reached. This is distinct from logrotate, which manages traditional text log files.</span></span> defined in <code class="inline">journald.conf</code>. Key size parameters:</p>
 
         <table class="data-table" aria-label="journald size control parameters">
             <caption>Key journald.conf size parameters</caption>
@@ -765,7 +752,7 @@ Mar 14 10:22:08 servera myapp: Low disk space on /data</span>
 
 <span class="code-comment"># Reduce journal to 500MB maximum</span>
 <span class="code-root">[root@servera ~]#</span> <span class="code-command">journalctl --vacuum-size=500M</span>
-<span class="code-output">Deleted archived journal /var/log/journal/abc123/system@xyz.journal (64.0M).
+<span class="code-output">Deleted archived journal /var/log/journal/abc123/system&#64;xyz.journal (64.0M).
 Vacuuming done, freed 64.0M of archived journals from /var/log/journal/.</span>
             </code>
         </div>
@@ -779,8 +766,7 @@ Vacuuming done, freed 64.0M of archived journals from /var/log/journal/.</span>
         <h2 id="journalctl-heading">Querying Logs with journalctl</h2>
     </div>
     <div class="section-body">
-        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journalctl">journalctl</span> is the command-line tool for reading and filtering the systemd journal. Unlike browsing text log files with <code class="inline">grep</code> or <code class="inline">tail</code>, journalctl can filter on structured metadata fields, making it far more powerful for targeted investigations.</p>
-        <span class="tooltip-content" id="tt-journalctl">journalctl is the primary tool for querying and displaying systemd journal entries. It can filter by time, unit, priority, user, PID, and many other metadata fields, and it displays output through a pager for easy navigation.</span>
+        <p><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-journalctl">journalctl<span class="tooltip-content" id="tt-journalctl">journalctl is the primary tool for querying and displaying systemd journal entries. It can filter by time, unit, priority, user, PID, and many other metadata fields, and it displays output through a pager for easy navigation.</span></span> is the command-line tool for reading and filtering the systemd journal. Unlike browsing text log files with <code class="inline">grep</code> or <code class="inline">tail</code>, journalctl can filter on structured metadata fields, making it far more powerful for targeted investigations.</p>
 
         <h3>Basic journalctl Usage</h3>
         <div class="code-block" role="region" aria-label="Basic journalctl commands">
@@ -804,8 +790,7 @@ Vacuuming done, freed 64.0M of archived journals from /var/log/journal/.</span>
         </div>
 
         <h3>Filtering by Systemd Unit</h3>
-        <p>One of the most powerful features of journalctl is filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-unit">systemd unit</span>. The <code class="inline">-u</code> flag restricts output to messages from a specific service, making it far faster than grepping through combined log files.</p>
-        <span class="tooltip-content" id="tt-unit">A systemd unit is a configuration file that defines how systemd manages a resource. Unit types include .service (daemons), .timer (scheduled jobs), .socket (network listeners), .target (grouping units), and others.</span>
+        <p>One of the most powerful features of journalctl is filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-unit">systemd unit<span class="tooltip-content" id="tt-unit">A systemd unit is a configuration file that defines how systemd manages a resource. Unit types include .service (daemons), .timer (scheduled jobs), .socket (network listeners), .target (grouping units), and others.</span></span>. The <code class="inline">-u</code> flag restricts output to messages from a specific service, making it far faster than grepping through combined log files.</p>
 
         <div class="code-block" role="region" aria-label="journalctl unit filtering">
             <div class="code-title">Filtering by unit</div>
@@ -857,8 +842,7 @@ Mar 14 10:05:22 servera sshd[2891]: Accepted publickey for admin from 192.168.1.
         </div>
 
         <h3>Boot-Specific Queries</h3>
-        <p>When troubleshooting intermittent problems or investigating a crash, filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-boot-id">boot ID</span> is essential. journalctl can show logs from the current boot or any previous boot stored in the persistent journal.</p>
-        <span class="tooltip-content" id="tt-boot-id">A boot ID is a unique identifier assigned to each system boot by systemd. journalctl uses boot IDs to segment journal entries by boot session, enabling queries like &quot;show me logs from two boots ago.&quot;</span>
+        <p>When troubleshooting intermittent problems or investigating a crash, filtering by <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-boot-id">boot ID<span class="tooltip-content" id="tt-boot-id">A boot ID is a unique identifier assigned to each system boot by systemd. journalctl uses boot IDs to segment journal entries by boot session, enabling queries like &quot;show me logs from two boots ago.&quot;</span></span> is essential. journalctl can show logs from the current boot or any previous boot stored in the persistent journal.</p>
 
         <div class="code-block" role="region" aria-label="Boot-specific journalctl queries">
             <div class="code-title">Boot-specific queries</div>
@@ -953,19 +937,16 @@ Mar 14 10:05:22 servera sshd[2891]: Accepted publickey for admin from 192.168.1.
         <h2 id="log-rotation-heading">Log Rotation with logrotate</h2>
     </div>
     <div class="section-body">
-        <p>Text log files under <code class="inline">/var/log/</code> grow indefinitely unless managed. <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logrotate">logrotate</span> automates the process of archiving old log files, compressing them to save disk space, and purging archives older than a configured age. Without log rotation, busy servers can fill their disks entirely with log data within days.</p>
-        <span class="tooltip-content" id="tt-logrotate">logrotate is a utility that automatically renames, compresses, and deletes old log files on a schedule. It is typically run daily by a cron job or systemd timer, and its behavior is controlled by rules in /etc/logrotate.conf and /etc/logrotate.d/.</span>
+        <p>Text log files under <code class="inline">/var/log/</code> grow indefinitely unless managed. <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-logrotate">logrotate<span class="tooltip-content" id="tt-logrotate">logrotate is a utility that automatically renames, compresses, and deletes old log files on a schedule. It is typically run daily by a cron job or systemd timer, and its behavior is controlled by rules in /etc/logrotate.conf and /etc/logrotate.d/.</span></span> automates the process of archiving old log files, compressing them to save disk space, and purging archives older than a configured age. Without log rotation, busy servers can fill their disks entirely with log data within days.</p>
 
         <h3>How logrotate Works</h3>
-        <p>logrotate is triggered by a daily <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cron-logrotate">cron job</span> or systemd timer (<code class="inline">logrotate.timer</code>). Each run processes all configured log files. When a log file meets its rotation criteria (size or age), logrotate:</p>
-        <span class="tooltip-content" id="tt-cron-logrotate">On RHEL 10, logrotate runs via a systemd timer unit (logrotate.timer) rather than a traditional cron job. The timer is set to run daily. You can force an immediate run with systemctl start logrotate.service.</span>
+        <p>logrotate is triggered by a daily <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-cron-logrotate">cron job<span class="tooltip-content" id="tt-cron-logrotate">On RHEL 10, logrotate runs via a systemd timer unit (logrotate.timer) rather than a traditional cron job. The timer is set to run daily. You can force an immediate run with systemctl start logrotate.service.</span></span> or systemd timer (<code class="inline">logrotate.timer</code>). Each run processes all configured log files. When a log file meets its rotation criteria (size or age), logrotate:</p>
         <ol>
             <li>Renames the current log file (e.g., <code class="inline">messages</code> &rarr; <code class="inline">messages.1</code>)</li>
             <li>Optionally compresses old rotated files using gzip (producing <code class="inline">.gz</code> archives)</li>
-            <li>Signals the logging daemon to reopen its log file descriptors (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-postrotate">postrotate</span>)</li>
+            <li>Signals the logging daemon to reopen its log file descriptors (<span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-postrotate">postrotate<span class="tooltip-content" id="tt-postrotate">A postrotate script runs after log rotation is complete. It is used to signal daemons to reopen their log file handles. Without this signal, a daemon would continue writing to the renamed old file instead of the newly created one.</span></span>)</li>
             <li>Deletes archives older than the configured <code class="inline">rotate</code> count</li>
         </ol>
-        <span class="tooltip-content" id="tt-postrotate">A postrotate script runs after log rotation is complete. It is used to signal daemons to reopen their log file handles. Without this signal, a daemon would continue writing to the renamed old file instead of the newly created one.</span>
 
         <h3>Configuration Files</h3>
         <p>logrotate has two levels of configuration:</p>
@@ -1102,8 +1083,7 @@ log does not need rotating (log has been rotated at 2026-03-09 03:10, that is no
         <h2 id="remote-logging-heading">Centralized Remote Logging with rsyslog</h2>
     </div>
     <div class="section-body">
-        <p>In enterprise environments, collecting logs from dozens or hundreds of servers to a single <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-central-log">central log server</span> is a best practice for security auditing, compliance, and operational troubleshooting. rsyslog natively supports both sending and receiving logs over the network using TCP or UDP.</p>
-        <span class="tooltip-content" id="tt-central-log">A central log server aggregates log messages from multiple client hosts into one location. This simplifies log analysis, ensures logs survive if a client system is compromised or crashes, and supports security compliance requirements.</span>
+        <p>In enterprise environments, collecting logs from dozens or hundreds of servers to a single <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-central-log">central log server<span class="tooltip-content" id="tt-central-log">A central log server aggregates log messages from multiple client hosts into one location. This simplifies log analysis, ensures logs survive if a client system is compromised or crashes, and supports security compliance requirements.</span></span> is a best practice for security auditing, compliance, and operational troubleshooting. rsyslog natively supports both sending and receiving logs over the network using TCP or UDP.</p>
 
         <h3>Configuring the Log Server (Receiver)</h3>
         <p>The receiving server must load an input module to listen for incoming syslog connections. Use <code class="inline">imudp</code> for UDP or <code class="inline">imtcp</code> for TCP. TCP is preferred for reliability.</p>
@@ -1175,8 +1155,7 @@ log does not need rotating (log has been rotated at 2026-03-09 03:10, that is no
 
         <div class="note-box important">
             <div class="note-box-header"><span aria-hidden="true">&#128308;</span><span>Security Considerations</span></div>
-            <p>Plain UDP/TCP syslog sends log data in cleartext, making it vulnerable to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-eavesdrop">eavesdropping and tampering</span>. For security-sensitive environments, configure rsyslog to use <strong>TLS encryption</strong> with the <code class="inline">gtls</code> module (<code class="inline">module(load="imtcp" StreamDriver="gtls")</code>). Also restrict which source IPs can connect to the log server using firewall rules or rsyslog&rsquo;s built-in <code class="inline">AllowedSender</code> directive.</p>
-            <span class="tooltip-content" id="tt-eavesdrop">Eavesdropping means an attacker can read log traffic in transit; tampering means they can inject false log entries. Both attacks are trivial on unencrypted syslog. TLS (Transport Layer Security) encrypts the connection and verifies server identity with certificates.</span>
+            <p>Plain UDP/TCP syslog sends log data in cleartext, making it vulnerable to <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-eavesdrop">eavesdropping and tampering<span class="tooltip-content" id="tt-eavesdrop">Eavesdropping means an attacker can read log traffic in transit; tampering means they can inject false log entries. Both attacks are trivial on unencrypted syslog. TLS (Transport Layer Security) encrypts the connection and verifies server identity with certificates.</span></span>. For security-sensitive environments, configure rsyslog to use <strong>TLS encryption</strong> with the <code class="inline">gtls</code> module (<code class="inline">module(load="imtcp" StreamDriver="gtls")</code>). Also restrict which source IPs can connect to the log server using firewall rules or rsyslog&rsquo;s built-in <code class="inline">AllowedSender</code> directive.</p>
         </div>
     </div>
 </section>
@@ -1792,7 +1771,7 @@ log does not need rotating (log is too small)</span>
         <div class="chapter-nav" aria-label="Chapter navigation">
             <a href="rh134_chapter4_scheduling_system_tasks.html" class="nav-chapter-btn prev">&#8592; Chapter 4: Scheduling System Tasks</a>
             <a href="index.html" class="nav-chapter-btn home">&#128218; Course Home</a>
-            <a href="rh134_chapter6_selinux.html" class="nav-chapter-btn next">Chapter 6: Managing Security with SELinux &#8594;</a>
+            <a href="rh134_chapter6_storage.html" class="nav-chapter-btn next">Chapter 6: Managing Storage &#8594;</a>
         </div>
     </div>
 </section>
@@ -1816,92 +1795,92 @@ log does not need rotating (log is too small)</span>
 /* ==================== TOOLTIP SYSTEM ==================== */
 (function() {
     const bubble = document.getElementById('tooltip-bubble');
-    const MARGIN = 8;
+    let activeTimeout = null;
 
-    function getContent(term) {
-        const ttId = term.getAttribute('aria-describedby');
-        const el = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
-        return el ? el.textContent.trim() : '';
-    }
-
-    function showTooltip(term) {
-        const text = getContent(term);
-        if (!text) return;
-        bubble.textContent = text;
-        bubble.style.maxWidth = '300px';
-        bubble.style.opacity = '0';
-        bubble.classList.remove('visible');
-        bubble.removeAttribute('data-dir');
-        bubble.style.left = '';
-        bubble.style.top = '';
-        bubble.style.setProperty('--arrow-x', '50%');
-        bubble.style.setProperty('--arrow-y', '50%');
-        document.body.appendChild(bubble);
-
+    function positionBubble(term) {
         const rect = term.getBoundingClientRect();
-        const bw = Math.min(300, bubble.offsetWidth || 200);
-        const bh = bubble.offsetHeight || 60;
+        const bw = bubble.offsetWidth || 280;
+        const bh = bubble.offsetHeight || 80;
+        const margin = 8;
+        const arrowH = 10;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
         const spaceAbove = rect.top;
         const spaceBelow = vh - rect.bottom;
-        const spaceLeft = rect.left;
-        const spaceRight = vw - rect.right;
 
-        let dir = 'below', left, top;
+        let left, top, dir;
 
-        if (spaceAbove >= bh + MARGIN + 16) {
+        if (spaceAbove >= bh + arrowH + margin) {
             dir = 'above';
-            top = rect.top - bh - 12;
+            top = rect.top - bh - arrowH - 2;
             left = rect.left + rect.width / 2 - bw / 2;
-        } else if (spaceBelow >= bh + MARGIN + 16) {
+        } else if (spaceBelow >= bh + arrowH + margin) {
             dir = 'below';
-            top = rect.bottom + 12;
+            top = rect.bottom + arrowH + 2;
             left = rect.left + rect.width / 2 - bw / 2;
-        } else if (spaceRight >= bw + MARGIN + 16) {
+        } else if (vw - rect.right >= bw + margin) {
             dir = 'right';
+            left = rect.right + arrowH + 2;
             top = rect.top + rect.height / 2 - bh / 2;
-            left = rect.right + 12;
         } else {
             dir = 'left';
+            left = rect.left - bw - arrowH - 2;
             top = rect.top + rect.height / 2 - bh / 2;
-            left = rect.left - bw - 12;
         }
 
-        // Clamp
-        left = Math.max(MARGIN, Math.min(vw - bw - MARGIN, left));
-        top  = Math.max(MARGIN, Math.min(vh - bh - MARGIN, top));
+        // Clamp to viewport
+        left = Math.max(margin, Math.min(left, vw - bw - margin));
+        top  = Math.max(margin, Math.min(top,  vh - bh - margin));
 
-        // Arrow position
+        // Arrow offset
         if (dir === 'above' || dir === 'below') {
-            const termCx = rect.left + rect.width / 2;
-            const arrowX = Math.max(16, Math.min(bw - 16, termCx - left));
-            bubble.style.setProperty('--arrow-x', arrowX + 'px');
+            const rawArrowX = rect.left + rect.width / 2 - left;
+            const clampedArrowX = Math.max(16, Math.min(rawArrowX, bw - 16));
+            bubble.style.setProperty('--arrow-x', clampedArrowX + 'px');
+            bubble.style.removeProperty('--arrow-y');
         } else {
-            const termCy = rect.top + rect.height / 2;
-            const arrowY = Math.max(16, Math.min(bh - 16, termCy - top));
-            bubble.style.setProperty('--arrow-y', arrowY + 'px');
+            const rawArrowY = rect.top + rect.height / 2 - top;
+            const clampedArrowY = Math.max(16, Math.min(rawArrowY, bh - 16));
+            bubble.style.setProperty('--arrow-y', clampedArrowY + 'px');
+            bubble.style.removeProperty('--arrow-x');
         }
 
-        bubble.setAttribute('data-dir', dir);
         bubble.style.left = left + 'px';
-        bubble.style.top  = top + 'px';
+        bubble.style.top  = top  + 'px';
+        bubble.setAttribute('data-dir', dir);
+    }
+
+    function showTooltip(term) {
+        const ttId = term.getAttribute('aria-describedby');
+        const contentEl = ttId ? document.getElementById(ttId) : term.querySelector('.tooltip-content');
+        if (!contentEl) return;
+
+        bubble.textContent = contentEl.textContent.trim();
+        bubble.removeAttribute('aria-hidden');
         bubble.classList.add('visible');
+
+        // Measure after making visible
+        requestAnimationFrame(() => {
+            positionBubble(term);
+        });
     }
 
     function hideTooltip() {
         bubble.classList.remove('visible');
-        bubble.removeAttribute('data-dir');
+        bubble.setAttribute('aria-hidden', 'true');
     }
 
     document.querySelectorAll('.tooltip-term').forEach(term => {
-        term.addEventListener('mouseenter', () => showTooltip(term));
-        term.addEventListener('mouseleave', hideTooltip);
-        term.addEventListener('focus', () => showTooltip(term));
-        term.addEventListener('blur', hideTooltip);
+        term.addEventListener('mouseenter', () => { clearTimeout(activeTimeout); showTooltip(term); });
+        term.addEventListener('mouseleave', () => { activeTimeout = setTimeout(hideTooltip, 200); });
+        term.addEventListener('focus',      () => { clearTimeout(activeTimeout); showTooltip(term); });
+        term.addEventListener('blur',       () => { activeTimeout = setTimeout(hideTooltip, 200); });
         term.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); });
     });
+
+    bubble.addEventListener('mouseenter', () => clearTimeout(activeTimeout));
+    bubble.addEventListener('mouseleave', () => { activeTimeout = setTimeout(hideTooltip, 200); });
 })();
 
 /* ==================== PROGRESS BAR ==================== */
