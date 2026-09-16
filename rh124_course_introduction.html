@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RH124 course introduction: course overview, learning objectives, RH124/RH134 structure, lab environment, prerequisites, self-assessment, and resources for RHCSA (EX200) preparation on RHEL 10.">
     <title>Course Introduction | RH124: Red Hat System Administration I</title>
     <style>
         /* ==================== CSS VARIABLES - Web Safe Colors ==================== */
@@ -36,6 +37,13 @@
             --status-warning: #CC9900;
             --status-error: #CC0000;
             --status-info: #0066CC;
+
+            /* Web-safe tints (replace former hardcoded non-web-safe tints) */
+            --tint-success: #CCFFCC;
+            --tint-error: #FFCCCC;
+            --tint-warning: #FFFFCC;
+            --warning-text: #993300;
+            --terminal-green: #00FF00;
             
             /* Typography */
             --font-display: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -136,7 +144,7 @@
         /* High contrast mode support */
         @media (prefers-contrast: high) {
             :root {
-                --rh-gray-light: #888888;
+                --rh-gray-light: #999999;
                 --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
             }
         }
@@ -155,7 +163,7 @@
 
         /* ==================== HERO HEADER ==================== */
         .hero-header {
-            background: linear-gradient(135deg, var(--rh-black) 0%, #2D2D2D 50%, var(--rh-gray-dark) 100%);
+            background: linear-gradient(135deg, var(--rh-black) 0%, var(--rh-gray-dark) 100%);
             color: var(--rh-white);
             padding: 60px 20px 80px;
             text-align: center;
@@ -412,22 +420,29 @@
         }
 
         /* ==================== TOOLTIP SYSTEM - Smart Positioning ==================== */
-        .term {
+        .tooltip-term {
             color: var(--rh-blue);
             font-weight: 600;
             cursor: help;
-            position: relative;
             border-bottom: 2px dotted var(--rh-blue);
             transition: color var(--transition-fast);
         }
 
-        .term:hover,
-        .term:focus {
+        .tooltip-term:hover,
+        .tooltip-term:focus {
             color: var(--rh-blue-dark);
         }
 
-        .tooltip {
-            position: absolute;
+        .tooltip-content {
+            display: none;
+        }
+
+        /* Single fixed-position bubble, clamped to the viewport in JS so it never bleeds off-screen */
+        #tooltip-bubble {
+            position: fixed;
+            top: 0;
+            left: 0;
+            max-width: min(300px, calc(100vw - 16px));
             background: var(--rh-black);
             color: var(--rh-white);
             padding: 12px 16px;
@@ -436,101 +451,15 @@
             font-size: 0.9rem;
             font-weight: 400;
             line-height: 1.5;
-            width: max-content;
-            max-width: 300px;
             z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity var(--transition-fast), visibility var(--transition-fast);
             box-shadow: var(--shadow-lg);
             pointer-events: none;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-fast);
         }
 
-        .tooltip::before {
-            content: '';
-            position: absolute;
-            border: 8px solid transparent;
-        }
-
-        /* Tooltip positions */
-        .tooltip-top {
-            bottom: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .tooltip-top::before {
-            top: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-top-color: var(--rh-black);
-        }
-
-        .tooltip-bottom {
-            top: calc(100% + 12px);
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .tooltip-bottom::before {
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            border-bottom-color: var(--rh-black);
-        }
-
-        .tooltip-left {
-            top: 50%;
-            right: calc(100% + 12px);
-            transform: translateY(-50%);
-        }
-
-        .tooltip-left::before {
-            left: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            border-left-color: var(--rh-black);
-        }
-
-        .tooltip-right {
-            top: 50%;
-            left: calc(100% + 12px);
-            transform: translateY(-50%);
-        }
-
-        .tooltip-right::before {
-            right: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            border-right-color: var(--rh-black);
-        }
-
-        /* Edge adjustments for top/bottom tooltips */
-        .tooltip-adjust-left {
-            left: 0 !important;
-            right: auto !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip-adjust-left::before {
-            left: 20px !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip-adjust-right {
-            left: auto !important;
-            right: 0 !important;
-            transform: translateX(0) !important;
-        }
-
-        .tooltip-adjust-right::before {
-            left: auto !important;
-            right: 20px !important;
-            transform: translateX(0) !important;
-        }
-
-        .term:hover .tooltip,
-        .term:focus .tooltip {
+        #tooltip-bubble.visible {
             opacity: 1;
             visibility: visible;
         }
@@ -600,11 +529,11 @@
         }
 
         .objectives-list li::before {
-            content: 'âœ“';
+            content: "\2713";
             position: absolute;
             left: 0;
             top: 0;
-            color: var(--rh-green);
+            color: var(--rh-green-dark);
             font-weight: 700;
             font-size: 1.1rem;
         }
@@ -752,7 +681,7 @@
         }
 
         .timeline-item.rh134 .timeline-week {
-            color: var(--rh-teal);
+            color: var(--rh-teal-dark);
         }
 
         .timeline-content h4 {
@@ -997,12 +926,12 @@
         }
 
         .quiz-option.correct {
-            background: #E8F5E9;
+            background: var(--tint-success);
             border-color: var(--rh-green);
         }
 
         .quiz-option.incorrect {
-            background: #FFEBEE;
+            background: var(--tint-error);
             border-color: var(--rh-red);
         }
 
@@ -1010,6 +939,20 @@
             width: 20px;
             height: 20px;
             accent-color: var(--rh-red);
+        }
+
+        .quiz-option.correct::after {
+            content: " \2713  Correct answer";
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-green-dark);
+        }
+
+        .quiz-option.incorrect::after {
+            content: " \2717  Your answer";
+            font-family: var(--font-display);
+            font-weight: 700;
+            color: var(--rh-red-dark);
         }
 
         .quiz-feedback {
@@ -1026,13 +969,13 @@
         }
 
         .quiz-feedback.correct {
-            background: #E8F5E9;
+            background: var(--tint-success);
             color: var(--rh-green-dark);
             border: 1px solid var(--rh-green);
         }
 
         .quiz-feedback.incorrect {
-            background: #FFEBEE;
+            background: var(--tint-error);
             color: var(--rh-red-dark);
             border: 1px solid var(--rh-red);
         }
@@ -1115,7 +1058,7 @@
 
         .code-block {
             background: var(--rh-black);
-            color: #00FF00;
+            color: var(--terminal-green);
             padding: 20px;
             border-radius: var(--radius-md);
             font-family: var(--font-mono);
@@ -1130,7 +1073,7 @@
         }
 
         .code-block .command {
-            color: #00FF00;
+            color: var(--terminal-green);
         }
 
         .code-block .output {
@@ -1144,7 +1087,7 @@
 
         /* ==================== KEY POINTS BOX ==================== */
         .key-points {
-            background: linear-gradient(135deg, #FFF8E1 0%, #FFFDE7 100%);
+            background: var(--tint-warning);
             border-left: 4px solid var(--rh-gold);
             padding: 20px 24px;
             border-radius: 0 var(--radius-md) var(--radius-md) 0;
@@ -1180,7 +1123,7 @@
 
         /* ==================== WARNING/NOTE BOXES ==================== */
         .note-box {
-            background: #E3F2FD;
+            background: var(--rh-gray-lighter);
             border-left: 4px solid var(--rh-blue);
             padding: 16px 20px;
             border-radius: 0 var(--radius-md) var(--radius-md) 0;
@@ -1188,12 +1131,12 @@
         }
 
         .note-box.warning {
-            background: #FFF3E0;
+            background: var(--tint-warning);
             border-left-color: var(--rh-orange);
         }
 
         .note-box.success {
-            background: #E8F5E9;
+            background: var(--tint-success);
             border-left-color: var(--rh-green);
         }
 
@@ -1208,7 +1151,7 @@
         }
 
         .note-box.warning .note-box-title {
-            color: #E65100;
+            color: var(--warning-text);
         }
 
         .note-box.success .note-box-title {
@@ -1389,7 +1332,7 @@
         }
 
         .summary-list li::before {
-            content: 'â–¶';
+            content: "\25B6";
             position: absolute;
             left: 0;
             color: var(--rh-red);
@@ -1399,7 +1342,7 @@
 
         /* ==================== COMPLETION SECTION ==================== */
         .completion-section {
-            background: linear-gradient(135deg, var(--rh-green) 0%, var(--rh-green-dark) 100%);
+            background: var(--rh-green-dark);
             color: var(--rh-white);
             padding: 40px;
             border-radius: var(--radius-lg);
@@ -1407,7 +1350,19 @@
             margin-top: 40px;
         }
 
-        .completion-section h2 {
+        .completion-section a,
+        .main-footer a {
+            color: var(--rh-white);
+            text-decoration: underline;
+            font-weight: 700;
+        }
+
+        .completion-section a:focus-visible,
+        .main-footer a:focus-visible {
+            outline-color: var(--rh-white);
+        }
+
+        .completion-section h3 {
             font-family: var(--font-display);
             font-size: 1.8rem;
             margin-bottom: 12px;
@@ -1437,10 +1392,15 @@
             box-shadow: var(--shadow-lg);
         }
 
-        .completion-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .completion-btn:disabled,
+        .completion-btn.is-complete {
+            background: var(--rh-white);
+            color: var(--rh-green-dark);
+            outline: 3px solid var(--rh-white);
+            outline-offset: 3px;
+            cursor: default;
             transform: none;
+            box-shadow: none;
         }
 
         /* ==================== FOOTER ==================== */
@@ -1466,6 +1426,9 @@
         }
 
         .explore-card {
+            font: inherit;
+            width: 100%;
+            min-height: 44px;
             background: var(--rh-white);
             border: 2px solid var(--rh-gray-light);
             border-radius: var(--radius-md);
@@ -1484,7 +1447,7 @@
 
         .explore-card.active {
             border-color: var(--rh-red);
-            background: linear-gradient(135deg, #FFF5F5 0%, var(--rh-white) 100%);
+            background: var(--tint-error);
         }
 
         .explore-icon {
@@ -1493,14 +1456,16 @@
             display: block;
         }
 
-        .explore-card h4 {
+        .explore-title {
+            display: block;
             font-family: var(--font-display);
             font-size: 1rem;
             color: var(--rh-gray-dark);
             margin-bottom: 6px;
         }
 
-        .explore-card p {
+        .explore-sub {
+            display: block;
             font-size: 0.85rem;
             color: var(--rh-gray);
             margin: 0;
@@ -1615,32 +1580,33 @@
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div id="tooltip-bubble" role="tooltip" aria-hidden="true"></div>
 
     <!-- Hero Header -->
     <header class="hero-header" role="banner">
         <div class="hero-content">
             <span class="course-badge">
-                <span aria-hidden="true">ðŸŽ“</span>
-                RH124 â€¢ Course Introduction
+                <span aria-hidden="true">&#x1F393;</span>
+                RH124 &#x2022; Course Introduction
             </span>
             <h1>Red Hat System Administration I</h1>
             <p class="hero-subtitle">Welcome to your journey into enterprise Linux administration. Master the essential skills to manage and maintain Red Hat Enterprise Linux systems.</p>
             
             <div class="hero-meta">
                 <div class="meta-item">
-                    <span aria-hidden="true">ðŸ“š</span>
+                    <span aria-hidden="true">&#x1F4DA;</span>
                     <span>15-Week Course</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">â±ï¸</span>
+                    <span aria-hidden="true">&#x23F1;&#xFE0F;</span>
                     <span>75+ Hours Content</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">ðŸ†</span>
+                    <span aria-hidden="true">&#x1F3C6;</span>
                     <span>RHCSA Exam Prep</span>
                 </div>
                 <div class="meta-item">
-                    <span aria-hidden="true">ðŸ’»</span>
+                    <span aria-hidden="true">&#x1F4BB;</span>
                     <span>Hands-on Labs</span>
                 </div>
             </div>
@@ -1666,10 +1632,10 @@
     <div class="progress-container" role="region" aria-label="Course progress">
         <div class="progress-inner">
             <div class="progress-header">
-                <span class="progress-label">Introduction Progress</span>
+                <span class="progress-label" id="progress-label">Introduction Progress</span>
                 <span class="progress-percent" id="progress-text">0%</span>
             </div>
-            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar" role="progressbar" aria-labelledby="progress-label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
         </div>
@@ -1686,12 +1652,12 @@
             </div>
             <div class="section-body">
                 <div class="welcome-box">
-                    <h3>ðŸŽ‰ Welcome, Future Linux Administrator!</h3>
-                    <p>You're about to embark on an exciting journey into the world of enterprise Linux. <span class="term" tabindex="0" data-tooltip="Red Hat System Administration I - The first course in the RHCSA certification track covering essential Linux administration skills.">RH124</span> is your gateway to becoming a skilled system administrator capable of managing mission-critical infrastructure.</p>
-                    <p>This course builds the foundation you'll need for the <span class="term" tabindex="0" data-tooltip="Red Hat Certified System Administrator - A professional certification validating skills in core system administration on Red Hat Enterprise Linux.">RHCSA certification</span>, the industry-recognized credential that validates your Linux administration skills.</p>
+                    <h3><span aria-hidden="true">&#x1F389;</span> Welcome, Future Linux Administrator!</h3>
+                    <p>You're about to embark on an exciting journey into the world of enterprise Linux. <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-1">RH124</span><span class="tooltip-content" id="tt-intro-1">Red Hat System Administration I - The first course in the RHCSA certification track covering essential Linux administration skills.</span> is your gateway to becoming a skilled system administrator capable of managing mission-critical infrastructure.</p>
+                    <p>This course builds the foundation you'll need for the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-2">RHCSA certification</span><span class="tooltip-content" id="tt-intro-2">Red Hat Certified System Administrator - A professional certification validating skills in core system administration on Red Hat Enterprise Linux.</span>, the industry-recognized credential that validates your Linux administration skills.</p>
                 </div>
 
-                <p>Linux powers the majority of the world's servers, cloud infrastructure, and enterprise systems. By learning <span class="term" tabindex="0" data-tooltip="Red Hat Enterprise Linux - A production-ready, commercially supported Linux distribution used by enterprises worldwide for mission-critical workloads.">Red Hat Enterprise Linux (RHEL)</span>, you're gaining skills that are in high demand across virtually every industry.</p>
+                <p>Linux powers the majority of the world's servers, cloud infrastructure, and enterprise systems. By learning <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-3">Red Hat Enterprise Linux (RHEL)</span><span class="tooltip-content" id="tt-intro-3">Red Hat Enterprise Linux - A production-ready, commercially supported Linux distribution used by enterprises worldwide for mission-critical workloads.</span>, you're gaining skills that are in high demand across virtually every industry.</p>
 
                 <div class="stat-grid">
                     <div class="stat-card">
@@ -1713,7 +1679,7 @@
                 </div>
 
                 <div class="key-points">
-                    <h4>ðŸ’¡ What You'll Gain</h4>
+                    <h4><span aria-hidden="true">&#x1F4A1;</span> What You'll Gain</h4>
                     <ul>
                         <li>Practical, hands-on skills that translate directly to real-world job responsibilities</li>
                         <li>Deep understanding of Linux fundamentals applicable across all distributions</li>
@@ -1731,32 +1697,32 @@
                 <h2 id="overview-heading">Course Overview</h2>
             </div>
             <div class="section-body">
-                <p>RH124 (Red Hat System Administration I) is the first course in the <span class="term" tabindex="0" data-tooltip="A professional certification track that validates practical Linux system administration skills through hands-on, performance-based exams.">RHCSA certification track</span>. This comprehensive course covers essential skills for system administrators who need to manage and support Red Hat Enterprise Linux systems.</p>
+                <p>RH124 (Red Hat System Administration I) is the first course in the <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-4">RHCSA certification track</span><span class="tooltip-content" id="tt-intro-4">A professional certification track that validates practical Linux system administration skills through hands-on, performance-based exams.</span>. This comprehensive course covers essential skills for system administrators who need to manage and support Red Hat Enterprise Linux systems.</p>
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ–¥ï¸</span> Command Line Mastery</h4>
-                        <p>Learn to efficiently navigate and manage Linux systems using the powerful <span class="term" tabindex="0" data-tooltip="Bourne Again Shell - The default command-line interpreter in RHEL that provides a text-based interface for running commands and scripts.">bash shell</span> and essential command-line tools.</p>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F5A5;&#xFE0F;</span> Command Line Mastery</h4>
+                        <p>Learn to efficiently navigate and manage Linux systems using the powerful <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-5">bash shell</span><span class="tooltip-content" id="tt-intro-5">Bourne Again Shell - The default command-line interpreter in RHEL that provides a text-based interface for running commands and scripts.</span> and essential command-line tools.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“</span> File System Management</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F4C1;</span> File System Management</h4>
                         <p>Master the Linux file system hierarchy, file permissions, and storage management techniques.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ‘¥</span> User Administration</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F465;</span> User Administration</h4>
                         <p>Manage users, groups, and access controls to maintain secure multi-user environments.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ”§</span> System Services</h4>
-                        <p>Control and configure system services using <span class="term" tabindex="0" data-tooltip="The system and service manager for Linux that controls what programs run when a Linux system boots.">systemd</span> for reliable service management.</p>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F527;</span> System Services</h4>
+                        <p>Control and configure system services using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-6">systemd</span><span class="tooltip-content" id="tt-intro-6">The system and service manager for Linux that controls what programs run when a Linux system boots.</span> for reliable service management.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸŒ</span> Network Configuration</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F310;</span> Network Configuration</h4>
                         <p>Configure basic networking settings to enable system connectivity and remote access.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“¦</span> Software Management</h4>
-                        <p>Install, update, and manage software packages using <span class="term" tabindex="0" data-tooltip="Dandified YUM - The package manager for RHEL 8+ that handles software installation, updates, and dependency resolution.">DNF</span> and RPM tools.</p>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F4E6;</span> Software Management</h4>
+                        <p>Install, update, and manage software packages using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-7">DNF</span><span class="tooltip-content" id="tt-intro-7">Dandified YUM - The package manager for RHEL 8 and later that handles software installation, updates, and dependency resolution.</span>, <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-9">RPM</span><span class="tooltip-content" id="tt-intro-9">RPM Package Manager - The low-level package format and tool used by RHEL. Each .rpm file contains software plus metadata such as version and dependencies.</span>, and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-10">Flatpak</span><span class="tooltip-content" id="tt-intro-10">A packaging format that runs desktop applications in a sandbox with their own bundled runtime, independent of the host system libraries.</span> tools.</p>
                     </div>
                 </div>
 
@@ -1764,15 +1730,15 @@
                     <h4 class="diagram-title">Course Learning Path</h4>
                     <div class="flow-diagram">
                         <div class="flow-box highlight">RH124</div>
-                        <span class="flow-arrow" aria-hidden="true">â†’</span>
+                        <span class="flow-arrow" aria-hidden="true">&#x2192;</span>
                         <div class="flow-box">RH134</div>
-                        <span class="flow-arrow" aria-hidden="true">â†’</span>
+                        <span class="flow-arrow" aria-hidden="true">&#x2192;</span>
                         <div class="flow-box highlight-blue">RHCSA Exam</div>
                     </div>
                 </div>
 
                 <div class="note-box">
-                    <p class="note-box-title">ðŸ“˜ Course Format</p>
+                    <p class="note-box-title"><span aria-hidden="true">&#x1F4D8;</span> Course Format</p>
                     <p>This course combines instructor-led lectures with extensive hands-on laboratory exercises. You'll spend approximately 50% of your time in labs, applying concepts in realistic scenarios.</p>
                 </div>
             </div>
@@ -1788,107 +1754,107 @@
                 <div class="objectives-box">
                     <h3>Upon completing RH124, you will be able to:</h3>
                     <ul class="objectives-list">
-                        <li>Access the command line and manage files from the shell</li>
-                        <li>Navigate the Linux file system hierarchy and locate files</li>
-                        <li>Get help from man pages, info documentation, and other sources</li>
-                        <li>Create, view, edit, and manage text files using command-line tools</li>
+                        <li>Access the command line locally and remotely, and use Bash shell features efficiently</li>
+                        <li>Find help using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-11">man pages</span><span class="tooltip-content" id="tt-intro-11">Manual pages - the built-in reference documentation for Linux commands, opened with the man command (for example, man ls).</span>, local documentation, and AI-assisted tools</li>
+                        <li>Register systems for Red Hat support and software access</li>
+                        <li>Navigate the file-system hierarchy and manage files from the command line</li>
+                        <li>Create and edit text files, and redirect command input and output</li>
                         <li>Manage local users, groups, and password policies</li>
-                        <li>Control file access with Linux file system permissions</li>
-                        <li>Monitor and manage Linux processes and system resources</li>
-                        <li>Control and configure system services with systemd</li>
-                        <li>Configure networking and basic firewall settings</li>
-                        <li>Mount and unmount file systems, and archive files</li>
-                        <li>Install and update software packages using DNF</li>
-                        <li>Schedule recurring tasks with cron and manage temporary files</li>
+                        <li>Control file access with Linux file-system permissions</li>
+                        <li>Install and update software with RPM, DNF, and Flatpak</li>
+                        <li>Access removable media such as USB storage devices</li>
+                        <li>Monitor and manage Linux processes</li>
+                        <li>Control system services and daemons with systemd</li>
+                        <li>Configure and verify network settings, and configure and secure SSH</li>
                     </ul>
                 </div>
 
                 <!-- Interactive Exploration -->
                 <h3 style="font-family: var(--font-display); margin: 30px 0 20px; color: var(--rh-gray-dark);">Explore Key Topics</h3>
-                <p>Click on each topic below to learn more about what you'll master:</p>
+                <p>Select a topic below to learn more about what you'll master:</p>
                 
-                <div class="explore-grid" role="tablist" aria-label="Topic exploration">
-                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="cli">
-                        <span class="explore-icon" aria-hidden="true">ðŸ’»</span>
-                        <h4>Command Line</h4>
-                        <p>Shell navigation & commands</p>
-                    </div>
-                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="files">
-                        <span class="explore-icon" aria-hidden="true">ðŸ“‚</span>
-                        <h4>File Management</h4>
-                        <p>Organization & permissions</p>
-                    </div>
-                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="users">
-                        <span class="explore-icon" aria-hidden="true">ðŸ‘¤</span>
-                        <h4>User Admin</h4>
-                        <p>Accounts & security</p>
-                    </div>
-                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="services">
-                        <span class="explore-icon" aria-hidden="true">âš™ï¸</span>
-                        <h4>Services</h4>
-                        <p>systemd management</p>
-                    </div>
-                    <div class="explore-card" role="tab" tabindex="0" aria-selected="false" data-topic="network">
-                        <span class="explore-icon" aria-hidden="true">ðŸŒ</span>
-                        <h4>Networking</h4>
-                        <p>Configuration & connectivity</p>
-                    </div>
+                <div class="explore-grid" role="group" aria-label="Topic exploration">
+                    <button type="button" class="explore-card" aria-expanded="false" aria-controls="detail-cli" data-topic="cli">
+                        <span class="explore-icon" aria-hidden="true">&#x1F4BB;</span>
+                        <span class="explore-title">Command Line</span>
+                        <span class="explore-sub">Shell navigation & commands</span>
+                    </button>
+                    <button type="button" class="explore-card" aria-expanded="false" aria-controls="detail-files" data-topic="files">
+                        <span class="explore-icon" aria-hidden="true">&#x1F4C2;</span>
+                        <span class="explore-title">File Management</span>
+                        <span class="explore-sub">Organization & permissions</span>
+                    </button>
+                    <button type="button" class="explore-card" aria-expanded="false" aria-controls="detail-users" data-topic="users">
+                        <span class="explore-icon" aria-hidden="true">&#x1F464;</span>
+                        <span class="explore-title">User Admin</span>
+                        <span class="explore-sub">Accounts & security</span>
+                    </button>
+                    <button type="button" class="explore-card" aria-expanded="false" aria-controls="detail-services" data-topic="services">
+                        <span class="explore-icon" aria-hidden="true">&#x2699;&#xFE0F;</span>
+                        <span class="explore-title">Services</span>
+                        <span class="explore-sub">systemd management</span>
+                    </button>
+                    <button type="button" class="explore-card" aria-expanded="false" aria-controls="detail-network" data-topic="network">
+                        <span class="explore-icon" aria-hidden="true">&#x1F310;</span>
+                        <span class="explore-title">Networking</span>
+                        <span class="explore-sub">Configuration & connectivity</span>
+                    </button>
                 </div>
 
                 <!-- Topic Details -->
-                <div class="explore-detail" id="detail-cli" role="tabpanel">
-                    <h4>ðŸ–¥ï¸ Command Line Interface Mastery</h4>
+                <div class="explore-detail" id="detail-cli" role="region" aria-label="Topic details" tabindex="-1">
+                    <h4><span aria-hidden="true">&#x1F5A5;&#xFE0F;</span> Command Line Interface Mastery</h4>
                     <p>The command line is the heart of Linux administration. You'll learn:</p>
                     <ul>
                         <li>Navigating the shell with <code class="inline">cd</code>, <code class="inline">pwd</code>, and <code class="inline">ls</code></li>
                         <li>Using tab completion and command history for efficiency</li>
                         <li>Understanding shell expansion and quoting</li>
-                        <li>Managing virtual consoles and SSH remote access</li>
+                        <li>Managing <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-12">virtual consoles</span><span class="tooltip-content" id="tt-intro-12">Multiple independent text login sessions on one physical machine, switched with Ctrl+Alt+F1 through F6.</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-13">SSH</span><span class="tooltip-content" id="tt-intro-13">Secure Shell - an encrypted network protocol for logging in to and running commands on a remote system.</span> remote access</li>
                         <li>Reading and navigating man pages and documentation</li>
                     </ul>
                 </div>
-                <div class="explore-detail" id="detail-files" role="tabpanel">
-                    <h4>ðŸ“‚ File System Management</h4>
+                <div class="explore-detail" id="detail-files" role="region" aria-label="Topic details" tabindex="-1">
+                    <h4><span aria-hidden="true">&#x1F4C2;</span> File System Management</h4>
                     <p>Linux organizes everything as files. You'll master:</p>
                     <ul>
-                        <li>The Linux <span class="term" tabindex="0" data-tooltip="Filesystem Hierarchy Standard - The standard directory structure for Linux systems defining where different types of files should be stored.">FHS</span> directory structure</li>
+                        <li>The Linux <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-8">FHS</span><span class="tooltip-content" id="tt-intro-8">Filesystem Hierarchy Standard - The standard directory structure for Linux systems defining where different types of files should be stored.</span> directory structure</li>
                         <li>Creating, copying, moving, and deleting files and directories</li>
-                        <li>Understanding hard links and symbolic links</li>
+                        <li>Understanding <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-14">hard links</span><span class="tooltip-content" id="tt-intro-14">A second directory entry that points to the same data (inode) as the original file. The data remains until every hard link is removed.</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-15">symbolic links</span><span class="tooltip-content" id="tt-intro-15">A special file that points to another file or directory by path, similar to a shortcut. It breaks if the target is moved or deleted.</span></li>
                         <li>Using <code class="inline">find</code> and <code class="inline">locate</code> to search for files</li>
-                        <li>Archiving with <code class="inline">tar</code>, <code class="inline">gzip</code>, and <code class="inline">bzip2</code></li>
+                        <li>Accessing <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-16">removable media</span><span class="tooltip-content" id="tt-intro-16">Storage you can attach and detach, such as USB drives. In Linux it must be mounted to a directory before its files can be used.</span> with <code class="inline">lsblk</code> and <code class="inline">mount</code></li>
                     </ul>
                 </div>
-                <div class="explore-detail" id="detail-users" role="tabpanel">
-                    <h4>ðŸ‘¤ User and Group Administration</h4>
+                <div class="explore-detail" id="detail-users" role="region" aria-label="Topic details" tabindex="-1">
+                    <h4><span aria-hidden="true">&#x1F464;</span> User and Group Administration</h4>
                     <p>Security starts with proper access control. You'll learn:</p>
                     <ul>
                         <li>Creating and managing user accounts with <code class="inline">useradd</code></li>
                         <li>Understanding <code class="inline">/etc/passwd</code>, <code class="inline">/etc/shadow</code>, and <code class="inline">/etc/group</code></li>
                         <li>Setting password policies and aging</li>
                         <li>Managing group memberships and primary groups</li>
-                        <li>Using <code class="inline">sudo</code> for elevated privileges</li>
+                        <li>Using <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-17"><code class="inline">sudo</code></span><span class="tooltip-content" id="tt-intro-17">Superuser do - runs a single command with root (administrator) privileges after checking that the user is authorized in /etc/sudoers.</span> for elevated privileges</li>
                     </ul>
                 </div>
-                <div class="explore-detail" id="detail-services" role="tabpanel">
-                    <h4>âš™ï¸ System Services with systemd</h4>
+                <div class="explore-detail" id="detail-services" role="region" aria-label="Topic details" tabindex="-1">
+                    <h4><span aria-hidden="true">&#x2699;&#xFE0F;</span> System Services with systemd</h4>
                     <p>Modern Linux uses systemd for service management. You'll master:</p>
                     <ul>
-                        <li>Understanding systemd units and targets</li>
+                        <li>Understanding systemd <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-18">units</span><span class="tooltip-content" id="tt-intro-18">Configuration objects that systemd manages, such as services (.service), sockets (.socket), and mount points (.mount).</span> and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-19">targets</span><span class="tooltip-content" id="tt-intro-19">Groups of units that define a system state, such as multi-user.target (text mode) or graphical.target (desktop).</span></li>
                         <li>Starting, stopping, and restarting services with <code class="inline">systemctl</code></li>
                         <li>Enabling services to start at boot</li>
                         <li>Viewing service status and troubleshooting</li>
                         <li>Analyzing boot performance with <code class="inline">systemd-analyze</code></li>
                     </ul>
                 </div>
-                <div class="explore-detail" id="detail-network" role="tabpanel">
-                    <h4>ðŸŒ Network Configuration</h4>
+                <div class="explore-detail" id="detail-network" role="region" aria-label="Topic details" tabindex="-1">
+                    <h4><span aria-hidden="true">&#x1F310;</span> Network Configuration</h4>
                     <p>Connect your systems to the network. You'll learn:</p>
                     <ul>
-                        <li>Understanding IPv4 networking fundamentals</li>
-                        <li>Configuring network interfaces with <code class="inline">nmcli</code></li>
-                        <li>Managing hostnames and DNS resolution</li>
+                        <li>Understanding <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-20">IPv4</span><span class="tooltip-content" id="tt-intro-20">Internet Protocol version 4 - addresses written as four numbers from 0 to 255, such as 192.168.1.10, with a prefix like /24 identifying the network.</span> and IPv6 networking fundamentals</li>
+                        <li>Configuring network interfaces with <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-21"><code class="inline">nmcli</code></span><span class="tooltip-content" id="tt-intro-21">NetworkManager command-line interface - the standard RHEL tool for viewing and changing network connections.</span></li>
+                        <li>Managing hostnames and <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-22">DNS</span><span class="tooltip-content" id="tt-intro-22">Domain Name System - translates hostnames such as redhat.com into IP addresses.</span> resolution</li>
                         <li>Troubleshooting connectivity with <code class="inline">ping</code>, <code class="inline">ip</code>, and <code class="inline">ss</code></li>
-                        <li>Basic firewall configuration with <code class="inline">firewall-cmd</code></li>
+                        <li>Configuring and securing SSH with key-based authentication</li>
                     </ul>
                 </div>
             </div>
@@ -1912,57 +1878,76 @@
                     
                     <div id="tab-rh124" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-rh124">
                         <h4>RH124: Red Hat System Administration I</h4>
-                        <p style="margin-bottom: 16px;">Covers Weeks 1-8 of the semester:</p>
+                        <p style="margin-bottom: 16px;">Covers Weeks 1-7 of the semester (Chapter 20 is the comprehensive review before the midterm):</p>
                         <ul>
-                            <li><strong>Chapter 1:</strong> Get Started with Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 2:</strong> Access the Command Line</li>
-                            <li><strong>Chapter 3:</strong> Manage Files from the Command Line</li>
-                            <li><strong>Chapter 4:</strong> Get Help in Red Hat Enterprise Linux</li>
-                            <li><strong>Chapter 5:</strong> Create, View, and Edit Text Files</li>
-                            <li><strong>Chapter 6:</strong> Manage Local Users and Groups</li>
-                            <li><strong>Chapter 7:</strong> Control Access to Files</li>
-                            <li><strong>Chapter 8:</strong> Monitor and Manage Linux Processes</li>
-                            <li><strong>Chapter 9:</strong> Control Services and Daemons</li>
-                            <li><strong>Chapter 10:</strong> Configure and Secure SSH</li>
-                            <li><strong>Chapter 11:</strong> Analyze and Store Logs</li>
-                            <li><strong>Chapter 12:</strong> Manage Networking</li>
-                            <li><strong>Chapter 13:</strong> Install and Update Software</li>
-                            <li><strong>Chapter 14:</strong> Access Linux File Systems</li>
-                            <li><strong>Chapter 15:</strong> Analyze Servers and Get Support</li>
+                            <li><strong>Chapter 1:</strong> Introduction to Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 2:</strong> Accessing the Command Line</li>
+                            <li><strong>Chapter 3:</strong> Getting Help in Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 4:</strong> Registering Systems for Red Hat Support</li>
+                            <li><strong>Chapter 5:</strong> Getting Help Using AI Assistants</li>
+                            <li><strong>Chapter 6:</strong> Navigating the File-system Hierarchy</li>
+                            <li><strong>Chapter 7:</strong> Managing Files from the Command Line</li>
+                            <li><strong>Chapter 8:</strong> Editing Text Files from the Shell</li>
+                            <li><strong>Chapter 9:</strong> Redirecting Shell Input and Output</li>
+                            <li><strong>Chapter 10:</strong> Managing Local Users and Groups</li>
+                            <li><strong>Chapter 11:</strong> Controlling Access to Files</li>
+                            <li><strong>Chapter 12:</strong> Installing and Updating Software with RPM</li>
+                            <li><strong>Chapter 13:</strong> Installing and Updating Software with Flatpak</li>
+                            <li><strong>Chapter 14:</strong> Accessing Removable Media</li>
+                            <li><strong>Chapter 15:</strong> Monitoring and Managing Linux Processes</li>
+                            <li><strong>Chapter 16:</strong> Controlling Services and Daemons</li>
+                            <li><strong>Chapter 17:</strong> Introduction to Linux Networking</li>
+                            <li><strong>Chapter 18:</strong> Managing Network Configuration</li>
+                            <li><strong>Chapter 19:</strong> Configuring and Securing SSH</li>
+                            <li><strong>Chapter 20:</strong> Comprehensive Review</li>
                         </ul>
                     </div>
                     
                     <div id="tab-rh134" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-rh134">
                         <h4>RH134: Red Hat System Administration II</h4>
-                        <p style="margin-bottom: 16px;">Covers Weeks 9-15 of the semester:</p>
+                        <p style="margin-bottom: 16px;">Covers Weeks 8-14 of the semester (Chapter 19 is the comprehensive review before the final):</p>
                         <ul>
-                            <li><strong>Chapter 1:</strong> Improve Command-line Productivity</li>
-                            <li><strong>Chapter 2:</strong> Schedule Future Tasks</li>
-                            <li><strong>Chapter 3:</strong> Tune System Performance</li>
-                            <li><strong>Chapter 4:</strong> Manage SELinux Security</li>
-                            <li><strong>Chapter 5:</strong> Manage Basic Storage</li>
-                            <li><strong>Chapter 6:</strong> Manage Logical Volumes</li>
-                            <li><strong>Chapter 7:</strong> Implement Advanced Storage Features</li>
-                            <li><strong>Chapter 8:</strong> Access Network-Attached Storage</li>
-                            <li><strong>Chapter 9:</strong> Control the Boot Process</li>
-                            <li><strong>Chapter 10:</strong> Manage Network Security</li>
-                            <li><strong>Chapter 11:</strong> Run Containers</li>
+                            <li><strong>Chapter 1:</strong> Improving Command Line Productivity</li>
+                            <li><strong>Chapter 2:</strong> Using Regular Expressions</li>
+                            <li><strong>Chapter 3:</strong> Scheduling User Tasks</li>
+                            <li><strong>Chapter 4:</strong> Scheduling System Tasks</li>
+                            <li><strong>Chapter 5:</strong> Analyzing and Storing Logs</li>
+                            <li><strong>Chapter 6:</strong> Managing Security with SELinux</li>
+                            <li><strong>Chapter 7:</strong> Archiving Files</li>
+                            <li><strong>Chapter 8:</strong> Transferring Files</li>
+                            <li><strong>Chapter 9:</strong> Tuning System Performance</li>
+                            <li><strong>Chapter 10:</strong> Managing Basic Storage</li>
+                            <li><strong>Chapter 11:</strong> Managing Storage with LVM</li>
+                            <li><strong>Chapter 12:</strong> Controlling the Boot Process</li>
+                            <li><strong>Chapter 13:</strong> Recovering Superuser Access</li>
+                            <li><strong>Chapter 14:</strong> Managing Network Security</li>
+                            <li><strong>Chapter 15:</strong> Accessing Network-Attached Storage</li>
+                            <li><strong>Chapter 16:</strong> Installing Red Hat Enterprise Linux</li>
+                            <li><strong>Chapter 17:</strong> Managing Containers with Podman</li>
+                            <li><strong>Chapter 18:</strong> Working with Image-based RHEL</li>
+                            <li><strong>Chapter 19:</strong> Comprehensive Review</li>
                         </ul>
                     </div>
                     
                     <div id="tab-schedule" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-schedule">
                         <h4>Semester Schedule Overview</h4>
-                        <p style="margin-bottom: 16px;">Weekly breakdown of the complete course:</p>
+                        <p style="margin-bottom: 16px;">Weekly breakdown of the Fall 2026 semester:</p>
                         <ul>
-                            <li><strong>Weeks 1-3:</strong> RH124 Chapters 1-5 (Command Line Fundamentals)</li>
-                            <li><strong>Weeks 4-6:</strong> RH124 Chapters 6-10 (Users, Permissions, Services)</li>
-                            <li><strong>Week 7:</strong> RH124 Chapters 11-13 + Midterm Review</li>
-                            <li><strong>Week 8:</strong> <em>Midterm Exam</em></li>
-                            <li><strong>Week 9:</strong> RH124 Chapters 14-15 + RH134 Begin</li>
-                            <li><strong>Weeks 10-12:</strong> RH134 Chapters 2-7 (Advanced Administration)</li>
-                            <li><strong>Week 13:</strong> <em>Spring Break / Make-up Week</em></li>
-                            <li><strong>Week 14:</strong> RH134 Chapters 8-11 (Storage, Containers)</li>
-                            <li><strong>Week 15:</strong> <em>Final Exam / RHCSA Preparation</em></li>
+                            <li><strong>Week 1:</strong> RH124 Preface and Chapters 1-3 (Intro to RHEL, Command Line, Getting Help)</li>
+                            <li><strong>Week 2:</strong> RH124 Chapters 4-7 (Registering Systems, AI-assisted Help, File-system Hierarchy, Managing Files)</li>
+                            <li><strong>Week 3:</strong> RH124 Chapters 8-10 (Editing Text Files, Redirecting I/O, Users and Groups)</li>
+                            <li><strong>Week 4:</strong> RH124 Chapters 11-13 (File Permissions, RPM, Flatpak)</li>
+                            <li><strong>Week 5:</strong> RH124 Chapters 14-15 (Removable Media, Processes)</li>
+                            <li><strong>Week 6:</strong> RH124 Chapters 16-19 (Services, Networking, Network Configuration, SSH)</li>
+                            <li><strong>Week 7:</strong> RH124 Chapter 20 Comprehensive Review + <em>Midterm Exam</em></li>
+                            <li><strong>Week 8:</strong> RH134 Preface and Chapters 1-3 (Shell Scripting, Regular Expressions, User Tasks)</li>
+                            <li><strong>Week 9:</strong> RH134 Chapters 4-5 (System Tasks, Logs)</li>
+                            <li><strong>Week 10:</strong> RH134 Chapters 6-8 (SELinux, Archiving, Transferring Files)</li>
+                            <li><strong>Week 11:</strong> RH134 Chapters 9-11 (Performance Tuning, Basic Storage, LVM)</li>
+                            <li><strong>Week 12:</strong> RH134 Chapters 12-14 (Boot Process, Superuser Recovery, Network Security)</li>
+                            <li><strong>Week 13:</strong> RH134 Chapters 15-18 (NFS, Installing RHEL, Podman Containers, Image-based RHEL)</li>
+                            <li><strong>Week 14:</strong> RH134 Chapter 19 Comprehensive Review + <em>Make-up Week</em></li>
+                            <li><strong>Week 15:</strong> <em>Final Exam</em></li>
                         </ul>
                     </div>
                 </div>
@@ -1977,7 +1962,7 @@
                         </div>
                         <div class="path-content">
                             <h4>Foundation (Weeks 1-3)</h4>
-                            <p>Master command-line basics, file management, and getting help</p>
+                            <p>Command-line basics, getting help, the file-system hierarchy, managing and editing files, and users</p>
                         </div>
                     </div>
                     <div class="path-item">
@@ -1986,8 +1971,8 @@
                             <div class="path-line"></div>
                         </div>
                         <div class="path-content">
-                            <h4>Core Administration (Weeks 4-7)</h4>
-                            <p>Users, groups, permissions, processes, and services</p>
+                            <h4>Core Administration (Weeks 4-6)</h4>
+                            <p>Permissions, software packages, removable media, processes, services, networking, and SSH</p>
                         </div>
                     </div>
                     <div class="path-item">
@@ -1996,8 +1981,8 @@
                             <div class="path-line"></div>
                         </div>
                         <div class="path-content">
-                            <h4>Midterm Assessment (Week 8)</h4>
-                            <p>Demonstrate mastery of RH124 fundamentals</p>
+                            <h4>Midterm Assessment (Week 7)</h4>
+                            <p>Comprehensive review and demonstration of RH124 skills</p>
                         </div>
                     </div>
                     <div class="path-item rh134">
@@ -2006,8 +1991,8 @@
                             <div class="path-line"></div>
                         </div>
                         <div class="path-content">
-                            <h4>Advanced Topics (Weeks 9-12)</h4>
-                            <p>SELinux, storage, performance tuning, and automation</p>
+                            <h4>Advanced Topics (Weeks 8-12)</h4>
+                            <p>Scripting, scheduling, logs, SELinux, storage, LVM, the boot process, and network security</p>
                         </div>
                     </div>
                     <div class="path-item rh134">
@@ -2015,8 +2000,8 @@
                             <span class="path-dot">5</span>
                         </div>
                         <div class="path-content">
-                            <h4>Certification Prep (Weeks 14-15)</h4>
-                            <p>Containers, review, and RHCSA exam preparation</p>
+                            <h4>Certification Prep (Weeks 13-15)</h4>
+                            <p>NFS, installation, containers, image mode, comprehensive review, and RHCSA preparation</p>
                         </div>
                     </div>
                 </div>
@@ -2034,8 +2019,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-classroom">
-                        <span>ðŸ« Classroom Lab Environment</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F3EB;</span> Classroom Lab Environment</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="env-classroom" class="expandable-content">
                         <div class="expandable-inner">
@@ -2053,17 +2038,17 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-home">
-                        <span>ðŸ  Personal Practice Environment</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F3E0;</span> Personal Practice Environment</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="env-home" class="expandable-content">
                         <div class="expandable-inner">
                             <p>For practice outside the classroom, you have several options:</p>
                             <ul>
                                 <li><strong>Red Hat Developer Subscription:</strong> Free RHEL access for development (developers.redhat.com)</li>
-                                <li><strong>CentOS Stream:</strong> Free, open-source RHEL development preview</li>
-                                <li><strong>Fedora:</strong> Community distribution with similar tools and concepts</li>
-                                <li><strong>Virtual Machines:</strong> Use VirtualBox, VMware, or KVM for local practice</li>
+                                <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-23">CentOS Stream</span><span class="tooltip-content" id="tt-intro-23">A free Linux distribution that tracks just ahead of RHEL and serves as the public development branch for the next RHEL minor release.</span>:</strong> Free, open-source RHEL development preview</li>
+                                <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-24">Fedora</span><span class="tooltip-content" id="tt-intro-24">A community Linux distribution sponsored by Red Hat where new technologies are introduced before they reach RHEL.</span>:</strong> Community distribution with similar tools and concepts</li>
+                                <li><strong>Virtual Machines:</strong> Use VirtualBox, VMware, or <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-25">KVM</span><span class="tooltip-content" id="tt-intro-25">Kernel-based Virtual Machine - the virtualization technology built into the Linux kernel.</span> for local practice</li>
                             </ul>
                             <p style="margin-top: 12px;">The concepts you learn apply across all Red Hat-based distributions.</p>
                         </div>
@@ -2072,8 +2057,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="env-systems">
-                        <span>ðŸ’» Lab System Overview</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F4BB;</span> Lab System Overview</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="env-systems" class="expandable-content">
                         <div class="expandable-inner">
@@ -2082,19 +2067,19 @@
                                 <li><strong>workstation:</strong> Your primary working system with GUI</li>
                                 <li><strong>servera:</strong> Server for practicing administration tasks</li>
                                 <li><strong>serverb:</strong> Additional server for multi-system exercises</li>
-                                <li><strong>bastion:</strong> Network gateway/management host</li>
+                                <li><strong><span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-26">bastion</span><span class="tooltip-content" id="tt-intro-26">A hardened gateway host that controls access between networks. In the lab it routes traffic between the classroom network and the lab servers.</span>:</strong> Network gateway/management host</li>
                             </ul>
                             <div class="code-block">
                                 <span class="comment"># Example: SSH to servera from workstation</span><br>
-                                <span class="prompt">[student@workstation ~]$</span> <span class="command">ssh student@servera</span><br>
-                                <span class="output">student@servera's password:</span>
+                                <span class="prompt">[student&#64;workstation ~]$</span> <span class="command">ssh student&#64;servera</span><br>
+                                <span class="output">student&#64;servera's password:</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="note-box success">
-                    <p class="note-box-title">âœ“ Getting Started Tip</p>
+                    <p class="note-box-title"><span aria-hidden="true">&#x2713;</span> Getting Started Tip</p>
                     <p>Don't worry if the environment seems complex at first! Your initial labs will guide you through connecting to and using each system. By the end of Week 1, navigating the lab will feel natural.</p>
                 </div>
             </div>
@@ -2113,19 +2098,19 @@
                 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">âŒ¨ï¸</span> Basic Computer Skills</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x2328;&#xFE0F;</span> Basic Computer Skills</h4>
                         <p>Comfortable using a computer, navigating applications, and basic file operations in any operating system.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ”¤</span> Text Editing</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F524;</span> Text Editing</h4>
                         <p>Experience with any text editor (Notepad, Word, etc.). You'll learn Linux editors during the course.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸŒ</span> Network Basics</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F310;</span> Network Basics</h4>
                         <p>Understanding of what IP addresses are and basic network concepts (can be learned alongside the course).</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">ðŸ“š</span> Learning Commitment</h4>
+                        <h4><span class="card-icon" aria-hidden="true">&#x1F4DA;</span> Learning Commitment</h4>
                         <p>Willingness to practice outside of class. Linux skills develop through hands-on repetition.</p>
                     </div>
                 </div>
@@ -2140,7 +2125,7 @@
                 </ul>
 
                 <div class="key-points">
-                    <h4>â° Time Commitment</h4>
+                    <h4><span aria-hidden="true">&#x23F0;</span> Time Commitment</h4>
                     <p>Plan to dedicate sufficient time for success in this course:</p>
                     <ul>
                         <li><strong>Class Time:</strong> 3-4 hours per week (lecture + lab)</li>
@@ -2159,12 +2144,12 @@
                 <h2 id="assessment-heading">Self-Assessment</h2>
             </div>
             <div class="section-body">
-                <p>This brief quiz helps you assess your readiness for the course. Don't worry if you can't answer all questionsâ€”the course will cover everything you need!</p>
+                <p>This brief quiz helps you assess your readiness for the course. Don't worry if you can't answer all questions&#x2014;the course will cover everything you need!</p>
 
                 <div class="quiz-container">
                     <div class="quiz-header">
                         <span class="quiz-title">Prerequisites Check</span>
-                        <span class="quiz-score" id="quiz-score">Score: 0/5</span>
+                        <span class="quiz-score" id="quiz-score" aria-live="polite">Score: 0/5</span>
                     </div>
 
                     <!-- Question 1 -->
@@ -2188,7 +2173,7 @@
                                 A programming language
                             </label>
                         </div>
-                        <div class="quiz-feedback" id="feedback-1"></div>
+                        <div class="quiz-feedback" id="feedback-1" role="status" aria-live="polite"></div>
                     </div>
 
                     <!-- Question 2 -->
@@ -2212,7 +2197,7 @@
                                 A type of database
                             </label>
                         </div>
-                        <div class="quiz-feedback" id="feedback-2"></div>
+                        <div class="quiz-feedback" id="feedback-2" role="status" aria-live="polite"></div>
                     </div>
 
                     <!-- Question 3 -->
@@ -2236,7 +2221,7 @@
                                 Anyone can sell the software for any price
                             </label>
                         </div>
-                        <div class="quiz-feedback" id="feedback-3"></div>
+                        <div class="quiz-feedback" id="feedback-3" role="status" aria-live="polite"></div>
                     </div>
 
                     <!-- Question 4 -->
@@ -2260,7 +2245,7 @@
                                 Uniquely identifying a device on a network
                             </label>
                         </div>
-                        <div class="quiz-feedback" id="feedback-4"></div>
+                        <div class="quiz-feedback" id="feedback-4" role="status" aria-live="polite"></div>
                     </div>
 
                     <!-- Question 5 -->
@@ -2284,7 +2269,7 @@
                                 A voice-activated assistant
                             </label>
                         </div>
-                        <div class="quiz-feedback" id="feedback-5"></div>
+                        <div class="quiz-feedback" id="feedback-5" role="status" aria-live="polite"></div>
                     </div>
 
                     <button class="quiz-btn" id="check-answers" type="button">Check My Answers</button>
@@ -2292,7 +2277,7 @@
                 </div>
 
                 <div class="note-box" style="margin-top: 24px;">
-                    <p class="note-box-title">ðŸ“ About This Assessment</p>
+                    <p class="note-box-title"><span aria-hidden="true">&#x1F4DD;</span> About This Assessment</p>
                     <p>This quiz is for self-evaluation only and is not graded. Even if you miss some questions, don't worry! The course starts from fundamentals and builds up your knowledge progressively.</p>
                 </div>
             </div>
@@ -2309,8 +2294,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="true" aria-controls="res-official">
-                        <span>ðŸ“• Official Red Hat Resources</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F4D5;</span> Official Red Hat Resources</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="res-official" class="expandable-content expanded">
                         <div class="expandable-inner">
@@ -2326,8 +2311,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-community">
-                        <span>ðŸŒ Community Resources</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F310;</span> Community Resources</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="res-community" class="expandable-content">
                         <div class="expandable-inner">
@@ -2343,8 +2328,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-exam">
-                        <span>ðŸ† Certification Resources</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F3C6;</span> Certification Resources</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="res-exam" class="expandable-content">
                         <div class="expandable-inner">
@@ -2354,15 +2339,15 @@
                                 <li><strong>Practice Exams:</strong> Various third-party practice tests available</li>
                                 <li><strong>Study Groups:</strong> Join or form study groups with classmates</li>
                             </ul>
-                            <p style="margin-top: 12px;"><strong>Exam Code:</strong> EX200 (RHCSA exam for RHEL 9)</p>
+                            <p style="margin-top: 12px;"><strong>Exam Code:</strong> <span class="tooltip-term" tabindex="0" role="button" aria-describedby="tt-intro-27">EX200</span><span class="tooltip-content" id="tt-intro-27">The RHCSA exam: a 3-hour, performance-based exam on a live RHEL 10 system. You complete real administrative tasks rather than answer multiple-choice questions. Passing score is 210 out of 300.</span> (RHCSA exam for RHEL 10)</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="res-books">
-                        <span>ðŸ“š Recommended Reading</span>
-                        <span class="expand-icon" aria-hidden="true">â–¼</span>
+                        <span><span aria-hidden="true">&#x1F4DA;</span> Recommended Reading</span>
+                        <span class="expand-icon" aria-hidden="true">&#x25BC;</span>
                     </button>
                     <div id="res-books" class="expandable-content">
                         <div class="expandable-inner">
@@ -2377,9 +2362,9 @@
                 </div>
 
                 <div class="key-points">
-                    <h4>ðŸ’¡ Resource Usage Tips</h4>
+                    <h4><span aria-hidden="true">&#x1F4A1;</span> Resource Usage Tips</h4>
                     <ul>
-                        <li>The <code class="inline">man</code> command is your best friendâ€”use it often!</li>
+                        <li>The <code class="inline">man</code> command is your best friend&#x2014;use it often!</li>
                         <li>Official Red Hat documentation should be your first reference</li>
                         <li>Practice in your lab environment to reinforce learning</li>
                         <li>Don't hesitate to ask questions in class or office hours</li>
@@ -2436,7 +2421,7 @@
                     </li>
                     <li class="checklist-item">
                         <input type="checkbox" class="checklist-checkbox" id="check-10" aria-label="Get excited to learn Linux">
-                        <label class="checklist-label" for="check-10">Get excited about your journey into Linux administration! ðŸš€</label>
+                        <label class="checklist-label" for="check-10">Get excited about your journey into Linux administration! <span aria-hidden="true">&#x1F680;</span></label>
                     </li>
                 </ul>
 
@@ -2444,17 +2429,17 @@
                     <h3>Course Introduction Summary</h3>
                     <ul class="summary-list">
                         <li><strong>RH124 is the foundation</strong> for your RHCSA certification journey, covering essential Linux administration skills.</li>
-                        <li><strong>The course structure</strong> spans 15 weeks with RH124 in the first half and RH134 in the second half, preparing you for the RHCSA exam.</li>
-                        <li><strong>Hands-on practice</strong> is essentialâ€”expect to spend significant time in labs applying what you learn.</li>
+                        <li><strong>The course structure</strong> spans 15 weeks, with RH124 in Weeks 1-7 (midterm in Week 7) and RH134 in Weeks 8-14 (final exam in Week 15), preparing you for the RHCSA exam.</li>
+                        <li><strong>Hands-on practice</strong> is essential&#x2014;expect to spend significant time in labs applying what you learn.</li>
                         <li><strong>No prior Linux experience</strong> is required, but basic computer skills and commitment to learning are essential.</li>
-                        <li><strong>Resources abound</strong>â€”from official Red Hat documentation to community forums, help is always available.</li>
+                        <li><strong>Resources abound</strong>&#x2014;from official Red Hat documentation to community forums, help is always available.</li>
                         <li><strong>Your success depends</strong> on consistent practice, asking questions, and engaging with the material.</li>
                     </ul>
                 </div>
 
                 <div class="completion-section">
-                    <h2>ðŸŽ¯ Ready to Begin!</h2>
-                    <p>You've completed the course introduction. Next up: Chapter 1 - Introduction to Red Hat Enterprise Linux!</p>
+                    <h3 class="completion-heading"><span aria-hidden="true">&#x1F3AF;</span> Ready to Begin!</h3>
+                    <p>You've completed the course introduction. Next up: <a href="chapter1_intro_to_rhel.html">Chapter 1: Introduction to Red Hat Enterprise Linux</a></p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Introduction Complete</button>
                 </div>
             </div>
@@ -2464,8 +2449,9 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I â€¢ Course Introduction â€¢ Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.85rem;">Â© Red Hat, Inc. Course materials adapted for educational use.</p>
+        <p>RH124: Red Hat System Administration I &#x2022; Course Introduction &#x2022; Version 10.0</p>
+        <p style="margin-top: 10px;"><a href="index.html">Course Portal</a> &#x2022; <a href="chapter1_intro_to_rhel.html">Next: Chapter 1</a></p>
+        <p style="margin-top: 10px; font-size: 0.85rem;">&#xA9; Red Hat, Inc. Course materials adapted for educational use.</p>
     </footer>
 
     <!-- JavaScript - All functionality with embedded code for Canvas LMS compatibility -->
@@ -2473,80 +2459,105 @@
         (function() {
             'use strict';
 
-            // ==================== SMART TOOLTIP POSITIONING ====================
-            const terms = document.querySelectorAll('.term');
-            
-            terms.forEach(term => {
-                const tooltipText = term.getAttribute('data-tooltip');
-                if (!tooltipText) return;
-
-                // Create tooltip element
-                const tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                tooltip.setAttribute('role', 'tooltip');
-                tooltip.setAttribute('id', 'tooltip-' + Math.random().toString(36).substr(2, 9));
-                tooltip.textContent = tooltipText;
-                term.appendChild(tooltip);
-                term.setAttribute('aria-describedby', tooltip.id);
-
-                // Smart position function to prevent screen bleed
-                function positionTooltip() {
-                    const termRect = term.getBoundingClientRect();
-                    const viewportWidth = window.innerWidth;
-                    const viewportHeight = window.innerHeight;
-                    
-                    // Reset classes
-                    tooltip.classList.remove('tooltip-top', 'tooltip-bottom', 'tooltip-left', 'tooltip-right', 'tooltip-adjust-left', 'tooltip-adjust-right');
-                    
-                    // Calculate available space
-                    const spaceAbove = termRect.top;
-                    const spaceBelow = viewportHeight - termRect.bottom;
-                    const spaceLeft = termRect.left;
-                    const spaceRight = viewportWidth - termRect.right;
-                    
-                    // Get tooltip dimensions (temporarily show to measure)
-                    tooltip.style.visibility = 'hidden';
-                    tooltip.style.opacity = '1';
-                    tooltip.style.display = 'block';
-                    const tooltipRect = tooltip.getBoundingClientRect();
-                    tooltip.style.display = '';
-                    tooltip.style.opacity = '';
-                    tooltip.style.visibility = '';
-                    
-                    const tooltipWidth = tooltipRect.width;
-                    const tooltipHeight = tooltipRect.height;
-                    
-                    // Determine best position
-                    if (spaceAbove >= tooltipHeight + 20) {
-                        tooltip.classList.add('tooltip-top');
-                    } else if (spaceBelow >= tooltipHeight + 20) {
-                        tooltip.classList.add('tooltip-bottom');
-                    } else if (spaceRight >= tooltipWidth + 20) {
-                        tooltip.classList.add('tooltip-right');
-                    } else if (spaceLeft >= tooltipWidth + 20) {
-                        tooltip.classList.add('tooltip-left');
-                    } else {
-                        // Default to top with horizontal adjustment
-                        tooltip.classList.add('tooltip-top');
-                    }
-                    
-                    // Horizontal edge adjustment for top/bottom tooltips
-                    if (tooltip.classList.contains('tooltip-top') || tooltip.classList.contains('tooltip-bottom')) {
-                        const halfTooltip = tooltipWidth / 2;
-                        const termCenter = termRect.left + (termRect.width / 2);
-                        
-                        if (termCenter - halfTooltip < 10) {
-                            tooltip.classList.add('tooltip-adjust-left');
-                        } else if (termCenter + halfTooltip > viewportWidth - 10) {
-                            tooltip.classList.add('tooltip-adjust-right');
-                        }
-                    }
+            // ==================== SAFE STORAGE (Canvas iframes / private mode can throw) ====================
+            const memoryStore = {};
+            const store = {
+                get(key) {
+                    try { return window.localStorage.getItem(key); }
+                    catch (e) { return Object.prototype.hasOwnProperty.call(memoryStore, key) ? memoryStore[key] : null; }
+                },
+                set(key, value) {
+                    try { window.localStorage.setItem(key, String(value)); }
+                    catch (e) { memoryStore[key] = String(value); }
                 }
+            };
 
-                // Position on hover/focus
-                term.addEventListener('mouseenter', positionTooltip);
-                term.addEventListener('focus', positionTooltip);
+            // ==================== TOOLTIPS (single fixed bubble, viewport-clamped) ====================
+            const bubble = document.getElementById('tooltip-bubble');
+            let activeTerm = null;
+
+            function showTooltip(term) {
+                const contentEl = document.getElementById(term.getAttribute('aria-describedby'));
+                if (!bubble || !contentEl) return;
+                const text = contentEl.textContent.trim();
+                if (!text) return;
+                activeTerm = term;
+                bubble.textContent = text;
+                bubble.style.cssText = '';
+                bubble.classList.add('visible');
+
+                requestAnimationFrame(() => {
+                    if (activeTerm !== term) return;
+                    const margin = 8;
+                    const gap = 10;
+                    const vW = document.documentElement.clientWidth || window.innerWidth;
+                    const vH = window.innerHeight;
+                    // Use the first line box so wrapped terms position correctly
+                    const rects = term.getClientRects();
+                    const rect = rects.length ? rects[0] : term.getBoundingClientRect();
+                    const bW = bubble.offsetWidth;
+                    const bH = bubble.offsetHeight;
+
+                    let top;
+                    if (rect.top - bH - gap >= margin) {
+                        top = rect.top - bH - gap;               // above
+                    } else if (rect.bottom + bH + gap <= vH - margin) {
+                        top = rect.bottom + gap;                 // below
+                    } else {
+                        top = vH - bH - margin;                  // pin inside viewport
+                    }
+                    let left = rect.left + rect.width / 2 - bW / 2;
+
+                    left = Math.max(margin, Math.min(left, vW - bW - margin));
+                    top = Math.max(margin, Math.min(top, vH - bH - margin));
+
+                    bubble.style.left = left + 'px';
+                    bubble.style.top = top + 'px';
+                });
+            }
+
+            function hideTooltip() {
+                activeTerm = null;
+                if (bubble) bubble.classList.remove('visible');
+            }
+
+            document.querySelectorAll('.tooltip-term').forEach(term => {
+                term.addEventListener('mouseenter', () => showTooltip(term));
+                term.addEventListener('mouseleave', () => {
+                    if (activeTerm !== term) return;
+                    const focused = document.activeElement;
+                    if (focused && focused !== term && focused.classList.contains('tooltip-term')) {
+                        showTooltip(focused);   // keep the keyboard-focused term's tip open
+                    } else if (focused !== term) {
+                        hideTooltip();
+                    }
+                });
+                term.addEventListener('focus', () => showTooltip(term));
+                term.addEventListener('blur', () => { if (activeTerm === term) hideTooltip(); });
+                term.addEventListener('click', () => {
+                    if (activeTerm === term) { hideTooltip(); } else { showTooltip(term); }
+                });
+                term.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        showTooltip(term);
+                    }
+                });
             });
+
+            // WCAG 1.4.13: Escape dismisses from anywhere; reposition on scroll/resize so the bubble stays attached and on-screen
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideTooltip(); });
+            let repositionQueued = false;
+            function repositionTooltip() {
+                if (!activeTerm || repositionQueued) return;
+                repositionQueued = true;
+                requestAnimationFrame(() => {
+                    repositionQueued = false;
+                    if (activeTerm) showTooltip(activeTerm);
+                });
+            }
+            window.addEventListener('scroll', repositionTooltip, { passive: true });
+            window.addEventListener('resize', repositionTooltip);
 
             // ==================== EXPANDABLE SECTIONS ====================
             const expandables = document.querySelectorAll('.expandable-header');
@@ -2577,79 +2588,64 @@
             });
 
             // ==================== TABS COMPONENT ====================
-            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
             const tabContents = document.querySelectorAll('.tab-content');
-            
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Update button states
-                    tabButtons.forEach(btn => btn.setAttribute('aria-selected', 'false'));
-                    button.setAttribute('aria-selected', 'true');
-                    
-                    // Update content visibility
-                    const targetId = button.getAttribute('aria-controls');
-                    tabContents.forEach(content => {
-                        content.classList.remove('active');
-                        if (content.id === targetId) {
-                            content.classList.add('active');
-                        }
-                    });
+
+            function activateTab(button, moveFocus) {
+                tabButtons.forEach(btn => {
+                    const selected = btn === button;
+                    btn.setAttribute('aria-selected', selected ? 'true' : 'false');
+                    btn.setAttribute('tabindex', selected ? '0' : '-1');
                 });
-                
-                // Keyboard navigation
+                const targetId = button.getAttribute('aria-controls');
+                tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === targetId);
+                });
+                if (moveFocus) button.focus();
+            }
+
+            tabButtons.forEach((button, index) => {
+                button.setAttribute('type', 'button');
+                button.setAttribute('tabindex', button.getAttribute('aria-selected') === 'true' ? '0' : '-1');
+                button.addEventListener('click', () => activateTab(button, false));
                 button.addEventListener('keydown', (e) => {
-                    const buttons = Array.from(tabButtons);
-                    const currentIndex = buttons.indexOf(button);
-                    let newIndex;
-                    
-                    if (e.key === 'ArrowRight') {
-                        newIndex = (currentIndex + 1) % buttons.length;
-                    } else if (e.key === 'ArrowLeft') {
-                        newIndex = (currentIndex - 1 + buttons.length) % buttons.length;
-                    }
-                    
-                    if (newIndex !== undefined) {
+                    let newIndex = null;
+                    if (e.key === 'ArrowRight') newIndex = (index + 1) % tabButtons.length;
+                    else if (e.key === 'ArrowLeft') newIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+                    else if (e.key === 'Home') newIndex = 0;
+                    else if (e.key === 'End') newIndex = tabButtons.length - 1;
+                    if (newIndex !== null) {
                         e.preventDefault();
-                        buttons[newIndex].focus();
-                        buttons[newIndex].click();
+                        activateTab(tabButtons[newIndex], true);
                     }
                 });
             });
+            tabContents.forEach(panel => panel.setAttribute('tabindex', '0'));
 
-            // ==================== EXPLORE CARDS INTERACTION ====================
+            // ==================== EXPLORE CARDS (disclosure buttons) ====================
             const exploreCards = document.querySelectorAll('.explore-card');
             const exploreDetails = document.querySelectorAll('.explore-detail');
-            
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
             exploreCards.forEach(card => {
-                const topic = card.getAttribute('data-topic');
-                
                 card.addEventListener('click', () => {
-                    // Toggle active state on cards
-                    const wasActive = card.classList.contains('active');
-                    exploreCards.forEach(c => c.classList.remove('active'));
+                    const wasOpen = card.getAttribute('aria-expanded') === 'true';
+                    exploreCards.forEach(c => {
+                        c.classList.remove('active');
+                        c.setAttribute('aria-expanded', 'false');
+                    });
                     exploreDetails.forEach(d => d.classList.remove('active'));
-                    
-                    if (!wasActive) {
+
+                    if (!wasOpen) {
                         card.classList.add('active');
-                        card.setAttribute('aria-selected', 'true');
-                        const detail = document.getElementById('detail-' + topic);
+                        card.setAttribute('aria-expanded', 'true');
+                        const detail = document.getElementById(card.getAttribute('aria-controls'));
                         if (detail) {
                             detail.classList.add('active');
-                            // Smooth scroll to detail
                             setTimeout(() => {
-                                detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                detail.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'nearest' });
                             }, 100);
                         }
-                    } else {
-                        card.setAttribute('aria-selected', 'false');
-                    }
-                });
-                
-                // Keyboard support
-                card.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        card.click();
                     }
                 });
             });
@@ -2682,7 +2678,7 @@
                                 score++;
                                 selectedLabel.classList.add('correct');
                                 feedback.className = 'quiz-feedback show correct';
-                                feedback.innerHTML = 'âœ“ Correct! Great job.';
+                                feedback.textContent = '\u2713 Correct! Great job.';
                             } else {
                                 selectedLabel.classList.add('incorrect');
                                 // Highlight correct answer
@@ -2693,17 +2689,22 @@
                                     }
                                 });
                                 feedback.className = 'quiz-feedback show incorrect';
-                                feedback.innerHTML = 'âœ— Not quite. See the correct answer highlighted above.';
+                                let correctText = '';
+                                options.forEach(opt => {
+                                    if (opt.querySelector('input').value === correct) correctText = opt.textContent.trim();
+                                });
+                                feedback.textContent = '\u2717 Not quite. The correct answer is: ' + correctText;
                             }
                         } else {
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = 'âš  Please select an answer.';
+                            feedback.textContent = '\u26A0 No answer selected for this question.';
                         }
                     });
 
                     quizScoreEl.textContent = `Score: ${score}/5`;
                     checkAnswersBtn.style.display = 'none';
                     resetQuizBtn.style.display = 'inline-block';
+                    resetQuizBtn.focus();
                     
                     // Update progress
                     updateProgress();
@@ -2721,18 +2722,19 @@
                         inputs.forEach(input => input.checked = false);
                         options.forEach(opt => opt.classList.remove('correct', 'incorrect', 'selected'));
                         feedback.className = 'quiz-feedback';
-                        feedback.innerHTML = '';
+                        feedback.textContent = '';
                     });
 
                     quizScoreEl.textContent = 'Score: 0/5';
                     resetQuizBtn.style.display = 'none';
                     checkAnswersBtn.style.display = 'inline-block';
+                    checkAnswersBtn.focus();
                 });
             }
 
             // Quiz option selection feedback
             document.querySelectorAll('.quiz-option').forEach(option => {
-                option.addEventListener('click', () => {
+                option.querySelector('input').addEventListener('change', () => {
                     const container = option.closest('.quiz-options');
                     container.querySelectorAll('.quiz-option').forEach(opt => {
                         opt.classList.remove('selected');
@@ -2746,7 +2748,7 @@
             
             checklistItems.forEach(checkbox => {
                 // Load saved state
-                const savedState = localStorage.getItem('intro-' + checkbox.id);
+                const savedState = store.get('intro-' + checkbox.id);
                 if (savedState === 'true') {
                     checkbox.checked = true;
                     checkbox.closest('.checklist-item').classList.add('completed');
@@ -2760,7 +2762,7 @@
                         item.classList.remove('completed');
                     }
                     // Save state
-                    localStorage.setItem('intro-' + checkbox.id, checkbox.checked);
+                    store.set('intro-' + checkbox.id, checkbox.checked);
                     updateProgress();
                 });
             });
@@ -2781,14 +2783,14 @@
                 progressText.textContent = percentage + '%';
                 progressBar.setAttribute('aria-valuenow', percentage);
                 
-                // Store in localStorage
-                localStorage.setItem('intro-progress', JSON.stringify(Array.from(sectionsViewed)));
+                // Persist progress
+                store.set('intro-progress', JSON.stringify(Array.from(sectionsViewed)));
             }
 
             // Load saved progress
-            const savedProgress = localStorage.getItem('intro-progress');
+            const savedProgress = store.get('intro-progress');
             if (savedProgress) {
-                sectionsViewed = new Set(JSON.parse(savedProgress));
+                try { sectionsViewed = new Set(JSON.parse(savedProgress)); } catch (e) { sectionsViewed = new Set(); }
                 updateProgress();
             }
 
@@ -2835,6 +2837,13 @@
             // ==================== COMPLETION BUTTON ====================
             const completeBtn = document.getElementById('mark-complete');
             
+            function markCompleted() {
+                completeBtn.textContent = '\u2713 Introduction Completed!';
+                completeBtn.classList.add('is-complete');
+                completeBtn.setAttribute('aria-disabled', 'true');
+                completeBtn.disabled = true;
+            }
+
             if (completeBtn) {
                 completeBtn.addEventListener('click', () => {
                     // Mark all sections as viewed
@@ -2844,18 +2853,15 @@
                     updateProgress();
                     
                     // Visual feedback
-                    completeBtn.textContent = 'âœ“ Introduction Completed!';
-                    completeBtn.style.background = '#339933';
-                    completeBtn.disabled = true;
+                    markCompleted();
                     
                     // Store completion
-                    localStorage.setItem('intro-complete', 'true');
+                    store.set('intro-complete', 'true');
                 });
 
                 // Check if already completed
-                if (localStorage.getItem('intro-complete') === 'true') {
-                    completeBtn.textContent = 'âœ“ Introduction Completed!';
-                    completeBtn.style.background = '#339933';
+                if (store.get('intro-complete') === 'true') {
+                    markCompleted();
                 }
             }
 
@@ -2873,8 +2879,10 @@
                         
                         window.scrollTo({
                             top: targetPosition,
-                            behavior: 'smooth'
+                            behavior: reduceMotion ? 'auto' : 'smooth'
                         });
+                        targetSection.setAttribute('tabindex', '-1');
+                        targetSection.focus({ preventScroll: true });
                     }
                 });
             });
