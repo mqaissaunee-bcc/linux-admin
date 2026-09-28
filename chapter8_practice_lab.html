@@ -796,6 +796,156 @@
         @media (prefers-reduced-motion: reduce) {
             .q-nav-toggle { transition: none; }
         }
+
+        /* ==================== PRACTICE FILE LOADER ==================== */
+        .file-loader {
+            margin: 0 0 16px;
+            padding: 12px;
+            background: var(--rh-gray-lighter, #F2F2F2);
+            border: 1px solid var(--rh-gray-light, #CCCCCC);
+            border-radius: 6px;
+        }
+        .file-loader-label {
+            display: block;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--rh-gray-dark, #2B2B2B);
+            margin-bottom: 8px;
+        }
+        .file-loader-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .file-select {
+            flex: 1 1 200px;
+            min-height: 44px;
+            padding: 8px 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: var(--rh-gray-dark, #2B2B2B);
+            background: var(--rh-white, #FFFFFF);
+            border: 2px solid var(--rh-gray-light, #CCCCCC);
+            border-radius: 4px;
+        }
+        .file-select:focus {
+            outline: 3px solid var(--rh-blue, #0066CC);
+            outline-offset: 2px;
+        }
+        .btn-sm {
+            min-height: 44px;
+            padding: 10px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* ==================== INSTRUCTOR MODE ==================== */
+        .instructor-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .instructor-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--rh-gray-light, #CCCCCC);
+            border: 1px solid var(--rh-gray, #666666);
+        }
+        .instructor-toggle[aria-pressed="true"] .instructor-dot {
+            background: #009900;
+            border-color: #006600;
+        }
+        .instructor-toggle:focus {
+            outline: 3px solid var(--rh-blue, #0066CC);
+            outline-offset: 2px;
+        }
+
+        #keycast {
+            position: fixed;
+            left: 16px;
+            right: 190px;
+            bottom: 16px;
+            z-index: 950;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.88);
+            border: 2px solid #666666;
+            border-radius: 10px;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        #keycast.is-on {
+            display: flex;
+        }
+        .keycast-context {
+            flex: 0 0 auto;
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #FFFFFF;
+            background: #CC0000;
+            padding: 6px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+        }
+        .keycast-keys {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+        }
+        .keycast-key {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            flex: 0 0 auto;
+            transition: opacity 0.3s ease;
+        }
+        .keycast-cap {
+            font-family: var(--font-mono, monospace);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            background: #333333;
+            border: 2px solid #999999;
+            border-bottom-width: 4px;
+            border-radius: 6px;
+            padding: 4px 12px;
+            white-space: pre;
+            max-width: 22ch;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .keycast-note {
+            font-family: var(--font-display, sans-serif);
+            font-size: 0.7rem;
+            color: #E6E6E6;
+            white-space: nowrap;
+        }
+        .keycast-key.fading {
+            opacity: 0;
+        }
+        @media (max-width: 700px) {
+            #keycast { right: 16px; }
+            .keycast-cap { font-size: 1.1rem; padding: 3px 8px; }
+            .keycast-note { display: none; }
+        }
+        @media print {
+            #keycast { display: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .keycast-key { transition: none; }
+        }
 </style>
 </head>
 <body>
@@ -872,7 +1022,7 @@
                                 <span class="sim-control minimize"></span>
                                 <span class="sim-control maximize"></span>
                             </div>
-                            <span>vim practice.txt</span>
+                            <span>vim <span id="vim-filename">practice.txt</span></span>
                             <span id="vim-file-status">[Modified]</span>
                         </div>
                         <div class="sim-screen">
@@ -888,6 +1038,23 @@
 
                     <div class="sim-panel">
                         <h4>🎮 Vim Controls</h4>
+
+                        <div class="file-loader">
+                            <label class="file-loader-label" for="vim-file-select">Open a practice file in Vim:</label>
+                            <div class="file-loader-row">
+                                <select id="vim-file-select" class="file-select">
+                                <option value="practice.txt">practice.txt &mdash; starter text</option>
+                                <option value="hosts">/etc/hosts &mdash; name-to-address table</option>
+                                <option value="fstab">/etc/fstab &mdash; filesystem table</option>
+                                <option value="sshd_config">/etc/ssh/sshd_config &mdash; SSH server settings</option>
+                                <option value="backup.sh">backup.sh &mdash; shell script</option>
+                                <option value="memo.txt">memo.txt &mdash; plain-text memo</option>
+                                <option value="lab-tasks.txt">lab-tasks.txt &mdash; Chapter 8 lab tasks</option>
+                                <option value="newfile.txt">newfile.txt &mdash; empty file</option>
+                                </select>
+                                <button type="button" class="btn btn-secondary btn-sm" id="vim-file-open">Open file</button>
+                            </div>
+                        </div>
                         <div class="sim-instructions" id="vim-instructions">
                             Click the keys below or use your keyboard. Start by pressing <span class="kbd">i</span> to enter Insert mode!
                         </div>
@@ -933,6 +1100,10 @@
                         </div>
 
                         <button class="btn btn-secondary" id="vim-reset">Reset Simulator</button>
+
+                        <button type="button" class="btn btn-secondary btn-sm instructor-toggle" data-instructor-toggle="vim" aria-pressed="false">
+                            <span class="instructor-dot" aria-hidden="true"></span><span class="instructor-label">Instructor mode: off</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -963,7 +1134,7 @@
                 <div class="simulator-container">
                     <div class="simulator" id="nano-simulator">
                         <div class="nano-header">
-                            GNU nano 7.2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; practice.txt &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Modified
+                            GNU nano 7.2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="nano-filename">practice.txt</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Modified
                         </div>
                         <div class="sim-screen">
                             <div class="vim-content" id="nano-content" role="textbox" aria-label="Nano editor content" tabindex="0">
@@ -983,6 +1154,23 @@
 
                     <div class="sim-panel">
                         <h4>🎮 Nano Controls</h4>
+
+                        <div class="file-loader">
+                            <label class="file-loader-label" for="nano-file-select">Open a practice file in Nano:</label>
+                            <div class="file-loader-row">
+                                <select id="nano-file-select" class="file-select">
+                                <option value="practice.txt">practice.txt &mdash; starter text</option>
+                                <option value="hosts">/etc/hosts &mdash; name-to-address table</option>
+                                <option value="fstab">/etc/fstab &mdash; filesystem table</option>
+                                <option value="sshd_config">/etc/ssh/sshd_config &mdash; SSH server settings</option>
+                                <option value="backup.sh">backup.sh &mdash; shell script</option>
+                                <option value="memo.txt">memo.txt &mdash; plain-text memo</option>
+                                <option value="lab-tasks.txt">lab-tasks.txt &mdash; Chapter 8 lab tasks</option>
+                                <option value="newfile.txt">newfile.txt &mdash; empty file</option>
+                                </select>
+                                <button type="button" class="btn btn-secondary btn-sm" id="nano-file-open">Open file</button>
+                            </div>
+                        </div>
                         <div class="sim-instructions" id="nano-instructions">
                             Just start typing — no modes needed! Use Ctrl+key combinations for commands.
                         </div>
@@ -1010,6 +1198,10 @@
                         </div>
 
                         <button class="btn btn-secondary" id="nano-reset">Reset Simulator</button>
+
+                        <button type="button" class="btn btn-secondary btn-sm instructor-toggle" data-instructor-toggle="nano" aria-pressed="false">
+                            <span class="instructor-dot" aria-hidden="true"></span><span class="instructor-label">Instructor mode: off</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1400,6 +1592,124 @@
                 renderVim();
             });
 
+            // ==================== PRACTICE FILE LIBRARY ====================
+            window.RH_PRACTICE_FILES = {
+                'practice.txt': [
+                    'Welcome to the Vim Simulator!',
+                    'This is a practice file.',
+                    'You can edit this text.',
+                    'Try the commands below.',
+                    'Have fun learning Vim!'
+                ],
+                'hosts': [
+                    '# /etc/hosts - static table lookup for hostnames',
+                    '127.0.0.1    localhost localhost.localdomain localhost4',
+                    '::1          localhost localhost.localdomain localhost6',
+                    '',
+                    '172.25.250.9    workstation.lab.example.com workstation',
+                    '172.25.250.10   servera.lab.example.com servera',
+                    '172.25.250.11   serverb.lab.example.com serverb',
+                    '172.25.250.12   serverc.lab.example.com serverc',
+                    '',
+                    '# Add the classroom print server below:'
+                ],
+                'fstab': [
+                    '#',
+                    '# /etc/fstab',
+                    '# Created by anaconda on Mon Sep  8 09:14:22 2026',
+                    '#',
+                    '# Accessible filesystems are maintained under /dev/disk/by-*.',
+                    '# Use systemctl daemon-reload after changing this file.',
+                    '#',
+                    'UUID=a4f2b1c0-3e77-4e11-9a5c-0d21bb9f1e88  /          xfs   defaults  0 0',
+                    'UUID=1b9e77d2-5c40-42aa-bb17-9c4f0a2d6e31  /boot      xfs   defaults  0 0',
+                    '/dev/mapper/rhel-home                      /home      xfs   defaults  0 0',
+                    '/dev/mapper/rhel-swap                      none       swap  defaults  0 0'
+                ],
+                'sshd_config': [
+                    '# /etc/ssh/sshd_config - OpenSSH server configuration',
+                    '',
+                    'Port 22',
+                    'AddressFamily any',
+                    'ListenAddress 0.0.0.0',
+                    '',
+                    'PermitRootLogin no',
+                    'PubkeyAuthentication yes',
+                    'PasswordAuthentication yes',
+                    'X11Forwarding yes',
+                    '',
+                    '# Subsystem sftp /usr/libexec/openssh/sftp-server'
+                ],
+                'backup.sh': [
+                    '#!/usr/bin/bash',
+                    '#',
+                    '# backup.sh - archive a home directory to /var/backups',
+                    '',
+                    'SRC="/home/student"',
+                    'DEST="/var/backups"',
+                    'STAMP=$(date +%F)',
+                    '',
+                    'if [ ! -d "$DEST" ]; then',
+                    '    mkdir -p "$DEST"',
+                    'fi',
+                    '',
+                    'tar -czf "$DEST/student-$STAMP.tar.gz" "$SRC"',
+                    'echo "Backup written to $DEST/student-$STAMP.tar.gz"'
+                ],
+                'memo.txt': [
+                    'MEMO: Lab Cleanup Day',
+                    '',
+                    'The classroom servers will be rebuilt on Friday morning.',
+                    'Save any werk you want to keep to your home directory',
+                    'before you leave on Thursday afternoon.',
+                    '',
+                    'Bring your lab notebook. Bring your patience.',
+                    '',
+                    'Practice ideas: fix the spelling mistake above, delete the',
+                    'last line, then copy a line and paste it at the end.'
+                ],
+                'lab-tasks.txt': [
+                    'Chapter 8 Lab - Editing Text Files from the Shell',
+                    '',
+                    '1. Open a file with vim and enter Insert mode.',
+                    '2. Add three lines of text, then return to Command mode.',
+                    '3. Move around with h, j, k, and l instead of the arrows.',
+                    '4. Delete one character with x and one line with dd.',
+                    '5. Yank a line with yy and paste it with p.',
+                    '6. Undo the paste with u.',
+                    '7. Save your work with :w, then quit with :q.',
+                    '',
+                    'Check off each task as you finish it.'
+                ],
+                'newfile.txt': ['']
+            };
+
+            function rhFileLines(name) {
+                var f = window.RH_PRACTICE_FILES[name];
+                return f ? f.slice() : [''];
+            }
+
+            // ==================== VIM: OPEN A PRACTICE FILE ====================
+            document.getElementById('vim-file-open').addEventListener('click', function() {
+                var name = document.getElementById('vim-file-select').value;
+                var lines = rhFileLines(name);
+                vimState.mode = 'command';
+                vimState.lines = lines;
+                vimState.cursorLine = 0;
+                vimState.cursorCol = 0;
+                vimState.yankBuffer = '';
+                vimState.undoStack = [];
+                vimState.commandBuffer = '';
+                document.getElementById('vim-filename').textContent = name;
+                document.getElementById('vim-file-status').textContent =
+                    (name === 'newfile.txt') ? '[New File]' : '';
+                vimMessage.textContent = 'Opened "' + name + '" (' + lines.length +
+                    (lines.length === 1 ? ' line). ' : ' lines). ') +
+                    'Press \'i\' to start editing.';
+                renderVim();
+                vimContent.focus();
+            });
+
             renderVim();
 
             // ==================== NANO SIMULATOR ====================
@@ -1583,6 +1893,22 @@
                 renderNano();
             });
 
+            // ==================== NANO: OPEN A PRACTICE FILE ====================
+            document.getElementById('nano-file-open').addEventListener('click', function() {
+                var name = document.getElementById('nano-file-select').value;
+                var lines = rhFileLines(name);
+                nanoState.lines = lines;
+                nanoState.cursorLine = 0;
+                nanoState.cursorCol = 0;
+                nanoState.cutBuffer = '';
+                document.getElementById('nano-filename').textContent = name;
+                nanoMessage.textContent = 'Opened "' + name + '" (' + lines.length +
+                    (lines.length === 1 ? ' line). ' : ' lines). ') +
+                    'Just start typing to edit it.';
+                renderNano();
+                nanoContent.focus();
+            });
+
             renderNano();
 
             // ==================== SMOOTH SCROLLING ====================
@@ -1642,10 +1968,218 @@
                 if (e.key !== 'n' && e.key !== 'N') { return; }
                 var t = e.target;
                 if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
+                          t.tagName === 'SELECT' || t.isContentEditable ||
+                          t.getAttribute('role') === 'textbox' ||
+                          (t.closest && t.closest('.simulator')))) { return; }
                 e.preventDefault();
                 btn.click();
             });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }());
+    </script>
+
+    <div id="keycast" aria-hidden="true">
+        <span class="keycast-context" id="keycast-context">Vim</span>
+        <div class="keycast-keys" id="keycast-keys"></div>
+    </div>
+
+    <!-- ==================== INSTRUCTOR MODE (KEYSTROKE DISPLAY) ==================== -->
+    <script>
+    (function () {
+        var STORE_KEY = 'rh-instructor-mode';
+        var LIFETIME = 2600;   /* ms a key chip stays on screen */
+        var MAX_CHIPS = 8;
+
+        /* What each simulator key does, shown under the chip. */
+        var NOTES = {
+            'i': 'insert mode', 'a': 'append', 'o': 'open line below',
+            'h': 'left', 'j': 'down', 'k': 'up', 'l': 'right',
+            'x': 'delete character', 'dd': 'delete line', 'yy': 'yank line',
+            'p': 'paste', 'u': 'undo', 'v': 'visual mode',
+            'G': 'go to last line', 'gg': 'go to first line',
+            ':w': 'write (save)', ':wq': 'write and quit', ':q!': 'quit, no save',
+            'Escape': 'command mode', 'Enter': 'new line', 'Backspace': 'delete back',
+            'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
+            'Ctrl+O': 'write out', 'Ctrl+X': 'exit', 'Ctrl+K': 'cut line',
+            'Ctrl+U': 'paste', 'Ctrl+W': 'where is (search)', 'Ctrl+G': 'help'
+        };
+
+        var CAPS = {
+            'Escape': 'Esc', 'Enter': '\u23CE Enter', 'Backspace': '\u232B Bksp',
+            'Tab': '\u21E5 Tab', ' ': 'Space',
+            'ArrowUp': '\u2191', 'ArrowDown': '\u2193',
+            'ArrowLeft': '\u2190', 'ArrowRight': '\u2192'
+        };
+
+        var bar, keysEl, contextEl, on = false, lastTextChip = null;
+
+        function capFor(key) {
+            if (CAPS[key]) { return CAPS[key]; }
+            if (key.indexOf('Ctrl+') === 0) { return '^' + key.slice(5); }
+            return key;
+        }
+
+        function vimMode() {
+            var el = document.getElementById('vim-mode');
+            return el ? el.textContent.replace(/[-\s]/g, '').toUpperCase() : 'COMMAND';
+        }
+
+        /* True when the keystroke is ordinary typing rather than a command:
+           any single character in Nano, or in Vim's Insert mode. */
+        function isTyping(which, key) {
+            if (key.length !== 1) { return false; }
+            return (which === 'nano') || (vimMode() === 'INSERT');
+        }
+
+        function isPlainText(key, typing) {
+            if (key.length !== 1) { return false; }
+            return typing || (key !== ' ' && !NOTES[key]);
+        }
+
+        function retire(chip) {
+            if (chip.parentNode !== keysEl) { return; }
+            if (lastTextChip === chip) { lastTextChip = null; }
+            chip.classList.add('fading');
+            window.setTimeout(function () {
+                if (chip.parentNode === keysEl) { keysEl.removeChild(chip); }
+            }, 320);
+        }
+
+        function addChip(key, note, typing) {
+            /* Run consecutive typed characters together so a sentence reads as one chip. */
+            if (isPlainText(key, typing) && lastTextChip && lastTextChip.parentNode === keysEl) {
+                var capEl = lastTextChip.querySelector('.keycast-cap');
+                if (capEl.textContent.length < 22) {
+                    capEl.textContent += key;
+                    window.clearTimeout(lastTextChip.__timer);
+                    lastTextChip.__timer = window.setTimeout(retire, LIFETIME, lastTextChip);
+                    return;
+                }
+            }
+
+            var chip = document.createElement('div');
+            chip.className = 'keycast-key';
+            var cap = document.createElement('span');
+            cap.className = 'keycast-cap';
+            cap.textContent = capFor(key);
+            chip.appendChild(cap);
+            var n = document.createElement('span');
+            n.className = 'keycast-note';
+            n.textContent = note || '\u00A0';   /* keeps every cap on the same line */
+            chip.appendChild(n);
+            keysEl.appendChild(chip);
+            lastTextChip = isPlainText(key, typing) ? chip : null;
+
+            while (keysEl.children.length > MAX_CHIPS) {
+                keysEl.removeChild(keysEl.firstChild);
+            }
+            chip.__timer = window.setTimeout(retire, LIFETIME, chip);
+        }
+
+        function setContext(which) {
+            if (which === 'nano') {
+                contextEl.textContent = 'Nano';
+                return;
+            }
+            contextEl.textContent = 'Vim \u2014 ' + vimMode();
+        }
+
+        function show(which, key, note) {
+            if (!on || !key) { return; }
+            var typing = isTyping(which, key);
+            setContext(which);
+            addChip(key, typing ? '' : (note === undefined ? NOTES[key] : note), typing);
+        }
+
+        function apply(state) {
+            on = state;
+            bar.classList.toggle('is-on', on);
+            if (!on) {
+                keysEl.innerHTML = '';
+                lastTextChip = null;
+            }
+            Array.prototype.forEach.call(
+                document.querySelectorAll('[data-instructor-toggle]'),
+                function (btn) {
+                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                    btn.querySelector('.instructor-label').textContent =
+                        'Instructor mode: ' + (on ? 'on' : 'off');
+                    btn.setAttribute('aria-label',
+                        'Instructor mode, currently ' + (on ? 'on' : 'off') +
+                        '. Shows each key pressed in the simulators. Keyboard shortcut: Alt plus I.');
+                }
+            );
+        }
+
+        function init() {
+            bar = document.getElementById('keycast');
+            keysEl = document.getElementById('keycast-keys');
+            contextEl = document.getElementById('keycast-context');
+            if (!bar || !keysEl) { return; }
+
+            var saved = false;
+            try { saved = window.localStorage.getItem(STORE_KEY) === 'true'; } catch (e) { saved = false; }
+            apply(saved);
+
+            Array.prototype.forEach.call(
+                document.querySelectorAll('[data-instructor-toggle]'),
+                function (btn) {
+                    btn.addEventListener('click', function () {
+                        apply(!on);
+                        try { window.localStorage.setItem(STORE_KEY, on ? 'true' : 'false'); } catch (e) { /* ignore */ }
+                    });
+                }
+            );
+
+            /* Alt+I toggles. Captured before the simulators see it. */
+            document.addEventListener('keydown', function (e) {
+                if (!e.altKey || e.ctrlKey || e.metaKey) { return; }
+                var k = (e.key || '').toLowerCase();
+                if (k !== 'i' && e.code !== 'KeyI') { return; }
+                e.preventDefault();
+                e.stopPropagation();
+                apply(!on);
+                try { window.localStorage.setItem(STORE_KEY, on ? 'true' : 'false'); } catch (err) { /* ignore */ }
+            }, true);
+
+            /* Typed keys: capture phase, so the chip appears even though the
+               simulators call preventDefault on their own handlers. */
+            var vim = document.getElementById('vim-content');
+            var nano = document.getElementById('nano-content');
+
+            if (vim) {
+                vim.addEventListener('keydown', function (e) {
+                    if (e.altKey || e.metaKey) { return; }
+                    show('vim', e.key);
+                }, true);
+            }
+            if (nano) {
+                nano.addEventListener('keydown', function (e) {
+                    if (e.altKey || e.metaKey) { return; }
+                    var key = e.ctrlKey ? ('Ctrl+' + (e.key || '').toUpperCase()) : e.key;
+                    if (e.ctrlKey && (e.key === 'Control' || !e.key)) { return; }
+                    show('nano', key);
+                }, true);
+            }
+
+            /* Clicks on the on-screen key buttons count too. */
+            Array.prototype.forEach.call(
+                document.querySelectorAll('#vim-keyboard, #nano-keyboard'),
+                function (pad) {
+                    var which = (pad.id === 'nano-keyboard') ? 'nano' : 'vim';
+                    pad.addEventListener('click', function (e) {
+                        var btn = e.target.closest ? e.target.closest('.sim-key') : null;
+                        if (!btn) { return; }
+                        show(which, btn.dataset.key);
+                    }, true);
+                }
+            );
         }
 
         if (document.readyState === 'loading') {
