@@ -634,6 +634,21 @@
             border-bottom: 2px solid var(--rh-red);
         }
 
+        .vim-content .vim-sel {
+            background: #336699;
+            color: #FFFFFF;
+        }
+
+        .ref-subhead {
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--rh-gray);
+            margin: 16px 0 8px;
+        }
+
         .ref-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -651,7 +666,15 @@
 
         .ref-item .kbd {
             min-width: 50px;
+            max-width: 60%;
+            flex: 0 0 auto;
             text-align: center;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .quick-ref .ref-item {
+            align-items: flex-start;
         }
 
         /* ==================== BUTTONS ==================== */
@@ -998,19 +1021,86 @@
                 <!-- Quick Reference -->
                 <div class="quick-ref">
                     <h4>Quick Reference</h4>
+                    <h5 class="ref-subhead">Modes</h5>
                     <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">i</span> Insert mode</div>
-                        <div class="ref-item"><span class="kbd">Esc</span> Command mode</div>
-                        <div class="ref-item"><span class="kbd">h j k l</span> Navigate</div>
-                        <div class="ref-item"><span class="kbd">x</span> Delete char</div>
+                        <div class="ref-item"><span class="kbd">i</span> Insert before cursor</div>
+                        <div class="ref-item"><span class="kbd">I</span> Insert at start of line</div>
+                        <div class="ref-item"><span class="kbd">a</span> Append after cursor</div>
+                        <div class="ref-item"><span class="kbd">A</span> Append at end of line</div>
+                        <div class="ref-item"><span class="kbd">o</span> Open line below</div>
+                        <div class="ref-item"><span class="kbd">O</span> Open line above</div>
+                        <div class="ref-item"><span class="kbd">v</span> Visual (character) select</div>
+                        <div class="ref-item"><span class="kbd">V</span> Visual line select</div>
+                        <div class="ref-item"><span class="kbd">Esc</span> Back to Command mode</div>
+                    </div>
+                    <h5 class="ref-subhead">Moving around</h5>
+                    <div class="ref-grid">
+                        <div class="ref-item"><span class="kbd">h j k l</span> Left, down, up, right</div>
+                        <div class="ref-item"><span class="kbd">w</span> Forward one word</div>
+                        <div class="ref-item"><span class="kbd">b</span> Back one word</div>
+                        <div class="ref-item"><span class="kbd">e</span> End of word</div>
+                        <div class="ref-item"><span class="kbd">0</span> Start of line</div>
+                        <div class="ref-item"><span class="kbd">^</span> First non-blank character</div>
+                        <div class="ref-item"><span class="kbd">$</span> End of line</div>
+                        <div class="ref-item"><span class="kbd">gg</span> First line</div>
+                        <div class="ref-item"><span class="kbd">G</span> Last line</div>
+                        <div class="ref-item"><span class="kbd">10G</span> Go to line 10</div>
+                        <div class="ref-item"><span class="kbd">:25</span> Go to line 25</div>
+                        <div class="ref-item"><span class="kbd">5j</span> Down five lines &mdash; counts work on any motion</div>
+                    </div>
+                    <h5 class="ref-subhead">Editing</h5>
+                    <div class="ref-grid">
+                        <div class="ref-item"><span class="kbd">x</span> Delete character under cursor</div>
+                        <div class="ref-item"><span class="kbd">X</span> Delete character before cursor</div>
+                        <div class="ref-item"><span class="kbd">r</span> Replace one character</div>
+                        <div class="ref-item"><span class="kbd">s</span> Substitute character, then insert</div>
+                        <div class="ref-item"><span class="kbd">S</span> Clear line, then insert</div>
                         <div class="ref-item"><span class="kbd">dd</span> Delete line</div>
-                        <div class="ref-item"><span class="kbd">yy</span> Yank (copy) line</div>
-                        <div class="ref-item"><span class="kbd">p</span> Paste</div>
+                        <div class="ref-item"><span class="kbd">3dd</span> Delete three lines</div>
+                        <div class="ref-item"><span class="kbd">dw</span> Delete to next word</div>
+                        <div class="ref-item"><span class="kbd">de</span> Delete to end of word</div>
+                        <div class="ref-item"><span class="kbd">db</span> Delete back one word</div>
+                        <div class="ref-item"><span class="kbd">d$ or D</span> Delete to end of line</div>
+                        <div class="ref-item"><span class="kbd">d0</span> Delete to start of line</div>
+                        <div class="ref-item"><span class="kbd">cw</span> Change word</div>
+                        <div class="ref-item"><span class="kbd">cc</span> Change whole line</div>
+                        <div class="ref-item"><span class="kbd">c$ or C</span> Change to end of line</div>
+                        <div class="ref-item"><span class="kbd">J</span> Join with line below</div>
+                        <div class="ref-item"><span class="kbd">~</span> Toggle case of character</div>
                         <div class="ref-item"><span class="kbd">u</span> Undo</div>
-                        <div class="ref-item"><span class="kbd">:w</span> Save</div>
-                        <div class="ref-item"><span class="kbd">:wq</span> Save &amp; quit</div>
-                        <div class="ref-item"><span class="kbd">:q!</span> Quit (no save)</div>
-                        <div class="ref-item"><span class="kbd">G</span> Go to end</div>
+                    </div>
+                    <h5 class="ref-subhead">Copy and paste</h5>
+                    <div class="ref-grid">
+                        <div class="ref-item"><span class="kbd">yy</span> Yank (copy) line</div>
+                        <div class="ref-item"><span class="kbd">3yy</span> Yank three lines</div>
+                        <div class="ref-item"><span class="kbd">yw</span> Yank to next word</div>
+                        <div class="ref-item"><span class="kbd">y$</span> Yank to end of line</div>
+                        <div class="ref-item"><span class="kbd">p</span> Paste after cursor / below line</div>
+                        <div class="ref-item"><span class="kbd">P</span> Paste before cursor / above line</div>
+                    </div>
+                    <h5 class="ref-subhead">Visual mode</h5>
+                    <div class="ref-grid">
+                        <div class="ref-item"><span class="kbd">v then motion</span> Select characters</div>
+                        <div class="ref-item"><span class="kbd">V then j k</span> Select whole lines</div>
+                        <div class="ref-item"><span class="kbd">d</span> Delete the selection</div>
+                        <div class="ref-item"><span class="kbd">y</span> Yank the selection</div>
+                        <div class="ref-item"><span class="kbd">c</span> Change the selection</div>
+                        <div class="ref-item"><span class="kbd">Esc</span> Cancel the selection</div>
+                    </div>
+                    <h5 class="ref-subhead">Search, replace and files</h5>
+                    <div class="ref-grid">
+                        <div class="ref-item"><span class="kbd">/text</span> Search forward for text</div>
+                        <div class="ref-item"><span class="kbd">?text</span> Search backward</div>
+                        <div class="ref-item"><span class="kbd">n</span> Next match</div>
+                        <div class="ref-item"><span class="kbd">N</span> Previous match</div>
+                        <div class="ref-item"><span class="kbd">:s/old/new/</span> Replace first match on this line</div>
+                        <div class="ref-item"><span class="kbd">:%s/old/new/g</span> Replace every match in the file</div>
+                        <div class="ref-item"><span class="kbd">:set nu</span> Show line numbers</div>
+                        <div class="ref-item"><span class="kbd">:set nonu</span> Hide line numbers</div>
+                        <div class="ref-item"><span class="kbd">:w</span> Write (save)</div>
+                        <div class="ref-item"><span class="kbd">:wq or :x</span> Write and quit</div>
+                        <div class="ref-item"><span class="kbd">:q</span> Quit</div>
+                        <div class="ref-item"><span class="kbd">:q!</span> Quit without saving</div>
                     </div>
                 </div>
 
@@ -1268,27 +1358,52 @@
             }
 
             function renderVim() {
-                let html = '';
-                vimState.lines.forEach((line, lineIdx) => {
+                vimExtras();
+                var sel = null;
+                if (vimState.mode === 'visual' && vimState.visualStart) {
+                    sel = visualRange();
+                }
+
+                var html = '';
+                vimState.lines.forEach(function (line, lineIdx) {
                     html += '<div class="line">';
-                    html += '<span class="line-number">' + (lineIdx + 1) + '</span>';
+                    if (vimShowNumbers) {
+                        html += '<span class="line-number">' + (lineIdx + 1) + '</span>';
+                    }
                     html += '<span class="line-text">';
-                    
-                    if (lineIdx === vimState.cursorLine) {
-                        for (let i = 0; i < line.length; i++) {
-                            if (i === vimState.cursorCol) {
-                                html += '<span class="cursor blink">' + (escapeHtml(line[i]) || ' ') + '</span>';
+
+                    var selFrom = -1, selTo = -1;
+                    if (sel && lineIdx >= sel.start.line && lineIdx <= sel.end.line) {
+                        if (vimState.visualLine) {
+                            selFrom = 0;
+                            selTo = Math.max(0, line.length - 1);
+                        } else {
+                            selFrom = (lineIdx === sel.start.line) ? sel.start.col : 0;
+                            selTo = (lineIdx === sel.end.line) ? sel.end.col : Math.max(0, line.length - 1);
+                        }
+                    }
+
+                    if (lineIdx === vimState.cursorLine || selFrom !== -1) {
+                        for (var i = 0; i < line.length; i++) {
+                            var ch = escapeHtml(line[i]) || ' ';
+                            var inSel = (selFrom !== -1 && i >= selFrom && i <= selTo);
+                            if (lineIdx === vimState.cursorLine && i === vimState.cursorCol) {
+                                html += '<span class="cursor blink">' + ch + '</span>';
+                            } else if (inSel) {
+                                html += '<span class="vim-sel">' + ch + '</span>';
                             } else {
-                                html += escapeHtml(line[i]);
+                                html += ch;
                             }
                         }
-                        if (vimState.cursorCol >= line.length) {
+                        if (lineIdx === vimState.cursorLine && vimState.cursorCol >= line.length) {
                             html += '<span class="cursor blink"> </span>';
+                        } else if (!line.length && selFrom !== -1) {
+                            html += '<span class="vim-sel"> </span>';
                         }
                     } else {
                         html += escapeHtml(line) || '&nbsp;';
                     }
-                    
+
                     html += '</span></div>';
                 });
                 vimContent.innerHTML = html;
@@ -1297,11 +1412,16 @@
                 if (vimState.mode === 'insert') {
                     vimMode.textContent = '-- INSERT --';
                 } else if (vimState.mode === 'visual') {
-                    vimMode.textContent = '-- VISUAL --';
+                    vimMode.textContent = vimState.visualLine ? '-- VISUAL LINE --' : '-- VISUAL --';
                 } else {
                     vimMode.textContent = 'COMMAND';
                 }
-                vimPosition.textContent = 'Line ' + (vimState.cursorLine + 1) + ', Col ' + (vimState.cursorCol + 1);
+
+                /* Show the half-typed command the way Vim does, bottom right. */
+                var pending = (vimState.count || '') + (vimState.op === 'g' ? 'g' : (vimState.op || '')) +
+                              (vimState.pendingReplace ? 'r' : '');
+                vimPosition.textContent = (pending ? pending + '      ' : '') +
+                    'Line ' + (vimState.cursorLine + 1) + ', Col ' + (vimState.cursorCol + 1);
                 vimCommandLine.textContent = vimState.commandBuffer;
             }
 
@@ -1313,243 +1433,900 @@
                 }
             }
 
-            function handleVimKey(key) {
-                if (vimState.mode === 'command') {
-                    handleCommandMode(key);
-                } else if (vimState.mode === 'insert') {
-                    handleInsertMode(key);
-                }
-                renderVim();
+            // ==================== VIM ENGINE ====================
+            // Named keys arrive from real keydown events; everything else is a
+            // single character, or a multi-character macro from the button pad.
+            var VIM_NAMED = {
+                'Escape': 1, 'Enter': 1, 'Backspace': 1, 'Tab': 1, 'Delete': 1,
+                'ArrowUp': 1, 'ArrowDown': 1, 'ArrowLeft': 1, 'ArrowRight': 1,
+                'Home': 1, 'End': 1
+            };
+
+            var vimShowNumbers = true;
+
+            function vimExtras() {
+                if (vimState.op === undefined) { vimState.op = ''; }
+                if (vimState.count === undefined) { vimState.count = ''; }
+                if (vimState.pendingReplace === undefined) { vimState.pendingReplace = false; }
+                if (vimState.visualStart === undefined) { vimState.visualStart = null; }
+                if (vimState.visualLine === undefined) { vimState.visualLine = false; }
+                if (vimState.yankType === undefined) { vimState.yankType = 'line'; }
+                if (vimState.lastSearch === undefined) { vimState.lastSearch = ''; }
+                if (vimState.commandBuffer === undefined) { vimState.commandBuffer = ''; }
             }
 
-            function handleCommandMode(key) {
-                const line = vimState.lines[vimState.cursorLine];
-                
-                if (vimState.commandBuffer) {
-                    vimState.commandBuffer += key;
-                    
-                    if (vimState.commandBuffer === 'dd') {
-                        saveUndoState();
-                        vimState.yankBuffer = vimState.lines[vimState.cursorLine];
-                        vimState.lines.splice(vimState.cursorLine, 1);
-                        if (vimState.lines.length === 0) vimState.lines = [''];
-                        if (vimState.cursorLine >= vimState.lines.length) {
-                            vimState.cursorLine = vimState.lines.length - 1;
-                        }
-                        vimState.cursorCol = 0;
-                        vimMessage.textContent = 'Line deleted (and yanked)';
-                        vimState.commandBuffer = '';
-                        completeChallenge('deleteline');
-                        return;
+            function vimClear() {
+                vimState.op = '';
+                vimState.count = '';
+                vimState.pendingReplace = false;
+            }
+
+            function vimNote(text, cls) {
+                vimMessage.textContent = text;
+                if (cls) {
+                    vimMessage.classList.add(cls);
+                    setTimeout(function () { vimMessage.classList.remove(cls); }, 2000);
+                }
+            }
+
+            function vimLine() { return vimState.lines[vimState.cursorLine] || ''; }
+
+            function vimClampCursor() {
+                if (vimState.cursorLine < 0) { vimState.cursorLine = 0; }
+                if (vimState.cursorLine > vimState.lines.length - 1) {
+                    vimState.cursorLine = vimState.lines.length - 1;
+                }
+                var len = vimLine().length;
+                var max = (vimState.mode === 'insert') ? len : Math.max(0, len - 1);
+                if (vimState.cursorCol > max) { vimState.cursorCol = max; }
+                if (vimState.cursorCol < 0) { vimState.cursorCol = 0; }
+            }
+
+            function isWordChar(c) { return /\S/.test(c); }
+
+            function nextWordStart(lineIdx, col) {
+                var line = vimState.lines[lineIdx] || '';
+                var i = col;
+                while (i < line.length && isWordChar(line[i])) { i++; }
+                while (i < line.length && !isWordChar(line[i])) { i++; }
+                if (i >= line.length && lineIdx < vimState.lines.length - 1) {
+                    return { line: lineIdx + 1, col: 0 };
+                }
+                return { line: lineIdx, col: Math.min(i, Math.max(0, line.length - 1)) };
+            }
+
+            function wordEnd(lineIdx, col) {
+                var line = vimState.lines[lineIdx] || '';
+                var i = col + 1;
+                while (i < line.length && !isWordChar(line[i])) { i++; }
+                while (i + 1 < line.length && isWordChar(line[i + 1])) { i++; }
+                return { line: lineIdx, col: Math.min(i, Math.max(0, line.length - 1)) };
+            }
+
+            function prevWordStart(lineIdx, col) {
+                var line = vimState.lines[lineIdx] || '';
+                var i = col - 1;
+                while (i >= 0 && !isWordChar(line[i])) { i--; }
+                if (i < 0) {
+                    if (lineIdx > 0) {
+                        var prev = vimState.lines[lineIdx - 1] || '';
+                        return { line: lineIdx - 1, col: Math.max(0, prev.length - 1) };
                     }
-                    
-                    if (vimState.commandBuffer === 'yy') {
-                        vimState.yankBuffer = vimState.lines[vimState.cursorLine];
-                        vimMessage.textContent = 'Line yanked (copied)';
-                        vimState.commandBuffer = '';
+                    return { line: lineIdx, col: 0 };
+                }
+                while (i > 0 && isWordChar(line[i - 1])) { i--; }
+                return { line: lineIdx, col: Math.max(0, i) };
+            }
+
+            function firstNonBlank(lineIdx) {
+                var line = vimState.lines[lineIdx] || '';
+                var i = 0;
+                while (i < line.length && /\s/.test(line[i])) { i++; }
+                return Math.min(i, Math.max(0, line.length - 1));
+            }
+
+            /* Returns the destination of a motion, or null when the key is not one. */
+            function vimMotion(key, count) {
+                var n = count || 1;
+                var pos = { line: vimState.cursorLine, col: vimState.cursorCol, linewise: false, inclusive: false };
+                var i;
+
+                switch (key) {
+                    case 'h': case 'ArrowLeft':
+                        pos.col = Math.max(0, vimState.cursorCol - n);
+                        return pos;
+                    case 'l': case 'ArrowRight':
+                        pos.col = Math.min(Math.max(0, vimLine().length - 1), vimState.cursorCol + n);
+                        return pos;
+                    case 'j': case 'ArrowDown':
+                        pos.line = Math.min(vimState.lines.length - 1, vimState.cursorLine + n);
+                        pos.linewise = true;
+                        return pos;
+                    case 'k': case 'ArrowUp':
+                        pos.line = Math.max(0, vimState.cursorLine - n);
+                        pos.linewise = true;
+                        return pos;
+                    case '0': case 'Home':
+                        pos.col = 0;
+                        return pos;
+                    case '^':
+                        pos.col = firstNonBlank(vimState.cursorLine);
+                        return pos;
+                    case '$': case 'End':
+                        pos.col = Math.max(0, vimLine().length - 1);
+                        pos.inclusive = true;
+                        return pos;
+                    case 'w':
+                        for (i = 0; i < n; i++) {
+                            var nw = nextWordStart(pos.line, pos.col);
+                            pos.line = nw.line; pos.col = nw.col;
+                        }
+                        return pos;
+                    case 'e':
+                        for (i = 0; i < n; i++) {
+                            var we = wordEnd(pos.line, pos.col);
+                            pos.line = we.line; pos.col = we.col;
+                        }
+                        pos.inclusive = true;
+                        return pos;
+                    case 'b':
+                        for (i = 0; i < n; i++) {
+                            var pw = prevWordStart(pos.line, pos.col);
+                            pos.line = pw.line; pos.col = pw.col;
+                        }
+                        return pos;
+                    case 'G':
+                        pos.line = count ? Math.min(vimState.lines.length - 1, n - 1)
+                                         : vimState.lines.length - 1;
+                        pos.col = 0;
+                        pos.linewise = true;
+                        return pos;
+                    case 'gg':
+                        pos.line = count ? Math.min(vimState.lines.length - 1, n - 1) : 0;
+                        pos.col = 0;
+                        pos.linewise = true;
+                        return pos;
+                    default:
+                        return null;
+                }
+            }
+
+            function deleteLines(from, to) {
+                saveUndoState();
+                var removed = vimState.lines.slice(from, to + 1);
+                vimState.lines.splice(from, to - from + 1);
+                if (vimState.lines.length === 0) { vimState.lines = ['']; }
+                vimState.cursorLine = Math.min(from, vimState.lines.length - 1);
+                vimState.cursorCol = 0;
+                return removed;
+            }
+
+            function deleteRange(startLine, startCol, endLine, endCol) {
+                /* Character-wise delete, clamped to one line for simplicity. */
+                saveUndoState();
+                if (startLine !== endLine) {
+                    endLine = startLine;
+                    endCol = (vimState.lines[startLine] || '').length;
+                }
+                var line = vimState.lines[startLine] || '';
+                var text = line.substring(startCol, endCol);
+                vimState.lines[startLine] = line.substring(0, startCol) + line.substring(endCol);
+                vimState.cursorLine = startLine;
+                vimState.cursorCol = startCol;
+                return text;
+            }
+
+            /* Runs d, c or y over a motion. */
+            function applyOperator(op, key, count) {
+                var n = count || 1;
+
+                /* Doubled operator: dd, cc, yy - always line-wise. */
+                if (key === op) {
+                    var from = vimState.cursorLine;
+                    var to = Math.min(vimState.lines.length - 1, from + n - 1);
+                    vimState.yankBuffer = vimState.lines.slice(from, to + 1).join('\n');
+                    vimState.yankType = 'line';
+                    if (op === 'y') {
+                        vimNote(n + (n === 1 ? ' line yanked' : ' lines yanked'));
                         completeChallenge('yank');
                         return;
                     }
-                    
-                    if (vimState.commandBuffer === 'gg') {
-                        vimState.cursorLine = 0;
+                    if (op === 'd') {
+                        deleteLines(from, to);
+                        vimNote(n + (n === 1 ? ' line deleted' : ' lines deleted') + ' (and yanked)');
+                        completeChallenge('deleteline');
+                        return;
+                    }
+                    /* cc: clear the line and start inserting. */
+                    saveUndoState();
+                    vimState.lines[from] = '';
+                    vimState.cursorCol = 0;
+                    vimState.mode = 'insert';
+                    vimNote('-- INSERT -- (line changed)');
+                    completeChallenge('insert');
+                    return;
+                }
+
+                var target = vimMotion(key, n);
+                if (!target) {
+                    vimNote('No motion for ' + op + key, 'error');
+                    return;
+                }
+
+                if (target.linewise) {
+                    var a = Math.min(vimState.cursorLine, target.line);
+                    var b = Math.max(vimState.cursorLine, target.line);
+                    vimState.yankBuffer = vimState.lines.slice(a, b + 1).join('\n');
+                    vimState.yankType = 'line';
+                    if (op === 'y') {
+                        vimNote((b - a + 1) + ' lines yanked');
+                        completeChallenge('yank');
+                        return;
+                    }
+                    deleteLines(a, b);
+                    if (op === 'c') {
+                        vimState.lines.splice(vimState.cursorLine, 0, '');
                         vimState.cursorCol = 0;
-                        vimMessage.textContent = 'Jumped to first line';
-                        vimState.commandBuffer = '';
-                        completeChallenge('navigate');
-                        return;
-                    }
-                    
-                    if (vimState.commandBuffer.startsWith(':')) {
-                        vimCommandLine.textContent = vimState.commandBuffer;
-                        if (key === 'Enter' || vimState.commandBuffer === ':w' || 
-                            vimState.commandBuffer === ':wq' || vimState.commandBuffer === ':q!') {
-                            executeExCommand(vimState.commandBuffer);
-                            vimState.commandBuffer = '';
-                        }
-                        return;
-                    }
-                    
-                    if (vimState.commandBuffer.length >= 2 && !vimState.commandBuffer.startsWith(':')) {
-                        vimState.commandBuffer = '';
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT --');
+                        completeChallenge('insert');
+                    } else {
+                        vimNote((b - a + 1) + ' lines deleted');
+                        completeChallenge('deleteline');
                     }
                     return;
                 }
-                
-                switch(key) {
+
+                var sCol = vimState.cursorCol;
+                var eCol = target.col + (target.inclusive ? 1 : 0);
+                if (eCol < sCol) { var t = sCol; sCol = eCol; eCol = t; }
+                /* cw behaves like ce: it stops at the end of the word. */
+                if (op === 'c' && key === 'w') {
+                    var ce = wordEnd(vimState.cursorLine, vimState.cursorCol);
+                    eCol = ce.col + 1;
+                }
+
+                if (op === 'y') {
+                    vimState.yankBuffer = vimLine().substring(sCol, eCol);
+                    vimState.yankType = 'char';
+                    vimNote('Yanked "' + vimState.yankBuffer + '"');
+                    completeChallenge('yank');
+                    return;
+                }
+
+                vimState.yankBuffer = deleteRange(vimState.cursorLine, sCol, target.line, eCol);
+                vimState.yankType = 'char';
+                if (op === 'c') {
+                    vimState.mode = 'insert';
+                    vimNote('-- INSERT -- (changed "' + vimState.yankBuffer + '")');
+                    completeChallenge('insert');
+                } else {
+                    vimNote('Deleted "' + vimState.yankBuffer + '"');
+                    completeChallenge('delete');
+                }
+            }
+
+            function vimPaste(above) {
+                if (!vimState.yankBuffer) {
+                    vimNote('Nothing to paste', 'error');
+                    return;
+                }
+                saveUndoState();
+                if (vimState.yankType === 'line') {
+                    var newLines = vimState.yankBuffer.split('\n');
+                    var at = above ? vimState.cursorLine : vimState.cursorLine + 1;
+                    Array.prototype.splice.apply(vimState.lines, [at, 0].concat(newLines));
+                    vimState.cursorLine = at;
+                    vimState.cursorCol = 0;
+                } else {
+                    var line = vimLine();
+                    var at2 = above ? vimState.cursorCol : Math.min(line.length, vimState.cursorCol + 1);
+                    vimState.lines[vimState.cursorLine] =
+                        line.substring(0, at2) + vimState.yankBuffer + line.substring(at2);
+                    vimState.cursorCol = at2 + vimState.yankBuffer.length - 1;
+                }
+                vimNote(above ? 'Pasted above' : 'Pasted below');
+                completeChallenge('paste');
+            }
+
+            /* ---------- visual mode ---------- */
+            function visualRange() {
+                var a = vimState.visualStart || { line: vimState.cursorLine, col: vimState.cursorCol };
+                var b = { line: vimState.cursorLine, col: vimState.cursorCol };
+                if (a.line > b.line || (a.line === b.line && a.col > b.col)) { var t = a; a = b; b = t; }
+                return { start: a, end: b };
+            }
+
+            function visualDelete(change) {
+                var r = visualRange();
+                if (vimState.visualLine) {
+                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
+                    vimState.yankType = 'line';
+                    deleteLines(r.start.line, r.end.line);
+                    if (change) {
+                        vimState.lines.splice(vimState.cursorLine, 0, '');
+                        vimState.cursorCol = 0;
+                    }
+                } else if (r.start.line === r.end.line) {
+                    vimState.yankBuffer = deleteRange(r.start.line, r.start.col, r.end.line, r.end.col + 1);
+                    vimState.yankType = 'char';
+                } else {
+                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
+                    vimState.yankType = 'line';
+                    deleteLines(r.start.line, r.end.line);
+                }
+                vimState.visualStart = null;
+                vimState.visualLine = false;
+                vimState.mode = change ? 'insert' : 'command';
+                vimNote(change ? '-- INSERT --' : 'Selection deleted (and yanked)');
+                completeChallenge(change ? 'insert' : 'delete');
+            }
+
+            function visualYank() {
+                var r = visualRange();
+                if (vimState.visualLine || r.start.line !== r.end.line) {
+                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
+                    vimState.yankType = 'line';
+                } else {
+                    vimState.yankBuffer = (vimState.lines[r.start.line] || '')
+                        .substring(r.start.col, r.end.col + 1);
+                    vimState.yankType = 'char';
+                }
+                vimState.cursorLine = r.start.line;
+                vimState.cursorCol = r.start.col;
+                vimState.visualStart = null;
+                vimState.visualLine = false;
+                vimState.mode = 'command';
+                vimNote('Selection yanked');
+                completeChallenge('yank');
+            }
+
+            /* ---------- search ---------- */
+            function vimSearch(term, forward, fromNext) {
+                if (!term) { return; }
+                vimState.lastSearch = term;
+                var total = vimState.lines.length;
+                var startLine = vimState.cursorLine;
+                var startCol = vimState.cursorCol + (fromNext ? 1 : 0);
+                var i, li, line, idx;
+
+                for (i = 0; i <= total; i++) {
+                    li = forward ? (startLine + i) % total
+                                 : (startLine - i + total * 2) % total;
+                    line = vimState.lines[li] || '';
+                    if (forward) {
+                        idx = line.indexOf(term, (i === 0) ? startCol : 0);
+                    } else {
+                        idx = line.lastIndexOf(term, (i === 0) ? Math.max(0, startCol - 2) : line.length);
+                        if (i === 0 && startCol <= 0) { idx = -1; }
+                    }
+                    if (idx !== -1) {
+                        vimState.cursorLine = li;
+                        vimState.cursorCol = idx;
+                        vimNote((forward ? '/' : '?') + term + '  (line ' + (li + 1) + ')');
+                        completeChallenge('navigate');
+                        return true;
+                    }
+                }
+                vimNote('Pattern not found: ' + term, 'error');
+                return false;
+            }
+
+            function vimSubstitute(scope, body) {
+                var parts = body.split('/');
+                if (parts.length < 3) {
+                    vimNote('Usage: :%s/old/new/g', 'error');
+                    return;
+                }
+                var oldText = parts[1];
+                var newText = parts[2];
+                var flags = parts[3] || '';
+                if (!oldText) {
+                    vimNote('Nothing to search for', 'error');
+                    return;
+                }
+                saveUndoState();
+                var global = flags.indexOf('g') !== -1;
+                var from = (scope === '%') ? 0 : vimState.cursorLine;
+                var to = (scope === '%') ? vimState.lines.length - 1 : vimState.cursorLine;
+                var hits = 0, linesHit = 0, i, line, before;
+
+                for (i = from; i <= to; i++) {
+                    line = vimState.lines[i];
+                    before = line;
+                    if (global) {
+                        while (line.indexOf(oldText) !== -1) {
+                            line = line.replace(oldText, '\u0000');
+                            hits++;
+                        }
+                        line = line.split('\u0000').join(newText);
+                    } else if (line.indexOf(oldText) !== -1) {
+                        line = line.replace(oldText, newText);
+                        hits++;
+                    }
+                    if (line !== before) { linesHit++; }
+                    vimState.lines[i] = line;
+                }
+                vimClampCursor();
+                if (hits) {
+                    vimNote(hits + ' substitution' + (hits === 1 ? '' : 's') +
+                            ' on ' + linesHit + ' line' + (linesHit === 1 ? '' : 's'));
+                } else {
+                    vimNote('Pattern not found: ' + oldText, 'error');
+                }
+            }
+
+            /* ---------- the : and / command line ---------- */
+            function handleCommandLine(key) {
+                var buf = vimState.commandBuffer;
+
+                if (key === 'Escape') {
+                    vimState.commandBuffer = '';
+                    vimNote('Ready');
+                    return;
+                }
+                if (key === 'Backspace') {
+                    vimState.commandBuffer = buf.slice(0, -1);
+                    if (!vimState.commandBuffer) { vimNote('Ready'); }
+                    return;
+                }
+                if (key === 'Enter') {
+                    vimState.commandBuffer = '';
+                    if (buf.charAt(0) === ':') {
+                        executeExCommand(buf);
+                    } else {
+                        vimSearch(buf.slice(1), buf.charAt(0) === '/', true);
+                    }
+                    return;
+                }
+                if (key.length === 1) {
+                    vimState.commandBuffer = buf + key;
+                }
+            }
+
+            function executeExCommand(cmd) {
+                var body = cmd.slice(1).trim();
+
+                if (body === 'w' || body === 'w!') {
+                    vimNote('"' + document.getElementById('vim-filename').textContent + '" written', 'info');
+                    completeChallenge('save');
+                    return;
+                }
+                if (body === 'wq' || body === 'wq!' || body === 'x') {
+                    vimNote('File saved! (Would quit in real Vim)', 'info');
+                    completeChallenge('save');
+                    return;
+                }
+                if (body === 'q') {
+                    vimNote('Would quit. Use :q! to discard changes, :wq to save first.', 'info');
+                    return;
+                }
+                if (body === 'q!') {
+                    vimNote('Would quit without saving in real Vim', 'error');
+                    return;
+                }
+                if (body === 'set nu' || body === 'set number') {
+                    vimShowNumbers = true;
+                    vimNote('Line numbers on');
+                    return;
+                }
+                if (body === 'set nonu' || body === 'set nonumber') {
+                    vimShowNumbers = false;
+                    vimNote('Line numbers off');
+                    return;
+                }
+                if (body === 'noh' || body === 'nohl' || body === 'nohlsearch') {
+                    vimNote('Search highlight cleared');
+                    return;
+                }
+                if (/^[0-9]+$/.test(body)) {
+                    vimState.cursorLine = Math.min(vimState.lines.length - 1, parseInt(body, 10) - 1);
+                    vimState.cursorCol = 0;
+                    vimNote('Jumped to line ' + (vimState.cursorLine + 1));
+                    completeChallenge('navigate');
+                    return;
+                }
+                if (body.charAt(0) === '%' && body.charAt(1) === 's') {
+                    vimSubstitute('%', body.slice(1));
+                    return;
+                }
+                if (body.charAt(0) === 's' && body.charAt(1) === '/') {
+                    vimSubstitute('.', body);
+                    return;
+                }
+                vimNote('Not an editor command: ' + body, 'error');
+            }
+
+            /* ---------- normal (command) and visual mode ---------- */
+            function handleNormalMode(key) {
+                var count = vimState.count ? parseInt(vimState.count, 10) : 0;
+                var visual = (vimState.mode === 'visual');
+                var i;
+
+                if (vimState.pendingReplace) {
+                    vimState.pendingReplace = false;
+                    if (key.length === 1) {
+                        saveUndoState();
+                        var ln = vimLine();
+                        if (ln.length) {
+                            vimState.lines[vimState.cursorLine] =
+                                ln.substring(0, vimState.cursorCol) + key +
+                                ln.substring(vimState.cursorCol + 1);
+                            vimNote('Replaced with "' + key + '"');
+                        }
+                    }
+                    return;
+                }
+
+                /* Counts: 1-9 always, 0 only when a count is already going. */
+                if (/^[0-9]$/.test(key) && !(key === '0' && !vimState.count)) {
+                    vimState.count += key;
+                    return;
+                }
+
+                /* gg needs its own small buffer. */
+                if (vimState.op === 'g') {
+                    vimState.op = '';
+                    if (key === 'g') {
+                        var top = vimMotion('gg', count);
+                        if (vimState.op === '') {
+                            vimState.cursorLine = top.line;
+                            vimState.cursorCol = 0;
+                            vimState.count = '';
+                            vimNote('Jumped to line ' + (top.line + 1));
+                            completeChallenge('navigate');
+                            return;
+                        }
+                    }
+                    vimState.count = '';
+                    return;
+                }
+
+                /* A pending operator (d, c, y) is waiting for a motion. */
+                if (vimState.op) {
+                    var op = vimState.op;
+                    if (key === 'Escape') { vimClear(); vimNote('Ready'); return; }
+                    if (key === 'g') { key = 'gg'; }   /* dgg */
+                    applyOperator(op, key, count);
+                    vimClear();
+                    return;
+                }
+
+                /* Motions move the cursor (and extend the selection in Visual). */
+                var motion = vimMotion(key, count);
+                if (motion) {
+                    vimState.cursorLine = motion.line;
+                    vimState.cursorCol = motion.col;
+                    vimClampCursor();
+                    vimState.count = '';
+                    completeChallenge('navigate');
+                    return;
+                }
+
+                switch (key) {
+                    case 'Escape':
+                        vimClear();
+                        vimState.commandBuffer = '';
+                        if (visual) {
+                            vimState.mode = 'command';
+                            vimState.visualStart = null;
+                            vimState.visualLine = false;
+                        }
+                        vimNote('Ready (command mode)');
+                        completeChallenge('escape');
+                        return;
+
                     case 'i':
+                        if (visual) { return; }
                         vimState.mode = 'insert';
-                        vimMessage.textContent = '-- INSERT -- (press Esc to return to command mode)';
+                        vimNote('-- INSERT -- (press Esc to return to command mode)');
                         completeChallenge('insert');
-                        break;
+                        return;
+                    case 'I':
+                        vimState.cursorCol = firstNonBlank(vimState.cursorLine);
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (start of line)');
+                        completeChallenge('insert');
+                        return;
                     case 'a':
+                        if (visual) { return; }
+                        vimState.cursorCol = Math.min(vimState.cursorCol + 1, vimLine().length);
                         vimState.mode = 'insert';
-                        vimState.cursorCol = Math.min(vimState.cursorCol + 1, line.length);
-                        vimMessage.textContent = '-- INSERT -- (appending after cursor)';
+                        vimNote('-- INSERT -- (appending after cursor)');
                         completeChallenge('insert');
-                        break;
+                        return;
+                    case 'A':
+                        vimState.cursorCol = vimLine().length;
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (end of line)');
+                        completeChallenge('insert');
+                        return;
                     case 'o':
                         saveUndoState();
                         vimState.lines.splice(vimState.cursorLine + 1, 0, '');
                         vimState.cursorLine++;
                         vimState.cursorCol = 0;
                         vimState.mode = 'insert';
-                        vimMessage.textContent = '-- INSERT -- (new line below)';
+                        vimNote('-- INSERT -- (new line below)');
                         completeChallenge('insert');
-                        break;
-                    case 'h':
-                        if (vimState.cursorCol > 0) vimState.cursorCol--;
-                        completeChallenge('navigate');
-                        break;
-                    case 'j':
-                        if (vimState.cursorLine < vimState.lines.length - 1) {
-                            vimState.cursorLine++;
-                            vimState.cursorCol = Math.min(vimState.cursorCol, vimState.lines[vimState.cursorLine].length - 1);
-                            if (vimState.cursorCol < 0) vimState.cursorCol = 0;
+                        return;
+                    case 'O':
+                        saveUndoState();
+                        vimState.lines.splice(vimState.cursorLine, 0, '');
+                        vimState.cursorCol = 0;
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (new line above)');
+                        completeChallenge('insert');
+                        return;
+
+                    case 'v':
+                        if (visual && !vimState.visualLine) {
+                            vimState.mode = 'command';
+                            vimState.visualStart = null;
+                            vimNote('Ready (command mode)');
+                        } else {
+                            vimState.mode = 'visual';
+                            vimState.visualLine = false;
+                            vimState.visualStart = { line: vimState.cursorLine, col: vimState.cursorCol };
+                            vimNote('-- VISUAL -- (move to select, d delete, y yank, Esc cancel)');
                         }
-                        completeChallenge('navigate');
-                        break;
-                    case 'k':
-                        if (vimState.cursorLine > 0) {
-                            vimState.cursorLine--;
-                            vimState.cursorCol = Math.min(vimState.cursorCol, vimState.lines[vimState.cursorLine].length - 1);
-                            if (vimState.cursorCol < 0) vimState.cursorCol = 0;
-                        }
-                        completeChallenge('navigate');
-                        break;
-                    case 'l':
-                        if (vimState.cursorCol < line.length - 1) vimState.cursorCol++;
-                        completeChallenge('navigate');
-                        break;
+                        return;
+                    case 'V':
+                        vimState.mode = 'visual';
+                        vimState.visualLine = true;
+                        vimState.visualStart = { line: vimState.cursorLine, col: 0 };
+                        vimNote('-- VISUAL LINE -- (d delete, y yank, Esc cancel)');
+                        return;
+
                     case 'x':
-                        if (line.length > 0) {
+                        if (visual) { visualDelete(false); return; }
+                        var lx = vimLine();
+                        if (lx.length) {
                             saveUndoState();
-                            vimState.lines[vimState.cursorLine] = 
-                                line.substring(0, vimState.cursorCol) + line.substring(vimState.cursorCol + 1);
-                            if (vimState.cursorCol >= vimState.lines[vimState.cursorLine].length && vimState.cursorCol > 0) {
-                                vimState.cursorCol--;
-                            }
-                            vimMessage.textContent = 'Character deleted';
+                            var take = Math.max(1, count || 1);
+                            vimState.yankBuffer = lx.substr(vimState.cursorCol, take);
+                            vimState.yankType = 'char';
+                            vimState.lines[vimState.cursorLine] =
+                                lx.substring(0, vimState.cursorCol) + lx.substring(vimState.cursorCol + take);
+                            vimClampCursor();
+                            vimNote('Character deleted');
                             completeChallenge('delete');
                         }
-                        break;
-                    case 'p':
-                        if (vimState.yankBuffer) {
+                        vimState.count = '';
+                        return;
+                    case 'X':
+                        if (vimState.cursorCol > 0) {
                             saveUndoState();
-                            vimState.lines.splice(vimState.cursorLine + 1, 0, vimState.yankBuffer);
-                            vimState.cursorLine++;
-                            vimState.cursorCol = 0;
-                            vimMessage.textContent = 'Pasted below';
-                            completeChallenge('paste');
-                        } else {
-                            vimMessage.textContent = 'Nothing to paste';
-                            vimMessage.classList.add('error');
-                            setTimeout(function() { vimMessage.classList.remove('error'); }, 1500);
+                            var lX = vimLine();
+                            vimState.lines[vimState.cursorLine] =
+                                lX.substring(0, vimState.cursorCol - 1) + lX.substring(vimState.cursorCol);
+                            vimState.cursorCol--;
+                            vimNote('Character before cursor deleted');
+                            completeChallenge('delete');
                         }
-                        break;
+                        return;
+
+                    case 'd':
+                        if (visual) { visualDelete(false); return; }
+                        vimState.op = 'd';
+                        return;
+                    case 'c':
+                        if (visual) { visualDelete(true); return; }
+                        vimState.op = 'c';
+                        return;
+                    case 'y':
+                        if (visual) { visualYank(); return; }
+                        vimState.op = 'y';
+                        return;
+                    case 'g':
+                        vimState.op = 'g';
+                        return;
+
+                    case 'D':
+                        saveUndoState();
+                        var lD = vimLine();
+                        vimState.yankBuffer = lD.substring(vimState.cursorCol);
+                        vimState.yankType = 'char';
+                        vimState.lines[vimState.cursorLine] = lD.substring(0, vimState.cursorCol);
+                        vimClampCursor();
+                        vimNote('Deleted to end of line');
+                        completeChallenge('delete');
+                        return;
+                    case 'C':
+                        saveUndoState();
+                        var lC = vimLine();
+                        vimState.yankBuffer = lC.substring(vimState.cursorCol);
+                        vimState.yankType = 'char';
+                        vimState.lines[vimState.cursorLine] = lC.substring(0, vimState.cursorCol);
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (changed to end of line)');
+                        completeChallenge('insert');
+                        return;
+                    case 's':
+                        saveUndoState();
+                        var lS = vimLine();
+                        vimState.lines[vimState.cursorLine] =
+                            lS.substring(0, vimState.cursorCol) + lS.substring(vimState.cursorCol + 1);
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (substituted character)');
+                        completeChallenge('insert');
+                        return;
+                    case 'S':
+                        saveUndoState();
+                        vimState.lines[vimState.cursorLine] = '';
+                        vimState.cursorCol = 0;
+                        vimState.mode = 'insert';
+                        vimNote('-- INSERT -- (line cleared)');
+                        completeChallenge('insert');
+                        return;
+                    case 'r':
+                        vimState.pendingReplace = true;
+                        vimNote('Replace with which character?');
+                        return;
+                    case 'J':
+                        if (vimState.cursorLine < vimState.lines.length - 1) {
+                            saveUndoState();
+                            var here = vimLine();
+                            var below = vimState.lines[vimState.cursorLine + 1] || '';
+                            vimState.cursorCol = here.length;
+                            vimState.lines[vimState.cursorLine] =
+                                here + (here && below ? ' ' : '') + below.replace(/^\s+/, '');
+                            vimState.lines.splice(vimState.cursorLine + 1, 1);
+                            vimNote('Lines joined');
+                        }
+                        return;
+                    case '~':
+                        saveUndoState();
+                        var lT = vimLine();
+                        if (lT.length) {
+                            var ch = lT[vimState.cursorCol];
+                            var flipped = (ch === ch.toLowerCase()) ? ch.toUpperCase() : ch.toLowerCase();
+                            vimState.lines[vimState.cursorLine] =
+                                lT.substring(0, vimState.cursorCol) + flipped +
+                                lT.substring(vimState.cursorCol + 1);
+                            vimState.cursorCol = Math.min(vimState.cursorCol + 1, Math.max(0, lT.length - 1));
+                            vimNote('Case toggled');
+                        }
+                        return;
+
+                    case 'p':
+                        vimPaste(false);
+                        return;
+                    case 'P':
+                        vimPaste(true);
+                        return;
+
                     case 'u':
-                        if (vimState.undoStack.length > 0) {
-                            const prev = vimState.undoStack.pop();
+                        if (vimState.undoStack.length) {
+                            var prev = vimState.undoStack.pop();
                             vimState.lines = prev.lines;
                             vimState.cursorLine = prev.cursorLine;
                             vimState.cursorCol = prev.cursorCol;
-                            vimMessage.textContent = 'Undone';
+                            vimClampCursor();
+                            vimNote('Undone');
                             completeChallenge('undo');
                         } else {
-                            vimMessage.textContent = 'Nothing to undo';
+                            vimNote('Nothing to undo');
                         }
-                        break;
-                    case 'G':
-                        vimState.cursorLine = vimState.lines.length - 1;
-                        vimState.cursorCol = 0;
-                        vimMessage.textContent = 'Jumped to last line';
-                        completeChallenge('navigate');
-                        break;
-                    case 'v':
-                        vimState.mode = 'visual';
-                        vimMessage.textContent = '-- VISUAL -- (press Esc to exit)';
-                        break;
-                    case 'd':
-                    case 'y':
-                    case 'g':
+                        return;
+
+                    case 'n':
+                        if (vimState.lastSearch) { vimSearch(vimState.lastSearch, true, true); }
+                        else { vimNote('No previous search', 'error'); }
+                        return;
+                    case 'N':
+                        if (vimState.lastSearch) { vimSearch(vimState.lastSearch, false, true); }
+                        else { vimNote('No previous search', 'error'); }
+                        return;
+
                     case ':':
+                    case '/':
+                    case '?':
                         vimState.commandBuffer = key;
-                        if (key === ':') {
-                            vimCommandLine.textContent = ':';
+                        vimNote(key === ':' ? 'Type a command, then press Enter'
+                                            : 'Type text to find, then press Enter');
+                        return;
+
+                    default:
+                        if (key.length === 1) {
+                            vimNote('Not a command here: ' + key, 'error');
                         }
-                        break;
-                    case 'Escape':
-                        vimState.commandBuffer = '';
-                        vimCommandLine.textContent = '';
-                        vimMessage.textContent = 'Ready';
-                        break;
+                        return;
                 }
             }
 
             function handleInsertMode(key) {
                 if (key === 'Escape') {
                     vimState.mode = 'command';
-                    if (vimState.cursorCol > 0) vimState.cursorCol--;
-                    vimMessage.textContent = 'Ready (command mode)';
+                    if (vimState.cursorCol > 0) { vimState.cursorCol--; }
+                    vimClampCursor();
+                    vimNote('Ready (command mode)');
                     completeChallenge('escape');
                     return;
                 }
-                
-                saveUndoState();
-                const line = vimState.lines[vimState.cursorLine];
-                
+
+                /* Arrows move the cursor in Insert mode - they do not type letters. */
+                if (key === 'ArrowLeft') { vimState.cursorCol = Math.max(0, vimState.cursorCol - 1); return; }
+                if (key === 'ArrowRight') { vimState.cursorCol = Math.min(vimLine().length, vimState.cursorCol + 1); return; }
+                if (key === 'ArrowUp') {
+                    if (vimState.cursorLine > 0) { vimState.cursorLine--; }
+                    vimState.cursorCol = Math.min(vimState.cursorCol, vimLine().length);
+                    return;
+                }
+                if (key === 'ArrowDown') {
+                    if (vimState.cursorLine < vimState.lines.length - 1) { vimState.cursorLine++; }
+                    vimState.cursorCol = Math.min(vimState.cursorCol, vimLine().length);
+                    return;
+                }
+
+                var line = vimLine();
+
                 if (key === 'Backspace') {
+                    saveUndoState();
                     if (vimState.cursorCol > 0) {
-                        vimState.lines[vimState.cursorLine] = 
+                        vimState.lines[vimState.cursorLine] =
                             line.substring(0, vimState.cursorCol - 1) + line.substring(vimState.cursorCol);
                         vimState.cursorCol--;
                     } else if (vimState.cursorLine > 0) {
-                        const prevLine = vimState.lines[vimState.cursorLine - 1];
+                        var prevLine = vimState.lines[vimState.cursorLine - 1];
                         vimState.cursorCol = prevLine.length;
                         vimState.lines[vimState.cursorLine - 1] = prevLine + line;
                         vimState.lines.splice(vimState.cursorLine, 1);
                         vimState.cursorLine--;
                     }
-                } else if (key === 'Enter') {
-                    const beforeCursor = line.substring(0, vimState.cursorCol);
-                    const afterCursor = line.substring(vimState.cursorCol);
-                    vimState.lines[vimState.cursorLine] = beforeCursor;
-                    vimState.lines.splice(vimState.cursorLine + 1, 0, afterCursor);
+                    return;
+                }
+
+                if (key === 'Enter') {
+                    saveUndoState();
+                    vimState.lines[vimState.cursorLine] = line.substring(0, vimState.cursorCol);
+                    vimState.lines.splice(vimState.cursorLine + 1, 0, line.substring(vimState.cursorCol));
                     vimState.cursorLine++;
                     vimState.cursorCol = 0;
                     completeChallenge('type');
-                } else if (key.length === 1) {
-                    vimState.lines[vimState.cursorLine] = 
+                    return;
+                }
+
+                if (key === 'Tab') {
+                    saveUndoState();
+                    vimState.lines[vimState.cursorLine] =
+                        line.substring(0, vimState.cursorCol) + '    ' + line.substring(vimState.cursorCol);
+                    vimState.cursorCol += 4;
+                    completeChallenge('type');
+                    return;
+                }
+
+                if (key.length === 1) {
+                    saveUndoState();
+                    vimState.lines[vimState.cursorLine] =
                         line.substring(0, vimState.cursorCol) + key + line.substring(vimState.cursorCol);
                     vimState.cursorCol++;
                     completeChallenge('type');
                 }
             }
 
-            function executeExCommand(cmd) {
-                switch(cmd) {
-                    case ':w':
-                        vimMessage.textContent = '"practice.txt" written';
-                        vimMessage.classList.add('info');
-                        setTimeout(function() { vimMessage.classList.remove('info'); }, 2000);
-                        completeChallenge('save');
-                        break;
-                    case ':wq':
-                        vimMessage.textContent = 'File saved! (Would quit in real Vim)';
-                        vimMessage.classList.add('info');
-                        completeChallenge('save');
-                        break;
-                    case ':q!':
-                        vimMessage.textContent = 'Would quit without saving in real Vim';
-                        vimMessage.classList.add('error');
-                        setTimeout(function() { vimMessage.classList.remove('error'); }, 2000);
-                        break;
-                    default:
-                        vimMessage.textContent = 'Unknown command: ' + cmd;
-                        vimMessage.classList.add('error');
-                        setTimeout(function() { vimMessage.classList.remove('error'); }, 2000);
+            function handleVimKey(key) {
+                if (!key) { return; }
+                vimExtras();
+
+                /* Button-pad keys such as dd, yy, :wq arrive as one string. */
+                if (key.length > 1 && !VIM_NAMED[key]) {
+                    var chars = key.split('');
+                    for (var c = 0; c < chars.length; c++) { handleVimKey(chars[c]); }
+                    if (key.charAt(0) === ':' || key.charAt(0) === '/') { handleVimKey('Enter'); }
+                    return;
                 }
-                vimCommandLine.textContent = '';
+
+                if (vimState.commandBuffer && vimState.mode !== 'insert') {
+                    handleCommandLine(key);
+                } else if (vimState.mode === 'insert') {
+                    handleInsertMode(key);
+                } else {
+                    handleNormalMode(key);
+                }
+
+                vimClampCursor();
+                renderVim();
             }
 
             document.getElementById('vim-keyboard').addEventListener('click', function(e) {
@@ -1561,13 +2338,9 @@
             });
 
             vimContent.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey || e.altKey) { return; }
                 e.preventDefault();
-                var key = e.key;
-                if (key === 'ArrowLeft') key = 'h';
-                if (key === 'ArrowDown') key = 'j';
-                if (key === 'ArrowUp') key = 'k';
-                if (key === 'ArrowRight') key = 'l';
-                handleVimKey(key);
+                handleVimKey(e.key);
             });
 
             document.getElementById('vim-reset').addEventListener('click', function() {
@@ -2001,7 +2774,18 @@
             'i': 'insert mode', 'a': 'append', 'o': 'open line below',
             'h': 'left', 'j': 'down', 'k': 'up', 'l': 'right',
             'x': 'delete character', 'dd': 'delete line', 'yy': 'yank line',
-            'p': 'paste', 'u': 'undo', 'v': 'visual mode',
+            'p': 'paste', 'P': 'paste above', 'u': 'undo',
+            'v': 'visual mode', 'V': 'visual line mode',
+            'w': 'next word', 'b': 'back one word', 'e': 'end of word',
+            '0': 'start of line', '^': 'first non-blank', '$': 'end of line',
+            'A': 'append at end', 'I': 'insert at start', 'O': 'open line above',
+            'D': 'delete to end of line', 'C': 'change to end of line',
+            'X': 'delete back', 'r': 'replace character', 's': 'substitute character',
+            'S': 'clear line', 'J': 'join lines', '~': 'toggle case',
+            'd': 'delete (awaiting motion)', 'c': 'change (awaiting motion)',
+            'y': 'yank (awaiting motion)',
+            'n': 'next match', 'N': 'previous match',
+            '/': 'search forward', '?': 'search backward', ':': 'command line',
             'G': 'go to last line', 'gg': 'go to first line',
             ':w': 'write (save)', ':wq': 'write and quit', ':q!': 'quit, no save',
             'Escape': 'command mode', 'Enter': 'new line', 'Backspace': 'delete back',
