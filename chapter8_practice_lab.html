@@ -1492,7 +1492,9 @@
                 if (i >= line.length && lineIdx < vimState.lines.length - 1) {
                     return { line: lineIdx + 1, col: 0 };
                 }
-                return { line: lineIdx, col: Math.min(i, Math.max(0, line.length - 1)) };
+                /* Returned unclamped: dw on the last word must reach the end of
+                   the line. Cursor movement clamps separately. */
+                return { line: lineIdx, col: i };
             }
 
             function wordEnd(lineIdx, col) {
@@ -1677,13 +1679,25 @@
                     return;
                 }
 
+                /* A word motion can run off the end of the line. Vim stops the
+                   operator at the line boundary instead of wrapping, so clamp
+                   the target before working out the range. */
+                if (target.line !== vimState.cursorLine) {
+                    target = {
+                        line: vimState.cursorLine,
+                        col: (target.line > vimState.cursorLine) ? vimLine().length : 0,
+                        inclusive: false
+                    };
+                }
+
                 var sCol = vimState.cursorCol;
                 var eCol = target.col + (target.inclusive ? 1 : 0);
                 if (eCol < sCol) { var t = sCol; sCol = eCol; eCol = t; }
                 /* cw behaves like ce: it stops at the end of the word. */
                 if (op === 'c' && key === 'w') {
                     var ce = wordEnd(vimState.cursorLine, vimState.cursorCol);
-                    eCol = ce.col + 1;
+                    sCol = vimState.cursorCol;
+                    eCol = Math.max(sCol, ce.col + 1);
                 }
 
                 if (op === 'y') {
