@@ -1647,7 +1647,7 @@
                     return;
                 }
 
-                var target = vimMotion(key, n);
+                var target = vimMotion(key, count);
                 if (!target) {
                     vimNote('No motion for ' + op + key, 'error');
                     return;
@@ -1986,6 +1986,11 @@
                 if (vimState.op) {
                     var op = vimState.op;
                     if (key === 'Escape') { vimClear(); vimNote('Ready'); return; }
+                    /* d3w: a count may follow the operator too. */
+                    if (/^[0-9]$/.test(key) && !(key === '0' && !vimState.count)) {
+                        vimState.count += key;
+                        return;
+                    }
                     if (key === 'g') { key = 'gg'; }   /* dgg */
                     applyOperator(op, key, count);
                     vimClear();
@@ -2305,17 +2310,23 @@
                 }
             }
 
+            /* Button-pad keys such as dd, yy or :wq are replayed one character
+               at a time. Only the pad calls this - never a real keydown. */
+            function handleVimMacro(macro) {
+                if (!macro) { return; }
+                var chars = macro.split('');
+                for (var c = 0; c < chars.length; c++) { handleVimKey(chars[c]); }
+                if (macro.charAt(0) === ':' || macro.charAt(0) === '/') { handleVimKey('Enter'); }
+            }
+
             function handleVimKey(key) {
                 if (!key) { return; }
                 vimExtras();
 
-                /* Button-pad keys such as dd, yy, :wq arrive as one string. */
-                if (key.length > 1 && !VIM_NAMED[key]) {
-                    var chars = key.split('');
-                    for (var c = 0; c < chars.length; c++) { handleVimKey(chars[c]); }
-                    if (key.charAt(0) === ':' || key.charAt(0) === '/') { handleVimKey('Enter'); }
-                    return;
-                }
+                /* Shift, Control, Alt, F-keys and friends are not Vim commands.
+                   Ignoring them keeps a pending d, c, y or r alive while the
+                   user reaches for a shifted key such as $ or G. */
+                if (key.length > 1 && !VIM_NAMED[key]) { return; }
 
                 if (vimState.commandBuffer && vimState.mode !== 'insert') {
                     handleCommandLine(key);
@@ -2331,8 +2342,7 @@
 
             document.getElementById('vim-keyboard').addEventListener('click', function(e) {
                 if (e.target.classList.contains('sim-key')) {
-                    var key = e.target.dataset.key;
-                    handleVimKey(key);
+                    handleVimMacro(e.target.dataset.key);
                     vimContent.focus();
                 }
             });
@@ -2937,17 +2947,23 @@
             var vim = document.getElementById('vim-content');
             var nano = document.getElementById('nano-content');
 
+            var MODIFIERS = {
+                'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1,
+                'NumLock': 1, 'ScrollLock': 1, 'AltGraph': 1, 'Dead': 1,
+                'Unidentified': 1, 'OS': 1, 'ContextMenu': 1
+            };
+
             if (vim) {
                 vim.addEventListener('keydown', function (e) {
-                    if (e.altKey || e.metaKey) { return; }
+                    if (e.altKey || e.metaKey || MODIFIERS[e.key]) { return; }
                     show('vim', e.key);
                 }, true);
             }
             if (nano) {
                 nano.addEventListener('keydown', function (e) {
                     if (e.altKey || e.metaKey) { return; }
+                    if (MODIFIERS[e.key]) { return; }
                     var key = e.ctrlKey ? ('Ctrl+' + (e.key || '').toUpperCase()) : e.key;
-                    if (e.ctrlKey && (e.key === 'Control' || !e.key)) { return; }
                     show('nano', key);
                 }, true);
             }
