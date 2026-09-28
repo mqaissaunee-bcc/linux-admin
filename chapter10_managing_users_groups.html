@@ -1221,11 +1221,149 @@
                 min-width: 100px;
             }
         }
-    </style>
+    
+        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
+        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
+           accessibility tree so aria-describedby still announces them. */
+        .term .tooltip,
+        .tooltip,
+        .tooltip-content,
+        #tooltip-bubble {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            margin: -1px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            overflow: hidden !important;
+            clip-path: inset(50%) !important;
+            white-space: nowrap !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: none !important;
+            transform: none !important;
+        }
+        .term .tooltip::before,
+        .term .tooltip::after,
+        .tooltip::before,
+        .tooltip::after,
+        .tooltip-content::before,
+        .tooltip-content::after,
+        #tooltip-bubble::before,
+        #tooltip-bubble::after {
+            display: none !important;
+        }
+
+        #q-tooltip {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 99999;
+            max-width: 320px;
+            width: max-content;
+            background: var(--rh-gray-dark, #2B2B2B);
+            color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 400;
+            font-style: normal;
+            line-height: 1.5;
+            text-align: left;
+            text-transform: none;
+            letter-spacing: normal;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+        #q-tooltip.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #q-tooltip .q-tooltip-arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+        }
+        #q-tooltip[data-side="top"] .q-tooltip-arrow {
+            top: 100%;
+            border-top-color: var(--rh-gray-dark, #2B2B2B);
+        }
+        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
+            bottom: 100%;
+            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
+        }
+        @media (max-width: 480px) {
+            #q-tooltip { max-width: calc(100vw - 24px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #q-tooltip { transition: none; }
+        }
+
+        /* ==================== NAV VISIBILITY TOGGLE ==================== */
+        .q-nav-toggle {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            min-width: 44px;
+            padding: 10px 16px;
+            background: var(--rh-white, #FFFFFF);
+            color: var(--rh-gray-dark, #2B2B2B);
+            border: 2px solid var(--rh-gray-light, #CCCCCC);
+            border-radius: 999px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.2;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .q-nav-toggle:hover {
+            border-color: var(--rh-red, #CC0000);
+            background: var(--rh-gray-lighter, #F2F2F2);
+        }
+        .q-nav-toggle:focus-visible,
+        .q-nav-toggle:focus {
+            outline: 3px solid var(--rh-blue, #0066CC);
+            outline-offset: 2px;
+        }
+        .q-nav-toggle .q-nav-icon {
+            font-size: 0.9em;
+            line-height: 1;
+        }
+        body.q-nav-hidden .section-nav {
+            display: none !important;
+        }
+        @media print {
+            .q-nav-toggle { display: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .q-nav-toggle { transition: none; }
+        }
+</style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
+    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
+        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
+    </button>
+
 
     <!-- Main Header -->
     <header class="main-header" role="banner">
@@ -3067,6 +3205,193 @@
             });
 
         })();
+    </script>
+
+    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
+    <script>
+    (function () {
+        if (window.__qTooltipPortal) { return; }
+        window.__qTooltipPortal = true;
+
+        var GAP = 10;      /* space between trigger and bubble */
+        var EDGE = 12;     /* minimum distance from any viewport edge */
+        var tip, textNode, arrow, current = null, pending = false;
+
+        function build() {
+            tip = document.createElement('div');
+            tip.id = 'q-tooltip';
+            tip.setAttribute('aria-hidden', 'true');
+            textNode = document.createElement('span');
+            arrow = document.createElement('span');
+            arrow.className = 'q-tooltip-arrow';
+            tip.appendChild(textNode);
+            tip.appendChild(arrow);
+            document.body.appendChild(tip);
+        }
+
+        function textFor(el) {
+            var t = el.getAttribute('data-tooltip');
+            if (t) { return t.trim(); }
+            var id = el.getAttribute('aria-describedby');
+            if (id) {
+                var target = document.getElementById(id);
+                if (target && target.textContent.trim()) { return target.textContent.trim(); }
+            }
+            var inner = el.querySelector('.tooltip-content, .tooltip');
+            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
+            var sib = el.nextElementSibling;
+            if (sib && sib.classList &&
+                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
+                return sib.textContent.trim();
+            }
+            var title = el.getAttribute('title');
+            return title ? title.trim() : '';
+        }
+
+        function anchorRect(el) {
+            /* An inline term can wrap across lines; anchor to its first line box. */
+            var rects = el.getClientRects();
+            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
+        }
+
+        function place(el) {
+            var r = anchorRect(el);
+            var vw = document.documentElement.clientWidth;
+            var vh = document.documentElement.clientHeight;
+            var w = tip.offsetWidth;
+            var h = tip.offsetHeight;
+
+            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
+            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
+            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
+
+            var anchorX = r.left + (r.width / 2);
+            var left = anchorX - (w / 2);
+            var maxLeft = Math.max(EDGE, vw - w - EDGE);
+            left = Math.max(EDGE, Math.min(left, maxLeft));
+
+            tip.setAttribute('data-side', side);
+            tip.style.left = Math.round(left) + 'px';
+            tip.style.top = Math.round(top) + 'px';
+
+            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
+            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
+            arrow.style.left = Math.round(ax - 8) + 'px';
+        }
+
+        function show(el) {
+            var text = textFor(el);
+            if (!text) { return; }
+            textNode.textContent = text;
+            tip.classList.add('is-visible');
+            current = el;
+            place(el);
+        }
+
+        function hide() {
+            current = null;
+            tip.classList.remove('is-visible');
+        }
+
+        function reposition() {
+            if (!current || pending) { return; }
+            pending = true;
+            window.requestAnimationFrame(function () {
+                pending = false;
+                if (!current) { return; }
+                var r = anchorRect(current);
+                var vh = document.documentElement.clientHeight;
+                if (r.bottom < 0 || r.top > vh) { hide(); return; }
+                place(current);
+            });
+        }
+
+        function bind(el) {
+            if (el.__qTooltipBound) { return; }
+            el.__qTooltipBound = true;
+            el.addEventListener('mouseenter', function () { show(el); });
+            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
+            el.addEventListener('focus', function () { show(el); });
+            el.addEventListener('blur', function () { if (current === el) { hide(); } });
+            el.addEventListener('click', function () {
+                if (current === el) { hide(); } else { show(el); }
+            });
+        }
+
+        function init() {
+            build();
+            var nodes = document.querySelectorAll(
+                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
+            );
+            Array.prototype.forEach.call(nodes, bind);
+
+            window.addEventListener('scroll', reposition, true);
+            window.addEventListener('resize', reposition);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }());
+    </script>
+
+    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
+    <script>
+    (function () {
+        var KEY = 'rh-nav-hidden';
+
+        function init() {
+            var btn = document.getElementById('q-nav-toggle');
+            var nav = document.querySelector('.section-nav');
+            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
+
+            if (!nav.id) { nav.id = 'q-section-nav'; }
+            btn.setAttribute('aria-controls', nav.id);
+
+            var icon = btn.querySelector('.q-nav-icon');
+            var label = btn.querySelector('.q-nav-label');
+
+            function apply(hidden) {
+                document.body.classList.toggle('q-nav-hidden', hidden);
+                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+                icon.textContent = hidden ? '\u25BC' : '\u25B2';
+                label.textContent = hidden ? 'Show nav' : 'Hide nav';
+                btn.setAttribute('aria-label',
+                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
+            }
+
+            var stored = false;
+            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
+            apply(stored);
+
+            btn.addEventListener('click', function () {
+                var hidden = !document.body.classList.contains('q-nav-hidden');
+                apply(hidden);
+                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
+                if (e.key !== 'n' && e.key !== 'N') { return; }
+                var t = e.target;
+                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
+                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
+                e.preventDefault();
+                btn.click();
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }());
     </script>
 </body>
 </html>
