@@ -371,7 +371,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1130,7 +1130,7 @@
         }
 
         .summary-list li::before {
-            content: '\002022 ';
+            content: 'â€¢';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1253,154 +1253,16 @@
                 font-size: 0.8rem;
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 11</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 11</span>
             <h1>Controlling Access to Files</h1>
             <p class="chapter-subtitle">Master Linux file permissions, ownership, and access control to secure your systems</p>
         </div>
@@ -1446,7 +1308,7 @@
             </div>
             <div class="section-body">
                 <div class="objectives-box">
-                    <h3>🎯 After completing this chapter, you will be able to:</h3>
+                    <h3>ðŸŽ¯ After completing this chapter, you will be able to:</h3>
                     <ul class="objectives-list">
                         <li>Explain how Linux file permissions protect files and directories</li>
                         <li>Interpret permission strings displayed by <code class="inline">ls -l</code></li>
@@ -1461,7 +1323,7 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon" aria-hidden="true">📘</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ“˜</span>
                         <span>Why File Permissions Matter</span>
                     </div>
                     <p>Without proper permissions, sensitive files could be read by unauthorized users, system files could be modified or deleted by anyone, and malicious scripts could be executed. Linux file permissions provide a simple but effective access control system.</p>
@@ -1548,7 +1410,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                         <span>Directory Permission Quirks</span>
                     </div>
                     <p>Directory permissions work differently than file permissions. To access a file inside a directory, you need <strong>execute</strong> permission on the directory. Read permission lets you list contents, but without execute, you can't actually access the files. Write permission allows creating and deleting files within the directory.</p>
@@ -1647,7 +1509,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-1">
                         <span>Field 1: File Type and Permissions</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-1" class="expandable-content">
                         <p>The first 10 characters show file type (1 char) and permissions (9 chars).</p>
@@ -1664,7 +1526,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-2">
                         <span>Field 2: Link Count</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-2" class="expandable-content">
                         <p>Number of hard links pointing to this file. For directories, this includes <code class="inline">.</code> and <code class="inline">..</code> plus any subdirectories.</p>
@@ -1674,7 +1536,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-3">
                         <span>Field 3 &amp; 4: Owner and Group</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-3" class="expandable-content">
                         <p>The username of the file's owner and the group name. These determine which permission set applies to a given user.</p>
@@ -1684,7 +1546,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-4">
                         <span>Field 5: Size</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-4" class="expandable-content">
                         <p>File size in bytes. Use <code class="inline">ls -lh</code> for human-readable sizes (KB, MB, GB).</p>
@@ -1694,7 +1556,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-5">
                         <span>Field 6: Modification Time</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-5" class="expandable-content">
                         <p>When the file was last modified. Shows date and time, or year for older files.</p>
@@ -1704,7 +1566,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="ls-field-6">
                         <span>Field 7: Filename</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="ls-field-6" class="expandable-content">
                         <p>The name of the file or directory. For symbolic links, shows the target.</p>
@@ -1857,7 +1719,7 @@
 
                 <h3>Interactive Permission Calculator</h3>
                 <div class="perm-calculator">
-                    <div class="perm-calc-title">🔢 Permission Calculator</div>
+                    <div class="perm-calc-title">ðŸ”¢ Permission Calculator</div>
                     <div class="perm-calc-grid">
                         <div class="perm-calc-col">
                             <div class="perm-calc-header user-header">User (Owner)</div>
@@ -1948,7 +1810,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Permission Required</span>
                     </div>
                     <p>Only root can change the owner of a file. Regular users can change the group of files they own, but only to groups they are members of. Use <code class="inline">id</code> or <code class="inline">groups</code> to see your group memberships.</p>
@@ -2010,10 +1872,10 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon" aria-hidden="true">📘</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ“˜</span>
                         <span>Why Files Don't Get Execute by Default</span>
                     </div>
-                    <p>Files start with 666 (not 777) because execute permission is a security risk. New files shouldn't be executable by default—you must explicitly add execute permission to scripts and programs.</p>
+                    <p>Files start with 666 (not 777) because execute permission is a security risk. New files shouldn't be executable by defaultâ€”you must explicitly add execute permission to scripts and programs.</p>
                 </div>
 
                 <h3>Viewing and Setting umask</h3>
@@ -2101,19 +1963,19 @@
 
                 <div class="special-perm-diagram">
                     <div class="special-perm-card" tabindex="0">
-                        <div class="special-perm-icon">🔑</div>
+                        <div class="special-perm-icon">ðŸ”‘</div>
                         <div class="special-perm-name">SUID (Set User ID)</div>
                         <div class="special-perm-code">4000 or u+s</div>
                         <p class="special-perm-desc">When set on an executable, the program runs with the file owner's permissions, not the user who runs it.</p>
                     </div>
                     <div class="special-perm-card" tabindex="0">
-                        <div class="special-perm-icon">👥</div>
+                        <div class="special-perm-icon">ðŸ‘¥</div>
                         <div class="special-perm-name">SGID (Set Group ID)</div>
                         <div class="special-perm-code">2000 or g+s</div>
                         <p class="special-perm-desc">On files: runs with file's group. On directories: new files inherit the directory's group.</p>
                     </div>
                     <div class="special-perm-card" tabindex="0">
-                        <div class="special-perm-icon">📌</div>
+                        <div class="special-perm-icon">ðŸ“Œ</div>
                         <div class="special-perm-name">Sticky Bit</div>
                         <div class="special-perm-code">1000 or o+t</div>
                         <p class="special-perm-desc">On directories: only the file owner (or root) can delete their own files, even if others have write access.</p>
@@ -2144,7 +2006,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Security Warning</span>
                     </div>
                     <p>SUID files are potential security risks. A SUID program with a vulnerability could allow privilege escalation. Only set SUID on programs that absolutely need it, and regularly audit SUID files on your system.</p>
@@ -2245,10 +2107,10 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                         <span>Capital Letters in Permissions</span>
                     </div>
-                    <p>If you see a capital <code class="inline">S</code> or <code class="inline">T</code> instead of lowercase, it means the special permission is set but the underlying execute permission is not. For example, <code class="inline">rwS</code> means SUID is set but the file isn't executable by the owner—usually a misconfiguration.</p>
+                    <p>If you see a capital <code class="inline">S</code> or <code class="inline">T</code> instead of lowercase, it means the special permission is set but the underlying execute permission is not. For example, <code class="inline">rwS</code> means SUID is set but the file isn't executable by the ownerâ€”usually a misconfiguration.</p>
                 </div>
             </div>
         </section>
@@ -2401,7 +2263,7 @@
             <div class="section-body">
                 <div class="lab-container">
                     <div class="lab-header">
-                        <span class="lab-icon">🔬</span>
+                        <span class="lab-icon">ðŸ”¬</span>
                         <span class="lab-title">Lab: Managing File Permissions</span>
                     </div>
                     <p style="margin-bottom: 20px;">Practice managing file permissions, ownership, and special permissions.</p>
@@ -2492,7 +2354,7 @@
 
                     <div class="note-box" style="margin-top: 20px;">
                         <div class="note-box-header">
-                            <span class="note-icon" aria-hidden="true">✅</span>
+                            <span class="note-icon" aria-hidden="true">âœ…</span>
                             <span>Lab Complete</span>
                         </div>
                         <p>You have successfully practiced changing file permissions, securing files, and using special permissions.</p>
@@ -2583,7 +2445,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 11 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 11 Complete!</h2>
                     <p>You've learned how to control access to files in Red Hat Enterprise Linux.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2594,8 +2456,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 11 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 11 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2723,7 +2585,7 @@
                 1: { answer: 'c', explanation: 'Correct! rwx = owner has all permissions, r-x = group has read/execute, --- = others have none.' },
                 2: { answer: 'b', explanation: 'Correct! rw- (6) + r-- (4) + r-- (4) = 644.' },
                 3: { answer: 'a', explanation: 'Correct! u+x adds execute permission specifically for the user (owner) only.' },
-                4: { answer: 'd', explanation: 'Correct! The sticky bit restricts deletion—only file owners can delete their own files.' },
+                4: { answer: 'd', explanation: 'Correct! The sticky bit restricts deletionâ€”only file owners can delete their own files.' },
                 5: { answer: 'c', explanation: 'Correct! Files start at 666, minus umask 027 = 640 (rw-r-----).' }
             };
 
@@ -2744,17 +2606,17 @@
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             const correctOption = question.querySelector(`input[value="${correctAnswers[qNum].answer}"]`);
                             correctOption.closest('.quiz-option').classList.add('correct');
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠️ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2789,7 +2651,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', () => {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
 
@@ -2804,7 +2666,7 @@
                 });
 
                 if (localStorage.getItem('ch11-complete') === 'true') {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
                 }
@@ -2855,192 +2717,6 @@
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

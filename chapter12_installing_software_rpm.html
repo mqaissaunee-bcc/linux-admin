@@ -371,7 +371,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1164,154 +1164,16 @@
                 transform: rotate(90deg);
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 12</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 12</span>
             <h1>Installing and Updating Software with RPM</h1>
             <p class="chapter-subtitle">Master software package management using DNF and RPM on Red Hat Enterprise Linux</p>
         </div>
@@ -1390,19 +1252,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📦</span> Package Files</h4>
+                        <h4><span class="card-icon">ðŸ“¦</span> Package Files</h4>
                         <p>The actual files (binaries, libraries, configuration files, documentation) that the package installs on your system.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📋</span> Metadata</h4>
+                        <h4><span class="card-icon">ðŸ“‹</span> Metadata</h4>
                         <p>Information about the package including name, version, release, architecture, description, dependencies, and licensing.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">⚙️</span> Scripts</h4>
+                        <h4><span class="card-icon">âš™ï¸</span> Scripts</h4>
                         <p>Pre-install, post-install, pre-uninstall, and post-uninstall scripts that run during package transactions.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔐</span> GPG Signature</h4>
+                        <h4><span class="card-icon">ðŸ”</span> GPG Signature</h4>
                         <p>A cryptographic signature that verifies the package's authenticity and integrity. Red Hat signs all packages it releases.</p>
                     </div>
                 </div>
@@ -1482,7 +1344,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="arch-details">
                         <span>Common Architecture Values</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="arch-details" class="expandable-content">
                         <ul>
@@ -1498,7 +1360,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">💡</span>
+                        <span class="note-icon">ðŸ’¡</span>
                         <span>GPG Signature Verification</span>
                     </div>
                     <p>Red Hat digitally signs all packages with <span class="tooltip-container"><button type="button" class="tooltip-trigger" aria-describedby="tooltip-gpg">GPG</button><span class="tooltip-content" id="tooltip-gpg" role="tooltip">GNU Privacy Guard - A cryptographic tool used to sign and verify software packages, ensuring they come from a trusted source and haven't been tampered with.</span></span> keys. The RPM system verifies package integrity by confirming that the package is signed with the appropriate GPG key. The RPM system fails to install a package if the GPG signature does not match.</p>
@@ -1518,11 +1380,11 @@
                 <h3>Repository Workflow</h3>
                 <div class="flow-diagram">
                     <div class="flow-box">Your System</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight">DNF</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-blue">Repository Server</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-green">Packages Downloaded</div>
                 </div>
 
@@ -1570,10 +1432,10 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon">ℹ️</span>
+                        <span class="note-icon">â„¹ï¸</span>
                         <span>BaseOS vs AppStream</span>
                     </div>
-                    <p><strong>BaseOS</strong> provides the core OS functionality (kernel, system libraries, core utilities) with traditional RPM versioning—packages get updated throughout the RHEL lifecycle. <strong>AppStream</strong> provides user-space applications as both traditional RPMs and modular content, allowing multiple versions of the same software to be available simultaneously.</p>
+                    <p><strong>BaseOS</strong> provides the core OS functionality (kernel, system libraries, core utilities) with traditional RPM versioningâ€”packages get updated throughout the RHEL lifecycle. <strong>AppStream</strong> provides user-space applications as both traditional RPMs and modular content, allowing multiple versions of the same software to be available simultaneously.</p>
                 </div>
             </div>
         </section>
@@ -1713,7 +1575,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon">⚠️</span>
+                        <span class="note-icon">âš ï¸</span>
                         <span>Root Privileges Required</span>
                     </div>
                     <p>Installing, updating, and removing packages requires root privileges. Use <code class="inline">sudo</code> or log in as root to perform these operations. Searching and querying packages can be done as a regular user.</p>
@@ -1796,7 +1658,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">💡</span>
+                        <span class="note-icon">ðŸ’¡</span>
                         <span>Variable Substitution</span>
                     </div>
                     <p>Repository URLs support variables like <code class="inline">$releasever</code> (RHEL version, e.g., "10") and <code class="inline">$basearch</code> (system architecture, e.g., "x86_64"). DNF automatically substitutes these with the appropriate values for your system.</p>
@@ -1818,9 +1680,9 @@
 
                 <div class="flow-diagram">
                     <div class="flow-box highlight">Module</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-blue">Stream (Version)</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-green">Profile (Variant)</div>
                 </div>
 
@@ -1854,7 +1716,7 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon">ℹ️</span>
+                        <span class="note-icon">â„¹ï¸</span>
                         <span>Module Stream Locks</span>
                     </div>
                     <p>Once you enable a module stream, the system is locked to that stream. To switch to a different stream, you must first reset the module with <code class="inline">dnf module reset</code>, then enable and install the new stream. This ensures consistent dependencies across your installed packages.</p>
@@ -2082,7 +1944,7 @@
             <div class="section-body">
                 <div class="lab-container">
                     <div class="lab-header">
-                        <span class="lab-icon" aria-hidden="true">🔬</span>
+                        <span class="lab-icon" aria-hidden="true">ðŸ”¬</span>
                         <h3 class="lab-title">Lab: Installing and Managing Software</h3>
                     </div>
 
@@ -2175,11 +2037,11 @@
                     <div class="key-points">
                         <h4>Lab Completion Checklist</h4>
                         <ul>
-                            <li>✓ Successfully searched for and installed the httpd package</li>
-                            <li>✓ Queried package information using both rpm and dnf commands</li>
-                            <li>✓ Explored and installed a module stream</li>
-                            <li>✓ Viewed repository configuration</li>
-                            <li>✓ Reviewed transaction history</li>
+                            <li>âœ“ Successfully searched for and installed the httpd package</li>
+                            <li>âœ“ Queried package information using both rpm and dnf commands</li>
+                            <li>âœ“ Explored and installed a module stream</li>
+                            <li>âœ“ Viewed repository configuration</li>
+                            <li>âœ“ Reviewed transaction history</li>
                         </ul>
                     </div>
                 </div>
@@ -2196,19 +2058,19 @@
                 <h3>Key Concepts Covered</h3>
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📦</span> RPM Format</h4>
+                        <h4><span class="card-icon">ðŸ“¦</span> RPM Format</h4>
                         <p>RPM packages contain files, metadata, scripts, and GPG signatures. Package names follow a standardized format: NAME-VERSION-RELEASE.ARCH.rpm</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔧</span> DNF Commands</h4>
+                        <h4><span class="card-icon">ðŸ”§</span> DNF Commands</h4>
                         <p>Use <code class="inline">dnf install</code>, <code class="inline">update</code>, <code class="inline">remove</code>, <code class="inline">search</code>, and <code class="inline">info</code> to manage packages with automatic dependency resolution.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🗄️</span> Repositories</h4>
+                        <h4><span class="card-icon">ðŸ—„ï¸</span> Repositories</h4>
                         <p>Repositories store packages and are configured in <code class="inline">/etc/yum.repos.d/</code>. RHEL provides BaseOS and AppStream repositories.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔀</span> Module Streams</h4>
+                        <h4><span class="card-icon">ðŸ”€</span> Module Streams</h4>
                         <p>Application Streams provide multiple versions of software. Enable specific streams using <code class="inline">dnf module</code> commands.</p>
                     </div>
                 </div>
@@ -2217,7 +2079,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="cmd-reference">
                         <span>Essential DNF Commands</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="cmd-reference" class="expandable-content">
                         <table class="comparison-table">
@@ -2285,7 +2147,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 12 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 12 Complete!</h2>
                     <p>You've learned how to install and manage software packages using DNF and RPM on Red Hat Enterprise Linux.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2296,8 +2158,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 12 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 12 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2417,17 +2279,17 @@
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             const correctOption = question.querySelector(`input[value="${correctAnswers[qNum].answer}"]`);
                             correctOption.closest('.quiz-option').classList.add('correct');
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠️ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2462,7 +2324,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', () => {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
 
@@ -2477,7 +2339,7 @@
                 });
 
                 if (localStorage.getItem('ch12-complete') === 'true') {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
                 }
@@ -2528,192 +2390,6 @@
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

@@ -220,13 +220,40 @@
             color: var(--rh-white);
         }
 
-        .back-link {
-            background: var(--rh-blue);
-            color: var(--rh-white);
+        /* ==================== PROGRESS BAR ==================== */
+        .progress-container {
+            background: var(--rh-white);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--rh-gray-light);
         }
 
-        .back-link:hover {
-            background: var(--rh-blue-dark);
+        .progress-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--rh-gray-dark);
+        }
+
+        .progress-bar {
+            background: var(--rh-gray-lighter);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--rh-green) 0%, var(--rh-teal) 100%);
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width var(--transition-med);
         }
 
         /* ==================== MAIN CONTENT ==================== */
@@ -282,6 +309,144 @@
             margin-bottom: 20px;
         }
 
+        .section-body h3 {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: var(--rh-gray-dark);
+            margin: 30px 0 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--rh-red);
+        }
+
+        .section-body h4 {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            color: var(--rh-gray-dark);
+            margin: 20px 0 10px;
+        }
+
+        /* ==================== TOOLTIPS ==================== */
+        .term {
+            color: var(--rh-blue);
+            cursor: help;
+            position: relative;
+            border-bottom: 1px dotted var(--rh-blue);
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--rh-black);
+            color: var(--rh-white);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            font-family: var(--font-display);
+            white-space: normal;
+            width: 280px;
+            max-width: 90vw;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            line-height: 1.5;
+            text-align: left;
+            margin-bottom: 10px;
+            pointer-events: none;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: var(--rh-black);
+        }
+
+        .term:hover .tooltip,
+        .term:focus .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip.tooltip-left {
+            left: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip.tooltip-left::after {
+            left: 20px;
+        }
+
+        .tooltip.tooltip-right {
+            left: auto;
+            right: 0;
+            transform: translateX(0);
+        }
+
+        .tooltip.tooltip-right::after {
+            left: auto;
+            right: 20px;
+        }
+
+        .tooltip.tooltip-bottom {
+            bottom: auto;
+            top: 100%;
+            margin-bottom: 0;
+            margin-top: 10px;
+        }
+
+        .tooltip.tooltip-bottom::after {
+            top: auto;
+            bottom: 100%;
+            border: 8px solid transparent;
+            border-bottom-color: var(--rh-black);
+        }
+
+        /* ==================== OBJECTIVES BOX ==================== */
+        .objectives-box {
+            background: linear-gradient(135deg, #E6F3FF 0%, #F0F8FF 100%);
+            border-left: 4px solid var(--rh-blue);
+            padding: 25px;
+            border-radius: var(--radius-md);
+        }
+
+        .objectives-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-blue-dark);
+            margin: 0 0 15px 0;
+            border: none;
+            padding: 0;
+        }
+
+        .objectives-list {
+            list-style: none;
+        }
+
+        .objectives-list li {
+            padding: 10px 0 10px 35px;
+            position: relative;
+            border-bottom: 1px solid rgba(0,102,204,0.2);
+        }
+
+        .objectives-list li:last-child {
+            border-bottom: none;
+        }
+
+        .objectives-list li::before {
+            content: 'âœ“';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
         /* ==================== KEYBOARD KEYS ==================== */
         .kbd {
             display: inline-block;
@@ -305,14 +470,135 @@
             color: var(--rh-red-dark);
         }
 
+        /* ==================== MODE DIAGRAM ==================== */
+        .mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .mode-card {
+            background: var(--rh-white);
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-fast);
+        }
+
+        .mode-card:hover, .mode-card:focus {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mode-card.command-mode {
+            border-color: var(--rh-blue);
+        }
+
+        .mode-card.command-mode:hover {
+            background: #E6F3FF;
+        }
+
+        .mode-card.insert-mode {
+            border-color: var(--rh-green);
+        }
+
+        .mode-card.insert-mode:hover {
+            background: #E6FFE6;
+        }
+
+        .mode-card.visual-mode {
+            border-color: var(--rh-purple);
+        }
+
+        .mode-card.visual-mode:hover {
+            background: #F0E6FF;
+        }
+
+        .mode-card.extended-mode {
+            border-color: var(--rh-orange);
+        }
+
+        .mode-card.extended-mode:hover {
+            background: #FFF0E6;
+        }
+
+        .mode-card h4 {
+            font-family: var(--font-display);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .mode-card p {
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+            color: var(--rh-gray);
+        }
+
+        .mode-indicator {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .mode-card.command-mode .mode-indicator {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+        }
+
+        .mode-card.insert-mode .mode-indicator {
+            background: var(--rh-green);
+            color: var(--rh-white);
+        }
+
+        .mode-card.visual-mode .mode-indicator {
+            background: var(--rh-purple);
+            color: var(--rh-white);
+        }
+
+        .mode-card.extended-mode .mode-indicator {
+            background: var(--rh-orange);
+            color: var(--rh-white);
+        }
+
         /* ==================== SIMULATOR STYLES ==================== */
         .simulator-container {
             margin: 25px 0;
         }
 
+        .simulator-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .sim-tab {
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+            font-family: var(--font-display);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--rh-gray-dark);
+        }
+
+        .sim-tab:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .sim-tab.active {
+            background: var(--rh-black);
+            color: var(--rh-white);
+        }
+
         .simulator {
             background: #1E1E1E;
-            border-radius: var(--radius-md);
+            border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
             overflow: hidden;
             box-shadow: var(--shadow-lg);
         }
@@ -388,6 +674,10 @@
 
         @keyframes blink {
             50% { background: transparent; color: #D4D4D4; }
+        }
+
+        .vim-content .selection {
+            background: #264F78;
         }
 
         .sim-statusbar {
@@ -584,14 +874,14 @@
         }
 
         .challenge-list li::before {
-            content: '\0025CB ';
+            content: 'â—‹';
             position: absolute;
             left: 5px;
             color: #666;
         }
 
         .challenge-list li.completed::before {
-            content: '\0025CF ';
+            content: 'â—';
             color: var(--rh-green);
         }
 
@@ -599,7 +889,69 @@
             color: var(--rh-green);
         }
 
+        /* ==================== TABLES ==================== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--rh-gray-light);
+        }
+
+        .comparison-table th {
+            background: var(--rh-gray-dark);
+            color: var(--rh-white);
+            font-family: var(--font-display);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--rh-gray-lighter);
+        }
+
         /* ==================== INFO BOXES ==================== */
+        .note-box {
+            background: linear-gradient(135deg, #FFF8E6 0%, #FFFEF0 100%);
+            border-left: 4px solid var(--rh-gold);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+        }
+
+        .note-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: #806600;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #FFE6E6 0%, #FFF0F0 100%);
+            border-left: 4px solid var(--rh-red);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            margin: 20px 0;
+        }
+
+        .warning-box-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-red-dark);
+        }
+
         .info-box {
             background: linear-gradient(135deg, #E6F3FF 0%, #F0F8FF 100%);
             border-left: 4px solid var(--rh-blue);
@@ -618,67 +970,220 @@
             color: var(--rh-blue-dark);
         }
 
-        /* ==================== QUICK REFERENCE ==================== */
-        .quick-ref {
-            background: var(--rh-gray-lighter);
-            border-radius: var(--radius-md);
+        .success-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #F0FFF0 100%);
+            border-left: 4px solid var(--rh-green);
             padding: 20px;
+            border-radius: var(--radius-md);
             margin: 20px 0;
         }
 
-        .quick-ref h4 {
+        /* ==================== COMMAND GRID ==================== */
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .command-card {
+            background: var(--rh-white);
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: all var(--transition-fast);
+        }
+
+        .command-card:hover, .command-card:focus {
+            border-color: var(--rh-blue);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .command-card h4 {
+            font-family: var(--font-display);
+            margin-bottom: 10px;
+            color: var(--rh-gray-dark);
+        }
+
+        .cmd-syntax {
+            background: var(--rh-gray-lighter);
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            color: var(--rh-red-dark);
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs-container {
+            margin: 20px 0;
+        }
+
+        .tab-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            border-bottom: 2px solid var(--rh-gray-light);
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            color: var(--rh-gray);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .tab-btn:hover {
+            color: var(--rh-red);
+            background: var(--rh-gray-lighter);
+        }
+
+        .tab-btn.active {
+            color: var(--rh-red);
+            background: var(--rh-white);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--rh-red);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background: var(--rh-white);
+            border: 1px solid var(--rh-gray-light);
+            border-top: none;
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==================== QUIZ ==================== */
+        .quiz-container {
+            background: var(--rh-gray-lighter);
+            border-radius: var(--radius-md);
+            padding: 25px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .quiz-header h3 {
             font-family: var(--font-display);
             color: var(--rh-gray-dark);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--rh-red);
+            margin: 0;
+            border: none;
+            padding: 0;
         }
 
-        .vim-content .vim-sel {
-            background: #336699;
-            color: #FFFFFF;
-        }
-
-        .ref-subhead {
+        .quiz-score {
+            background: var(--rh-blue);
+            color: var(--rh-white);
+            padding: 8px 16px;
+            border-radius: 50px;
             font-family: var(--font-display);
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--rh-gray);
-            margin: 16px 0 8px;
+            font-weight: 600;
         }
 
-        .ref-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .quiz-question {
+            background: var(--rh-white);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: var(--rh-red);
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
         }
 
-        .ref-item {
+        .quiz-option {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px;
-            background: var(--rh-white);
+            gap: 12px;
+            padding: 12px 15px;
+            border: 2px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .quiz-option:hover {
+            border-color: var(--rh-blue);
+            background: #F0F8FF;
+        }
+
+        .quiz-option input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .quiz-option.correct {
+            border-color: var(--rh-green);
+            background: #E6FFE6;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--rh-red);
+            background: #FFE6E6;
+        }
+
+        .quiz-feedback {
+            margin-top: 12px;
+            padding: 12px;
             border-radius: var(--radius-sm);
+            font-family: var(--font-display);
+            display: none;
         }
 
-        .ref-item .kbd {
-            min-width: 50px;
-            max-width: 60%;
-            flex: 0 0 auto;
-            text-align: center;
-            white-space: normal;
-            overflow-wrap: anywhere;
+        .quiz-feedback.correct {
+            display: block;
+            background: #E6FFE6;
+            color: var(--rh-green-dark);
         }
 
-        .quick-ref .ref-item {
-            align-items: flex-start;
+        .quiz-feedback.incorrect {
+            display: block;
+            background: #FFE6E6;
+            color: var(--rh-red-dark);
         }
 
-        /* ==================== BUTTONS ==================== */
-        .btn {
+        .quiz-btn {
             background: var(--rh-red);
             color: var(--rh-white);
             border: none;
@@ -691,17 +1196,133 @@
             margin-top: 15px;
         }
 
-        .btn:hover {
+        .quiz-btn:hover {
             background: var(--rh-red-dark);
             transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background: var(--rh-gray);
+        /* ==================== EXPANDABLE ==================== */
+        .expandable {
+            margin: 15px 0;
+            border: 1px solid var(--rh-gray-light);
+            border-radius: var(--radius-md);
         }
 
-        .btn-secondary:hover {
+        .expandable-header {
+            width: 100%;
+            background: var(--rh-gray-lighter);
+            border: none;
+            padding: 15px 20px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all var(--transition-fast);
+            border-radius: var(--radius-md);
+        }
+
+        .expandable-header:hover {
+            background: var(--rh-gray-light);
+        }
+
+        .expandable-header[aria-expanded="true"] {
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .expand-icon {
+            transition: transform var(--transition-fast);
+        }
+
+        .expandable-header[aria-expanded="true"] .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .expandable-content {
+            display: none;
+            padding: 20px;
+            background: var(--rh-white);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
+        }
+
+        .expandable-content.show {
+            display: block;
+        }
+
+        /* ==================== CODE BLOCK ==================== */
+        .code-block {
+            background: var(--rh-black);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .code-title {
             background: var(--rh-gray-dark);
+            color: var(--rh-gray-light);
+            padding: 10px 15px;
+            font-family: var(--font-display);
+            font-size: 0.85rem;
+            display: block;
+        }
+
+        .code-block code {
+            display: block;
+            padding: 20px;
+            color: #D4D4D4;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .code-comment { color: #6A9955; }
+        .code-prompt { color: #569CD6; }
+        .code-command { color: #DCDCAA; }
+        .code-output { color: #9CDCFE; }
+        .code-key { color: #CE9178; }
+        .code-mode { color: #C586C0; }
+
+        /* ==================== SUMMARY ==================== */
+        .summary-box {
+            background: linear-gradient(135deg, #E6FFE6 0%, #F0FFF0 100%);
+            border-left: 4px solid var(--rh-green);
+            padding: 25px;
+            border-radius: var(--radius-md);
+            margin-bottom: 25px;
+        }
+
+        .summary-box h3 {
+            font-family: var(--font-display);
+            color: var(--rh-green-dark);
+            margin: 0 0 15px 0;
+            border: none;
+            padding: 0;
+        }
+
+        .summary-list {
+            list-style: none;
+        }
+
+        .summary-list li {
+            padding: 10px 0 10px 25px;
+            position: relative;
+            border-bottom: 1px solid rgba(51,153,51,0.2);
+        }
+
+        .summary-list li:last-child {
+            border-bottom: none;
+        }
+
+        .summary-list li::before {
+            content: 'â–¸';
+            position: absolute;
+            left: 0;
+            color: var(--rh-green);
+            font-weight: bold;
         }
 
         /* ==================== COMPLETION ==================== */
@@ -763,346 +1384,284 @@
                 font-size: 0.8rem;
             }
 
+            .command-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-grid {
+                grid-template-columns: 1fr;
+            }
+
             .sim-keyboard {
                 justify-content: center;
             }
 
-            .ref-grid {
-                grid-template-columns: 1fr;
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px 10px;
             }
         }
-    
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-
-        /* ==================== PRACTICE FILE LOADER ==================== */
-        .file-loader {
-            margin: 0 0 16px;
-            padding: 12px;
-            background: var(--rh-gray-lighter, #F2F2F2);
-            border: 1px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 6px;
-        }
-        .file-loader-label {
-            display: block;
-            font-family: var(--font-display, sans-serif);
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--rh-gray-dark, #2B2B2B);
-            margin-bottom: 8px;
-        }
-        .file-loader-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-        .file-select {
-            flex: 1 1 200px;
-            min-height: 44px;
-            padding: 8px 10px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            color: var(--rh-gray-dark, #2B2B2B);
-            background: var(--rh-white, #FFFFFF);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 4px;
-        }
-        .file-select:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .btn-sm {
-            min-height: 44px;
-            padding: 10px 16px;
-            font-size: 0.85rem;
-        }
-
-        /* ==================== INSTRUCTOR MODE ==================== */
-        .instructor-toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .instructor-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--rh-gray-light, #CCCCCC);
-            border: 1px solid var(--rh-gray, #666666);
-        }
-        .instructor-toggle[aria-pressed="true"] .instructor-dot {
-            background: #009900;
-            border-color: #006600;
-        }
-        .instructor-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-
-        #keycast {
-            position: fixed;
-            left: 16px;
-            right: 190px;
-            bottom: 16px;
-            z-index: 950;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            background: rgba(0, 0, 0, 0.88);
-            border: 2px solid #666666;
-            border-radius: 10px;
-            pointer-events: none;
-            overflow: hidden;
-        }
-        #keycast.is-on {
-            display: flex;
-        }
-        .keycast-context {
-            flex: 0 0 auto;
-            font-family: var(--font-display, sans-serif);
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #FFFFFF;
-            background: #CC0000;
-            padding: 6px 10px;
-            border-radius: 6px;
-            white-space: nowrap;
-        }
-        .keycast-keys {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            flex: 1 1 auto;
-            min-width: 0;
-            overflow: hidden;
-        }
-        .keycast-key {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            flex: 0 0 auto;
-            transition: opacity 0.3s ease;
-        }
-        .keycast-cap {
-            font-family: var(--font-mono, monospace);
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #FFFFFF;
-            background: #333333;
-            border: 2px solid #999999;
-            border-bottom-width: 4px;
-            border-radius: 6px;
-            padding: 4px 12px;
-            white-space: pre;
-            max-width: 22ch;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .keycast-note {
-            font-family: var(--font-display, sans-serif);
-            font-size: 0.7rem;
-            color: #E6E6E6;
-            white-space: nowrap;
-        }
-        .keycast-key.fading {
-            opacity: 0;
-        }
-        @media (max-width: 700px) {
-            #keycast { right: 16px; }
-            .keycast-cap { font-size: 1.1rem; padding: 3px 8px; }
-            .keycast-note { display: none; }
-        }
-        @media print {
-            #keycast { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .keycast-key { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 8 • PRACTICE LAB</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 8 â€¢ PRACTICE LAB</span>
             <h1>Vim &amp; Nano Interactive Simulators</h1>
-            <p class="chapter-subtitle">Hands-on practice environment to build your text editing skills</p>
+            <p class="chapter-subtitle">Hands-on practice environment to build your text editing skills â€” use alongside the Chapter 8 reading material</p>
         </div>
     </header>
 
     <!-- Section Navigation -->
-    <nav class="section-nav" role="navigation" aria-label="Practice lab sections">
+    <nav class="section-nav" role="navigation" aria-label="Chapter sections">
         <div class="nav-container">
-            <a href="chapter8_editing_text_files.html" class="nav-btn back-link">← Back to Chapter 8</a>
+            <a href="#section-objectives" class="nav-btn">Objectives</a>
+            <a href="#section-intro" class="nav-btn">Introduction</a>
+            <a href="#section-modes" class="nav-btn">Vim Modes</a>
             <a href="#section-vim-sim" class="nav-btn">Vim Simulator</a>
+            <a href="#section-navigation" class="nav-btn">Navigation</a>
+            <a href="#section-editing" class="nav-btn">Editing</a>
+            <a href="#section-visual" class="nav-btn">Visual Mode</a>
+            <a href="#section-search" class="nav-btn">Search</a>
+            <a href="#section-nano" class="nav-btn">Nano</a>
             <a href="#section-nano-sim" class="nav-btn">Nano Simulator</a>
+            <a href="#section-quiz" class="nav-btn">Quiz</a>
+            <a href="#section-summary" class="nav-btn">Summary</a>
         </div>
     </nav>
 
+    <!-- Progress Bar -->
+    <div class="progress-container" role="region" aria-label="Chapter progress">
+        <div class="progress-inner">
+            <div class="progress-label">
+                <span>Chapter Progress</span>
+                <span id="progress-text">0% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
     <main class="main-content" id="main-content">
-
-        <!-- Introduction -->
-        <div class="info-box" style="margin-bottom: 30px;">
-            <div class="info-box-header">
-                <span aria-hidden="true">🎯</span>
-                <span>Practice Makes Perfect</span>
-            </div>
-            <p style="margin: 0;">Use these interactive simulators to practice Vim and Nano commands in a safe environment. Complete the challenges to build muscle memory before working on real files. Click the virtual keys or use your keyboard to interact with the simulators.</p>
-        </div>
-
-        <!-- Section 1: Vim Simulator -->
-        <section id="section-vim-sim" class="content-section" aria-labelledby="vim-sim-heading">
+        
+        <!-- Section 1: Learning Objectives -->
+        <section id="section-objectives" class="content-section" aria-labelledby="objectives-heading">
             <div class="section-header">
                 <span class="section-number" aria-hidden="true">1</span>
-                <h2 id="vim-sim-heading">Vim Simulator</h2>
+                <h2 id="objectives-heading">Learning Objectives</h2>
             </div>
             <div class="section-body">
-                <p>Practice Vim's modal editing in this interactive simulator. Remember: Vim starts in <strong>Command mode</strong>. Press <span class="kbd">i</span> to enter Insert mode, <span class="kbd">Esc</span> to return to Command mode.</p>
+                <div class="objectives-box">
+                    <h3>After completing this chapter, you will be able to:</h3>
+                    <ul class="objectives-list">
+                        <li>Create, view, and edit text files using the Vim editor</li>
+                        <li>Understand Vim's operating modes and switch between them efficiently</li>
+                        <li>Navigate within files using keyboard commands</li>
+                        <li>Perform basic editing operations: insert, delete, copy, and paste text</li>
+                        <li>Use visual mode to select and manipulate blocks of text</li>
+                        <li>Search for and replace text within files</li>
+                        <li>Save files and exit Vim properly</li>
+                        <li>Use Nano as an alternative, beginner-friendly text editor</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
 
-                <!-- Quick Reference -->
-                <div class="quick-ref">
-                    <h4>Quick Reference</h4>
-                    <h5 class="ref-subhead">Modes</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">i</span> Insert before cursor</div>
-                        <div class="ref-item"><span class="kbd">I</span> Insert at start of line</div>
-                        <div class="ref-item"><span class="kbd">a</span> Append after cursor</div>
-                        <div class="ref-item"><span class="kbd">A</span> Append at end of line</div>
-                        <div class="ref-item"><span class="kbd">o</span> Open line below</div>
-                        <div class="ref-item"><span class="kbd">O</span> Open line above</div>
-                        <div class="ref-item"><span class="kbd">v</span> Visual (character) select</div>
-                        <div class="ref-item"><span class="kbd">V</span> Visual line select</div>
-                        <div class="ref-item"><span class="kbd">Esc</span> Back to Command mode</div>
+        <!-- Section 2: Introduction -->
+        <section id="section-intro" class="content-section" aria-labelledby="intro-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">2</span>
+                <h2 id="intro-heading">Introduction to Text Editing in Linux</h2>
+            </div>
+            <div class="section-body">
+                <p>The fundamental design principle of Linux is that it supports storing information and configuration settings in <span class="term" tabindex="0">text-based files<span class="tooltip">Plain text files that contain human-readable characters. Unlike binary files, they can be viewed and edited with any text editor.</span></span>. These files follow various structures such as lists of settings, INI-like formats, structured XML or YAML, and others. The advantage of storing files in a text-based structure is that they can be edited with any text editor.</p>
+
+                <p>As a Linux system administrator, you will frequently need to edit:</p>
+
+                <div class="command-grid">
+                    <div class="command-card" tabindex="0">
+                        <h4>âš™ï¸ Configuration Files</h4>
+                        <p>System and application settings stored in <code class="inline">/etc</code> directory, such as network configuration, user settings, and service parameters.</p>
                     </div>
-                    <h5 class="ref-subhead">Moving around</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">h j k l</span> Left, down, up, right</div>
-                        <div class="ref-item"><span class="kbd">w</span> Forward one word</div>
-                        <div class="ref-item"><span class="kbd">b</span> Back one word</div>
-                        <div class="ref-item"><span class="kbd">e</span> End of word</div>
-                        <div class="ref-item"><span class="kbd">0</span> Start of line</div>
-                        <div class="ref-item"><span class="kbd">^</span> First non-blank character</div>
-                        <div class="ref-item"><span class="kbd">$</span> End of line</div>
-                        <div class="ref-item"><span class="kbd">gg</span> First line</div>
-                        <div class="ref-item"><span class="kbd">G</span> Last line</div>
-                        <div class="ref-item"><span class="kbd">10G</span> Go to line 10</div>
-                        <div class="ref-item"><span class="kbd">:25</span> Go to line 25</div>
-                        <div class="ref-item"><span class="kbd">5j</span> Down five lines &mdash; counts work on any motion</div>
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“œ Shell Scripts</h4>
+                        <p>Automation scripts that perform system administration tasks, backups, and routine maintenance.</p>
                     </div>
-                    <h5 class="ref-subhead">Editing</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">x</span> Delete character under cursor</div>
-                        <div class="ref-item"><span class="kbd">X</span> Delete character before cursor</div>
-                        <div class="ref-item"><span class="kbd">r</span> Replace one character</div>
-                        <div class="ref-item"><span class="kbd">s</span> Substitute character, then insert</div>
-                        <div class="ref-item"><span class="kbd">S</span> Clear line, then insert</div>
-                        <div class="ref-item"><span class="kbd">dd</span> Delete line</div>
-                        <div class="ref-item"><span class="kbd">3dd</span> Delete three lines</div>
-                        <div class="ref-item"><span class="kbd">dw</span> Delete to next word</div>
-                        <div class="ref-item"><span class="kbd">de</span> Delete to end of word</div>
-                        <div class="ref-item"><span class="kbd">db</span> Delete back one word</div>
-                        <div class="ref-item"><span class="kbd">d$ or D</span> Delete to end of line</div>
-                        <div class="ref-item"><span class="kbd">d0</span> Delete to start of line</div>
-                        <div class="ref-item"><span class="kbd">cw</span> Change word</div>
-                        <div class="ref-item"><span class="kbd">cc</span> Change whole line</div>
-                        <div class="ref-item"><span class="kbd">c$ or C</span> Change to end of line</div>
-                        <div class="ref-item"><span class="kbd">J</span> Join with line below</div>
-                        <div class="ref-item"><span class="kbd">~</span> Toggle case of character</div>
-                        <div class="ref-item"><span class="kbd">u</span> Undo</div>
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“‹ Log Files</h4>
+                        <p>System and application logs that need to be reviewed or sometimes edited for troubleshooting.</p>
                     </div>
-                    <h5 class="ref-subhead">Copy and paste</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">yy</span> Yank (copy) line</div>
-                        <div class="ref-item"><span class="kbd">3yy</span> Yank three lines</div>
-                        <div class="ref-item"><span class="kbd">yw</span> Yank to next word</div>
-                        <div class="ref-item"><span class="kbd">y$</span> Yank to end of line</div>
-                        <div class="ref-item"><span class="kbd">p</span> Paste after cursor / below line</div>
-                        <div class="ref-item"><span class="kbd">P</span> Paste before cursor / above line</div>
-                    </div>
-                    <h5 class="ref-subhead">Visual mode</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">v then motion</span> Select characters</div>
-                        <div class="ref-item"><span class="kbd">V then j k</span> Select whole lines</div>
-                        <div class="ref-item"><span class="kbd">d</span> Delete the selection</div>
-                        <div class="ref-item"><span class="kbd">y</span> Yank the selection</div>
-                        <div class="ref-item"><span class="kbd">c</span> Change the selection</div>
-                        <div class="ref-item"><span class="kbd">Esc</span> Cancel the selection</div>
-                    </div>
-                    <h5 class="ref-subhead">Search, replace and files</h5>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">/text</span> Search forward for text</div>
-                        <div class="ref-item"><span class="kbd">?text</span> Search backward</div>
-                        <div class="ref-item"><span class="kbd">n</span> Next match</div>
-                        <div class="ref-item"><span class="kbd">N</span> Previous match</div>
-                        <div class="ref-item"><span class="kbd">:s/old/new/</span> Replace first match on this line</div>
-                        <div class="ref-item"><span class="kbd">:%s/old/new/g</span> Replace every match in the file</div>
-                        <div class="ref-item"><span class="kbd">:set nu</span> Show line numbers</div>
-                        <div class="ref-item"><span class="kbd">:set nonu</span> Hide line numbers</div>
-                        <div class="ref-item"><span class="kbd">:w</span> Write (save)</div>
-                        <div class="ref-item"><span class="kbd">:wq or :x</span> Write and quit</div>
-                        <div class="ref-item"><span class="kbd">:q</span> Quit</div>
-                        <div class="ref-item"><span class="kbd">:q!</span> Quit without saving</div>
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“ Documentation</h4>
+                        <p>README files, notes, and documentation that accompany software and projects.</p>
                     </div>
                 </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
+                        <span>Why Learn Vim?</span>
+                    </div>
+                    <p><span class="term" tabindex="0">Vim<span class="tooltip">Vim stands for "Vi IMproved." It is an enhanced version of the vi editor, which is distributed with Linux and UNIX systems.</span></span> is installed on virtually every Linux system by default. Even in minimal installations or emergency situations where graphical tools aren't available, Vim will be there. Learning Vim ensures you can always edit files regardless of the environment.</p>
+                </div>
+
+                <h3>Vim vs vi</h3>
+                <p>Vim is an improved version of the <code class="inline">vi</code> editor, which is distributed with Linux and UNIX systems. Vim is a highly configurable and efficient editor that provides split-screen editing, color formatting, and syntax highlighting for editing text. On RHEL systems, when you run <code class="inline">vi</code>, you're actually running Vim.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Verify Vim Installation</span>
+                    <code><span class="code-comment"># Check which vi is being used</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">which vi</span>
+<span class="code-output">/usr/bin/vi</span>
+
+<span class="code-comment"># Check the actual program (vi is usually a link to vim)</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">ls -l /usr/bin/vi</span>
+<span class="code-output">lrwxrwxrwx. 1 root root 3 Jan 15 10:00 /usr/bin/vi -> vim</span>
+
+<span class="code-comment"># Check Vim version</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">vim --version | head -1</span>
+<span class="code-output">VIM - Vi IMproved 9.0</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Vim Modes -->
+        <section id="section-modes" class="content-section" aria-labelledby="modes-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">3</span>
+                <h2 id="modes-heading">Vim Operating Modes</h2>
+            </div>
+            <div class="section-body">
+                <p>The Vim editor offers various modes of operation such as <em>command mode</em>, <em>extended command mode</em>, <em>insert mode</em>, and <em>visual mode</em>. As a Vim user, always verify the current mode, because the effect of keystrokes varies between modes.</p>
+
+                <div class="warning-box">
+                    <div class="warning-box-header">
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
+                        <span>Mode Awareness is Critical</span>
+                    </div>
+                    <p>Many new Vim users get confused because the same keys do different things in different modes. If you're ever unsure which mode Vim is using, press <span class="kbd">Esc</span> a few times to return to command mode. You can safely press <span class="kbd">Esc</span> in command mode repeatedly.</p>
+                </div>
+
+                <h3>The Four Vim Modes</h3>
+                <div class="mode-grid">
+                    <div class="mode-card command-mode" tabindex="0" role="article">
+                        <h4>Command Mode</h4>
+                        <p>The default mode. Used for navigation, cut/paste, and other text modifications.</p>
+                        <span class="mode-indicator">Default on startup</span>
+                    </div>
+                    <div class="mode-card insert-mode" tabindex="0" role="article">
+                        <h4>Insert Mode</h4>
+                        <p>All typed text becomes file content. Press <span class="kbd">i</span> to enter.</p>
+                        <span class="mode-indicator">-- INSERT --</span>
+                    </div>
+                    <div class="mode-card visual-mode" tabindex="0" role="article">
+                        <h4>Visual Mode</h4>
+                        <p>Select text for manipulation. Press <span class="kbd">v</span> to enter.</p>
+                        <span class="mode-indicator">-- VISUAL --</span>
+                    </div>
+                    <div class="mode-card extended-mode" tabindex="0" role="article">
+                        <h4>Extended Command Mode</h4>
+                        <p>For file operations like save/quit. Press <span class="kbd">:</span> to enter.</p>
+                        <span class="mode-indicator">:command</span>
+                    </div>
+                </div>
+
+                <h3>Switching Between Modes</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Key</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Command</td>
+                            <td>Insert</td>
+                            <td><span class="kbd">i</span></td>
+                            <td>Insert before cursor</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Insert</td>
+                            <td><span class="kbd">a</span></td>
+                            <td>Append after cursor</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Insert</td>
+                            <td><span class="kbd">o</span></td>
+                            <td>Open new line below</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Insert</td>
+                            <td><span class="kbd">O</span></td>
+                            <td>Open new line above</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Visual</td>
+                            <td><span class="kbd">v</span></td>
+                            <td>Character selection</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Visual Line</td>
+                            <td><span class="kbd">V</span></td>
+                            <td>Line selection</td>
+                        </tr>
+                        <tr>
+                            <td>Command</td>
+                            <td>Extended</td>
+                            <td><span class="kbd">:</span></td>
+                            <td>Enter command line</td>
+                        </tr>
+                        <tr>
+                            <td>Any Mode</td>
+                            <td>Command</td>
+                            <td><span class="kbd">Esc</span></td>
+                            <td>Return to command mode</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">ðŸ“š</span>
+                        <span>The Basic Vim Workflow</span>
+                    </div>
+                    <ol>
+                        <li><strong>Open file:</strong> <code class="inline">vim filename</code></li>
+                        <li><strong>Enter insert mode:</strong> Press <span class="kbd">i</span></li>
+                        <li><strong>Type your text</strong></li>
+                        <li><strong>Return to command mode:</strong> Press <span class="kbd">Esc</span></li>
+                        <li><strong>Save and quit:</strong> Type <code class="inline">:wq</code> and press <span class="kbd">Enter</span></li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Vim Simulator -->
+        <section id="section-vim-sim" class="content-section" aria-labelledby="vim-sim-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">4</span>
+                <h2 id="vim-sim-heading">Interactive Vim Simulator</h2>
+            </div>
+            <div class="section-body">
+                <p>Practice Vim commands in this interactive simulator. Try the challenges below to build your Vim skills!</p>
 
                 <div class="simulator-container">
                     <div class="simulator" id="vim-simulator">
@@ -1112,7 +1671,7 @@
                                 <span class="sim-control minimize"></span>
                                 <span class="sim-control maximize"></span>
                             </div>
-                            <span>vim <span id="vim-filename">practice.txt</span></span>
+                            <span>vim practice.txt</span>
                             <span id="vim-file-status">[Modified]</span>
                         </div>
                         <div class="sim-screen">
@@ -1127,26 +1686,9 @@
                     </div>
 
                     <div class="sim-panel">
-                        <h4>🎮 Vim Controls</h4>
-
-                        <div class="file-loader">
-                            <label class="file-loader-label" for="vim-file-select">Open a practice file in Vim:</label>
-                            <div class="file-loader-row">
-                                <select id="vim-file-select" class="file-select">
-                                <option value="practice.txt">practice.txt &mdash; starter text</option>
-                                <option value="hosts">/etc/hosts &mdash; name-to-address table</option>
-                                <option value="fstab">/etc/fstab &mdash; filesystem table</option>
-                                <option value="sshd_config">/etc/ssh/sshd_config &mdash; SSH server settings</option>
-                                <option value="backup.sh">backup.sh &mdash; shell script</option>
-                                <option value="memo.txt">memo.txt &mdash; plain-text memo</option>
-                                <option value="lab-tasks.txt">lab-tasks.txt &mdash; Chapter 8 lab tasks</option>
-                                <option value="newfile.txt">newfile.txt &mdash; empty file</option>
-                                </select>
-                                <button type="button" class="btn btn-secondary btn-sm" id="vim-file-open">Open file</button>
-                            </div>
-                        </div>
+                        <h4>ðŸŽ® Vim Controls</h4>
                         <div class="sim-instructions" id="vim-instructions">
-                            Click the keys below or use your keyboard. Start by pressing <span class="kbd">i</span> to enter Insert mode!
+                            Click the keys below or use your keyboard to practice Vim commands. Start by pressing <span class="kbd">i</span> to enter Insert mode!
                         </div>
                         
                         <div class="sim-keyboard" id="vim-keyboard">
@@ -1174,7 +1716,7 @@
                         <div class="sim-message" id="vim-message">Ready. Press 'i' to start typing, 'Esc' to return to command mode.</div>
 
                         <div class="challenge-tracker">
-                            <h5>🏆 Vim Challenges</h5>
+                            <h5>ðŸ† Vim Challenges</h5>
                             <ul class="challenge-list" id="vim-challenges">
                                 <li data-challenge="insert">Enter Insert mode</li>
                                 <li data-challenge="type">Type some text</li>
@@ -1189,42 +1731,324 @@
                             </ul>
                         </div>
 
-                        <button class="btn btn-secondary" id="vim-reset">Reset Simulator</button>
-
-                        <button type="button" class="btn btn-secondary btn-sm instructor-toggle" data-instructor-toggle="vim" aria-pressed="false">
-                            <span class="instructor-dot" aria-hidden="true"></span><span class="instructor-label">Instructor mode: off</span>
-                        </button>
+                        <button class="quiz-btn" id="vim-reset" style="margin-top: 15px;">Reset Simulator</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Section 2: Nano Simulator -->
-        <section id="section-nano-sim" class="content-section" aria-labelledby="nano-sim-heading">
+        <!-- Section 5: Navigation -->
+        <section id="section-navigation" class="content-section" aria-labelledby="navigation-heading">
             <div class="section-header">
-                <span class="section-number" aria-hidden="true">2</span>
-                <h2 id="nano-sim-heading">Nano Simulator</h2>
+                <span class="section-number" aria-hidden="true">5</span>
+                <h2 id="navigation-heading">Navigation in Vim</h2>
             </div>
             <div class="section-body">
-                <p>Nano is simpler than Vim — just start typing! There are no modes to worry about. Use <span class="kbd">Ctrl</span>+key combinations for commands. The shortcuts are always shown at the bottom of the screen.</p>
+                <p>Efficient navigation is one of Vim's greatest strengths. While you can use arrow keys, learning the Vim navigation keys will make you much faster.</p>
 
-                <!-- Quick Reference -->
-                <div class="quick-ref">
-                    <h4>Quick Reference</h4>
-                    <div class="ref-grid">
-                        <div class="ref-item"><span class="kbd">Ctrl+O</span> Save file</div>
-                        <div class="ref-item"><span class="kbd">Ctrl+X</span> Exit</div>
-                        <div class="ref-item"><span class="kbd">Ctrl+K</span> Cut line</div>
-                        <div class="ref-item"><span class="kbd">Ctrl+U</span> Paste</div>
-                        <div class="ref-item"><span class="kbd">Ctrl+W</span> Search</div>
-                        <div class="ref-item"><span class="kbd">Ctrl+G</span> Help</div>
+                <div class="tabs-container">
+                    <div class="tab-list" role="tablist" aria-label="Navigation commands">
+                        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-basic-nav" id="tab-btn-basic-nav">Basic Movement</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-word-nav" id="tab-btn-word-nav">Word Movement</button>
+                        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-line-nav" id="tab-btn-line-nav">Line &amp; File</button>
+                    </div>
+                    
+                    <div id="tab-basic-nav" class="tab-content active" role="tabpanel" aria-labelledby="tab-btn-basic-nav">
+                        <h4>Character-by-Character Movement</h4>
+                        <p>These keys move the cursor one character or line at a time:</p>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr><th>Key</th><th>Action</th><th>Memory Aid</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="kbd">h</span></td><td>Move left</td><td>Leftmost key</td></tr>
+                                <tr><td><span class="kbd">j</span></td><td>Move down</td><td>"Jump down"</td></tr>
+                                <tr><td><span class="kbd">k</span></td><td>Move up</td><td>"Kick up"</td></tr>
+                                <tr><td><span class="kbd">l</span></td><td>Move right</td><td>Rightmost key</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="note-box">
+                            <div class="note-box-header">
+                                <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
+                                <span>Why h, j, k, l?</span>
+                            </div>
+                            <p>These keys were chosen because they're on the home row, keeping your fingers in the optimal typing position. With practice, you'll navigate faster than using arrow keys!</p>
+                        </div>
+                    </div>
+                    
+                    <div id="tab-word-nav" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-word-nav">
+                        <h4>Word-Based Movement</h4>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr><th>Key</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="kbd">w</span></td><td>Move to start of next word</td></tr>
+                                <tr><td><span class="kbd">W</span></td><td>Move to start of next WORD (space-delimited)</td></tr>
+                                <tr><td><span class="kbd">b</span></td><td>Move to start of previous word</td></tr>
+                                <tr><td><span class="kbd">B</span></td><td>Move to start of previous WORD</td></tr>
+                                <tr><td><span class="kbd">e</span></td><td>Move to end of word</td></tr>
+                                <tr><td><span class="kbd">E</span></td><td>Move to end of WORD</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="tab-line-nav" class="tab-content" role="tabpanel" aria-labelledby="tab-btn-line-nav">
+                        <h4>Line and File Navigation</h4>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr><th>Key</th><th>Action</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="kbd">0</span></td><td>Move to beginning of line</td></tr>
+                                <tr><td><span class="kbd">^</span></td><td>Move to first non-blank character of line</td></tr>
+                                <tr><td><span class="kbd">$</span></td><td>Move to end of line</td></tr>
+                                <tr><td><span class="kbd">gg</span></td><td>Go to first line of file</td></tr>
+                                <tr><td><span class="kbd">G</span></td><td>Go to last line of file</td></tr>
+                                <tr><td><code class="inline">:n</code> or <span class="kbd">nG</span></td><td>Go to line number n</td></tr>
+                                <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">f</span></td><td>Page forward (down)</td></tr>
+                                <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">b</span></td><td>Page backward (up)</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Editing -->
+        <section id="section-editing" class="content-section" aria-labelledby="editing-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">6</span>
+                <h2 id="editing-heading">Editing Text</h2>
+            </div>
+            <div class="section-body">
+                <p>Vim provides powerful editing commands that can be combined with movement commands to perform complex edits efficiently. In Vim, you can <span class="term" tabindex="0">yank<span class="tooltip">In Vim terminology, "yank" means copy. The term comes from the original vi editor.</span></span> (copy) and <span class="term" tabindex="0">put<span class="tooltip">In Vim, "put" means paste. The 'p' command pastes text from Vim's register (clipboard).</span></span> (paste) text using the <span class="kbd">y</span> and <span class="kbd">p</span> command characters.</p>
+
+                <h3>Delete Commands</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Command</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="kbd">x</span></td><td>Delete character under cursor</td></tr>
+                        <tr><td><span class="kbd">X</span></td><td>Delete character before cursor</td></tr>
+                        <tr><td><span class="kbd">dw</span></td><td>Delete from cursor to end of word</td></tr>
+                        <tr><td><span class="kbd">d$</span> or <span class="kbd">D</span></td><td>Delete from cursor to end of line</td></tr>
+                        <tr><td><span class="kbd">d0</span></td><td>Delete from cursor to beginning of line</td></tr>
+                        <tr><td><span class="kbd">dd</span></td><td>Delete entire current line</td></tr>
+                        <tr><td><span class="kbd">3dd</span></td><td>Delete 3 lines (number prefix)</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Copy and Paste Commands</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Command</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="kbd">yy</span></td><td>Yank (copy) current line</td></tr>
+                        <tr><td><span class="kbd">3yy</span></td><td>Yank 3 lines</td></tr>
+                        <tr><td><span class="kbd">yw</span></td><td>Yank word</td></tr>
+                        <tr><td><span class="kbd">y$</span></td><td>Yank to end of line</td></tr>
+                        <tr><td><span class="kbd">p</span></td><td>Put (paste) below cursor</td></tr>
+                        <tr><td><span class="kbd">P</span></td><td>Put (paste) above cursor</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Undo and Redo</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Command</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="kbd">u</span></td><td>Undo the last change</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">r</span></td><td>Redo (undo the undo)</td></tr>
+                        <tr><td><span class="kbd">.</span></td><td>Repeat the last command</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <span class="code-title">Editing Examples</span>
+                    <code><span class="code-comment"># In command mode:</span>
+<span class="code-key">dd</span>      <span class="code-comment"># Delete the current line</span>
+<span class="code-key">3dd</span>     <span class="code-comment"># Delete 3 lines</span>
+<span class="code-key">yy</span>      <span class="code-comment"># Copy the current line</span>
+<span class="code-key">p</span>       <span class="code-comment"># Paste below current line</span>
+<span class="code-key">u</span>       <span class="code-comment"># Undo the last change</span>
+<span class="code-key">Ctrl+r</span>  <span class="code-comment"># Redo the change</span>
+<span class="code-key">.</span>       <span class="code-comment"># Repeat the last command</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Visual Mode -->
+        <section id="section-visual" class="content-section" aria-labelledby="visual-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">7</span>
+                <h2 id="visual-heading">Visual Mode</h2>
+            </div>
+            <div class="section-body">
+                <p>Visual mode is useful to highlight and manipulate text in different lines and columns. You can enter various visual modes in Vim by using the following key combinations.</p>
+
+                <div class="command-grid">
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“ Character Mode</h4>
+                        <div class="cmd-syntax">v</div>
+                        <p>Highlights characters. The word <code class="inline">VISUAL</code> displays at the bottom of the screen.</p>
+                    </div>
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“„ Line Mode</h4>
+                        <div class="cmd-syntax">Shift+V</div>
+                        <p>Highlights entire lines. <code class="inline">VISUAL LINE</code> displays at the bottom.</p>
+                    </div>
+                    <div class="command-card" tabindex="0">
+                        <h4>ðŸ“¦ Block Mode</h4>
+                        <div class="cmd-syntax">Ctrl+V</div>
+                        <p>Highlights columns of text. <code class="inline">VISUAL BLOCK</code> displays. Useful for data files.</p>
+                    </div>
+                </div>
+
+                <h3>Using Visual Mode</h3>
+                <div class="code-block">
+                    <span class="code-title">Visual Mode Workflow</span>
+                    <code><span class="code-comment"># 1. Enter visual mode</span>
+<span class="code-key">v</span>       <span class="code-comment"># Character selection mode</span>
+
+<span class="code-comment"># 2. Expand selection using movement keys</span>
+<span class="code-key">w</span>       <span class="code-comment"># Select word by word</span>
+<span class="code-key">j</span>       <span class="code-comment"># Extend selection down</span>
+<span class="code-key">$</span>       <span class="code-comment"># Extend to end of line</span>
+
+<span class="code-comment"># 3. Perform action on selection</span>
+<span class="code-key">y</span>       <span class="code-comment"># Yank (copy) selected text</span>
+<span class="code-key">d</span>       <span class="code-comment"># Delete selected text</span>
+<span class="code-key">c</span>       <span class="code-comment"># Change selected text</span>
+<span class="code-key">></span>       <span class="code-comment"># Indent selection</span>
+<span class="code-key"><</span>       <span class="code-comment"># Unindent selection</span></code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: Search and Replace -->
+        <section id="section-search" class="content-section" aria-labelledby="search-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">8</span>
+                <h2 id="search-heading">Search and Replace</h2>
+            </div>
+            <div class="section-body">
+                <p>Vim provides powerful search and replace capabilities using patterns and regular expressions.</p>
+
+                <h3>Basic Search</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Command</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code class="inline">/pattern</code></td><td>Search forward for pattern</td></tr>
+                        <tr><td><code class="inline">?pattern</code></td><td>Search backward for pattern</td></tr>
+                        <tr><td><span class="kbd">n</span></td><td>Find next occurrence</td></tr>
+                        <tr><td><span class="kbd">N</span></td><td>Find previous occurrence</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Search and Replace</h3>
+                <p>The substitute command has the form: <code class="inline">:[range]s/old/new/[flags]</code></p>
+
+                <div class="code-block">
+                    <span class="code-title">Search and Replace Examples</span>
+                    <code><span class="code-comment"># Replace first occurrence on current line</span>
+<span class="code-mode">:s/old/new/</span>
+
+<span class="code-comment"># Replace all occurrences on current line</span>
+<span class="code-mode">:s/old/new/g</span>
+
+<span class="code-comment"># Replace all occurrences in entire file</span>
+<span class="code-mode">:%s/old/new/g</span>
+
+<span class="code-comment"># Replace with confirmation for each</span>
+<span class="code-mode">:%s/old/new/gc</span>
+
+<span class="code-comment"># Replace only in lines 5-10</span>
+<span class="code-mode">:5,10s/old/new/g</span>
+
+<span class="code-comment"># Case-insensitive replace</span>
+<span class="code-mode">:%s/old/new/gi</span></code>
+                </div>
+
+                <div class="note-box">
+                    <div class="note-box-header">
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
+                        <span>Confirmation Flags</span>
+                    </div>
+                    <p>When using the <code class="inline">c</code> flag for confirmation, Vim will ask for each match:
+                    <code class="inline">y</code> (yes), <code class="inline">n</code> (no), <code class="inline">a</code> (all remaining), <code class="inline">q</code> (quit), or <code class="inline">l</code> (replace this one and quit).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 9: Nano Editor -->
+        <section id="section-nano" class="content-section" aria-labelledby="nano-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">9</span>
+                <h2 id="nano-heading">The Nano Editor</h2>
+            </div>
+            <div class="section-body">
+                <p>While Vim is powerful, some users prefer <span class="term" tabindex="0">Nano<span class="tooltip">Nano is a simple, user-friendly text editor for the command line. It displays keyboard shortcuts at the bottom of the screen.</span></span> for its simplicity and ease of use. Nano displays keyboard shortcuts at the bottom of the screen, making it more intuitive for beginners.</p>
+
+                <div class="code-block">
+                    <span class="code-title">Using Nano</span>
+                    <code><span class="code-comment"># Open a file with nano</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">nano filename.txt</span>
+
+<span class="code-comment"># Open file at a specific line</span>
+<span class="code-prompt">student@workstation:~$</span> <span class="code-command">nano +10 filename.txt</span></code>
+                </div>
+
+                <h3>Common Nano Shortcuts</h3>
+                <p>In Nano, the <code class="inline">^</code> symbol means <span class="kbd">Ctrl</span> and <code class="inline">M-</code> means <span class="kbd">Alt</span>.</p>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr><th>Shortcut</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">O</span></td><td>Write Out (save file)</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">X</span></td><td>Exit Nano</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">K</span></td><td>Cut current line</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">U</span></td><td>Paste (uncut) text</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">W</span></td><td>Search for text</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">\</span></td><td>Search and replace</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">G</span></td><td>Get help</td></tr>
+                        <tr><td><span class="kbd">Ctrl</span>+<span class="kbd">C</span></td><td>Show cursor position</td></tr>
+                        <tr><td><span class="kbd">Alt</span>+<span class="kbd">U</span></td><td>Undo</td></tr>
+                        <tr><td><span class="kbd">Alt</span>+<span class="kbd">E</span></td><td>Redo</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">âš–ï¸</span>
+                        <span>When to Use Each Editor</span>
+                    </div>
+                    <p><strong>Use Vim</strong> when you need powerful editing features, work with configuration files frequently, or need an editor that's available on all systems.</p>
+                    <p><strong>Use Nano</strong> for quick edits, when you're new to Linux, or when you need to make simple changes without learning complex commands.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 10: Nano Simulator -->
+        <section id="section-nano-sim" class="content-section" aria-labelledby="nano-sim-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">10</span>
+                <h2 id="nano-sim-heading">Interactive Nano Simulator</h2>
+            </div>
+            <div class="section-body">
+                <p>Practice Nano commands in this interactive simulator. Nano is simpler than Vim - just start typing!</p>
 
                 <div class="simulator-container">
                     <div class="simulator" id="nano-simulator">
                         <div class="nano-header">
-                            GNU nano 7.2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="nano-filename">practice.txt</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Modified
+                            GNU nano 7.2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;practice.txt&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Modified
                         </div>
                         <div class="sim-screen">
                             <div class="vim-content" id="nano-content" role="textbox" aria-label="Nano editor content" tabindex="0">
@@ -1243,26 +2067,9 @@
                     </div>
 
                     <div class="sim-panel">
-                        <h4>🎮 Nano Controls</h4>
-
-                        <div class="file-loader">
-                            <label class="file-loader-label" for="nano-file-select">Open a practice file in Nano:</label>
-                            <div class="file-loader-row">
-                                <select id="nano-file-select" class="file-select">
-                                <option value="practice.txt">practice.txt &mdash; starter text</option>
-                                <option value="hosts">/etc/hosts &mdash; name-to-address table</option>
-                                <option value="fstab">/etc/fstab &mdash; filesystem table</option>
-                                <option value="sshd_config">/etc/ssh/sshd_config &mdash; SSH server settings</option>
-                                <option value="backup.sh">backup.sh &mdash; shell script</option>
-                                <option value="memo.txt">memo.txt &mdash; plain-text memo</option>
-                                <option value="lab-tasks.txt">lab-tasks.txt &mdash; Chapter 8 lab tasks</option>
-                                <option value="newfile.txt">newfile.txt &mdash; empty file</option>
-                                </select>
-                                <button type="button" class="btn btn-secondary btn-sm" id="nano-file-open">Open file</button>
-                            </div>
-                        </div>
+                        <h4>ðŸŽ® Nano Controls</h4>
                         <div class="sim-instructions" id="nano-instructions">
-                            Just start typing — no modes needed! Use Ctrl+key combinations for commands.
+                            In Nano, you can type immediately - no mode switching needed! Use Ctrl+key combinations for commands.
                         </div>
                         
                         <div class="sim-keyboard" id="nano-keyboard">
@@ -1277,7 +2084,7 @@
                         <div class="sim-message" id="nano-message">Ready. Just start typing! Use Ctrl+O to save, Ctrl+X to exit.</div>
 
                         <div class="challenge-tracker">
-                            <h5>🏆 Nano Challenges</h5>
+                            <h5>ðŸ† Nano Challenges</h5>
                             <ul class="challenge-list" id="nano-challenges">
                                 <li data-challenge="type">Type some text</li>
                                 <li data-challenge="cut">Cut a line with Ctrl+K</li>
@@ -1287,34 +2094,301 @@
                             </ul>
                         </div>
 
-                        <button class="btn btn-secondary" id="nano-reset">Reset Simulator</button>
-
-                        <button type="button" class="btn btn-secondary btn-sm instructor-toggle" data-instructor-toggle="nano" aria-pressed="false">
-                            <span class="instructor-dot" aria-hidden="true"></span><span class="instructor-label">Instructor mode: off</span>
-                        </button>
+                        <button class="quiz-btn" id="nano-reset" style="margin-top: 15px;">Reset Simulator</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Completion -->
-        <div class="completion-section">
-            <h2>🎉 Great Practice!</h2>
-            <p>Complete the challenges in both simulators, then return to Chapter 8 for the full lab exercises on real systems.</p>
-            <a href="chapter8_editing_text_files.html" class="completion-btn" style="display: inline-block; text-decoration: none;">Return to Chapter 8</a>
-        </div>
+        <!-- Section 11: Quiz -->
+        <section id="section-quiz" class="content-section" aria-labelledby="quiz-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">11</span>
+                <h2 id="quiz-heading">Knowledge Check</h2>
+            </div>
+            <div class="section-body">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <h3>Test Your Understanding</h3>
+                        <span class="quiz-score" id="quiz-score">Score: 0/8</span>
+                    </div>
+
+                    <!-- Question 1 -->
+                    <div class="quiz-question" data-question="1" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q1.</span> When Vim first opens a file, which mode is it in?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="a">
+                                Insert mode
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="b">
+                                Command mode
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="c">
+                                Visual mode
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q1" value="d">
+                                Extended command mode
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-1"></div>
+                    </div>
+
+                    <!-- Question 2 -->
+                    <div class="quiz-question" data-question="2" data-correct="c">
+                        <p class="question-text"><span class="question-number">Q2.</span> Which command saves a file and quits Vim?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="a">
+                                :q!
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="b">
+                                :w
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="c">
+                                :wq
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q2" value="d">
+                                :e
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-2"></div>
+                    </div>
+
+                    <!-- Question 3 -->
+                    <div class="quiz-question" data-question="3" data-correct="a">
+                        <p class="question-text"><span class="question-number">Q3.</span> What does the <code class="inline">dd</code> command do in Vim's command mode?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="a">
+                                Delete the current line
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="b">
+                                Duplicate the current line
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="c">
+                                Display directory
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q3" value="d">
+                                Download file
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-3"></div>
+                    </div>
+
+                    <!-- Question 4 -->
+                    <div class="quiz-question" data-question="4" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q4.</span> How do you enter Insert mode from Command mode?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="a">
+                                Press Escape
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="b">
+                                Press i
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="c">
+                                Press :
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q4" value="d">
+                                Press v
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-4"></div>
+                    </div>
+
+                    <!-- Question 5 -->
+                    <div class="quiz-question" data-question="5" data-correct="b">
+                        <p class="question-text"><span class="question-number">Q5.</span> Which Vim command replaces all occurrences of "old" with "new" in the entire file?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="a">
+                                :s/old/new/
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="b">
+                                :%s/old/new/g
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="c">
+                                /old/new/
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q5" value="d">
+                                :replace old new
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-5"></div>
+                    </div>
+
+                    <!-- Question 6 -->
+                    <div class="quiz-question" data-question="6" data-correct="c">
+                        <p class="question-text"><span class="question-number">Q6.</span> In Vim, what does "yank" mean?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="a">
+                                Delete
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="b">
+                                Paste
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="c">
+                                Copy
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q6" value="d">
+                                Move
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-6"></div>
+                    </div>
+
+                    <!-- Question 7 -->
+                    <div class="quiz-question" data-question="7" data-correct="a">
+                        <p class="question-text"><span class="question-number">Q7.</span> How do you save a file in Nano?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="a">
+                                Ctrl+O
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="b">
+                                Ctrl+S
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="c">
+                                Ctrl+W
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q7" value="d">
+                                :w
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-7"></div>
+                    </div>
+
+                    <!-- Question 8 -->
+                    <div class="quiz-question" data-question="8" data-correct="d">
+                        <p class="question-text"><span class="question-number">Q8.</span> Which key moves the cursor down one line in Vim's command mode?</p>
+                        <div class="quiz-options">
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="a">
+                                h
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="b">
+                                k
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="c">
+                                l
+                            </label>
+                            <label class="quiz-option">
+                                <input type="radio" name="q8" value="d">
+                                j
+                            </label>
+                        </div>
+                        <div class="quiz-feedback" id="feedback-8"></div>
+                    </div>
+
+                    <button class="quiz-btn" id="check-answers" type="button">Check Answers</button>
+                    <button class="quiz-btn" id="reset-quiz" type="button" style="display: none; margin-left: 10px;">Try Again</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 12: Summary -->
+        <section id="section-summary" class="content-section" aria-labelledby="summary-heading">
+            <div class="section-header">
+                <span class="section-number" aria-hidden="true">12</span>
+                <h2 id="summary-heading">Chapter Summary</h2>
+            </div>
+            <div class="section-body">
+                <div class="summary-box">
+                    <h3>Key Takeaways</h3>
+                    <ul class="summary-list">
+                        <li><strong>Vim is modal</strong>: Command mode (default), Insert mode (press <code class="inline">i</code>), Visual mode (press <code class="inline">v</code>), and Extended command mode (press <code class="inline">:</code>).</li>
+                        <li><strong>Always know your mode</strong>: Press <span class="kbd">Esc</span> multiple times to return to command mode if unsure.</li>
+                        <li><strong>Essential commands</strong>: <code class="inline">:wq</code> (save and quit), <code class="inline">:q!</code> (quit without saving), <code class="inline">u</code> (undo), <code class="inline">dd</code> (delete line).</li>
+                        <li><strong>Navigation</strong>: Use <code class="inline">h</code>, <code class="inline">j</code>, <code class="inline">k</code>, <code class="inline">l</code> for movement; <code class="inline">gg</code> for start of file; <code class="inline">G</code> for end of file.</li>
+                        <li><strong>Editing</strong>: <code class="inline">yy</code> (yank/copy line), <code class="inline">p</code> (paste), <code class="inline">dd</code> (delete line), <code class="inline">cw</code> (change word).</li>
+                        <li><strong>Visual mode</strong>: Select text with <code class="inline">v</code> (character), <code class="inline">V</code> (line), or <code class="inline">Ctrl+v</code> (block) for manipulation.</li>
+                        <li><strong>Search and replace</strong>: <code class="inline">:%s/old/new/g</code> replaces all occurrences in the file.</li>
+                        <li><strong>Nano alternative</strong>: Use Nano for simple edits; shortcuts displayed at bottom of screen.</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-box-header">
+                        <span class="note-icon" aria-hidden="true">ðŸŽ¯</span>
+                        <span>What's Next?</span>
+                    </div>
+                    <p>In Chapter 9, you'll learn about redirecting shell input and output, including:</p>
+                    <ul style="margin-top: 10px; margin-left: 20px;">
+                        <li>Standard input, output, and error streams</li>
+                        <li>Redirecting output to files with <code class="inline">></code> and <code class="inline">>></code></li>
+                        <li>Using pipes to connect commands</li>
+                        <li>Combining commands with <code class="inline">tee</code></li>
+                    </ul>
+                </div>
+
+                <div class="completion-section">
+                    <h2>ðŸŽ‰ Practice Lab Complete!</h2>
+                    <p>You've practiced editing text files using the Vim and Nano simulators. Return to the main Chapter 8 content for additional reading and lab exercises.</p>
+                    <button class="completion-btn" id="mark-complete" type="button">Mark Practice Lab as Complete</button>
+                </div>
+            </div>
+        </section>
 
     </main>
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 8 Practice Lab • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 8 Practice Lab â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <script>
         (function() {
             'use strict';
+
+            // ==================== PROGRESS TRACKING ====================
+            const sections = document.querySelectorAll('.content-section');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const visitedSections = new Set();
+
+            function updateProgress() {
+                const percentage = Math.round((visitedSections.size / sections.length) * 100);
+                progressFill.style.width = percentage + '%';
+                progressFill.setAttribute('aria-valuenow', percentage);
+                progressText.textContent = percentage + '% Complete';
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visitedSections.add(entry.target.id);
+                        updateProgress();
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            sections.forEach(section => observer.observe(section));
 
             // ==================== VIM SIMULATOR ====================
             const vimContent = document.getElementById('vim-content');
@@ -1326,7 +2400,7 @@
             const vimChallenges = document.getElementById('vim-challenges');
 
             let vimState = {
-                mode: 'command',
+                mode: 'command', // command, insert, visual
                 lines: [
                     'Welcome to the Vim Simulator!',
                     'This is a practice file.',
@@ -1351,1023 +2425,328 @@
                 if (vimState.undoStack.length > 50) vimState.undoStack.shift();
             }
 
+            function renderVim() {
+                let html = '';
+                vimState.lines.forEach((line, lineIdx) => {
+                    html += '<div class="line">';
+                    html += `<span class="line-number">${lineIdx + 1}</span>`;
+                    html += '<span class="line-text">';
+                    
+                    if (lineIdx === vimState.cursorLine) {
+                        for (let i = 0; i < line.length; i++) {
+                            if (i === vimState.cursorCol) {
+                                html += `<span class="cursor blink">${line[i] || ' '}</span>`;
+                            } else {
+                                html += escapeHtml(line[i]);
+                            }
+                        }
+                        if (vimState.cursorCol >= line.length) {
+                            html += '<span class="cursor blink"> </span>';
+                        }
+                    } else {
+                        html += escapeHtml(line) || '&nbsp;';
+                    }
+                    
+                    html += '</span></div>';
+                });
+                vimContent.innerHTML = html;
+
+                // Update statusbar
+                vimStatusbar.className = 'sim-statusbar ' + vimState.mode + '-mode';
+                vimMode.textContent = vimState.mode.toUpperCase();
+                if (vimState.mode === 'insert') {
+                    vimMode.textContent = '-- INSERT --';
+                } else if (vimState.mode === 'visual') {
+                    vimMode.textContent = '-- VISUAL --';
+                } else {
+                    vimMode.textContent = 'COMMAND';
+                }
+                vimPosition.textContent = `Line ${vimState.cursorLine + 1}, Col ${vimState.cursorCol + 1}`;
+
+                // Update command line
+                vimCommandLine.textContent = vimState.commandBuffer;
+            }
+
             function escapeHtml(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
             }
 
-            function renderVim() {
-                vimExtras();
-                var sel = null;
-                if (vimState.mode === 'visual' && vimState.visualStart) {
-                    sel = visualRange();
-                }
-
-                var html = '';
-                vimState.lines.forEach(function (line, lineIdx) {
-                    html += '<div class="line">';
-                    if (vimShowNumbers) {
-                        html += '<span class="line-number">' + (lineIdx + 1) + '</span>';
-                    }
-                    html += '<span class="line-text">';
-
-                    var selFrom = -1, selTo = -1;
-                    if (sel && lineIdx >= sel.start.line && lineIdx <= sel.end.line) {
-                        if (vimState.visualLine) {
-                            selFrom = 0;
-                            selTo = Math.max(0, line.length - 1);
-                        } else {
-                            selFrom = (lineIdx === sel.start.line) ? sel.start.col : 0;
-                            selTo = (lineIdx === sel.end.line) ? sel.end.col : Math.max(0, line.length - 1);
-                        }
-                    }
-
-                    if (lineIdx === vimState.cursorLine || selFrom !== -1) {
-                        for (var i = 0; i < line.length; i++) {
-                            var ch = escapeHtml(line[i]) || ' ';
-                            var inSel = (selFrom !== -1 && i >= selFrom && i <= selTo);
-                            if (lineIdx === vimState.cursorLine && i === vimState.cursorCol) {
-                                html += '<span class="cursor blink">' + ch + '</span>';
-                            } else if (inSel) {
-                                html += '<span class="vim-sel">' + ch + '</span>';
-                            } else {
-                                html += ch;
-                            }
-                        }
-                        if (lineIdx === vimState.cursorLine && vimState.cursorCol >= line.length) {
-                            html += '<span class="cursor blink"> </span>';
-                        } else if (!line.length && selFrom !== -1) {
-                            html += '<span class="vim-sel"> </span>';
-                        }
-                    } else {
-                        html += escapeHtml(line) || '&nbsp;';
-                    }
-
-                    html += '</span></div>';
-                });
-                vimContent.innerHTML = html;
-
-                vimStatusbar.className = 'sim-statusbar ' + vimState.mode + '-mode';
-                if (vimState.mode === 'insert') {
-                    vimMode.textContent = '-- INSERT --';
-                } else if (vimState.mode === 'visual') {
-                    vimMode.textContent = vimState.visualLine ? '-- VISUAL LINE --' : '-- VISUAL --';
-                } else {
-                    vimMode.textContent = 'COMMAND';
-                }
-
-                /* Show the half-typed command the way Vim does, bottom right. */
-                var pending = (vimState.count || '') + (vimState.op === 'g' ? 'g' : (vimState.op || '')) +
-                              (vimState.pendingReplace ? 'r' : '');
-                vimPosition.textContent = (pending ? pending + '      ' : '') +
-                    'Line ' + (vimState.cursorLine + 1) + ', Col ' + (vimState.cursorCol + 1);
-                vimCommandLine.textContent = vimState.commandBuffer;
-            }
-
             function completeChallenge(challenge) {
                 if (!vimState.completedChallenges.has(challenge)) {
                     vimState.completedChallenges.add(challenge);
-                    const item = vimChallenges.querySelector('[data-challenge="' + challenge + '"]');
+                    const item = vimChallenges.querySelector(`[data-challenge="${challenge}"]`);
                     if (item) item.classList.add('completed');
                 }
             }
 
-            // ==================== VIM ENGINE ====================
-            // Named keys arrive from real keydown events; everything else is a
-            // single character, or a multi-character macro from the button pad.
-            var VIM_NAMED = {
-                'Escape': 1, 'Enter': 1, 'Backspace': 1, 'Tab': 1, 'Delete': 1,
-                'ArrowUp': 1, 'ArrowDown': 1, 'ArrowLeft': 1, 'ArrowRight': 1,
-                'Home': 1, 'End': 1
-            };
-
-            var vimShowNumbers = true;
-
-            function vimExtras() {
-                if (vimState.op === undefined) { vimState.op = ''; }
-                if (vimState.count === undefined) { vimState.count = ''; }
-                if (vimState.pendingReplace === undefined) { vimState.pendingReplace = false; }
-                if (vimState.visualStart === undefined) { vimState.visualStart = null; }
-                if (vimState.visualLine === undefined) { vimState.visualLine = false; }
-                if (vimState.yankType === undefined) { vimState.yankType = 'line'; }
-                if (vimState.lastSearch === undefined) { vimState.lastSearch = ''; }
-                if (vimState.commandBuffer === undefined) { vimState.commandBuffer = ''; }
+            function handleVimKey(key) {
+                if (vimState.mode === 'command') {
+                    handleCommandMode(key);
+                } else if (vimState.mode === 'insert') {
+                    handleInsertMode(key);
+                }
+                renderVim();
             }
 
-            function vimClear() {
-                vimState.op = '';
-                vimState.count = '';
-                vimState.pendingReplace = false;
-            }
-
-            function vimNote(text, cls) {
-                vimMessage.textContent = text;
-                if (cls) {
-                    vimMessage.classList.add(cls);
-                    setTimeout(function () { vimMessage.classList.remove(cls); }, 2000);
-                }
-            }
-
-            function vimLine() { return vimState.lines[vimState.cursorLine] || ''; }
-
-            function vimClampCursor() {
-                if (vimState.cursorLine < 0) { vimState.cursorLine = 0; }
-                if (vimState.cursorLine > vimState.lines.length - 1) {
-                    vimState.cursorLine = vimState.lines.length - 1;
-                }
-                var len = vimLine().length;
-                var max = (vimState.mode === 'insert') ? len : Math.max(0, len - 1);
-                if (vimState.cursorCol > max) { vimState.cursorCol = max; }
-                if (vimState.cursorCol < 0) { vimState.cursorCol = 0; }
-            }
-
-            function isWordChar(c) { return /\S/.test(c); }
-
-            function nextWordStart(lineIdx, col) {
-                var line = vimState.lines[lineIdx] || '';
-                var i = col;
-                while (i < line.length && isWordChar(line[i])) { i++; }
-                while (i < line.length && !isWordChar(line[i])) { i++; }
-                if (i >= line.length && lineIdx < vimState.lines.length - 1) {
-                    return { line: lineIdx + 1, col: 0 };
-                }
-                /* Returned unclamped: dw on the last word must reach the end of
-                   the line. Cursor movement clamps separately. */
-                return { line: lineIdx, col: i };
-            }
-
-            function wordEnd(lineIdx, col) {
-                var line = vimState.lines[lineIdx] || '';
-                var i = col + 1;
-                while (i < line.length && !isWordChar(line[i])) { i++; }
-                while (i + 1 < line.length && isWordChar(line[i + 1])) { i++; }
-                return { line: lineIdx, col: Math.min(i, Math.max(0, line.length - 1)) };
-            }
-
-            function prevWordStart(lineIdx, col) {
-                var line = vimState.lines[lineIdx] || '';
-                var i = col - 1;
-                while (i >= 0 && !isWordChar(line[i])) { i--; }
-                if (i < 0) {
-                    if (lineIdx > 0) {
-                        var prev = vimState.lines[lineIdx - 1] || '';
-                        return { line: lineIdx - 1, col: Math.max(0, prev.length - 1) };
-                    }
-                    return { line: lineIdx, col: 0 };
-                }
-                while (i > 0 && isWordChar(line[i - 1])) { i--; }
-                return { line: lineIdx, col: Math.max(0, i) };
-            }
-
-            function firstNonBlank(lineIdx) {
-                var line = vimState.lines[lineIdx] || '';
-                var i = 0;
-                while (i < line.length && /\s/.test(line[i])) { i++; }
-                return Math.min(i, Math.max(0, line.length - 1));
-            }
-
-            /* Returns the destination of a motion, or null when the key is not one. */
-            function vimMotion(key, count) {
-                var n = count || 1;
-                var pos = { line: vimState.cursorLine, col: vimState.cursorCol, linewise: false, inclusive: false };
-                var i;
-
-                switch (key) {
-                    case 'h': case 'ArrowLeft':
-                        pos.col = Math.max(0, vimState.cursorCol - n);
-                        return pos;
-                    case 'l': case 'ArrowRight':
-                        pos.col = Math.min(Math.max(0, vimLine().length - 1), vimState.cursorCol + n);
-                        return pos;
-                    case 'j': case 'ArrowDown':
-                        pos.line = Math.min(vimState.lines.length - 1, vimState.cursorLine + n);
-                        pos.linewise = true;
-                        return pos;
-                    case 'k': case 'ArrowUp':
-                        pos.line = Math.max(0, vimState.cursorLine - n);
-                        pos.linewise = true;
-                        return pos;
-                    case '0': case 'Home':
-                        pos.col = 0;
-                        return pos;
-                    case '^':
-                        pos.col = firstNonBlank(vimState.cursorLine);
-                        return pos;
-                    case '$': case 'End':
-                        pos.col = Math.max(0, vimLine().length - 1);
-                        pos.inclusive = true;
-                        return pos;
-                    case 'w':
-                        for (i = 0; i < n; i++) {
-                            var nw = nextWordStart(pos.line, pos.col);
-                            pos.line = nw.line; pos.col = nw.col;
-                        }
-                        return pos;
-                    case 'e':
-                        for (i = 0; i < n; i++) {
-                            var we = wordEnd(pos.line, pos.col);
-                            pos.line = we.line; pos.col = we.col;
-                        }
-                        pos.inclusive = true;
-                        return pos;
-                    case 'b':
-                        for (i = 0; i < n; i++) {
-                            var pw = prevWordStart(pos.line, pos.col);
-                            pos.line = pw.line; pos.col = pw.col;
-                        }
-                        return pos;
-                    case 'G':
-                        pos.line = count ? Math.min(vimState.lines.length - 1, n - 1)
-                                         : vimState.lines.length - 1;
-                        pos.col = 0;
-                        pos.linewise = true;
-                        return pos;
-                    case 'gg':
-                        pos.line = count ? Math.min(vimState.lines.length - 1, n - 1) : 0;
-                        pos.col = 0;
-                        pos.linewise = true;
-                        return pos;
-                    default:
-                        return null;
-                }
-            }
-
-            function deleteLines(from, to) {
-                saveUndoState();
-                var removed = vimState.lines.slice(from, to + 1);
-                vimState.lines.splice(from, to - from + 1);
-                if (vimState.lines.length === 0) { vimState.lines = ['']; }
-                vimState.cursorLine = Math.min(from, vimState.lines.length - 1);
-                vimState.cursorCol = 0;
-                return removed;
-            }
-
-            function deleteRange(startLine, startCol, endLine, endCol) {
-                /* Character-wise delete, clamped to one line for simplicity. */
-                saveUndoState();
-                if (startLine !== endLine) {
-                    endLine = startLine;
-                    endCol = (vimState.lines[startLine] || '').length;
-                }
-                var line = vimState.lines[startLine] || '';
-                var text = line.substring(startCol, endCol);
-                vimState.lines[startLine] = line.substring(0, startCol) + line.substring(endCol);
-                vimState.cursorLine = startLine;
-                vimState.cursorCol = startCol;
-                return text;
-            }
-
-            /* Runs d, c or y over a motion. */
-            function applyOperator(op, key, count) {
-                var n = count || 1;
-
-                /* Doubled operator: dd, cc, yy - always line-wise. */
-                if (key === op) {
-                    var from = vimState.cursorLine;
-                    var to = Math.min(vimState.lines.length - 1, from + n - 1);
-                    vimState.yankBuffer = vimState.lines.slice(from, to + 1).join('\n');
-                    vimState.yankType = 'line';
-                    if (op === 'y') {
-                        vimNote(n + (n === 1 ? ' line yanked' : ' lines yanked'));
-                        completeChallenge('yank');
-                        return;
-                    }
-                    if (op === 'd') {
-                        deleteLines(from, to);
-                        vimNote(n + (n === 1 ? ' line deleted' : ' lines deleted') + ' (and yanked)');
-                        completeChallenge('deleteline');
-                        return;
-                    }
-                    /* cc: clear the line and start inserting. */
-                    saveUndoState();
-                    vimState.lines[from] = '';
-                    vimState.cursorCol = 0;
-                    vimState.mode = 'insert';
-                    vimNote('-- INSERT -- (line changed)');
-                    completeChallenge('insert');
-                    return;
-                }
-
-                var target = vimMotion(key, count);
-                if (!target) {
-                    vimNote('No motion for ' + op + key, 'error');
-                    return;
-                }
-
-                if (target.linewise) {
-                    var a = Math.min(vimState.cursorLine, target.line);
-                    var b = Math.max(vimState.cursorLine, target.line);
-                    vimState.yankBuffer = vimState.lines.slice(a, b + 1).join('\n');
-                    vimState.yankType = 'line';
-                    if (op === 'y') {
-                        vimNote((b - a + 1) + ' lines yanked');
-                        completeChallenge('yank');
-                        return;
-                    }
-                    deleteLines(a, b);
-                    if (op === 'c') {
-                        vimState.lines.splice(vimState.cursorLine, 0, '');
-                        vimState.cursorCol = 0;
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT --');
-                        completeChallenge('insert');
-                    } else {
-                        vimNote((b - a + 1) + ' lines deleted');
-                        completeChallenge('deleteline');
-                    }
-                    return;
-                }
-
-                /* A word motion can run off the end of the line. Vim stops the
-                   operator at the line boundary instead of wrapping, so clamp
-                   the target before working out the range. */
-                if (target.line !== vimState.cursorLine) {
-                    target = {
-                        line: vimState.cursorLine,
-                        col: (target.line > vimState.cursorLine) ? vimLine().length : 0,
-                        inclusive: false
-                    };
-                }
-
-                var sCol = vimState.cursorCol;
-                var eCol = target.col + (target.inclusive ? 1 : 0);
-                if (eCol < sCol) { var t = sCol; sCol = eCol; eCol = t; }
-                /* cw behaves like ce: it stops at the end of the word. */
-                if (op === 'c' && key === 'w') {
-                    var ce = wordEnd(vimState.cursorLine, vimState.cursorCol);
-                    sCol = vimState.cursorCol;
-                    eCol = Math.max(sCol, ce.col + 1);
-                }
-
-                if (op === 'y') {
-                    vimState.yankBuffer = vimLine().substring(sCol, eCol);
-                    vimState.yankType = 'char';
-                    vimNote('Yanked "' + vimState.yankBuffer + '"');
-                    completeChallenge('yank');
-                    return;
-                }
-
-                vimState.yankBuffer = deleteRange(vimState.cursorLine, sCol, target.line, eCol);
-                vimState.yankType = 'char';
-                if (op === 'c') {
-                    vimState.mode = 'insert';
-                    vimNote('-- INSERT -- (changed "' + vimState.yankBuffer + '")');
-                    completeChallenge('insert');
-                } else {
-                    vimNote('Deleted "' + vimState.yankBuffer + '"');
-                    completeChallenge('delete');
-                }
-            }
-
-            function vimPaste(above) {
-                if (!vimState.yankBuffer) {
-                    vimNote('Nothing to paste', 'error');
-                    return;
-                }
-                saveUndoState();
-                if (vimState.yankType === 'line') {
-                    var newLines = vimState.yankBuffer.split('\n');
-                    var at = above ? vimState.cursorLine : vimState.cursorLine + 1;
-                    Array.prototype.splice.apply(vimState.lines, [at, 0].concat(newLines));
-                    vimState.cursorLine = at;
-                    vimState.cursorCol = 0;
-                } else {
-                    var line = vimLine();
-                    var at2 = above ? vimState.cursorCol : Math.min(line.length, vimState.cursorCol + 1);
-                    vimState.lines[vimState.cursorLine] =
-                        line.substring(0, at2) + vimState.yankBuffer + line.substring(at2);
-                    vimState.cursorCol = at2 + vimState.yankBuffer.length - 1;
-                }
-                vimNote(above ? 'Pasted above' : 'Pasted below');
-                completeChallenge('paste');
-            }
-
-            /* ---------- visual mode ---------- */
-            function visualRange() {
-                var a = vimState.visualStart || { line: vimState.cursorLine, col: vimState.cursorCol };
-                var b = { line: vimState.cursorLine, col: vimState.cursorCol };
-                if (a.line > b.line || (a.line === b.line && a.col > b.col)) { var t = a; a = b; b = t; }
-                return { start: a, end: b };
-            }
-
-            function visualDelete(change) {
-                var r = visualRange();
-                if (vimState.visualLine) {
-                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
-                    vimState.yankType = 'line';
-                    deleteLines(r.start.line, r.end.line);
-                    if (change) {
-                        vimState.lines.splice(vimState.cursorLine, 0, '');
-                        vimState.cursorCol = 0;
-                    }
-                } else if (r.start.line === r.end.line) {
-                    vimState.yankBuffer = deleteRange(r.start.line, r.start.col, r.end.line, r.end.col + 1);
-                    vimState.yankType = 'char';
-                } else {
-                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
-                    vimState.yankType = 'line';
-                    deleteLines(r.start.line, r.end.line);
-                }
-                vimState.visualStart = null;
-                vimState.visualLine = false;
-                vimState.mode = change ? 'insert' : 'command';
-                vimNote(change ? '-- INSERT --' : 'Selection deleted (and yanked)');
-                completeChallenge(change ? 'insert' : 'delete');
-            }
-
-            function visualYank() {
-                var r = visualRange();
-                if (vimState.visualLine || r.start.line !== r.end.line) {
-                    vimState.yankBuffer = vimState.lines.slice(r.start.line, r.end.line + 1).join('\n');
-                    vimState.yankType = 'line';
-                } else {
-                    vimState.yankBuffer = (vimState.lines[r.start.line] || '')
-                        .substring(r.start.col, r.end.col + 1);
-                    vimState.yankType = 'char';
-                }
-                vimState.cursorLine = r.start.line;
-                vimState.cursorCol = r.start.col;
-                vimState.visualStart = null;
-                vimState.visualLine = false;
-                vimState.mode = 'command';
-                vimNote('Selection yanked');
-                completeChallenge('yank');
-            }
-
-            /* ---------- search ---------- */
-            function vimSearch(term, forward, fromNext) {
-                if (!term) { return; }
-                vimState.lastSearch = term;
-                var total = vimState.lines.length;
-                var startLine = vimState.cursorLine;
-                var startCol = vimState.cursorCol + (fromNext ? 1 : 0);
-                var i, li, line, idx;
-
-                for (i = 0; i <= total; i++) {
-                    li = forward ? (startLine + i) % total
-                                 : (startLine - i + total * 2) % total;
-                    line = vimState.lines[li] || '';
-                    if (forward) {
-                        idx = line.indexOf(term, (i === 0) ? startCol : 0);
-                    } else {
-                        idx = line.lastIndexOf(term, (i === 0) ? Math.max(0, startCol - 2) : line.length);
-                        if (i === 0 && startCol <= 0) { idx = -1; }
-                    }
-                    if (idx !== -1) {
-                        vimState.cursorLine = li;
-                        vimState.cursorCol = idx;
-                        vimNote((forward ? '/' : '?') + term + '  (line ' + (li + 1) + ')');
-                        completeChallenge('navigate');
-                        return true;
-                    }
-                }
-                vimNote('Pattern not found: ' + term, 'error');
-                return false;
-            }
-
-            function vimSubstitute(scope, body) {
-                var parts = body.split('/');
-                if (parts.length < 3) {
-                    vimNote('Usage: :%s/old/new/g', 'error');
-                    return;
-                }
-                var oldText = parts[1];
-                var newText = parts[2];
-                var flags = parts[3] || '';
-                if (!oldText) {
-                    vimNote('Nothing to search for', 'error');
-                    return;
-                }
-                saveUndoState();
-                var global = flags.indexOf('g') !== -1;
-                var from = (scope === '%') ? 0 : vimState.cursorLine;
-                var to = (scope === '%') ? vimState.lines.length - 1 : vimState.cursorLine;
-                var hits = 0, linesHit = 0, i, line, before;
-
-                for (i = from; i <= to; i++) {
-                    line = vimState.lines[i];
-                    before = line;
-                    if (global) {
-                        while (line.indexOf(oldText) !== -1) {
-                            line = line.replace(oldText, '\u0000');
-                            hits++;
-                        }
-                        line = line.split('\u0000').join(newText);
-                    } else if (line.indexOf(oldText) !== -1) {
-                        line = line.replace(oldText, newText);
-                        hits++;
-                    }
-                    if (line !== before) { linesHit++; }
-                    vimState.lines[i] = line;
-                }
-                vimClampCursor();
-                if (hits) {
-                    vimNote(hits + ' substitution' + (hits === 1 ? '' : 's') +
-                            ' on ' + linesHit + ' line' + (linesHit === 1 ? '' : 's'));
-                } else {
-                    vimNote('Pattern not found: ' + oldText, 'error');
-                }
-            }
-
-            /* ---------- the : and / command line ---------- */
-            function handleCommandLine(key) {
-                var buf = vimState.commandBuffer;
-
-                if (key === 'Escape') {
-                    vimState.commandBuffer = '';
-                    vimNote('Ready');
-                    return;
-                }
-                if (key === 'Backspace') {
-                    vimState.commandBuffer = buf.slice(0, -1);
-                    if (!vimState.commandBuffer) { vimNote('Ready'); }
-                    return;
-                }
-                if (key === 'Enter') {
-                    vimState.commandBuffer = '';
-                    if (buf.charAt(0) === ':') {
-                        executeExCommand(buf);
-                    } else {
-                        vimSearch(buf.slice(1), buf.charAt(0) === '/', true);
-                    }
-                    return;
-                }
-                if (key.length === 1) {
-                    vimState.commandBuffer = buf + key;
-                }
-            }
-
-            function executeExCommand(cmd) {
-                var body = cmd.slice(1).trim();
-
-                if (body === 'w' || body === 'w!') {
-                    vimNote('"' + document.getElementById('vim-filename').textContent + '" written', 'info');
-                    completeChallenge('save');
-                    return;
-                }
-                if (body === 'wq' || body === 'wq!' || body === 'x') {
-                    vimNote('File saved! (Would quit in real Vim)', 'info');
-                    completeChallenge('save');
-                    return;
-                }
-                if (body === 'q') {
-                    vimNote('Would quit. Use :q! to discard changes, :wq to save first.', 'info');
-                    return;
-                }
-                if (body === 'q!') {
-                    vimNote('Would quit without saving in real Vim', 'error');
-                    return;
-                }
-                if (body === 'set nu' || body === 'set number') {
-                    vimShowNumbers = true;
-                    vimNote('Line numbers on');
-                    return;
-                }
-                if (body === 'set nonu' || body === 'set nonumber') {
-                    vimShowNumbers = false;
-                    vimNote('Line numbers off');
-                    return;
-                }
-                if (body === 'noh' || body === 'nohl' || body === 'nohlsearch') {
-                    vimNote('Search highlight cleared');
-                    return;
-                }
-                if (/^[0-9]+$/.test(body)) {
-                    vimState.cursorLine = Math.min(vimState.lines.length - 1, parseInt(body, 10) - 1);
-                    vimState.cursorCol = 0;
-                    vimNote('Jumped to line ' + (vimState.cursorLine + 1));
-                    completeChallenge('navigate');
-                    return;
-                }
-                if (body.charAt(0) === '%' && body.charAt(1) === 's') {
-                    vimSubstitute('%', body.slice(1));
-                    return;
-                }
-                if (body.charAt(0) === 's' && body.charAt(1) === '/') {
-                    vimSubstitute('.', body);
-                    return;
-                }
-                vimNote('Not an editor command: ' + body, 'error');
-            }
-
-            /* ---------- normal (command) and visual mode ---------- */
-            function handleNormalMode(key) {
-                var count = vimState.count ? parseInt(vimState.count, 10) : 0;
-                var visual = (vimState.mode === 'visual');
-                var i;
-
-                if (vimState.pendingReplace) {
-                    vimState.pendingReplace = false;
-                    if (key.length === 1) {
+            function handleCommandMode(key) {
+                const line = vimState.lines[vimState.cursorLine];
+                
+                // Handle multi-character commands
+                if (vimState.commandBuffer) {
+                    vimState.commandBuffer += key;
+                    
+                    if (vimState.commandBuffer === 'dd') {
                         saveUndoState();
-                        var ln = vimLine();
-                        if (ln.length) {
-                            vimState.lines[vimState.cursorLine] =
-                                ln.substring(0, vimState.cursorCol) + key +
-                                ln.substring(vimState.cursorCol + 1);
-                            vimNote('Replaced with "' + key + '"');
+                        vimState.yankBuffer = vimState.lines[vimState.cursorLine];
+                        vimState.lines.splice(vimState.cursorLine, 1);
+                        if (vimState.lines.length === 0) vimState.lines = [''];
+                        if (vimState.cursorLine >= vimState.lines.length) {
+                            vimState.cursorLine = vimState.lines.length - 1;
                         }
-                    }
-                    return;
-                }
-
-                /* Counts: 1-9 always, 0 only when a count is already going. */
-                if (/^[0-9]$/.test(key) && !(key === '0' && !vimState.count)) {
-                    vimState.count += key;
-                    return;
-                }
-
-                /* gg needs its own small buffer. */
-                if (vimState.op === 'g') {
-                    vimState.op = '';
-                    if (key === 'g') {
-                        var top = vimMotion('gg', count);
-                        if (vimState.op === '') {
-                            vimState.cursorLine = top.line;
-                            vimState.cursorCol = 0;
-                            vimState.count = '';
-                            vimNote('Jumped to line ' + (top.line + 1));
-                            completeChallenge('navigate');
-                            return;
-                        }
-                    }
-                    vimState.count = '';
-                    return;
-                }
-
-                /* A pending operator (d, c, y) is waiting for a motion. */
-                if (vimState.op) {
-                    var op = vimState.op;
-                    if (key === 'Escape') { vimClear(); vimNote('Ready'); return; }
-                    /* d3w: a count may follow the operator too. */
-                    if (/^[0-9]$/.test(key) && !(key === '0' && !vimState.count)) {
-                        vimState.count += key;
-                        return;
-                    }
-                    if (key === 'g') { key = 'gg'; }   /* dgg */
-                    applyOperator(op, key, count);
-                    vimClear();
-                    return;
-                }
-
-                /* Motions move the cursor (and extend the selection in Visual). */
-                var motion = vimMotion(key, count);
-                if (motion) {
-                    vimState.cursorLine = motion.line;
-                    vimState.cursorCol = motion.col;
-                    vimClampCursor();
-                    vimState.count = '';
-                    completeChallenge('navigate');
-                    return;
-                }
-
-                switch (key) {
-                    case 'Escape':
-                        vimClear();
+                        vimState.cursorCol = 0;
+                        vimMessage.textContent = 'Line deleted (and yanked)';
                         vimState.commandBuffer = '';
-                        if (visual) {
-                            vimState.mode = 'command';
-                            vimState.visualStart = null;
-                            vimState.visualLine = false;
+                        completeChallenge('deleteline');
+                        return;
+                    }
+                    
+                    if (vimState.commandBuffer === 'yy') {
+                        vimState.yankBuffer = vimState.lines[vimState.cursorLine];
+                        vimMessage.textContent = 'Line yanked (copied)';
+                        vimState.commandBuffer = '';
+                        completeChallenge('yank');
+                        return;
+                    }
+                    
+                    if (vimState.commandBuffer === 'gg') {
+                        vimState.cursorLine = 0;
+                        vimState.cursorCol = 0;
+                        vimMessage.textContent = 'Jumped to first line';
+                        vimState.commandBuffer = '';
+                        completeChallenge('navigate');
+                        return;
+                    }
+                    
+                    if (vimState.commandBuffer.startsWith(':')) {
+                        vimCommandLine.textContent = vimState.commandBuffer;
+                        if (key === 'Enter' || vimState.commandBuffer === ':w' || 
+                            vimState.commandBuffer === ':wq' || vimState.commandBuffer === ':q!') {
+                            executeExCommand(vimState.commandBuffer);
+                            vimState.commandBuffer = '';
                         }
-                        vimNote('Ready (command mode)');
-                        completeChallenge('escape');
                         return;
-
+                    }
+                    
+                    // Clear buffer if no match after 2 chars
+                    if (vimState.commandBuffer.length >= 2 && !vimState.commandBuffer.startsWith(':')) {
+                        vimState.commandBuffer = '';
+                    }
+                    return;
+                }
+                
+                switch(key) {
                     case 'i':
-                        if (visual) { return; }
                         vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (press Esc to return to command mode)');
+                        vimMessage.textContent = '-- INSERT -- (press Esc to return to command mode)';
                         completeChallenge('insert');
-                        return;
-                    case 'I':
-                        vimState.cursorCol = firstNonBlank(vimState.cursorLine);
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (start of line)');
-                        completeChallenge('insert');
-                        return;
+                        break;
                     case 'a':
-                        if (visual) { return; }
-                        vimState.cursorCol = Math.min(vimState.cursorCol + 1, vimLine().length);
                         vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (appending after cursor)');
+                        vimState.cursorCol = Math.min(vimState.cursorCol + 1, line.length);
+                        vimMessage.textContent = '-- INSERT -- (appending after cursor)';
                         completeChallenge('insert');
-                        return;
-                    case 'A':
-                        vimState.cursorCol = vimLine().length;
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (end of line)');
-                        completeChallenge('insert');
-                        return;
+                        break;
                     case 'o':
                         saveUndoState();
                         vimState.lines.splice(vimState.cursorLine + 1, 0, '');
                         vimState.cursorLine++;
                         vimState.cursorCol = 0;
                         vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (new line below)');
+                        vimMessage.textContent = '-- INSERT -- (new line below)';
                         completeChallenge('insert');
-                        return;
-                    case 'O':
-                        saveUndoState();
-                        vimState.lines.splice(vimState.cursorLine, 0, '');
-                        vimState.cursorCol = 0;
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (new line above)');
-                        completeChallenge('insert');
-                        return;
-
-                    case 'v':
-                        if (visual && !vimState.visualLine) {
-                            vimState.mode = 'command';
-                            vimState.visualStart = null;
-                            vimNote('Ready (command mode)');
-                        } else {
-                            vimState.mode = 'visual';
-                            vimState.visualLine = false;
-                            vimState.visualStart = { line: vimState.cursorLine, col: vimState.cursorCol };
-                            vimNote('-- VISUAL -- (move to select, d delete, y yank, Esc cancel)');
-                        }
-                        return;
-                    case 'V':
-                        vimState.mode = 'visual';
-                        vimState.visualLine = true;
-                        vimState.visualStart = { line: vimState.cursorLine, col: 0 };
-                        vimNote('-- VISUAL LINE -- (d delete, y yank, Esc cancel)');
-                        return;
-
-                    case 'x':
-                        if (visual) { visualDelete(false); return; }
-                        var lx = vimLine();
-                        if (lx.length) {
-                            saveUndoState();
-                            var take = Math.max(1, count || 1);
-                            vimState.yankBuffer = lx.substr(vimState.cursorCol, take);
-                            vimState.yankType = 'char';
-                            vimState.lines[vimState.cursorLine] =
-                                lx.substring(0, vimState.cursorCol) + lx.substring(vimState.cursorCol + take);
-                            vimClampCursor();
-                            vimNote('Character deleted');
-                            completeChallenge('delete');
-                        }
-                        vimState.count = '';
-                        return;
-                    case 'X':
-                        if (vimState.cursorCol > 0) {
-                            saveUndoState();
-                            var lX = vimLine();
-                            vimState.lines[vimState.cursorLine] =
-                                lX.substring(0, vimState.cursorCol - 1) + lX.substring(vimState.cursorCol);
-                            vimState.cursorCol--;
-                            vimNote('Character before cursor deleted');
-                            completeChallenge('delete');
-                        }
-                        return;
-
-                    case 'd':
-                        if (visual) { visualDelete(false); return; }
-                        vimState.op = 'd';
-                        return;
-                    case 'c':
-                        if (visual) { visualDelete(true); return; }
-                        vimState.op = 'c';
-                        return;
-                    case 'y':
-                        if (visual) { visualYank(); return; }
-                        vimState.op = 'y';
-                        return;
-                    case 'g':
-                        vimState.op = 'g';
-                        return;
-
-                    case 'D':
-                        saveUndoState();
-                        var lD = vimLine();
-                        vimState.yankBuffer = lD.substring(vimState.cursorCol);
-                        vimState.yankType = 'char';
-                        vimState.lines[vimState.cursorLine] = lD.substring(0, vimState.cursorCol);
-                        vimClampCursor();
-                        vimNote('Deleted to end of line');
-                        completeChallenge('delete');
-                        return;
-                    case 'C':
-                        saveUndoState();
-                        var lC = vimLine();
-                        vimState.yankBuffer = lC.substring(vimState.cursorCol);
-                        vimState.yankType = 'char';
-                        vimState.lines[vimState.cursorLine] = lC.substring(0, vimState.cursorCol);
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (changed to end of line)');
-                        completeChallenge('insert');
-                        return;
-                    case 's':
-                        saveUndoState();
-                        var lS = vimLine();
-                        vimState.lines[vimState.cursorLine] =
-                            lS.substring(0, vimState.cursorCol) + lS.substring(vimState.cursorCol + 1);
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (substituted character)');
-                        completeChallenge('insert');
-                        return;
-                    case 'S':
-                        saveUndoState();
-                        vimState.lines[vimState.cursorLine] = '';
-                        vimState.cursorCol = 0;
-                        vimState.mode = 'insert';
-                        vimNote('-- INSERT -- (line cleared)');
-                        completeChallenge('insert');
-                        return;
-                    case 'r':
-                        vimState.pendingReplace = true;
-                        vimNote('Replace with which character?');
-                        return;
-                    case 'J':
+                        break;
+                    case 'h':
+                        if (vimState.cursorCol > 0) vimState.cursorCol--;
+                        completeChallenge('navigate');
+                        break;
+                    case 'j':
                         if (vimState.cursorLine < vimState.lines.length - 1) {
+                            vimState.cursorLine++;
+                            vimState.cursorCol = Math.min(vimState.cursorCol, vimState.lines[vimState.cursorLine].length - 1);
+                            if (vimState.cursorCol < 0) vimState.cursorCol = 0;
+                        }
+                        completeChallenge('navigate');
+                        break;
+                    case 'k':
+                        if (vimState.cursorLine > 0) {
+                            vimState.cursorLine--;
+                            vimState.cursorCol = Math.min(vimState.cursorCol, vimState.lines[vimState.cursorLine].length - 1);
+                            if (vimState.cursorCol < 0) vimState.cursorCol = 0;
+                        }
+                        completeChallenge('navigate');
+                        break;
+                    case 'l':
+                        if (vimState.cursorCol < line.length - 1) vimState.cursorCol++;
+                        completeChallenge('navigate');
+                        break;
+                    case 'x':
+                        if (line.length > 0) {
                             saveUndoState();
-                            var here = vimLine();
-                            var below = vimState.lines[vimState.cursorLine + 1] || '';
-                            vimState.cursorCol = here.length;
-                            vimState.lines[vimState.cursorLine] =
-                                here + (here && below ? ' ' : '') + below.replace(/^\s+/, '');
-                            vimState.lines.splice(vimState.cursorLine + 1, 1);
-                            vimNote('Lines joined');
+                            vimState.lines[vimState.cursorLine] = 
+                                line.substring(0, vimState.cursorCol) + line.substring(vimState.cursorCol + 1);
+                            if (vimState.cursorCol >= vimState.lines[vimState.cursorLine].length && vimState.cursorCol > 0) {
+                                vimState.cursorCol--;
+                            }
+                            vimMessage.textContent = 'Character deleted';
+                            completeChallenge('delete');
                         }
-                        return;
-                    case '~':
-                        saveUndoState();
-                        var lT = vimLine();
-                        if (lT.length) {
-                            var ch = lT[vimState.cursorCol];
-                            var flipped = (ch === ch.toLowerCase()) ? ch.toUpperCase() : ch.toLowerCase();
-                            vimState.lines[vimState.cursorLine] =
-                                lT.substring(0, vimState.cursorCol) + flipped +
-                                lT.substring(vimState.cursorCol + 1);
-                            vimState.cursorCol = Math.min(vimState.cursorCol + 1, Math.max(0, lT.length - 1));
-                            vimNote('Case toggled');
-                        }
-                        return;
-
+                        break;
                     case 'p':
-                        vimPaste(false);
-                        return;
-                    case 'P':
-                        vimPaste(true);
-                        return;
-
+                        if (vimState.yankBuffer) {
+                            saveUndoState();
+                            vimState.lines.splice(vimState.cursorLine + 1, 0, vimState.yankBuffer);
+                            vimState.cursorLine++;
+                            vimState.cursorCol = 0;
+                            vimMessage.textContent = 'Pasted below';
+                            completeChallenge('paste');
+                        } else {
+                            vimMessage.textContent = 'Nothing to paste';
+                            vimMessage.classList.add('error');
+                            setTimeout(() => vimMessage.classList.remove('error'), 1500);
+                        }
+                        break;
                     case 'u':
-                        if (vimState.undoStack.length) {
-                            var prev = vimState.undoStack.pop();
+                        if (vimState.undoStack.length > 0) {
+                            const prev = vimState.undoStack.pop();
                             vimState.lines = prev.lines;
                             vimState.cursorLine = prev.cursorLine;
                             vimState.cursorCol = prev.cursorCol;
-                            vimClampCursor();
-                            vimNote('Undone');
+                            vimMessage.textContent = 'Undone';
                             completeChallenge('undo');
                         } else {
-                            vimNote('Nothing to undo');
+                            vimMessage.textContent = 'Nothing to undo';
                         }
-                        return;
-
-                    case 'n':
-                        if (vimState.lastSearch) { vimSearch(vimState.lastSearch, true, true); }
-                        else { vimNote('No previous search', 'error'); }
-                        return;
-                    case 'N':
-                        if (vimState.lastSearch) { vimSearch(vimState.lastSearch, false, true); }
-                        else { vimNote('No previous search', 'error'); }
-                        return;
-
+                        break;
+                    case 'G':
+                        vimState.cursorLine = vimState.lines.length - 1;
+                        vimState.cursorCol = 0;
+                        vimMessage.textContent = 'Jumped to last line';
+                        completeChallenge('navigate');
+                        break;
+                    case 'v':
+                        vimState.mode = 'visual';
+                        vimMessage.textContent = '-- VISUAL -- (press Esc to exit)';
+                        break;
+                    case 'd':
+                    case 'y':
+                    case 'g':
                     case ':':
-                    case '/':
-                    case '?':
                         vimState.commandBuffer = key;
-                        vimNote(key === ':' ? 'Type a command, then press Enter'
-                                            : 'Type text to find, then press Enter');
-                        return;
-
-                    default:
-                        if (key.length === 1) {
-                            vimNote('Not a command here: ' + key, 'error');
+                        if (key === ':') {
+                            vimCommandLine.textContent = ':';
                         }
-                        return;
+                        break;
+                    case 'Escape':
+                        vimState.commandBuffer = '';
+                        vimCommandLine.textContent = '';
+                        vimMessage.textContent = 'Ready';
+                        break;
                 }
             }
 
             function handleInsertMode(key) {
                 if (key === 'Escape') {
                     vimState.mode = 'command';
-                    if (vimState.cursorCol > 0) { vimState.cursorCol--; }
-                    vimClampCursor();
-                    vimNote('Ready (command mode)');
+                    if (vimState.cursorCol > 0) vimState.cursorCol--;
+                    vimMessage.textContent = 'Ready (command mode)';
                     completeChallenge('escape');
                     return;
                 }
-
-                /* Arrows move the cursor in Insert mode - they do not type letters. */
-                if (key === 'ArrowLeft') { vimState.cursorCol = Math.max(0, vimState.cursorCol - 1); return; }
-                if (key === 'ArrowRight') { vimState.cursorCol = Math.min(vimLine().length, vimState.cursorCol + 1); return; }
-                if (key === 'ArrowUp') {
-                    if (vimState.cursorLine > 0) { vimState.cursorLine--; }
-                    vimState.cursorCol = Math.min(vimState.cursorCol, vimLine().length);
-                    return;
-                }
-                if (key === 'ArrowDown') {
-                    if (vimState.cursorLine < vimState.lines.length - 1) { vimState.cursorLine++; }
-                    vimState.cursorCol = Math.min(vimState.cursorCol, vimLine().length);
-                    return;
-                }
-
-                var line = vimLine();
-
+                
+                saveUndoState();
+                const line = vimState.lines[vimState.cursorLine];
+                
                 if (key === 'Backspace') {
-                    saveUndoState();
                     if (vimState.cursorCol > 0) {
-                        vimState.lines[vimState.cursorLine] =
+                        vimState.lines[vimState.cursorLine] = 
                             line.substring(0, vimState.cursorCol - 1) + line.substring(vimState.cursorCol);
                         vimState.cursorCol--;
                     } else if (vimState.cursorLine > 0) {
-                        var prevLine = vimState.lines[vimState.cursorLine - 1];
+                        const prevLine = vimState.lines[vimState.cursorLine - 1];
                         vimState.cursorCol = prevLine.length;
                         vimState.lines[vimState.cursorLine - 1] = prevLine + line;
                         vimState.lines.splice(vimState.cursorLine, 1);
                         vimState.cursorLine--;
                     }
-                    return;
-                }
-
-                if (key === 'Enter') {
-                    saveUndoState();
-                    vimState.lines[vimState.cursorLine] = line.substring(0, vimState.cursorCol);
-                    vimState.lines.splice(vimState.cursorLine + 1, 0, line.substring(vimState.cursorCol));
+                } else if (key === 'Enter') {
+                    const beforeCursor = line.substring(0, vimState.cursorCol);
+                    const afterCursor = line.substring(vimState.cursorCol);
+                    vimState.lines[vimState.cursorLine] = beforeCursor;
+                    vimState.lines.splice(vimState.cursorLine + 1, 0, afterCursor);
                     vimState.cursorLine++;
                     vimState.cursorCol = 0;
                     completeChallenge('type');
-                    return;
-                }
-
-                if (key === 'Tab') {
-                    saveUndoState();
-                    vimState.lines[vimState.cursorLine] =
-                        line.substring(0, vimState.cursorCol) + '    ' + line.substring(vimState.cursorCol);
-                    vimState.cursorCol += 4;
-                    completeChallenge('type');
-                    return;
-                }
-
-                if (key.length === 1) {
-                    saveUndoState();
-                    vimState.lines[vimState.cursorLine] =
+                } else if (key.length === 1) {
+                    vimState.lines[vimState.cursorLine] = 
                         line.substring(0, vimState.cursorCol) + key + line.substring(vimState.cursorCol);
                     vimState.cursorCol++;
                     completeChallenge('type');
                 }
             }
 
-            /* Button-pad keys such as dd, yy or :wq are replayed one character
-               at a time. Only the pad calls this - never a real keydown. */
-            function handleVimMacro(macro) {
-                if (!macro) { return; }
-                var chars = macro.split('');
-                for (var c = 0; c < chars.length; c++) { handleVimKey(chars[c]); }
-                if (macro.charAt(0) === ':' || macro.charAt(0) === '/') { handleVimKey('Enter'); }
-            }
-
-            function handleVimKey(key) {
-                if (!key) { return; }
-                vimExtras();
-
-                /* Shift, Control, Alt, F-keys and friends are not Vim commands.
-                   Ignoring them keeps a pending d, c, y or r alive while the
-                   user reaches for a shifted key such as $ or G. */
-                if (key.length > 1 && !VIM_NAMED[key]) { return; }
-
-                if (vimState.commandBuffer && vimState.mode !== 'insert') {
-                    handleCommandLine(key);
-                } else if (vimState.mode === 'insert') {
-                    handleInsertMode(key);
-                } else {
-                    handleNormalMode(key);
+            function executeExCommand(cmd) {
+                switch(cmd) {
+                    case ':w':
+                        vimMessage.textContent = '"practice.txt" written';
+                        vimMessage.classList.add('info');
+                        setTimeout(() => vimMessage.classList.remove('info'), 2000);
+                        completeChallenge('save');
+                        break;
+                    case ':wq':
+                        vimMessage.textContent = 'File saved! (Would quit in real Vim)';
+                        vimMessage.classList.add('info');
+                        completeChallenge('save');
+                        break;
+                    case ':q!':
+                        vimMessage.textContent = 'Would quit without saving in real Vim';
+                        vimMessage.classList.add('error');
+                        setTimeout(() => vimMessage.classList.remove('error'), 2000);
+                        break;
+                    default:
+                        vimMessage.textContent = 'Unknown command: ' + cmd;
+                        vimMessage.classList.add('error');
+                        setTimeout(() => vimMessage.classList.remove('error'), 2000);
                 }
-
-                vimClampCursor();
-                renderVim();
+                vimCommandLine.textContent = '';
             }
 
-            document.getElementById('vim-keyboard').addEventListener('click', function(e) {
+            // Vim keyboard event handlers
+            document.getElementById('vim-keyboard').addEventListener('click', (e) => {
                 if (e.target.classList.contains('sim-key')) {
-                    handleVimMacro(e.target.dataset.key);
+                    const key = e.target.dataset.key;
+                    handleVimKey(key);
                     vimContent.focus();
                 }
             });
 
-            vimContent.addEventListener('keydown', function(e) {
-                if (e.ctrlKey || e.metaKey || e.altKey) { return; }
+            vimContent.addEventListener('keydown', (e) => {
                 e.preventDefault();
-                handleVimKey(e.key);
+                
+                let key = e.key;
+                if (key === ' ') key = ' ';
+                
+                // Handle special keys
+                if (key === 'ArrowLeft') key = 'h';
+                if (key === 'ArrowDown') key = 'j';
+                if (key === 'ArrowUp') key = 'k';
+                if (key === 'ArrowRight') key = 'l';
+                
+                handleVimKey(key);
             });
 
-            document.getElementById('vim-reset').addEventListener('click', function() {
+            document.getElementById('vim-reset').addEventListener('click', () => {
                 vimState = {
                     mode: 'command',
                     lines: [
@@ -2384,127 +2763,9 @@
                     commandBuffer: '',
                     completedChallenges: new Set()
                 };
-                vimChallenges.querySelectorAll('li').forEach(function(li) { li.classList.remove('completed'); });
+                vimChallenges.querySelectorAll('li').forEach(li => li.classList.remove('completed'));
                 vimMessage.textContent = 'Simulator reset. Press \'i\' to start typing!';
                 renderVim();
-            });
-
-            // ==================== PRACTICE FILE LIBRARY ====================
-            window.RH_PRACTICE_FILES = {
-                'practice.txt': [
-                    'Welcome to the Vim Simulator!',
-                    'This is a practice file.',
-                    'You can edit this text.',
-                    'Try the commands below.',
-                    'Have fun learning Vim!'
-                ],
-                'hosts': [
-                    '# /etc/hosts - static table lookup for hostnames',
-                    '127.0.0.1    localhost localhost.localdomain localhost4',
-                    '::1          localhost localhost.localdomain localhost6',
-                    '',
-                    '172.25.250.9    workstation.lab.example.com workstation',
-                    '172.25.250.10   servera.lab.example.com servera',
-                    '172.25.250.11   serverb.lab.example.com serverb',
-                    '172.25.250.12   serverc.lab.example.com serverc',
-                    '',
-                    '# Add the classroom print server below:'
-                ],
-                'fstab': [
-                    '#',
-                    '# /etc/fstab',
-                    '# Created by anaconda on Mon Sep  8 09:14:22 2026',
-                    '#',
-                    '# Accessible filesystems are maintained under /dev/disk/by-*.',
-                    '# Use systemctl daemon-reload after changing this file.',
-                    '#',
-                    'UUID=a4f2b1c0-3e77-4e11-9a5c-0d21bb9f1e88  /          xfs   defaults  0 0',
-                    'UUID=1b9e77d2-5c40-42aa-bb17-9c4f0a2d6e31  /boot      xfs   defaults  0 0',
-                    '/dev/mapper/rhel-home                      /home      xfs   defaults  0 0',
-                    '/dev/mapper/rhel-swap                      none       swap  defaults  0 0'
-                ],
-                'sshd_config': [
-                    '# /etc/ssh/sshd_config - OpenSSH server configuration',
-                    '',
-                    'Port 22',
-                    'AddressFamily any',
-                    'ListenAddress 0.0.0.0',
-                    '',
-                    'PermitRootLogin no',
-                    'PubkeyAuthentication yes',
-                    'PasswordAuthentication yes',
-                    'X11Forwarding yes',
-                    '',
-                    '# Subsystem sftp /usr/libexec/openssh/sftp-server'
-                ],
-                'backup.sh': [
-                    '#!/usr/bin/bash',
-                    '#',
-                    '# backup.sh - archive a home directory to /var/backups',
-                    '',
-                    'SRC="/home/student"',
-                    'DEST="/var/backups"',
-                    'STAMP=$(date +%F)',
-                    '',
-                    'if [ ! -d "$DEST" ]; then',
-                    '    mkdir -p "$DEST"',
-                    'fi',
-                    '',
-                    'tar -czf "$DEST/student-$STAMP.tar.gz" "$SRC"',
-                    'echo "Backup written to $DEST/student-$STAMP.tar.gz"'
-                ],
-                'memo.txt': [
-                    'MEMO: Lab Cleanup Day',
-                    '',
-                    'The classroom servers will be rebuilt on Friday morning.',
-                    'Save any werk you want to keep to your home directory',
-                    'before you leave on Thursday afternoon.',
-                    '',
-                    'Bring your lab notebook. Bring your patience.',
-                    '',
-                    'Practice ideas: fix the spelling mistake above, delete the',
-                    'last line, then copy a line and paste it at the end.'
-                ],
-                'lab-tasks.txt': [
-                    'Chapter 8 Lab - Editing Text Files from the Shell',
-                    '',
-                    '1. Open a file with vim and enter Insert mode.',
-                    '2. Add three lines of text, then return to Command mode.',
-                    '3. Move around with h, j, k, and l instead of the arrows.',
-                    '4. Delete one character with x and one line with dd.',
-                    '5. Yank a line with yy and paste it with p.',
-                    '6. Undo the paste with u.',
-                    '7. Save your work with :w, then quit with :q.',
-                    '',
-                    'Check off each task as you finish it.'
-                ],
-                'newfile.txt': ['']
-            };
-
-            function rhFileLines(name) {
-                var f = window.RH_PRACTICE_FILES[name];
-                return f ? f.slice() : [''];
-            }
-
-            // ==================== VIM: OPEN A PRACTICE FILE ====================
-            document.getElementById('vim-file-open').addEventListener('click', function() {
-                var name = document.getElementById('vim-file-select').value;
-                var lines = rhFileLines(name);
-                vimState.mode = 'command';
-                vimState.lines = lines;
-                vimState.cursorLine = 0;
-                vimState.cursorCol = 0;
-                vimState.yankBuffer = '';
-                vimState.undoStack = [];
-                vimState.commandBuffer = '';
-                document.getElementById('vim-filename').textContent = name;
-                document.getElementById('vim-file-status').textContent =
-                    (name === 'newfile.txt') ? '[New File]' : '';
-                vimMessage.textContent = 'Opened "' + name + '" (' + lines.length +
-                    (lines.length === 1 ? ' line). ' : ' lines). ') +
-                    'Press \'i\' to start editing.';
-                renderVim();
-                vimContent.focus();
             });
 
             renderVim();
@@ -2530,14 +2791,14 @@
 
             function renderNano() {
                 let html = '';
-                nanoState.lines.forEach(function(line, lineIdx) {
+                nanoState.lines.forEach((line, lineIdx) => {
                     html += '<div class="line">';
                     html += '<span class="line-text">';
                     
                     if (lineIdx === nanoState.cursorLine) {
                         for (let i = 0; i < line.length; i++) {
                             if (i === nanoState.cursorCol) {
-                                html += '<span class="cursor blink">' + (escapeHtml(line[i]) || ' ') + '</span>';
+                                html += `<span class="cursor blink">${line[i] || ' '}</span>`;
                             } else {
                                 html += escapeHtml(line[i]);
                             }
@@ -2557,18 +2818,18 @@
             function completeNanoChallenge(challenge) {
                 if (!nanoState.completedChallenges.has(challenge)) {
                     nanoState.completedChallenges.add(challenge);
-                    var item = nanoChallenges.querySelector('[data-challenge="' + challenge + '"]');
+                    const item = nanoChallenges.querySelector(`[data-challenge="${challenge}"]`);
                     if (item) item.classList.add('completed');
                 }
             }
 
             function handleNanoKey(key) {
-                var line = nanoState.lines[nanoState.cursorLine];
+                const line = nanoState.lines[nanoState.cursorLine];
                 
                 if (key === 'Ctrl+O') {
                     nanoMessage.textContent = 'File saved! (Write Out complete)';
                     nanoMessage.classList.add('info');
-                    setTimeout(function() { nanoMessage.classList.remove('info'); }, 2000);
+                    setTimeout(() => nanoMessage.classList.remove('info'), 2000);
                     completeNanoChallenge('save');
                     return;
                 }
@@ -2615,21 +2876,22 @@
                     return;
                 }
                 
+                // Regular typing
                 if (key === 'Backspace') {
                     if (nanoState.cursorCol > 0) {
                         nanoState.lines[nanoState.cursorLine] = 
                             line.substring(0, nanoState.cursorCol - 1) + line.substring(nanoState.cursorCol);
                         nanoState.cursorCol--;
                     } else if (nanoState.cursorLine > 0) {
-                        var prevLine = nanoState.lines[nanoState.cursorLine - 1];
+                        const prevLine = nanoState.lines[nanoState.cursorLine - 1];
                         nanoState.cursorCol = prevLine.length;
                         nanoState.lines[nanoState.cursorLine - 1] = prevLine + line;
                         nanoState.lines.splice(nanoState.cursorLine, 1);
                         nanoState.cursorLine--;
                     }
                 } else if (key === 'Enter') {
-                    var beforeCursor = line.substring(0, nanoState.cursorCol);
-                    var afterCursor = line.substring(nanoState.cursorCol);
+                    const beforeCursor = line.substring(0, nanoState.cursorCol);
+                    const afterCursor = line.substring(nanoState.cursorCol);
                     nanoState.lines[nanoState.cursorLine] = beforeCursor;
                     nanoState.lines.splice(nanoState.cursorLine + 1, 0, afterCursor);
                     nanoState.cursorLine++;
@@ -2655,23 +2917,26 @@
                 renderNano();
             }
 
-            document.getElementById('nano-keyboard').addEventListener('click', function(e) {
+            document.getElementById('nano-keyboard').addEventListener('click', (e) => {
                 if (e.target.classList.contains('sim-key')) {
                     handleNanoKey(e.target.dataset.key);
                     nanoContent.focus();
                 }
             });
 
-            nanoContent.addEventListener('keydown', function(e) {
+            nanoContent.addEventListener('keydown', (e) => {
                 e.preventDefault();
-                var key = e.key;
+                
+                let key = e.key;
+                
                 if (e.ctrlKey) {
                     key = 'Ctrl+' + e.key.toUpperCase();
                 }
+                
                 handleNanoKey(key);
             });
 
-            document.getElementById('nano-reset').addEventListener('click', function() {
+            document.getElementById('nano-reset').addEventListener('click', () => {
                 nanoState = {
                     lines: [
                         'Welcome to the Nano Simulator!',
@@ -2685,34 +2950,142 @@
                     cutBuffer: '',
                     completedChallenges: new Set()
                 };
-                nanoChallenges.querySelectorAll('li').forEach(function(li) { li.classList.remove('completed'); });
+                nanoChallenges.querySelectorAll('li').forEach(li => li.classList.remove('completed'));
                 nanoMessage.textContent = 'Simulator reset. Just start typing!';
                 renderNano();
             });
 
-            // ==================== NANO: OPEN A PRACTICE FILE ====================
-            document.getElementById('nano-file-open').addEventListener('click', function() {
-                var name = document.getElementById('nano-file-select').value;
-                var lines = rhFileLines(name);
-                nanoState.lines = lines;
-                nanoState.cursorLine = 0;
-                nanoState.cursorCol = 0;
-                nanoState.cutBuffer = '';
-                document.getElementById('nano-filename').textContent = name;
-                nanoMessage.textContent = 'Opened "' + name + '" (' + lines.length +
-                    (lines.length === 1 ? ' line). ' : ' lines). ') +
-                    'Just start typing to edit it.';
-                renderNano();
-                nanoContent.focus();
-            });
-
             renderNano();
 
+            // ==================== TABS ====================
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabList = this.closest('.tabs-container').querySelector('.tab-list');
+                    const tabContents = this.closest('.tabs-container').querySelectorAll('.tab-content');
+                    
+                    tabList.querySelectorAll('.tab-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    const targetId = this.getAttribute('aria-controls');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+
+            // ==================== EXPANDABLES ====================
+            document.querySelectorAll('.expandable-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                    this.setAttribute('aria-expanded', !isExpanded);
+                    const content = document.getElementById(this.getAttribute('aria-controls'));
+                    content.classList.toggle('show');
+                });
+            });
+
+            // ==================== QUIZ ====================
+            const checkAnswersBtn = document.getElementById('check-answers');
+            const resetQuizBtn = document.getElementById('reset-quiz');
+            const quizScoreSpan = document.getElementById('quiz-score');
+
+            const correctAnswers = {
+                1: 'b', 2: 'c', 3: 'a', 4: 'b', 5: 'b', 6: 'c', 7: 'a', 8: 'd'
+            };
+
+            const explanations = {
+                1: 'Correct! Vim always starts in Command mode. Press i to enter Insert mode.',
+                2: 'Correct! :wq writes (saves) the file and then quits.',
+                3: 'Correct! dd deletes the entire current line.',
+                4: 'Correct! Press i to enter Insert mode from Command mode.',
+                5: 'Correct! :%s/old/new/g replaces all occurrences in the entire file (% = all lines, g = global on each line).',
+                6: 'Correct! Yank means copy in Vim terminology.',
+                7: 'Correct! Ctrl+O (Write Out) saves the file in Nano.',
+                8: 'Correct! j moves down (think "jump down").'
+            };
+
+            checkAnswersBtn.addEventListener('click', () => {
+                let score = 0;
+                
+                Object.keys(correctAnswers).forEach(q => {
+                    const selected = document.querySelector(`input[name="q${q}"]:checked`);
+                    const feedback = document.getElementById(`feedback-${q}`);
+                    const options = document.querySelectorAll(`input[name="q${q}"]`);
+                    
+                    options.forEach(opt => {
+                        opt.closest('.quiz-option').classList.remove('correct', 'incorrect');
+                    });
+                    
+                    if (selected) {
+                        const isCorrect = selected.value === correctAnswers[q];
+                        if (isCorrect) {
+                            score++;
+                            selected.closest('.quiz-option').classList.add('correct');
+                            feedback.className = 'quiz-feedback correct';
+                            feedback.textContent = explanations[q];
+                        } else {
+                            selected.closest('.quiz-option').classList.add('incorrect');
+                            feedback.className = 'quiz-feedback incorrect';
+                            feedback.textContent = `Incorrect. The correct answer is ${correctAnswers[q].toUpperCase()}.`;
+                            
+                            // Show correct answer
+                            options.forEach(opt => {
+                                if (opt.value === correctAnswers[q]) {
+                                    opt.closest('.quiz-option').classList.add('correct');
+                                }
+                            });
+                        }
+                    } else {
+                        feedback.className = 'quiz-feedback incorrect';
+                        feedback.textContent = 'Please select an answer.';
+                    }
+                });
+                
+                quizScoreSpan.textContent = `Score: ${score}/8`;
+                checkAnswersBtn.style.display = 'none';
+                resetQuizBtn.style.display = 'inline-block';
+            });
+
+            resetQuizBtn.addEventListener('click', () => {
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('correct', 'incorrect');
+                    opt.querySelector('input').checked = false;
+                });
+                document.querySelectorAll('.quiz-feedback').forEach(fb => {
+                    fb.className = 'quiz-feedback';
+                    fb.textContent = '';
+                });
+                quizScoreSpan.textContent = 'Score: 0/8';
+                checkAnswersBtn.style.display = 'inline-block';
+                resetQuizBtn.style.display = 'none';
+            });
+
+            // ==================== COMPLETION ====================
+            const markCompleteBtn = document.getElementById('mark-complete');
+            if (markCompleteBtn) {
+                markCompleteBtn.addEventListener('click', function() {
+                    this.textContent = 'âœ“ Chapter Completed!';
+                    this.style.background = '#267326';
+                    this.disabled = true;
+                    
+                    sections.forEach(section => {
+                        visitedSections.add(section.id);
+                    });
+                    updateProgress();
+
+                    alert('Congratulations! You have completed the Chapter 8 Practice Lab. You\'ve gained hands-on experience with both Vim and Nano editors. Return to the main Chapter 8 content to complete any remaining reading or lab exercises.');
+                });
+            }
+
             // ==================== SMOOTH SCROLLING ====================
-            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function(e) {
                     e.preventDefault();
-                    var target = document.querySelector(this.getAttribute('href'));
+                    const target = document.querySelector(this.getAttribute('href'));
                     if (target) {
                         target.scrollIntoView({
                             behavior: 'smooth',
@@ -2722,286 +3095,32 @@
                 });
             });
 
+            // ==================== TOOLTIP POSITIONING ====================
+            const terms = document.querySelectorAll('.term');
+            terms.forEach(term => {
+                const tooltip = term.querySelector('.tooltip');
+                if (!tooltip) return;
+
+                term.addEventListener('mouseenter', () => {
+                    const rect = term.getBoundingClientRect();
+                    const tooltipRect = tooltip.getBoundingClientRect();
+                    
+                    tooltip.classList.remove('tooltip-left', 'tooltip-right', 'tooltip-bottom');
+                    
+                    if (rect.left < tooltipRect.width / 2) {
+                        tooltip.classList.add('tooltip-left');
+                    } else if (window.innerWidth - rect.right < tooltipRect.width / 2) {
+                        tooltip.classList.add('tooltip-right');
+                    }
+                    
+                    if (rect.top < tooltipRect.height + 20) {
+                        tooltip.classList.add('tooltip-bottom');
+                    }
+                });
+            });
+
         })();
     </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable ||
-                          t.getAttribute('role') === 'textbox' ||
-                          (t.closest && t.closest('.simulator')))) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <div id="keycast" aria-hidden="true">
-        <span class="keycast-context" id="keycast-context">Vim</span>
-        <div class="keycast-keys" id="keycast-keys"></div>
-    </div>
-
-    <!-- ==================== INSTRUCTOR MODE (KEYSTROKE DISPLAY) ==================== -->
-    <script>
-    (function () {
-        var STORE_KEY = 'rh-instructor-mode';
-        var LIFETIME = 2600;   /* ms a key chip stays on screen */
-        var MAX_CHIPS = 8;
-
-        /* What each simulator key does, shown under the chip. */
-        var NOTES = {
-            'i': 'insert mode', 'a': 'append', 'o': 'open line below',
-            'h': 'left', 'j': 'down', 'k': 'up', 'l': 'right',
-            'x': 'delete character', 'dd': 'delete line', 'yy': 'yank line',
-            'p': 'paste', 'P': 'paste above', 'u': 'undo',
-            'v': 'visual mode', 'V': 'visual line mode',
-            'w': 'next word', 'b': 'back one word', 'e': 'end of word',
-            '0': 'start of line', '^': 'first non-blank', '$': 'end of line',
-            'A': 'append at end', 'I': 'insert at start', 'O': 'open line above',
-            'D': 'delete to end of line', 'C': 'change to end of line',
-            'X': 'delete back', 'r': 'replace character', 's': 'substitute character',
-            'S': 'clear line', 'J': 'join lines', '~': 'toggle case',
-            'd': 'delete (awaiting motion)', 'c': 'change (awaiting motion)',
-            'y': 'yank (awaiting motion)',
-            'n': 'next match', 'N': 'previous match',
-            '/': 'search forward', '?': 'search backward', ':': 'command line',
-            'G': 'go to last line', 'gg': 'go to first line',
-            ':w': 'write (save)', ':wq': 'write and quit', ':q!': 'quit, no save',
-            'Escape': 'command mode', 'Enter': 'new line', 'Backspace': 'delete back',
-            'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left', 'ArrowRight': 'right',
-            'Ctrl+O': 'write out', 'Ctrl+X': 'exit', 'Ctrl+K': 'cut line',
-            'Ctrl+U': 'paste', 'Ctrl+W': 'where is (search)', 'Ctrl+G': 'help'
-        };
-
-        var CAPS = {
-            'Escape': 'Esc', 'Enter': '\u23CE Enter', 'Backspace': '\u232B Bksp',
-            'Tab': '\u21E5 Tab', ' ': 'Space',
-            'ArrowUp': '\u2191', 'ArrowDown': '\u2193',
-            'ArrowLeft': '\u2190', 'ArrowRight': '\u2192'
-        };
-
-        var bar, keysEl, contextEl, on = false, lastTextChip = null;
-
-        function capFor(key) {
-            if (CAPS[key]) { return CAPS[key]; }
-            if (key.indexOf('Ctrl+') === 0) { return '^' + key.slice(5); }
-            return key;
-        }
-
-        function vimMode() {
-            var el = document.getElementById('vim-mode');
-            return el ? el.textContent.replace(/[-\s]/g, '').toUpperCase() : 'COMMAND';
-        }
-
-        /* True when the keystroke is ordinary typing rather than a command:
-           any single character in Nano, or in Vim's Insert mode. */
-        function isTyping(which, key) {
-            if (key.length !== 1) { return false; }
-            return (which === 'nano') || (vimMode() === 'INSERT');
-        }
-
-        function isPlainText(key, typing) {
-            if (key.length !== 1) { return false; }
-            return typing || (key !== ' ' && !NOTES[key]);
-        }
-
-        function retire(chip) {
-            if (chip.parentNode !== keysEl) { return; }
-            if (lastTextChip === chip) { lastTextChip = null; }
-            chip.classList.add('fading');
-            window.setTimeout(function () {
-                if (chip.parentNode === keysEl) { keysEl.removeChild(chip); }
-            }, 320);
-        }
-
-        function addChip(key, note, typing) {
-            /* Run consecutive typed characters together so a sentence reads as one chip. */
-            if (isPlainText(key, typing) && lastTextChip && lastTextChip.parentNode === keysEl) {
-                var capEl = lastTextChip.querySelector('.keycast-cap');
-                if (capEl.textContent.length < 22) {
-                    capEl.textContent += key;
-                    window.clearTimeout(lastTextChip.__timer);
-                    lastTextChip.__timer = window.setTimeout(retire, LIFETIME, lastTextChip);
-                    return;
-                }
-            }
-
-            var chip = document.createElement('div');
-            chip.className = 'keycast-key';
-            var cap = document.createElement('span');
-            cap.className = 'keycast-cap';
-            cap.textContent = capFor(key);
-            chip.appendChild(cap);
-            var n = document.createElement('span');
-            n.className = 'keycast-note';
-            n.textContent = note || '\u00A0';   /* keeps every cap on the same line */
-            chip.appendChild(n);
-            keysEl.appendChild(chip);
-            lastTextChip = isPlainText(key, typing) ? chip : null;
-
-            while (keysEl.children.length > MAX_CHIPS) {
-                keysEl.removeChild(keysEl.firstChild);
-            }
-            chip.__timer = window.setTimeout(retire, LIFETIME, chip);
-        }
-
-        function setContext(which) {
-            if (which === 'nano') {
-                contextEl.textContent = 'Nano';
-                return;
-            }
-            contextEl.textContent = 'Vim \u2014 ' + vimMode();
-        }
-
-        function show(which, key, note) {
-            if (!on || !key) { return; }
-            var typing = isTyping(which, key);
-            setContext(which);
-            addChip(key, typing ? '' : (note === undefined ? NOTES[key] : note), typing);
-        }
-
-        function apply(state) {
-            on = state;
-            bar.classList.toggle('is-on', on);
-            if (!on) {
-                keysEl.innerHTML = '';
-                lastTextChip = null;
-            }
-            Array.prototype.forEach.call(
-                document.querySelectorAll('[data-instructor-toggle]'),
-                function (btn) {
-                    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-                    btn.querySelector('.instructor-label').textContent =
-                        'Instructor mode: ' + (on ? 'on' : 'off');
-                    btn.setAttribute('aria-label',
-                        'Instructor mode, currently ' + (on ? 'on' : 'off') +
-                        '. Shows each key pressed in the simulators. Keyboard shortcut: Alt plus I.');
-                }
-            );
-        }
-
-        function init() {
-            bar = document.getElementById('keycast');
-            keysEl = document.getElementById('keycast-keys');
-            contextEl = document.getElementById('keycast-context');
-            if (!bar || !keysEl) { return; }
-
-            var saved = false;
-            try { saved = window.localStorage.getItem(STORE_KEY) === 'true'; } catch (e) { saved = false; }
-            apply(saved);
-
-            Array.prototype.forEach.call(
-                document.querySelectorAll('[data-instructor-toggle]'),
-                function (btn) {
-                    btn.addEventListener('click', function () {
-                        apply(!on);
-                        try { window.localStorage.setItem(STORE_KEY, on ? 'true' : 'false'); } catch (e) { /* ignore */ }
-                    });
-                }
-            );
-
-            /* Alt+I toggles. Captured before the simulators see it. */
-            document.addEventListener('keydown', function (e) {
-                if (!e.altKey || e.ctrlKey || e.metaKey) { return; }
-                var k = (e.key || '').toLowerCase();
-                if (k !== 'i' && e.code !== 'KeyI') { return; }
-                e.preventDefault();
-                e.stopPropagation();
-                apply(!on);
-                try { window.localStorage.setItem(STORE_KEY, on ? 'true' : 'false'); } catch (err) { /* ignore */ }
-            }, true);
-
-            /* Typed keys: capture phase, so the chip appears even though the
-               simulators call preventDefault on their own handlers. */
-            var vim = document.getElementById('vim-content');
-            var nano = document.getElementById('nano-content');
-
-            var MODIFIERS = {
-                'Shift': 1, 'Control': 1, 'Alt': 1, 'Meta': 1, 'CapsLock': 1,
-                'NumLock': 1, 'ScrollLock': 1, 'AltGraph': 1, 'Dead': 1,
-                'Unidentified': 1, 'OS': 1, 'ContextMenu': 1
-            };
-
-            if (vim) {
-                vim.addEventListener('keydown', function (e) {
-                    if (e.altKey || e.metaKey || MODIFIERS[e.key]) { return; }
-                    show('vim', e.key);
-                }, true);
-            }
-            if (nano) {
-                nano.addEventListener('keydown', function (e) {
-                    if (e.altKey || e.metaKey) { return; }
-                    if (MODIFIERS[e.key]) { return; }
-                    var key = e.ctrlKey ? ('Ctrl+' + (e.key || '').toUpperCase()) : e.key;
-                    show('nano', key);
-                }, true);
-            }
-
-            /* Clicks on the on-screen key buttons count too. */
-            Array.prototype.forEach.call(
-                document.querySelectorAll('#vim-keyboard, #nano-keyboard'),
-                function (pad) {
-                    var which = (pad.id === 'nano-keyboard') ? 'nano' : 'vim';
-                    pad.addEventListener('click', function (e) {
-                        var btn = e.target.closest ? e.target.closest('.sim-key') : null;
-                        if (!btn) { return; }
-                        show(which, btn.dataset.key);
-                    }, true);
-                }
-            );
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

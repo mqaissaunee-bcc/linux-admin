@@ -873,7 +873,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1238,154 +1238,16 @@
                 min-width: auto;
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 13</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 13</span>
             <h1>Installing and Updating Software with Flatpak</h1>
             <p class="chapter-subtitle">Master sandboxed application management using Flatpak on Red Hat Enterprise Linux</p>
         </div>
@@ -1502,26 +1364,26 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📦</span> Self-Contained</h4>
+                        <h4><span class="card-icon">ðŸ“¦</span> Self-Contained</h4>
                         <p>Applications include all dependencies or share common runtimes, eliminating library conflicts.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔒</span> Sandboxed</h4>
+                        <h4><span class="card-icon">ðŸ”’</span> Sandboxed</h4>
                         <p>Applications run isolated from the system using <span class="tooltip-container"><button type="button" class="tooltip-trigger" aria-describedby="tooltip-bubblewrap">bubblewrap</button><span class="tooltip-content" id="tooltip-bubblewrap" role="tooltip">Bubblewrap is an unprivileged sandboxing tool used by Flatpak to create secure containers for running applications with limited system access.</span></span> for security.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔄</span> Deduplication</h4>
+                        <h4><span class="card-icon">ðŸ”„</span> Deduplication</h4>
                         <p>Shared runtimes and content-addressed storage reduce disk space usage across applications.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🌐</span> Universal</h4>
+                        <h4><span class="card-icon">ðŸŒ</span> Universal</h4>
                         <p>Applications work across multiple Linux distributions without modification.</p>
                     </div>
                 </div>
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">💡</span>
+                        <span class="note-icon">ðŸ’¡</span>
                         <span>When to Use Flatpak</span>
                     </div>
                     <p>Flatpak is ideal for desktop applications like web browsers, office suites, media players, and communication tools. For system services, command-line utilities, and libraries, continue using RPM packages through DNF.</p>
@@ -1533,7 +1395,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="scope-content">
                         <span>System-wide vs. User Installation</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="scope-content" class="expandable-content">
                         <table class="comparison-table">
@@ -1579,11 +1441,11 @@
                 <div class="arch-diagram">
                     <div class="arch-layers">
                         <div class="arch-layer layer-app">Flatpak Application</div>
-                        <div class="arch-arrow">↓</div>
+                        <div class="arch-arrow">â†“</div>
                         <div class="arch-layer layer-runtime">Runtime (Shared Libraries)</div>
-                        <div class="arch-arrow">↓</div>
+                        <div class="arch-arrow">â†“</div>
                         <div class="arch-layer layer-bubblewrap">Bubblewrap Sandbox</div>
-                        <div class="arch-arrow">↓</div>
+                        <div class="arch-arrow">â†“</div>
                         <div class="arch-layer layer-host">Host System (RHEL)</div>
                     </div>
                 </div>
@@ -1670,7 +1532,7 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon">ℹ️</span>
+                        <span class="note-icon">â„¹ï¸</span>
                         <span>Runtime Sharing</span>
                     </div>
                     <p>When multiple applications require the same runtime, Flatpak downloads it only once. Subsequent installations that need the same runtime reuse the existing copy, saving bandwidth and disk space.</p>
@@ -1690,22 +1552,22 @@
                 <h3>Available Remotes</h3>
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🎩</span> Red Hat Remote</h4>
+                        <h4><span class="card-icon">ðŸŽ©</span> Red Hat Remote</h4>
                         <p>Official repository with Red Hat-supported applications. Enabled by default on RHEL systems.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🌐</span> Flathub</h4>
+                        <h4><span class="card-icon">ðŸŒ</span> Flathub</h4>
                         <p>Largest third-party repository at flathub.org. Red Hat does not support these applications.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🐧</span> Fedora Remote</h4>
+                        <h4><span class="card-icon">ðŸ§</span> Fedora Remote</h4>
                         <p>Fedora Project's Flatpak repository with community-maintained applications.</p>
                     </div>
                 </div>
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Support Notice</span>
                     </div>
                     <p>Red Hat does not support applications from third-party remote repositories like Flathub. Use only the Red Hat remote for production environments requiring support coverage.</p>
@@ -1880,7 +1742,7 @@
                         </div>
                         <div class="note-box">
                             <div class="note-box-header">
-                                <span class="note-icon">💡</span>
+                                <span class="note-icon">ðŸ’¡</span>
                                 <span>Update Branches</span>
                             </div>
                             <p>The <code class="inline">flatpak update</code> command checks for updates within the same branch from which the application was installed. If a newer version exists in a different branch, Flatpak will not automatically detect it.</p>
@@ -1955,19 +1817,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📁</span> Filesystem Access</h4>
+                        <h4><span class="card-icon">ðŸ“</span> Filesystem Access</h4>
                         <p>Access to home directory, host filesystem, or specific paths like Downloads folder.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🌐</span> Network Access</h4>
+                        <h4><span class="card-icon">ðŸŒ</span> Network Access</h4>
                         <p>Permission to make network connections for downloading content or communication.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🎤</span> Device Access</h4>
+                        <h4><span class="card-icon">ðŸŽ¤</span> Device Access</h4>
                         <p>Access to audio, video, webcam, and other hardware devices.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🖥️</span> Display Access</h4>
+                        <h4><span class="card-icon">ðŸ–¥ï¸</span> Display Access</h4>
                         <p>Wayland or X11 display server access for graphical interface.</p>
                     </div>
                 </div>
@@ -2006,10 +1868,10 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Security Consideration</span>
                     </div>
-                    <p>Be cautious when granting additional permissions. The sandbox provides security isolation—granting excessive permissions like <code class="inline">--filesystem=host</code> significantly reduces this protection.</p>
+                    <p>Be cautious when granting additional permissions. The sandbox provides security isolationâ€”granting excessive permissions like <code class="inline">--filesystem=host</code> significantly reduces this protection.</p>
                 </div>
 
                 <h3>Common Permission Flags</h3>
@@ -2053,9 +1915,9 @@
                 <div class="code-block">
                     <code><span class="code-comment"># Application data location</span>
 <span class="code-output">~/.var/app/org.mozilla.firefox/</span>
-<span class="code-output">├── cache/      # Cached data</span>
-<span class="code-output">├── config/     # Configuration files</span>
-<span class="code-output">└── data/       # Application data</span></code>
+<span class="code-output">â”œâ”€â”€ cache/      # Cached data</span>
+<span class="code-output">â”œâ”€â”€ config/     # Configuration files</span>
+<span class="code-output">â””â”€â”€ data/       # Application data</span></code>
                 </div>
             </div>
         </section>
@@ -2208,7 +2070,7 @@
             <div class="section-body">
                 <div class="lab-container">
                     <div class="lab-header">
-                        <span class="lab-icon" aria-hidden="true">🔬</span>
+                        <span class="lab-icon" aria-hidden="true">ðŸ”¬</span>
                         <h3 class="lab-title">Lab: Managing Applications with Flatpak</h3>
                     </div>
 
@@ -2307,19 +2169,19 @@
             <div class="section-body">
                 <div class="card-grid">
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">📦</span> Flatpak Basics</h4>
+                        <h4><span class="card-icon">ðŸ“¦</span> Flatpak Basics</h4>
                         <p>Flatpak provides sandboxed, distribution-agnostic application packaging with bundled dependencies and controlled system access.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🌐</span> Remote Repositories</h4>
+                        <h4><span class="card-icon">ðŸŒ</span> Remote Repositories</h4>
                         <p>Use <code class="inline">flatpak remotes</code>, <code class="inline">remote-add</code>, and <code class="inline">remote-delete</code> to manage application sources. Red Hat remote is supported; third-party remotes are not.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔧</span> Application Management</h4>
+                        <h4><span class="card-icon">ðŸ”§</span> Application Management</h4>
                         <p>Use <code class="inline">flatpak search</code>, <code class="inline">install</code>, <code class="inline">update</code>, <code class="inline">uninstall</code>, and <code class="inline">list</code> to manage applications and runtimes.</p>
                     </div>
                     <div class="info-card" tabindex="0">
-                        <h4><span class="card-icon">🔒</span> Permissions</h4>
+                        <h4><span class="card-icon">ðŸ”’</span> Permissions</h4>
                         <p>Flatpak sandboxing limits application access. Use <code class="inline">flatpak override</code> to customize permissions when needed.</p>
                     </div>
                 </div>
@@ -2328,7 +2190,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="cmd-reference">
                         <span>Essential Flatpak Commands</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="cmd-reference" class="expandable-content">
                         <table class="comparison-table">
@@ -2400,7 +2262,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 13 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 13 Complete!</h2>
                     <p>You've learned how to install and manage sandboxed applications using Flatpak on Red Hat Enterprise Linux.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2411,8 +2273,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 13 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 13 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2553,7 +2415,7 @@
                             score++;
                             parentLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             parentLabel.classList.add('incorrect');
                             options.forEach(opt => {
@@ -2562,11 +2424,11 @@
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠️ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2601,7 +2463,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', () => {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
 
@@ -2616,7 +2478,7 @@
                 });
 
                 if (localStorage.getItem('ch13-complete') === 'true') {
-                    completeBtn.textContent = '✓ Chapter Completed!';
+                    completeBtn.textContent = 'âœ“ Chapter Completed!';
                     completeBtn.style.background = '#267326';
                     completeBtn.disabled = true;
                 }
@@ -2667,192 +2529,6 @@
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

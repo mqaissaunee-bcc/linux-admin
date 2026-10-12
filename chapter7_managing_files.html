@@ -617,7 +617,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1084,7 +1084,7 @@
         }
 
         .summary-list li::before {
-            content: '\01F4CC ';
+            content: 'ðŸ“Œ';
             flex-shrink: 0;
         }
 
@@ -1164,154 +1164,16 @@
                 flex-direction: column;
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 7</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 7</span>
             <h1>Managing Files from the Command Line</h1>
             <p class="chapter-subtitle">Master the essential commands for creating, copying, moving, and managing files and directories in Linux</p>
         </div>
@@ -1382,37 +1244,37 @@
             <div class="section-body">
                 <p>Effective file management is a fundamental skill for Linux system administrators. The command line provides powerful tools that enable you to create, organize, and manipulate files and directories with precision and efficiency far beyond what graphical file managers offer.</p>
 
-                <p>In this chapter, you'll learn the core commands that form the foundation of file management in Linux. These commands—<code class="inline">touch</code>, <code class="inline">mkdir</code>, <code class="inline">cp</code>, <code class="inline">mv</code>, <code class="inline">rm</code>, and <code class="inline">rmdir</code>—will become essential tools in your daily administration tasks.</p>
+                <p>In this chapter, you'll learn the core commands that form the foundation of file management in Linux. These commandsâ€”<code class="inline">touch</code>, <code class="inline">mkdir</code>, <code class="inline">cp</code>, <code class="inline">mv</code>, <code class="inline">rm</code>, and <code class="inline">rmdir</code>â€”will become essential tools in your daily administration tasks.</p>
 
                 <h3>Core File Management Commands</h3>
                 <div class="command-grid">
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">📄</span> touch</h4>
+                        <h4><span aria-hidden="true">ðŸ“„</span> touch</h4>
                         <div class="cmd-syntax">touch filename</div>
                         <p>Create empty files or update timestamps on existing files</p>
                     </div>
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">📁</span> mkdir</h4>
+                        <h4><span aria-hidden="true">ðŸ“</span> mkdir</h4>
                         <div class="cmd-syntax">mkdir directory</div>
                         <p>Create new directories (folders)</p>
                     </div>
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">📋</span> cp</h4>
+                        <h4><span aria-hidden="true">ðŸ“‹</span> cp</h4>
                         <div class="cmd-syntax">cp source destination</div>
                         <p>Copy files and directories</p>
                     </div>
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">➡️</span> mv</h4>
+                        <h4><span aria-hidden="true">âž¡ï¸</span> mv</h4>
                         <div class="cmd-syntax">mv source destination</div>
                         <p>Move or rename files and directories</p>
                     </div>
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">🗑️</span> rm</h4>
+                        <h4><span aria-hidden="true">ðŸ—‘ï¸</span> rm</h4>
                         <div class="cmd-syntax">rm filename</div>
                         <p>Remove (delete) files and directories</p>
                     </div>
                     <div class="command-card" tabindex="0">
-                        <h4><span aria-hidden="true">📂</span> rmdir</h4>
+                        <h4><span aria-hidden="true">ðŸ“‚</span> rmdir</h4>
                         <div class="cmd-syntax">rmdir directory</div>
                         <p>Remove empty directories only</p>
                     </div>
@@ -1420,7 +1282,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                         <span>Remember the Basics</span>
                     </div>
                     <p>Linux is case-sensitive. <code class="inline">File.txt</code>, <code class="inline">file.txt</code>, and <code class="inline">FILE.TXT</code> are three different files. Also, filenames beginning with a dot (.) are <span class="term" tabindex="0">hidden files<span class="tooltip">Hidden files don't appear in normal directory listings. Use ls -a to see them. They're typically used for configuration files in home directories.</span></span> and won't appear in regular <code class="inline">ls</code> output.</p>
@@ -1471,10 +1333,10 @@
                         <div class="key-points">
                             <h4>Key touch Options</h4>
                             <ul>
-                                <li><code class="inline">-a</code> — Change only the access time</li>
-                                <li><code class="inline">-m</code> — Change only the modification time</li>
-                                <li><code class="inline">-t [[CC]YY]MMDDhhmm[.ss]</code> — Set a specific timestamp</li>
-                                <li><code class="inline">-c</code> — Do not create file if it doesn't exist</li>
+                                <li><code class="inline">-a</code> â€” Change only the access time</li>
+                                <li><code class="inline">-m</code> â€” Change only the modification time</li>
+                                <li><code class="inline">-t [[CC]YY]MMDDhhmm[.ss]</code> â€” Set a specific timestamp</li>
+                                <li><code class="inline">-c</code> â€” Do not create file if it doesn't exist</li>
                             </ul>
                         </div>
                     </div>
@@ -1510,7 +1372,7 @@
 
                         <div class="warning-box">
                             <div class="warning-box-header">
-                                <span class="note-icon" aria-hidden="true">⚠️</span>
+                                <span class="note-icon" aria-hidden="true">âš ï¸</span>
                                 <span>The -p Option is Essential</span>
                             </div>
                             <p>Without <code class="inline">-p</code>, mkdir will fail if the parent directory doesn't exist. Always use <code class="inline">mkdir -p</code> when creating nested directory structures to avoid errors.</p>
@@ -1607,7 +1469,7 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                         <span>Best Practice: Use -i for Safety</span>
                     </div>
                     <p>When copying files that might overwrite existing data, use <code class="inline">cp -i</code> to get a confirmation prompt. Many administrators add <code class="inline">alias cp='cp -i'</code> to their shell configuration for safety.</p>
@@ -1683,10 +1545,10 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">📝</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ“</span>
                         <span>Move vs Copy Behavior</span>
                     </div>
-                    <p>When moving files within the same filesystem, <code class="inline">mv</code> simply renames the file entry—it's nearly instantaneous regardless of file size. When moving across filesystems, <code class="inline">mv</code> actually copies the data and then deletes the original, which takes longer for large files.</p>
+                    <p>When moving files within the same filesystem, <code class="inline">mv</code> simply renames the file entryâ€”it's nearly instantaneous regardless of file size. When moving across filesystems, <code class="inline">mv</code> actually copies the data and then deletes the original, which takes longer for large files.</p>
                 </div>
             </div>
         </section>
@@ -1698,11 +1560,11 @@
                 <h2 id="delete-heading">Deleting Files and Directories</h2>
             </div>
             <div class="section-body">
-                <p>The <code class="inline">rm</code> command removes files, while <code class="inline">rmdir</code> removes empty directories. These commands are powerful but potentially dangerous—deleted files cannot be recovered from a recycle bin.</p>
+                <p>The <code class="inline">rm</code> command removes files, while <code class="inline">rmdir</code> removes empty directories. These commands are powerful but potentially dangerousâ€”deleted files cannot be recovered from a recycle bin.</p>
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Warning: No Undo!</span>
                     </div>
                     <p>Linux has no recycle bin or trash can at the command line. When you delete a file with <code class="inline">rm</code>, it's gone. Always double-check your commands, especially when using wildcards or the <code class="inline">-r</code> option.</p>
@@ -1898,7 +1760,7 @@
 
                 <div class="info-box">
                     <div class="info-box-header">
-                        <span class="note-icon" aria-hidden="true">🔍</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ”</span>
                         <span>Shell Expansion Order</span>
                     </div>
                     <p>The shell expands wildcards before passing arguments to commands. If you type <code class="inline">ls *.txt</code> and there are three .txt files, the shell runs <code class="inline">ls file1.txt file2.txt file3.txt</code>. If no files match, the behavior depends on the shell settings.</p>
@@ -1950,7 +1812,7 @@
                                 <text x="100" y="105" text-anchor="middle" font-family="Segoe UI" font-size="14" fill="#333">link.txt</text>
                                 
                                 <rect x="200" y="75" width="120" height="50" fill="#E8D5FF" stroke="#663399" stroke-width="2" rx="5"/>
-                                <text x="260" y="100" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#333">"→ /path/to/</text>
+                                <text x="260" y="100" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#333">"â†’ /path/to/</text>
                                 <text x="260" y="115" text-anchor="middle" font-family="Segoe UI" font-size="12" fill="#333">original.txt"</text>
                                 
                                 <rect x="370" y="75" width="100" height="50" fill="#CCE5FF" stroke="#0066CC" stroke-width="2" rx="5"/>
@@ -1971,7 +1833,7 @@
                         </svg>
                     </div>
                     <p id="link-explanation" style="margin-top: 15px; font-family: var(--font-display);">
-                        <strong>Hard Links:</strong> Multiple directory entries point directly to the same inode. Both filenames are equal—there is no "original" and "link."
+                        <strong>Hard Links:</strong> Multiple directory entries point directly to the same inode. Both filenames are equalâ€”there is no "original" and "link."
                     </p>
                 </div>
 
@@ -2177,7 +2039,7 @@
 
                         <div class="note-box">
                             <div class="note-box-header">
-                                <span class="note-icon" aria-hidden="true">📅</span>
+                                <span class="note-icon" aria-hidden="true">ðŸ“…</span>
                                 <span>Database Updates</span>
                             </div>
                             <p>The <code class="inline">locate</code> database is typically updated daily via a cron job running <code class="inline">updatedb</code>. Files created after the last database update won't be found. Run <code class="inline">sudo updatedb</code> to refresh the database manually.</p>
@@ -2365,7 +2227,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
                         <span>Task 1: Create a Project Structure</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-1" class="expandable-content">
                         <p>Create a project directory structure with files and subdirectories.</p>
@@ -2399,7 +2261,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
                         <span>Task 2: Copy and Move Files</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-2" class="expandable-content">
                         <p>Practice copying and moving files within the project structure.</p>
@@ -2425,7 +2287,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
                         <span>Task 3: Use Wildcards</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-3" class="expandable-content">
                         <p>Practice using wildcards to work with multiple files.</p>
@@ -2451,7 +2313,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
                         <span>Task 4: Create and Work with Links</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-4" class="expandable-content">
                         <p>Create hard links and symbolic links.</p>
@@ -2478,7 +2340,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
                         <span>Task 5: Search for Files</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-5" class="expandable-content">
                         <p>Use find and locate to search for files.</p>
@@ -2504,7 +2366,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-6">
                         <span>Task 6: Clean Up</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-6" class="expandable-content">
                         <p>Practice safe deletion of files and directories.</p>
@@ -2527,14 +2389,14 @@
                 <div class="key-points">
                     <h4>Lab Completion Checklist</h4>
                     <ul>
-                        <li>✓ Created project directory structure with mkdir -p</li>
-                        <li>✓ Created empty files with touch</li>
-                        <li>✓ Copied files and directories with cp</li>
-                        <li>✓ Moved and renamed files with mv</li>
-                        <li>✓ Used wildcards to match multiple files</li>
-                        <li>✓ Created hard and symbolic links</li>
-                        <li>✓ Used find to search for files</li>
-                        <li>✓ Safely removed files and directories</li>
+                        <li>âœ“ Created project directory structure with mkdir -p</li>
+                        <li>âœ“ Created empty files with touch</li>
+                        <li>âœ“ Copied files and directories with cp</li>
+                        <li>âœ“ Moved and renamed files with mv</li>
+                        <li>âœ“ Used wildcards to match multiple files</li>
+                        <li>âœ“ Created hard and symbolic links</li>
+                        <li>âœ“ Used find to search for files</li>
+                        <li>âœ“ Safely removed files and directories</li>
                     </ul>
                 </div>
             </div>
@@ -2572,7 +2434,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 7 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 7 Complete!</h2>
                     <p>You've learned how to manage files from the command line effectively.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2583,8 +2445,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 7 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 7 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <script>
@@ -2759,7 +2621,7 @@
                 btnSymlink.classList.remove('active');
                 hardlinkDiagram.style.display = 'block';
                 symlinkDiagram.style.display = 'none';
-                linkExplanation.innerHTML = '<strong>Hard Links:</strong> Multiple directory entries point directly to the same inode. Both filenames are equal—there is no "original" and "link."';
+                linkExplanation.innerHTML = '<strong>Hard Links:</strong> Multiple directory entries point directly to the same inode. Both filenames are equalâ€”there is no "original" and "link."';
             });
 
             btnSymlink.addEventListener('click', () => {
@@ -2802,7 +2664,7 @@
                             score++;
                             selectedOption.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedOption.classList.add('incorrect');
                             // Highlight correct answer
@@ -2812,11 +2674,11 @@
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠️ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2862,7 +2724,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', function() {
-                    this.textContent = '✓ Chapter Completed!';
+                    this.textContent = 'âœ“ Chapter Completed!';
                     this.style.background = '#267326';
                     this.disabled = true;
                     
@@ -2919,192 +2781,6 @@
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

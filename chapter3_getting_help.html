@@ -345,7 +345,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1007,7 +1007,7 @@
         }
 
         .summary-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1160,154 +1160,16 @@
                 border: 1px solid var(--rh-gray-light);
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • CHAPTER 3</span>
+            <span class="course-badge">RH124 â€¢ CHAPTER 3</span>
             <h1>Getting Help from Local Documentation</h1>
             <p class="chapter-subtitle">Master the art of finding answers using man pages, info documentation, and built-in help systems</p>
         </div>
@@ -1364,7 +1226,7 @@
                     </ul>
                 </div>
 
-                <p>One of the most important skills for any Linux administrator is knowing how to find help when you need it. Unlike graphical operating systems where help is often accessed through menus, Linux provides powerful command-line documentation tools that are comprehensive and always available—even when you don't have network access.</p>
+                <p>One of the most important skills for any Linux administrator is knowing how to find help when you need it. Unlike graphical operating systems where help is often accessed through menus, Linux provides powerful command-line documentation tools that are comprehensive and always availableâ€”even when you don't have network access.</p>
 
                 <p>The <span class="term" tabindex="0" data-tooltip="Manual pages (man pages) are the traditional form of online documentation in Unix and Linux systems. They provide detailed information about commands, configuration files, system calls, and more.">man pages</span> system has been the backbone of Unix/Linux documentation since the early 1970s. Software packages include these pages to document their functionality, and you can access them directly from the command line using the <code class="inline">man</code> command.</p>
 
@@ -1381,7 +1243,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">📚</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ“š</span>
                         <span>Historical Note</span>
                     </div>
                     <p>Man pages originated from the historical Linux Programmer's Manual, which due to its size was split into multiple numbered sections. Each section contains information about a particular type of topic, from user commands to system administration tools.</p>
@@ -1415,7 +1277,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="man-anatomy">
                         <span>Anatomy of a Man Page</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="man-anatomy" class="expandable-content">
                         <p>Man pages follow a consistent structure with standard headings. Not all pages include every heading, as some don't apply to all topics.</p>
@@ -1589,7 +1451,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon" aria-hidden="true">💡</span>
+                        <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                         <span>Pro Tip</span>
                     </div>
                     <p>When you run <code class="inline">man topic</code> without specifying a section, man searches sections in a predefined order (typically 1, 8, 2, 3, 4, 5, 6, 7, 9) and displays the first match. This is why <code class="inline">man passwd</code> shows the command, not the file format.</p>
@@ -1598,7 +1460,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="section-examples">
                         <span>Common Multi-Section Topics</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="section-examples" class="expandable-content">
                         <table class="comparison-table">
@@ -1664,11 +1526,11 @@
                             <td>Move backward one screen</td>
                         </tr>
                         <tr>
-                            <td><span class="kbd">↓</span> or <span class="kbd">j</span></td>
+                            <td><span class="kbd">â†“</span> or <span class="kbd">j</span></td>
                             <td>Move down one line</td>
                         </tr>
                         <tr>
-                            <td><span class="kbd">↑</span> or <span class="kbd">k</span></td>
+                            <td><span class="kbd">â†‘</span> or <span class="kbd">k</span></td>
                             <td>Move up one line</td>
                         </tr>
                         <tr>
@@ -1731,7 +1593,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="advanced-nav">
                         <span>Advanced Navigation Tips</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="advanced-nav" class="expandable-content">
                         <h4>Pattern Matching</h4>
@@ -1770,10 +1632,10 @@
                 <div class="key-points">
                     <h4>Remember These Essential Keys</h4>
                     <ul>
-                        <li><span class="kbd">Space</span> — Page down (most common)</li>
-                        <li><span class="kbd">/</span> — Search forward</li>
-                        <li><span class="kbd">n</span> — Next search result</li>
-                        <li><span class="kbd">q</span> — Quit the man page</li>
+                        <li><span class="kbd">Space</span> â€” Page down (most common)</li>
+                        <li><span class="kbd">/</span> â€” Search forward</li>
+                        <li><span class="kbd">n</span> â€” Next search result</li>
+                        <li><span class="kbd">q</span> â€” Quit the man page</li>
                     </ul>
                 </div>
             </div>
@@ -1872,7 +1734,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon" aria-hidden="true">⚠️</span>
+                        <span class="note-icon" aria-hidden="true">âš ï¸</span>
                         <span>Database Update Required</span>
                     </div>
                     <p>The <code class="inline">apropos</code> and <code class="inline">whatis</code> commands rely on a database that must be up to date. If you get "nothing appropriate" errors, the administrator may need to run <code class="inline">mandb</code> to update the database. On a fresh system, this database is typically updated automatically.</p>
@@ -1881,7 +1743,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="search-tips">
                         <span>Tips for Effective Searching</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="search-tips" class="expandable-content">
                         <h4>Using Regular Expressions</h4>
@@ -1948,7 +1810,7 @@
                         </div>
                         <div class="note-box">
                             <div class="note-box-header">
-                                <span class="note-icon" aria-hidden="true">💡</span>
+                                <span class="note-icon" aria-hidden="true">ðŸ’¡</span>
                                 <span>Tip</span>
                             </div>
                             <p>Pipe <code class="inline">--help</code> output to <code class="inline">less</code> if it's too long: <code class="inline">ls --help | less</code></p>
@@ -1979,7 +1841,7 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><span class="kbd">↑</span> <span class="kbd">↓</span></td>
+                                    <td><span class="kbd">â†‘</span> <span class="kbd">â†“</span></td>
                                     <td>Move cursor between links</td>
                                 </tr>
                                 <tr>
@@ -2032,7 +1894,7 @@
                         </ul>
                         <div class="note-box">
                             <div class="note-box-header">
-                                <span class="note-icon" aria-hidden="true">📖</span>
+                                <span class="note-icon" aria-hidden="true">ðŸ“–</span>
                                 <span>Local Documentation</span>
                             </div>
                             <p>Remember that local documentation (man pages, info, /usr/share/doc) is always available, even without network access. This makes it invaluable for troubleshooting in disconnected environments.</p>
@@ -2246,7 +2108,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-1">
                         <span>Task 1: Finding Information in Man Pages</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-1" class="expandable-content">
                         <p>Use the <code class="inline">man</code> command to find specific information about the <code class="inline">ls</code> command.</p>
@@ -2271,7 +2133,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-2">
                         <span>Task 2: Searching with apropos</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-2" class="expandable-content">
                         <p>Use <code class="inline">apropos</code> to find commands related to specific tasks.</p>
@@ -2293,7 +2155,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-3">
                         <span>Task 3: Working with Multiple Sections</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-3" class="expandable-content">
                         <p>Practice accessing specific man page sections.</p>
@@ -2315,7 +2177,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-4">
                         <span>Task 4: Using --help for Quick Reference</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-4" class="expandable-content">
                         <p>Use the <code class="inline">--help</code> option to quickly find command options.</p>
@@ -2336,7 +2198,7 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="lab-task-5">
                         <span>Task 5: Exploring /usr/share/doc</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="lab-task-5" class="expandable-content">
                         <p>Browse the system documentation directory.</p>
@@ -2356,11 +2218,11 @@
                 <div class="key-points">
                     <h4>Lab Completion Checklist</h4>
                     <ul>
-                        <li>✓ Navigated man pages and searched for specific options</li>
-                        <li>✓ Used apropos to find commands by keyword</li>
-                        <li>✓ Accessed man pages from different sections</li>
-                        <li>✓ Used --help for quick command reference</li>
-                        <li>✓ Explored /usr/share/doc for package documentation</li>
+                        <li>âœ“ Navigated man pages and searched for specific options</li>
+                        <li>âœ“ Used apropos to find commands by keyword</li>
+                        <li>âœ“ Accessed man pages from different sections</li>
+                        <li>âœ“ Used --help for quick command reference</li>
+                        <li>âœ“ Explored /usr/share/doc for package documentation</li>
                     </ul>
                 </div>
             </div>
@@ -2400,7 +2262,7 @@
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 3 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 3 Complete!</h2>
                     <p>You've mastered the documentation tools that will help you find answers throughout your Linux journey.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2411,8 +2273,8 @@
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 3 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 3 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2578,11 +2440,11 @@
                             if (selectedOption.value === correctAnswer) {
                                 score++;
                                 question.classList.add('correct');
-                                feedback.textContent = '✓ Correct!';
+                                feedback.textContent = 'âœ“ Correct!';
                                 feedback.classList.add('show', 'correct');
                             } else {
                                 question.classList.add('incorrect');
-                                feedback.textContent = '✗ Incorrect. Review this section and try again.';
+                                feedback.textContent = 'âœ— Incorrect. Review this section and try again.';
                                 feedback.classList.add('show', 'incorrect');
                             }
                         } else {
@@ -2664,7 +2526,7 @@
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', function() {
-                    this.textContent = '✓ Chapter Completed!';
+                    this.textContent = 'âœ“ Chapter Completed!';
                     this.style.background = '#267326';
                     this.disabled = true;
                     
@@ -2699,192 +2561,6 @@
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>

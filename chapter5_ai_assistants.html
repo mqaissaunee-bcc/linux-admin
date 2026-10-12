@@ -606,7 +606,7 @@
         }
 
         .objectives-list li::before {
-            content: '\002713 ';
+            content: 'âœ“';
             position: absolute;
             left: 0;
             top: 0;
@@ -1094,7 +1094,7 @@
         }
 
         .summary-list li::before {
-            content: '\002605 ';
+            content: 'â˜…';
             position: absolute;
             left: 0;
             color: var(--rh-green);
@@ -1289,154 +1289,16 @@
                 max-width: 95%;
             }
         }
-    
-        /* ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== */
-        /* Legacy in-flow tooltip bubbles are hidden visually but kept in the
-           accessibility tree so aria-describedby still announces them. */
-        .term .tooltip,
-        .tooltip,
-        .tooltip-content,
-        #tooltip-bubble {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            min-width: 0 !important;
-            max-width: none !important;
-            margin: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            overflow: hidden !important;
-            clip-path: inset(50%) !important;
-            white-space: nowrap !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: none !important;
-            transform: none !important;
-        }
-        .term .tooltip::before,
-        .term .tooltip::after,
-        .tooltip::before,
-        .tooltip::after,
-        .tooltip-content::before,
-        .tooltip-content::after,
-        #tooltip-bubble::before,
-        #tooltip-bubble::after {
-            display: none !important;
-        }
-
-        #q-tooltip {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 99999;
-            max-width: 320px;
-            width: max-content;
-            background: var(--rh-gray-dark, #2B2B2B);
-            color: #FFFFFF;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 400;
-            font-style: normal;
-            line-height: 1.5;
-            text-align: left;
-            text-transform: none;
-            letter-spacing: normal;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.15s ease;
-        }
-        #q-tooltip.is-visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #q-tooltip .q-tooltip-arrow {
-            position: absolute;
-            width: 0;
-            height: 0;
-            border: 8px solid transparent;
-        }
-        #q-tooltip[data-side="top"] .q-tooltip-arrow {
-            top: 100%;
-            border-top-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        #q-tooltip[data-side="bottom"] .q-tooltip-arrow {
-            bottom: 100%;
-            border-bottom-color: var(--rh-gray-dark, #2B2B2B);
-        }
-        @media (max-width: 480px) {
-            #q-tooltip { max-width: calc(100vw - 24px); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            #q-tooltip { transition: none; }
-        }
-
-        /* ==================== NAV VISIBILITY TOGGLE ==================== */
-        .q-nav-toggle {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            z-index: 900;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            min-height: 44px;
-            min-width: 44px;
-            padding: 10px 16px;
-            background: var(--rh-white, #FFFFFF);
-            color: var(--rh-gray-dark, #2B2B2B);
-            border: 2px solid var(--rh-gray-light, #CCCCCC);
-            border-radius: 999px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            line-height: 1.2;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-        .q-nav-toggle:hover {
-            border-color: var(--rh-red, #CC0000);
-            background: var(--rh-gray-lighter, #F2F2F2);
-        }
-        .q-nav-toggle:focus-visible,
-        .q-nav-toggle:focus {
-            outline: 3px solid var(--rh-blue, #0066CC);
-            outline-offset: 2px;
-        }
-        .q-nav-toggle .q-nav-icon {
-            font-size: 0.9em;
-            line-height: 1;
-        }
-        body.q-nav-hidden .section-nav {
-            display: none !important;
-        }
-        @media print {
-            .q-nav-toggle { display: none !important; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            .q-nav-toggle { transition: none; }
-        }
-</style>
+    </style>
 </head>
 <body>
     <!-- Skip Link for Accessibility -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <button type="button" class="q-nav-toggle" id="q-nav-toggle" aria-expanded="true" aria-controls="q-section-nav">
-        <span class="q-nav-icon" aria-hidden="true">▲</span><span class="q-nav-label">Hide nav</span>
-    </button>
-
 
     <!-- Main Header -->
     <header class="main-header" role="banner">
         <div class="header-content">
-            <span class="course-badge">RH124 • RHEL 10</span>
+            <span class="course-badge">RH124 â€¢ RHEL 10</span>
             <h1>Chapter 5: Getting Help Using AI Assistants</h1>
             <p class="chapter-subtitle">Leverage artificial intelligence to accelerate troubleshooting, learn new concepts, and enhance your Linux administration productivity</p>
         </div>
@@ -1493,7 +1355,7 @@
 
                 <div class="note-box">
                     <div class="note-box-header">
-                        <span class="note-icon">🆕</span>
+                        <span class="note-icon">ðŸ†•</span>
                         <span>New in RHEL 10</span>
                     </div>
                     <p>AI-assisted system administration is a new topic in the RHEL 10 curriculum, reflecting the growing importance of AI tools in modern IT operations. This chapter prepares you to leverage these powerful tools effectively while maintaining security and accuracy.</p>
@@ -1513,19 +1375,19 @@
 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🤖</span> Natural Language Understanding</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ¤–</span> Natural Language Understanding</h4>
                         <p>Ask questions in plain English without needing to know exact command syntax. The AI interprets your intent and provides relevant help.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📚</span> Vast Knowledge Base</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“š</span> Vast Knowledge Base</h4>
                         <p>AI assistants are trained on extensive documentation, including man pages, tutorials, and best practices from across the Linux ecosystem.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">⚡</span> Instant Responses</h4>
+                        <h4><span class="card-icon" aria-hidden="true">âš¡</span> Instant Responses</h4>
                         <p>Get immediate help without searching through multiple documentation sources or waiting for forum responses.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🎯</span> Context-Aware Help</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸŽ¯</span> Context-Aware Help</h4>
                         <p>Provide context about your situation, and the AI tailors its responses to your specific environment and needs.</p>
                     </div>
                 </div>
@@ -1534,7 +1396,7 @@
                 <p>System administrators face countless tasks daily, from routine maintenance to complex troubleshooting. AI assistants serve as a force multiplier, helping you work more efficiently:</p>
 
                 <div class="key-points">
-                    <h4>💡 Key Benefits</h4>
+                    <h4>ðŸ’¡ Key Benefits</h4>
                     <ul>
                         <li><strong>Accelerated Learning:</strong> Quickly understand new commands, concepts, and technologies without extensive documentation searches</li>
                         <li><strong>Faster Troubleshooting:</strong> Get suggestions for resolving errors and issues based on symptoms you describe</li>
@@ -1586,7 +1448,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon">⚠️</span>
+                        <span class="note-icon">âš ï¸</span>
                         <span>Important Consideration</span>
                     </div>
                     <p>AI assistants can make mistakes or provide outdated information. <strong>Always verify critical commands and configurations</strong> before applying them to production systems. Use AI as a starting point, then confirm with official documentation or testing.</p>
@@ -1606,7 +1468,7 @@
 
                 <div class="ai-chat-demo" role="region" aria-label="AI chat demonstration">
                     <div class="ai-chat-header">
-                        <span class="ai-icon">🤖</span>
+                        <span class="ai-icon">ðŸ¤–</span>
                         <span class="ai-title">Red Hat Lightspeed Demo</span>
                     </div>
                     <div class="ai-chat-body">
@@ -1636,9 +1498,9 @@
                                 <strong>Find files larger than 100MB:</strong><br>
                                 <code style="background:#2D2D3D;padding:2px 6px;border-radius:3px;">find /var -type f -size +100M -exec ls -lh {} \;</code><br><br>
                                 <strong>Common culprits in /var:</strong><br>
-                                • /var/log - Log files (check with <code>du -sh /var/log/*</code>)<br>
-                                • /var/cache - Package cache<br>
-                                • /var/spool - Mail and print queues<br><br>
+                                â€¢ /var/log - Log files (check with <code>du -sh /var/log/*</code>)<br>
+                                â€¢ /var/cache - Package cache<br>
+                                â€¢ /var/spool - Mail and print queues<br><br>
                                 Consider rotating logs with <code>logrotate</code> or cleaning the DNF cache with <code>dnf clean all</code>.
                             </div>
                         </div>
@@ -1700,7 +1562,7 @@
                         </ul>
                         <div class="warning-box" style="margin-top:15px;">
                             <div class="warning-box-header">
-                                <span class="note-icon">🔒</span>
+                                <span class="note-icon">ðŸ”’</span>
                                 <span>Security Consideration</span>
                             </div>
                             <p>When using general AI tools, never share sensitive information such as passwords, API keys, internal hostnames, or confidential configurations. Always review your organization's policies on AI tool usage.</p>
@@ -1713,11 +1575,11 @@
 
                 <div class="flow-diagram">
                     <div class="flow-box highlight-purple">Your Question</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box">AI Assistant</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-blue">AI Response</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-green">Verify & Apply</div>
                 </div>
             </div>
@@ -1734,7 +1596,7 @@
                 <p><span class="term" tabindex="0" data-tooltip="Prompt engineering is the practice of designing and refining inputs (prompts) to AI systems to get more accurate, relevant, and useful outputs.">Prompt engineering</span> is the skill of crafting questions and instructions that help AI assistants understand exactly what you need. A well-crafted prompt leads to more accurate and useful responses.</p>
 
                 <div class="key-points">
-                    <h4>📝 Elements of an Effective Prompt</h4>
+                    <h4>ðŸ“ Elements of an Effective Prompt</h4>
                     <ul>
                         <li><strong>Context:</strong> Provide relevant background about your environment and situation</li>
                         <li><strong>Specificity:</strong> Be precise about what you want to accomplish</li>
@@ -1747,12 +1609,12 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="example-1">
                         <span>Example 1: Finding Files</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="example-1" class="expandable-content">
                         <div class="warning-box" style="margin-top:0;">
                             <div class="warning-box-header">
-                                <span class="note-icon">❌</span>
+                                <span class="note-icon">âŒ</span>
                                 <span>Poor Prompt</span>
                             </div>
                             <p>"How do I find files?"</p>
@@ -1760,7 +1622,7 @@
                         </div>
                         <div class="info-box">
                             <div class="info-box-header">
-                                <span class="note-icon">✅</span>
+                                <span class="note-icon">âœ…</span>
                                 <span>Good Prompt</span>
                             </div>
                             <p>"On RHEL 10, I need to find all log files in /var/log that are larger than 100MB and were modified in the last 7 days. Please provide the find command with an explanation of each option."</p>
@@ -1782,12 +1644,12 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="example-2">
                         <span>Example 2: Service Troubleshooting</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="example-2" class="expandable-content">
                         <div class="warning-box" style="margin-top:0;">
                             <div class="warning-box-header">
-                                <span class="note-icon">❌</span>
+                                <span class="note-icon">âŒ</span>
                                 <span>Poor Prompt</span>
                             </div>
                             <p>"Apache isn't working"</p>
@@ -1795,7 +1657,7 @@
                         </div>
                         <div class="info-box">
                             <div class="info-box-header">
-                                <span class="note-icon">✅</span>
+                                <span class="note-icon">âœ…</span>
                                 <span>Good Prompt</span>
                             </div>
                             <p>"On RHEL 10, I'm trying to start the httpd service but it fails. When I run 'systemctl status httpd', I see 'AH00558: httpd: Could not reliably determine the server's fully qualified domain name'. The system is a fresh install and I haven't modified the default configuration. How do I resolve this warning and successfully start Apache?"</p>
@@ -1806,12 +1668,12 @@
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="example-3">
                         <span>Example 3: Script Generation</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="example-3" class="expandable-content">
                         <div class="warning-box" style="margin-top:0;">
                             <div class="warning-box-header">
-                                <span class="note-icon">❌</span>
+                                <span class="note-icon">âŒ</span>
                                 <span>Poor Prompt</span>
                             </div>
                             <p>"Write a backup script"</p>
@@ -1819,7 +1681,7 @@
                         </div>
                         <div class="info-box">
                             <div class="info-box-header">
-                                <span class="note-icon">✅</span>
+                                <span class="note-icon">âœ…</span>
                                 <span>Good Prompt</span>
                             </div>
                             <p>"Write a bash script for RHEL 10 that backs up /etc and /home to /backup with a timestamp in the filename. The script should use tar with gzip compression, keep only the last 7 backups, log to /var/log/backup.log, and exit with an appropriate error code if the backup fails. Include comments explaining each section."</p>
@@ -1890,19 +1752,19 @@
                 
                 <div class="card-grid">
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">✓</span> Always Verify</h4>
+                        <h4><span class="card-icon" aria-hidden="true">âœ“</span> Always Verify</h4>
                         <p>Test AI-generated commands in a safe environment before running on production systems. Verify against official documentation.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🔍</span> Understand, Don't Copy</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ”</span> Understand, Don't Copy</h4>
                         <p>Take time to understand what commands do before executing them. AI is a learning tool, not just a command generator.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">🔒</span> Protect Sensitive Data</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ”’</span> Protect Sensitive Data</h4>
                         <p>Never share passwords, API keys, internal IPs, or confidential information with AI assistants.</p>
                     </div>
                     <div class="info-card" tabindex="0" role="article">
-                        <h4><span class="card-icon" aria-hidden="true">📋</span> Document Your Work</h4>
+                        <h4><span class="card-icon" aria-hidden="true">ðŸ“‹</span> Document Your Work</h4>
                         <p>Keep records of AI-assisted solutions that worked. Build your own knowledge base for future reference.</p>
                     </div>
                 </div>
@@ -1912,13 +1774,13 @@
 
                 <div class="flow-diagram">
                     <div class="flow-box highlight-purple">Ask AI</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box">Review Response</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-blue">Verify with Docs</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box">Test Safely</div>
-                    <span class="flow-arrow" aria-hidden="true">→</span>
+                    <span class="flow-arrow" aria-hidden="true">â†’</span>
                     <div class="flow-box highlight-green">Apply</div>
                 </div>
 
@@ -1927,8 +1789,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="limit-1">
-                        <span>🕐 Knowledge Cutoff Dates</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ• Knowledge Cutoff Dates</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="limit-1" class="expandable-content">
                         <p>AI models are trained on data up to a certain date. They may not know about:</p>
@@ -1944,8 +1806,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="limit-2">
-                        <span>🎭 Hallucinations and Errors</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸŽ­ Hallucinations and Errors</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="limit-2" class="expandable-content">
                         <p>AI can sometimes generate plausible-sounding but incorrect information, known as "hallucinations":</p>
@@ -1961,8 +1823,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="limit-3">
-                        <span>🌐 Lack of Environment Context</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸŒ Lack of Environment Context</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="limit-3" class="expandable-content">
                         <p>AI doesn't know your specific environment unless you tell it:</p>
@@ -1978,8 +1840,8 @@
 
                 <div class="expandable">
                     <button class="expandable-header" aria-expanded="false" aria-controls="limit-4">
-                        <span>🔐 Security Considerations</span>
-                        <span class="expand-icon" aria-hidden="true">▼</span>
+                        <span>ðŸ” Security Considerations</span>
+                        <span class="expand-icon" aria-hidden="true">â–¼</span>
                     </button>
                     <div id="limit-4" class="expandable-content">
                         <p>Be cautious about security when using AI assistants:</p>
@@ -1995,7 +1857,7 @@
 
                 <div class="warning-box">
                     <div class="warning-box-header">
-                        <span class="note-icon">⚠️</span>
+                        <span class="note-icon">âš ï¸</span>
                         <span>Critical Warning</span>
                     </div>
                     <p>Never run commands from AI assistants with elevated privileges (root/sudo) without fully understanding what they do. A single mistaken <code class="inline">rm -rf</code> or incorrect <code class="inline">chmod</code> can cause serious damage to your system.</p>
@@ -2151,7 +2013,7 @@
             <div class="section-body">
                 <div class="lab-container">
                     <div class="lab-header">
-                        <span class="lab-icon">🔬</span>
+                        <span class="lab-icon">ðŸ”¬</span>
                         <h3>Lab: Using AI Assistants Effectively</h3>
                     </div>
                     <p>In this lab, you'll practice using AI assistants to solve common system administration tasks while applying the best practices learned in this chapter.</p>
@@ -2161,7 +2023,7 @@
                         <p>You need to find all files owned by the user "apache" in /var/www. Write an effective prompt that would get you a good answer from an AI assistant.</p>
                         <div class="note-box" style="margin-top:15px;">
                             <div class="note-box-header">
-                                <span class="note-icon">💡</span>
+                                <span class="note-icon">ðŸ’¡</span>
                                 <span>Hint</span>
                             </div>
                             <p>Include the operating system (RHEL 10), the specific task, and request an explanation of the command.</p>
@@ -2222,7 +2084,7 @@ MySecretPass123 and I need to connect from 192.168.1.100."</span></code>
                         </div>
                         <div class="warning-box" style="margin-top:15px;">
                             <div class="warning-box-header">
-                                <span class="note-icon">🔒</span>
+                                <span class="note-icon">ðŸ”’</span>
                                 <span>Security Issue</span>
                             </div>
                             <p>This prompt contains a password! Never include real passwords, API keys, or sensitive credentials in prompts. Rewrite as:</p>
@@ -2237,10 +2099,10 @@ authentication without using weak passwords."</span></code>
                     <div class="key-points">
                         <h4>Lab Completion Checklist</h4>
                         <ul>
-                            <li>✓ Practiced writing effective prompts with context and specificity</li>
-                            <li>✓ Verified an AI-generated command using man pages</li>
-                            <li>✓ Created a troubleshooting prompt with appropriate details</li>
-                            <li>✓ Identified security issues in prompts containing sensitive data</li>
+                            <li>âœ“ Practiced writing effective prompts with context and specificity</li>
+                            <li>âœ“ Verified an AI-generated command using man pages</li>
+                            <li>âœ“ Created a troubleshooting prompt with appropriate details</li>
+                            <li>âœ“ Identified security issues in prompts containing sensitive data</li>
                         </ul>
                     </div>
                 </div>
@@ -2278,7 +2140,7 @@ authentication without using weak passwords."</span></code>
                 </div>
 
                 <div class="completion-section">
-                    <h2>🎉 Chapter 5 Complete!</h2>
+                    <h2>ðŸŽ‰ Chapter 5 Complete!</h2>
                     <p>You've learned how to effectively use AI assistants for Linux system administration.</p>
                     <button class="completion-btn" id="mark-complete" type="button">Mark Chapter as Complete</button>
                 </div>
@@ -2289,8 +2151,8 @@ authentication without using weak passwords."</span></code>
 
     <!-- Footer -->
     <footer class="main-footer" role="contentinfo">
-        <p>RH124: Red Hat System Administration I • Chapter 5 • Version 10.0</p>
-        <p style="margin-top: 10px; font-size: 0.8rem;">© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
+        <p>RH124: Red Hat System Administration I â€¢ Chapter 5 â€¢ Version 10.0</p>
+        <p style="margin-top: 10px; font-size: 0.8rem;">Â© Red Hat, Inc. All rights reserved. Red Hat and the Red Hat logo are trademarks of Red Hat, Inc.</p>
     </footer>
 
     <!-- JavaScript -->
@@ -2504,7 +2366,7 @@ authentication without using weak passwords."</span></code>
                             score++;
                             selectedLabel.classList.add('correct');
                             feedback.className = 'quiz-feedback show correct';
-                            feedback.innerHTML = '✓ Correct! ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ“ Correct! ' + correctAnswers[qNum].explanation;
                         } else {
                             selectedLabel.classList.add('incorrect');
                             options.forEach(opt => {
@@ -2514,11 +2376,11 @@ authentication without using weak passwords."</span></code>
                                 }
                             });
                             feedback.className = 'quiz-feedback show incorrect';
-                            feedback.innerHTML = '✗ Incorrect. ' + correctAnswers[qNum].explanation;
+                            feedback.innerHTML = 'âœ— Incorrect. ' + correctAnswers[qNum].explanation;
                         }
                     } else {
                         feedback.className = 'quiz-feedback show incorrect';
-                        feedback.innerHTML = '⚠️ Please select an answer.';
+                        feedback.innerHTML = 'âš  Please select an answer.';
                     }
                 });
 
@@ -2564,7 +2426,7 @@ authentication without using weak passwords."</span></code>
             const completeBtn = document.getElementById('mark-complete');
             if (completeBtn) {
                 completeBtn.addEventListener('click', function() {
-                    this.textContent = '✓ Chapter Completed!';
+                    this.textContent = 'âœ“ Chapter Completed!';
                     this.style.background = '#267326';
                     this.disabled = true;
                     
@@ -2593,192 +2455,6 @@ authentication without using weak passwords."</span></code>
 
         })();
     </script>
-
-    <!-- ==================== VIEWPORT-SAFE TOOLTIP PORTAL ==================== -->
-    <script>
-    (function () {
-        if (window.__qTooltipPortal) { return; }
-        window.__qTooltipPortal = true;
-
-        var GAP = 10;      /* space between trigger and bubble */
-        var EDGE = 12;     /* minimum distance from any viewport edge */
-        var tip, textNode, arrow, current = null, pending = false;
-
-        function build() {
-            tip = document.createElement('div');
-            tip.id = 'q-tooltip';
-            tip.setAttribute('aria-hidden', 'true');
-            textNode = document.createElement('span');
-            arrow = document.createElement('span');
-            arrow.className = 'q-tooltip-arrow';
-            tip.appendChild(textNode);
-            tip.appendChild(arrow);
-            document.body.appendChild(tip);
-        }
-
-        function textFor(el) {
-            var t = el.getAttribute('data-tooltip');
-            if (t) { return t.trim(); }
-            var id = el.getAttribute('aria-describedby');
-            if (id) {
-                var target = document.getElementById(id);
-                if (target && target.textContent.trim()) { return target.textContent.trim(); }
-            }
-            var inner = el.querySelector('.tooltip-content, .tooltip');
-            if (inner && inner.textContent.trim()) { return inner.textContent.trim(); }
-            var sib = el.nextElementSibling;
-            if (sib && sib.classList &&
-                (sib.classList.contains('tooltip-content') || sib.classList.contains('tooltip'))) {
-                return sib.textContent.trim();
-            }
-            var title = el.getAttribute('title');
-            return title ? title.trim() : '';
-        }
-
-        function anchorRect(el) {
-            /* An inline term can wrap across lines; anchor to its first line box. */
-            var rects = el.getClientRects();
-            return (rects && rects.length) ? rects[0] : el.getBoundingClientRect();
-        }
-
-        function place(el) {
-            var r = anchorRect(el);
-            var vw = document.documentElement.clientWidth;
-            var vh = document.documentElement.clientHeight;
-            var w = tip.offsetWidth;
-            var h = tip.offsetHeight;
-
-            var side = (r.top - h - GAP >= EDGE) ? 'top' : 'bottom';
-            var top = (side === 'top') ? (r.top - h - GAP) : (r.bottom + GAP);
-            top = Math.max(EDGE, Math.min(top, vh - h - EDGE));
-
-            var anchorX = r.left + (r.width / 2);
-            var left = anchorX - (w / 2);
-            var maxLeft = Math.max(EDGE, vw - w - EDGE);
-            left = Math.max(EDGE, Math.min(left, maxLeft));
-
-            tip.setAttribute('data-side', side);
-            tip.style.left = Math.round(left) + 'px';
-            tip.style.top = Math.round(top) + 'px';
-
-            /* Keep the arrow pointing at the term, but never past the bubble's corners. */
-            var ax = Math.max(16, Math.min(anchorX - left, w - 16));
-            arrow.style.left = Math.round(ax - 8) + 'px';
-        }
-
-        function show(el) {
-            var text = textFor(el);
-            if (!text) { return; }
-            textNode.textContent = text;
-            tip.classList.add('is-visible');
-            current = el;
-            place(el);
-        }
-
-        function hide() {
-            current = null;
-            tip.classList.remove('is-visible');
-        }
-
-        function reposition() {
-            if (!current || pending) { return; }
-            pending = true;
-            window.requestAnimationFrame(function () {
-                pending = false;
-                if (!current) { return; }
-                var r = anchorRect(current);
-                var vh = document.documentElement.clientHeight;
-                if (r.bottom < 0 || r.top > vh) { hide(); return; }
-                place(current);
-            });
-        }
-
-        function bind(el) {
-            if (el.__qTooltipBound) { return; }
-            el.__qTooltipBound = true;
-            el.addEventListener('mouseenter', function () { show(el); });
-            el.addEventListener('mouseleave', function () { if (current === el) { hide(); } });
-            el.addEventListener('focus', function () { show(el); });
-            el.addEventListener('blur', function () { if (current === el) { hide(); } });
-            el.addEventListener('click', function () {
-                if (current === el) { hide(); } else { show(el); }
-            });
-        }
-
-        function init() {
-            build();
-            var nodes = document.querySelectorAll(
-                '[data-tooltip], .term, .tooltip-term, .tooltip-trigger'
-            );
-            Array.prototype.forEach.call(nodes, bind);
-
-            window.addEventListener('scroll', reposition, true);
-            window.addEventListener('resize', reposition);
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' || e.key === 'Esc') { hide(); }
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
-
-    <!-- ==================== NAV VISIBILITY TOGGLE ==================== -->
-    <script>
-    (function () {
-        var KEY = 'rh-nav-hidden';
-
-        function init() {
-            var btn = document.getElementById('q-nav-toggle');
-            var nav = document.querySelector('.section-nav');
-            if (!btn || !nav) { if (btn) { btn.style.display = 'none'; } return; }
-
-            if (!nav.id) { nav.id = 'q-section-nav'; }
-            btn.setAttribute('aria-controls', nav.id);
-
-            var icon = btn.querySelector('.q-nav-icon');
-            var label = btn.querySelector('.q-nav-label');
-
-            function apply(hidden) {
-                document.body.classList.toggle('q-nav-hidden', hidden);
-                btn.setAttribute('aria-expanded', hidden ? 'false' : 'true');
-                icon.textContent = hidden ? '\u25BC' : '\u25B2';
-                label.textContent = hidden ? 'Show nav' : 'Hide nav';
-                btn.setAttribute('aria-label',
-                    (hidden ? 'Show' : 'Hide') + ' chapter navigation bar (keyboard shortcut: N)');
-            }
-
-            var stored = false;
-            try { stored = window.localStorage.getItem(KEY) === 'true'; } catch (e) { stored = false; }
-            apply(stored);
-
-            btn.addEventListener('click', function () {
-                var hidden = !document.body.classList.contains('q-nav-hidden');
-                apply(hidden);
-                try { window.localStorage.setItem(KEY, hidden ? 'true' : 'false'); } catch (e) { /* ignore */ }
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.altKey || e.ctrlKey || e.metaKey) { return; }
-                if (e.key !== 'n' && e.key !== 'N') { return; }
-                var t = e.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' ||
-                          t.tagName === 'SELECT' || t.isContentEditable)) { return; }
-                e.preventDefault();
-                btn.click();
-            });
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    }());
-    </script>
+<script src="assistant.js" defer></script>
 </body>
 </html>
