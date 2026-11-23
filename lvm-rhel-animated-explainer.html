@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How LVM builds storage in Red Hat Enterprise Linux</title>
+<meta name="description" content="An animated walkthrough of Logical Volume Management in Red Hat Enterprise Linux: physical volumes, volume groups, extents, logical volumes, and growing a mounted filesystem.">
+<style>
+:root{
+  --bg:#eef3f9; --surface:#ffffff; --ink:#10233a; --muted:#4a5d75; --line:#c5d2e2;
+  --accent:#0a56b3; --accent-strong:#083f85; --accent-soft:#d8e6f8; --on-accent:#ffffff;
+  --hatch:#b4c3d6; --plate:#dfe8f3;
+  --term-bg:#0b1c30; --term-ink:#d7e4f5; --term-dim:#9db2cc; --term-prompt:#7fb6ff;
+  --good:#0a56b3;
+  --font:"Avenir Next","Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Consolas","Liberation Mono",Menlo,monospace;
+  --gap:20px; --pad:10px; --radius:10px; --speed:.6s;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0a1524; --surface:#11233a; --ink:#e6eef9; --muted:#a7b8cd; --line:#2f4868;
+    --accent:#6aaeff; --accent-strong:#a3ccff; --accent-soft:#1a3558; --on-accent:#06182d;
+    --hatch:#3a5677; --plate:#1b3250;
+    --term-bg:#060f1c; --good:#6aaeff;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:1rem;line-height:1.55}
+.skip-link{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--on-accent);padding:.75rem 1rem;z-index:10}
+.skip-link:focus{left:0}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(14px,3vw,32px)}
+header.page{padding:clamp(20px,4vw,44px) 0 clamp(12px,2vw,20px)}
+h1{font-size:clamp(1.7rem,4.4vw,2.9rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 .5rem;font-weight:700;max-width:22ch}
+.lead{margin:0;color:var(--muted);max-width:62ch;font-size:clamp(1rem,1.6vw,1.13rem)}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);letter-spacing:-.01em;margin:0 0 .75rem;line-height:1.2}
+h3{font-size:1.05rem;margin:0 0 .35rem}
+code,pre{font-family:var(--mono);font-size:.92em}
+p code,li code,td code{background:var(--accent-soft);padding:.08em .35em;border-radius:4px}
+section{margin:clamp(28px,5vw,56px) 0}
+
+/* ---------- walkthrough ---------- */
+.walk{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:clamp(12px,2.4vw,24px);margin-top:0}
+.steps{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0 0 14px;padding:0}
+.steps button{min-height:44px;min-width:44px;padding:0 12px;border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:999px;font:inherit;font-size:.9rem;cursor:pointer;display:flex;align-items:center;gap:.45em}
+.steps button .n{font-variant-numeric:tabular-nums;font-weight:700}
+.steps button.done{color:var(--ink);border-color:var(--accent)}
+.steps button[aria-current="step"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:600}
+.stage{display:grid;gap:18px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.stage{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start}}
+.story h2{margin-bottom:.4rem}
+.story p{margin:0 0 14px;max-width:58ch}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.btn{min-height:44px;min-width:44px;padding:0 16px;border-radius:8px;border:1px solid var(--accent);background:transparent;color:var(--accent);font:inherit;font-weight:600;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.term{background:var(--term-bg);color:var(--term-ink);border-radius:var(--radius);padding:12px 14px;min-height:11.5em;overflow-x:auto;margin:0;white-space:pre;line-height:1.5;font-size:.82rem}
+.term .p{color:var(--term-prompt)}
+.term .o{color:var(--term-dim)}
+.term .cur{display:inline-block;width:.55em;height:1.05em;background:var(--term-ink);vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.termnote{font-size:.82rem;color:var(--muted);margin:.4rem 0 0}
+
+/* ---------- diagram ---------- */
+.diagram{display:grid;gap:12px}
+.layer{transition:opacity var(--speed),transform var(--speed)}
+.layer.off{opacity:.22}
+.layer .cap{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.86rem;margin-bottom:4px}
+.layer .cap b{font-weight:700}
+.layer .cap span{color:var(--muted)}
+.track{height:34px;border-radius:8px;border:1px dashed var(--line);position:relative;overflow:hidden}
+.bar{position:absolute;inset:0 auto 0 0;width:0;border-radius:7px;transition:width 1.1s cubic-bezier(.3,.7,.2,1)}
+.lv .bar{background:var(--accent)}
+.fs .bar{background:var(--accent-soft);border:2px solid var(--accent)}
+.fs .used{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent-strong);transition:width 1.1s cubic-bezier(.3,.7,.2,1)}
+.fs .used.warn{background-image:repeating-linear-gradient(135deg,transparent 0 6px,var(--surface) 6px 9px)}
+.link{height:14px;display:flex;justify-content:flex-start;padding-left:22px;margin:-6px 0}
+.link i{width:2px;background:var(--line);height:100%}
+.disks{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap);padding:62px var(--pad) var(--pad)}
+.vgframe{position:absolute;top:0;left:0;bottom:0;width:calc((100% - 2*var(--pad) - 2*var(--gap))*2/3 + var(--gap) + 2*var(--pad));border:2px solid var(--accent);border-radius:14px;background:var(--accent-soft);opacity:0;transform:scale(.97);transition:opacity var(--speed),transform var(--speed),width 1s cubic-bezier(.3,.7,.2,1)}
+.vgframe.on{opacity:1;transform:none}
+.vgframe.three{width:100%}
+.vgframe .cap{padding:7px 12px;margin:0;display:block;line-height:1.3}
+.vgframe .cap span{display:block}
+.fs.off .bar{opacity:0}
+.disk{position:relative;transition:opacity var(--speed),transform var(--speed)}
+.disk.absent{opacity:0;transform:translateY(14px)}
+.disk .name{font-family:var(--mono);font-size:.8rem;font-weight:700;display:block}
+.disk .role{font-size:.76rem;color:var(--muted);display:block;min-height:2.4em;line-height:1.2}
+.cells{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-radius:8px;border:2px solid var(--hatch);padding:3px;background:var(--plate);transition:gap var(--speed),background var(--speed),border-color var(--speed)}
+.disk.raw .cells{background-image:repeating-linear-gradient(135deg,transparent 0 5px,var(--hatch) 5px 7px)}
+.disk.pv .cells,.disk.invg .cells{border-color:var(--accent)}
+.disk.invg .cells{gap:3px;background:var(--surface)}
+.cell{aspect-ratio:1;border-radius:3px;border:1.5px solid transparent;transition:background .35s,border-color var(--speed),transform .35s}
+.disk.invg .cell{border-color:var(--accent)}
+.disk.invg .cell.on{background:var(--accent);transform:scale(1)}
+.pvtag{position:absolute;right:4px;top:0;font-size:.7rem;font-weight:700;background:var(--accent);color:var(--on-accent);padding:1px 7px;border-radius:999px;opacity:0;transition:opacity var(--speed)}
+.disk.pv .pvtag,.disk.invg .pvtag{opacity:1}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.82rem;color:var(--muted);margin:2px 0 0;padding:0;list-style:none}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:3px;border:1.5px solid var(--accent);vertical-align:-2px;margin-right:6px}
+.legend i.on{background:var(--accent)}
+.legend i.raw{border-color:var(--hatch);background-image:repeating-linear-gradient(135deg,transparent 0 3px,var(--hatch) 3px 5px)}
+
+/* ---------- reference ---------- */
+.defs{display:grid;gap:18px 32px;margin:0}
+@media (min-width:760px){.defs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.defs dt{font-weight:700}
+.defs dd{margin:.15rem 0 0;color:var(--muted);max-width:52ch}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.93rem}
+th,td{text-align:left;padding:.6rem .8rem;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--accent-soft)}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+.notes{padding-left:1.2rem;max-width:70ch}
+.notes li{margin:.45rem 0}
+.q{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin:0 0 12px}
+.q p{margin:0 0 10px;font-weight:600;max-width:65ch}
+.opts{display:grid;gap:8px}
+@media (min-width:700px){.opts{grid-template-columns:1fr 1fr}}
+.opts button{min-height:44px;text-align:left;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;cursor:pointer}
+.opts button code{background:none;padding:0}
+.opts button.right{border:2px solid var(--good);background:var(--accent-soft);font-weight:600}
+.opts button.wrong{border-style:dashed;text-decoration:line-through;color:var(--muted)}
+.opts button:disabled{cursor:default}
+.fb{margin:10px 0 0;font-size:.93rem;color:var(--muted);font-weight:400 !important}
+.score{font-weight:600}
+footer{border-top:1px solid var(--line);padding:18px 0 28px;color:var(--muted);font-size:.88rem}
+footer p{margin:0}
+@media (max-width:480px){
+  :root{--gap:10px;--pad:6px}
+  .steps button .t{display:none}
+  .steps button{padding:0}
+  .steps button[aria-current="step"] .t{display:inline}
+  .steps button[aria-current="step"]{padding:0 12px}
+  .pvtag{display:none}
+  .steps button{justify-content:center}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;transition-delay:0s !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<header class="page">
+  <div class="wrap">
+    <h1>How LVM builds storage in Red Hat Enterprise Linux</h1>
+    <p class="lead">Logical Volume Management puts a flexible layer between your disks and your filesystems. Follow one web server's storage from two blank disks to a volume that grows while it is still mounted.</p>
+  </div>
+</header>
+
+<main id="main">
+<div class="wrap">
+
+<section class="walk" aria-labelledby="walk-h">
+  <h2 id="walk-h" class="sr-only">Animated walkthrough</h2>
+  <nav aria-label="Walkthrough steps">
+    <ol class="steps" id="steps"></ol>
+  </nav>
+
+  <div class="stage">
+    <div class="diagram" id="diagram">
+      <div class="layer fs off" id="L-fs">
+        <div class="cap"><b>Filesystem (XFS) on /srv/web</b><span id="fs-cap">not created yet</span></div>
+        <div class="track"><div class="bar" id="fs-bar"><div class="used" id="fs-used"></div></div></div>
+      </div>
+      <div class="link" aria-hidden="true"><i></i></div>
+      <div class="layer lv off" id="L-lv">
+        <div class="cap"><b>Logical volume lv_web</b><span id="lv-cap">not created yet</span></div>
+        <div class="track"><div class="bar" id="lv-bar"></div></div>
+      </div>
+      <div class="link" aria-hidden="true"><i></i></div>
+      <div class="layer">
+        <div class="disks">
+          <div class="vgframe" id="vgframe"><div class="cap"><b>Volume group vg_data</b><span id="vg-cap"></span></div></div>
+          <div class="disk raw" id="d0"><span class="name">/dev/vdb</span><span class="role"></span><span class="pvtag" aria-hidden="true">PV</span><div class="cells" aria-hidden="true"></div><span class="sr-only alloc"></span></div>
+          <div class="disk raw" id="d1"><span class="name">/dev/vdc</span><span class="role"></span><span class="pvtag" aria-hidden="true">PV</span><div class="cells" aria-hidden="true"></div><span class="sr-only alloc"></span></div>
+          <div class="disk raw absent" id="d2"><span class="name">/dev/vdd</span><span class="role"></span><span class="pvtag" aria-hidden="true">PV</span><div class="cells" aria-hidden="true"></div><span class="sr-only alloc"></span></div>
+        </div>
+      </div>
+      <ul class="legend">
+        <li><i class="raw"></i>Blank disk</li>
+        <li><i></i>Free extents</li>
+        <li><i class="on"></i>Extents used by lv_web</li>
+      </ul>
+      <p class="termnote">Each disk is 10 GiB. One square stands for about 128 extents (512 MiB). The two bars are drawn against 30 GiB, the size of all three disks.</p>
+    </div>
+
+    <div class="story">
+      <div aria-live="polite">
+        <h2 id="s-title"></h2>
+        <p id="s-text"></p>
+      </div>
+      <div class="controls">
+        <button class="btn" id="b-prev" type="button">Back</button>
+        <button class="btn primary" id="b-play" type="button">Play walkthrough</button>
+        <button class="btn" id="b-next" type="button">Next step</button>
+      </div>
+      <pre class="term" id="term" aria-label="Terminal commands for this step" tabindex="0"></pre>
+      <p class="termnote">Output is trimmed. Sizes on your lab system will differ.</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="layers-h">
+  <h2 id="layers-h">The four pieces</h2>
+  <dl class="defs">
+    <div><dt>Physical volume (PV)</dt><dd>A disk or partition that carries an LVM label. <code>pvcreate</code> writes the label. A PV does nothing useful until it joins a volume group.</dd></div>
+    <div><dt>Volume group (VG)</dt><dd>A pool made from one or more PVs. You add PVs to make the pool bigger, and logical volumes draw their space from it.</dd></div>
+    <div><dt>Extent</dt><dd>The unit LVM allocates, 4 MiB by default. A VG is a collection of physical extents, and a logical volume is a list of the extents assigned to it.</dd></div>
+    <div><dt>Logical volume (LV)</dt><dd>A block device built from a VG's extents. You format and mount it like a partition, but it can grow and it can span several disks.</dd></div>
+  </dl>
+</section>
+
+<section aria-labelledby="cmd-h">
+  <h2 id="cmd-h">Commands by layer</h2>
+  <div class="scroll" role="region" aria-labelledby="cmd-h" tabindex="0">
+    <table>
+      <thead><tr><th scope="col">Layer</th><th scope="col">Create</th><th scope="col">Inspect</th><th scope="col">Grow</th><th scope="col">Remove</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Physical volume</th><td><code>pvcreate</code></td><td><code>pvs</code>, <code>pvdisplay</code></td><td><code>pvresize</code></td><td><code>pvremove</code></td></tr>
+        <tr><th scope="row">Volume group</th><td><code>vgcreate</code></td><td><code>vgs</code>, <code>vgdisplay</code></td><td><code>vgextend</code></td><td><code>vgreduce</code>, <code>vgremove</code></td></tr>
+        <tr><th scope="row">Logical volume</th><td><code>lvcreate</code></td><td><code>lvs</code>, <code>lvdisplay</code></td><td><code>lvextend -r</code></td><td><code>lvremove</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="notes-h">
+  <h2 id="notes-h">Details that trip people up</h2>
+  <ul class="notes">
+    <li>An LV has two equivalent names: <code>/dev/vg_data/lv_web</code> and <code>/dev/mapper/vg_data-lv_web</code>. Either works in commands and in <code>/etc/fstab</code>.</li>
+    <li><code>lvextend</code> without <code>-r</code> grows only the volume. The filesystem stays the old size until you run <code>xfs_growfs /srv/web</code> (XFS) or <code>resize2fs</code> (ext4).</li>
+    <li>XFS can grow but cannot shrink. To make an XFS volume smaller you back up, recreate it, and restore.</li>
+    <li>The mount lasts until reboot unless you add a line to <code>/etc/fstab</code>, for example <code>/dev/vg_data/lv_web /srv/web xfs defaults 0 0</code>.</li>
+    <li>Tear down in the reverse order you built: unmount, <code>lvremove</code>, <code>vgremove</code>, <code>pvremove</code>.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="quiz-h">
+  <h2 id="quiz-h">Check yourself</h2>
+  <div id="quiz"></div>
+  <p class="score" id="score" aria-live="polite"></p>
+</section>
+
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Built for <span class="program">RHA 134 Red Hat System Administration II</span> · Brookdale Community College · <span class="year">2026</span></p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var AT = '@';
+  var PROMPT = '[root' + AT + 'servera ~]# ';
+  var TOTAL_G = 30, PER_DISK = 20;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // disk state: 0 blank, 1 physical volume, 2 member of the volume group, -1 not attached
+  var STEPS = [
+    { chip: 'Blank disks', title: 'Start with two blank disks',
+      text: 'Two 10 GiB disks are attached to the server and nothing is using them. With plain partitions you would pick sizes now and be stuck with them. LVM lets you decide later.',
+      term: [{ c: 'lsblk -o NAME,SIZE,TYPE /dev/vdb /dev/vdc' }, { o: 'NAME SIZE TYPE\nvdb   10G disk\nvdc   10G disk' }],
+      s: { d: [0, 0, -1], alloc: 0, lv: 0, fs: null } },
+    { chip: 'pvcreate', title: 'Label the disks as physical volumes',
+      text: 'pvcreate writes an LVM label to each disk so LVM recognizes it. The disks are now physical volumes, but they are not pooled yet.',
+      term: [{ c: 'pvcreate /dev/vdb /dev/vdc', go: true }, { o: '  Physical volume "/dev/vdb" successfully created.\n  Physical volume "/dev/vdc" successfully created.' }],
+      s: { d: [1, 1, -1], alloc: 0, lv: 0, fs: null } },
+    { chip: 'vgcreate', title: 'Pool them into a volume group',
+      text: 'vgcreate joins both physical volumes into one pool named vg_data and divides the space into 4 MiB extents. From here on you work with the pool, not with individual disks.',
+      term: [{ c: 'vgcreate vg_data /dev/vdb /dev/vdc', go: true }, { o: '  Volume group "vg_data" successfully created' }, { c: 'vgs' }, { o: '  VG      #PV #LV #SN Attr   VSize  VFree\n  vg_data   2   0   0 wz--n- 19.99g 19.99g' }],
+      s: { d: [2, 2, -1], alloc: 0, lv: 0, fs: null } },
+    { chip: 'lvcreate', title: 'Carve out a logical volume',
+      text: 'lvcreate takes 12 GiB of extents from the pool and presents them as one device. Watch the extents: they fill /dev/vdb and continue onto /dev/vdc. The logical volume spans both disks and nothing above it needs to know.',
+      term: [{ c: 'lvcreate -n lv_web -L 12G vg_data', go: true }, { o: '  Logical volume "lv_web" created.' }, { c: 'lvs' }, { o: '  LV     VG      Attr       LSize\n  lv_web vg_data -wi-a----- 12.00g' }],
+      s: { d: [2, 2, -1], alloc: 24, lv: 12, fs: null } },
+    { chip: 'mkfs and mount', title: 'Add a filesystem and mount it',
+      text: 'The logical volume appears as /dev/vg_data/lv_web. Format it and mount it exactly as you would a partition. Add a line to /etc/fstab so the mount survives a reboot.',
+      term: [{ c: 'mkfs.xfs /dev/vg_data/lv_web' }, { c: 'mkdir /srv/web' }, { c: 'mount /dev/vg_data/lv_web /srv/web', go: true }, { c: 'df -h /srv/web' }, { o: 'Filesystem                  Size  Used Avail Use% Mounted on\n/dev/mapper/vg_data-lv_web   12G  267M   12G   3% /srv/web' }],
+      s: { d: [2, 2, -1], alloc: 24, lv: 12, fs: { pct: 3, cap: '12 GiB, 3% used' } } },
+    { chip: 'vgextend', title: 'The filesystem fills up, so add a disk',
+      text: 'Months later /srv/web is 95% full. Attach a third disk, label it as a physical volume, and add it to vg_data with vgextend. The pool is bigger now. The logical volume has not changed yet.',
+      term: [{ c: 'df -h /srv/web' }, { o: 'Filesystem                  Size  Used Avail Use% Mounted on\n/dev/mapper/vg_data-lv_web   12G   12G  600M  95% /srv/web' }, { c: 'pvcreate /dev/vdd' }, { c: 'vgextend vg_data /dev/vdd', go: true }, { o: '  Volume group "vg_data" successfully extended' }],
+      s: { d: [2, 2, 2], alloc: 24, lv: 12, fs: { pct: 95, cap: '12 GiB, 95% used, nearly full', warn: true } } },
+    { chip: 'lvextend', title: 'Grow the volume while it stays mounted',
+      text: 'lvextend assigns 10 GiB more extents to lv_web, and the -r option grows the XFS filesystem in the same command. The site keeps serving the whole time: no unmount and no downtime.',
+      term: [{ c: 'lvextend -r -L +10G /dev/vg_data/lv_web', go: true }, { o: '  Size of logical volume vg_data/lv_web changed from 12.00 GiB\n  (3072 extents) to 22.00 GiB (5632 extents).\n  Logical volume vg_data/lv_web successfully resized.' }, { c: 'df -h /srv/web' }, { o: 'Filesystem                  Size  Used Avail Use% Mounted on\n/dev/mapper/vg_data-lv_web   22G   12G   11G  52% /srv/web' }],
+      s: { d: [2, 2, 2], alloc: 44, lv: 22, fs: { pct: 52, cap: '22 GiB, 52% used' } } }
+  ];
+
+  function $(id) { return document.getElementById(id); }
+  var disks = [$('d0'), $('d1'), $('d2')];
+  var cells = [];
+  disks.forEach(function (d) {
+    var box = d.querySelector('.cells');
+    for (var i = 0; i < PER_DISK; i++) {
+      var c = document.createElement('div');
+      c.className = 'cell';
+      box.appendChild(c);
+      cells.push(c);
+    }
+  });
+
+  var ROLE = { '-1': 'not attached', '0': 'blank disk', '1': 'physical volume, not pooled', '2': 'physical volume in vg_data' };
+  var shownAlloc = 0;
+
+  function apply(s) {
+    var members = 0;
+    disks.forEach(function (d, i) {
+      var st = s.d[i];
+      d.classList.toggle('absent', st < 0);
+      d.classList.toggle('raw', st <= 0);
+      d.classList.toggle('pv', st === 1);
+      d.classList.toggle('invg', st === 2);
+      d.querySelector('.role').textContent = ROLE[String(st)];
+      if (st === 2) members++;
+      var used = Math.max(0, Math.min(PER_DISK, s.alloc - i * PER_DISK));
+      d.querySelector('.alloc').textContent = st === 2 ? used + ' of ' + PER_DISK + ' squares used by lv_web' : '';
+    });
+    var frame = $('vgframe');
+    frame.classList.toggle('on', members > 0);
+    frame.classList.toggle('three', members === 3);
+    var freeG = Math.max(0, members * 10 - s.lv);
+    $('vg-cap').textContent = members ? 'about ' + (members * 10) + ' GiB, ' + freeG + ' GiB free' : '';
+
+    cells.forEach(function (c, i) {
+      var on = i < s.alloc;
+      c.style.transitionDelay = (on && i >= shownAlloc && !reduce) ? ((i - shownAlloc) * 45) + 'ms' : '0ms';
+      c.classList.toggle('on', on);
+    });
+    shownAlloc = s.alloc;
+
+    $('L-lv').classList.toggle('off', !s.lv);
+    $('lv-bar').style.width = (s.lv / TOTAL_G * 100) + '%';
+    $('lv-cap').textContent = s.lv ? s.lv + ' GiB, /dev/vg_data/lv_web' : 'not created yet';
+
+    $('L-fs').classList.toggle('off', !s.fs);
+    $('fs-bar').style.width = (s.fs ? s.lv / TOTAL_G * 100 : 0) + '%';
+    $('fs-used').style.width = (s.fs ? s.fs.pct : 0) + '%';
+    $('fs-used').classList.toggle('warn', !!(s.fs && s.fs.warn));
+    $('fs-cap').textContent = s.fs ? s.fs.cap : 'not created yet';
+  }
+
+  // ----- step navigation -----
+  var stepsEl = $('steps'), chips = [];
+  STEPS.forEach(function (st, i) {
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    var n = document.createElement('span'); n.className = 'n'; n.textContent = String(i + 1);
+    var t = document.createElement('span'); t.className = 't'; t.textContent = st.chip;
+    b.appendChild(n); b.appendChild(t);
+    b.setAttribute('aria-label', 'Step ' + (i + 1) + ': ' + st.chip);
+    b.addEventListener('click', function () { stop(); show(i, i === cur + 1); });
+    li.appendChild(b); stepsEl.appendChild(li); chips.push(b);
+  });
+
+  var term = $('term'), cur = -1, run = 0, playing = false;
+  var bPrev = $('b-prev'), bNext = $('b-next'), bPlay = $('b-play');
+
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function span(cls, text) { var s = document.createElement('span'); if (cls) s.className = cls; s.textContent = text; return s; }
+
+  function setPlayLabel() {
+    bPlay.textContent = playing ? 'Pause' : (cur >= STEPS.length - 1 ? 'Replay from the start' : (cur > 0 ? 'Resume' : 'Play walkthrough'));
+  }
+  function stop() { playing = false; setPlayLabel(); }
+
+  async function show(i, animate) {
+    var my = ++run, st = STEPS[i];
+    cur = i;
+    chips.forEach(function (b, k) {
+      if (k === i) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      b.classList.toggle('done', k < i);
+    });
+    $('s-title').textContent = st.title;
+    $('s-text').textContent = st.text;
+    bPrev.disabled = i === 0;
+    bNext.disabled = i === STEPS.length - 1;
+    setPlayLabel();
+    term.textContent = '';
+    animate = animate && !reduce;
+    var applied = false;
+    if (!animate) { apply(st.s); applied = true; }
+
+    for (var k = 0; k < st.term.length; k++) {
+      var line = st.term[k];
+      if (line.c) {
+        term.appendChild(span('p', PROMPT));
+        var cmd = span('', '');
+        term.appendChild(cmd);
+        if (animate) {
+          var caret = span('cur', '');
+          term.appendChild(caret);
+          await sleep(350);
+          for (var j = 0; j < line.c.length; j++) {
+            if (my !== run) return;
+            cmd.textContent += line.c.charAt(j);
+            await sleep(22);
+          }
+          await sleep(300);
+          if (my !== run) return;
+          term.removeChild(caret);
+        } else {
+          cmd.textContent = line.c;
+        }
+        term.appendChild(document.createTextNode('\n'));
+        if (line.go && !applied) { apply(st.s); applied = true; if (animate) { await sleep(900); if (my !== run) return; } }
+      } else {
+        term.appendChild(span('o', line.o + '\n'));
+      }
+      term.scrollTop = term.scrollHeight;
+    }
+    if (!applied) apply(st.s);
+
+    if (playing) {
+      await sleep(reduce ? 6000 : 3800);
+      if (my !== run || !playing) return;
+      if (i < STEPS.length - 1) show(i + 1, true); else stop();
+    }
+  }
+
+  bPrev.addEventListener('click', function () { stop(); if (cur > 0) show(cur - 1, false); });
+  bNext.addEventListener('click', function () { stop(); if (cur < STEPS.length - 1) show(cur + 1, true); });
+  bPlay.addEventListener('click', function () {
+    if (playing) { stop(); return; }
+    playing = true;
+    if (cur >= STEPS.length - 1) { shownAlloc = 0; show(0, false); }
+    else show(cur + 1, true);
+  });
+
+  show(0, false);
+
+  // ----- quiz -----
+  var QUIZ = [
+    { q: 'vg_data is out of free space. Which command adds a new physical volume to it?',
+      a: 'vgextend vg_data /dev/vdd', w: ['lvextend vg_data /dev/vdd', 'vgcreate vg_data /dev/vdd', 'pvcreate vg_data /dev/vdd'],
+      why: 'vgextend adds a physical volume to an existing volume group. vgcreate would try to make a new group with a name that is already taken.' },
+    { q: 'What does the -r option add to lvextend?',
+      a: 'It grows the filesystem along with the logical volume', w: ['It removes the volume first, then recreates it', 'It makes the volume read-only while it grows', 'It reboots so the kernel sees the new size'],
+      why: 'Without -r the volume grows but the filesystem keeps its old size until you run xfs_growfs or resize2fs.' },
+    { q: 'How can one logical volume use space on two different disks?',
+      a: 'It is built from extents in the volume group, and those can come from any physical volume', w: ['LVM copies the data to both disks, like a mirror', 'It cannot; each logical volume is tied to one disk', 'The disks must first be joined with a partition table'],
+      why: 'A logical volume is a list of extents drawn from the pool. Which disk an extent sits on does not matter to the filesystem above.' },
+    { q: 'Which path refers to logical volume lv_web in volume group vg_data?',
+      a: '/dev/vg_data/lv_web', w: ['/dev/lv_web/vg_data', '/dev/lvm/lv_web', '/dev/mapper/lv_web-vg_data'],
+      why: 'The pattern is /dev/VG/LV. The equivalent device mapper name is /dev/mapper/vg_data-lv_web.' }
+  ];
+  function shuffle(array) {
+    var a = array.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+  var answered = 0, correct = 0, quizEl = $('quiz');
+  QUIZ.forEach(function (item, qi) {
+    var box = document.createElement('div'); box.className = 'q';
+    var p = document.createElement('p'); p.id = 'q' + qi; p.textContent = (qi + 1) + '. ' + item.q;
+    var opts = document.createElement('div'); opts.className = 'opts';
+    opts.setAttribute('role', 'group'); opts.setAttribute('aria-labelledby', 'q' + qi);
+    var fb = document.createElement('p'); fb.className = 'fb'; fb.setAttribute('aria-live', 'polite');
+    shuffle([item.a].concat(item.w)).forEach(function (text) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = text;
+      b.addEventListener('click', function () {
+        var ok = text === item.a;
+        answered++; if (ok) correct++;
+        Array.prototype.forEach.call(opts.children, function (o) {
+          o.disabled = true;
+          if (o.textContent === item.a) { o.classList.add('right'); o.textContent = '✓ ' + o.textContent; }
+        });
+        if (!ok) b.classList.add('wrong');
+        fb.textContent = (ok ? 'Correct. ' : 'Not quite. ') + item.why;
+        $('score').textContent = answered === QUIZ.length ? 'You answered ' + correct + ' of ' + QUIZ.length + ' correctly.' : '';
+      });
+      opts.appendChild(b);
+    });
+    box.appendChild(p); box.appendChild(opts); box.appendChild(fb);
+    quizEl.appendChild(box);
+  });
+})();
+</script>
+</body>
+</html>
